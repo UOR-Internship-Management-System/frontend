@@ -1,0 +1,1 @@
+export const SectionCard = () => {\n  return (\n    <div>\n      SectionCard\n    </div>\n  );\n};\n

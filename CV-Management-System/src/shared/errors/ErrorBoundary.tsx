@@ -1,0 +1,1 @@
+export const ErrorBoundary = () => {\n  return (\n    <div>\n      ErrorBoundary\n    </div>\n  );\n};\n

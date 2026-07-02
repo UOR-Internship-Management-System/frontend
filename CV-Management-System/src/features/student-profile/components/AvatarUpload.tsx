@@ -1,0 +1,1 @@
+export const AvatarUpload = () => {\n  return (\n    <div>\n      AvatarUpload\n    </div>\n  );\n};\n

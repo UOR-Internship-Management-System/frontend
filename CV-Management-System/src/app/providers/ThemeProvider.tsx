@@ -1,0 +1,1 @@
+export const ThemeProvider = () => {\n  return (\n    <div>\n      ThemeProvider\n    </div>\n  );\n};\n

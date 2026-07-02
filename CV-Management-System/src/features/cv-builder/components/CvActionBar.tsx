@@ -1,0 +1,1 @@
+export const CvActionBar = () => {\n  return (\n    <div>\n      CvActionBar\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const AdminLayout = () => {\n  return (\n    <div>\n      AdminLayout\n    </div>\n  );\n};\n

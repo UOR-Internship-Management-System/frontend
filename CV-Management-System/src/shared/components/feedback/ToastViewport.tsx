@@ -1,0 +1,1 @@
+export const ToastViewport = () => {\n  return (\n    <div>\n      ToastViewport\n    </div>\n  );\n};\n

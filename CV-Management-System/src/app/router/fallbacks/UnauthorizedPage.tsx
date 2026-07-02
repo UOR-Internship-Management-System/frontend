@@ -1,0 +1,1 @@
+export const UnauthorizedPage = () => {\n  return (\n    <div>\n      UnauthorizedPage\n    </div>\n  );\n};\n

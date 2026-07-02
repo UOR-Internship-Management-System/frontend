@@ -1,0 +1,1 @@
+export const SearchInput = () => {\n  return (\n    <div>\n      SearchInput\n    </div>\n  );\n};\n

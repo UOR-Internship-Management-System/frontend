@@ -1,0 +1,1 @@
+export const AuthLayout = () => {\n  return (\n    <div>\n      AuthLayout\n    </div>\n  );\n};\n

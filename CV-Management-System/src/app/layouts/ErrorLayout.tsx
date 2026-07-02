@@ -1,0 +1,1 @@
+export const ErrorLayout = () => {\n  return (\n    <div>\n      ErrorLayout\n    </div>\n  );\n};\n

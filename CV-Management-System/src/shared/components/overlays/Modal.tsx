@@ -1,0 +1,1 @@
+export const Modal = () => {\n  return (\n    <div>\n      Modal\n    </div>\n  );\n};\n

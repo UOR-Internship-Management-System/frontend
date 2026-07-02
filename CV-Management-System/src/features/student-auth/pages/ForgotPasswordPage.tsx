@@ -1,0 +1,1 @@
+export const ForgotPasswordPage = () => {\n  return (\n    <div>\n      ForgotPasswordPage\n    </div>\n  );\n};\n

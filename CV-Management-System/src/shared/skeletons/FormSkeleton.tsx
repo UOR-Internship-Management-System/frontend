@@ -1,0 +1,1 @@
+export const FormSkeleton = () => {\n  return (\n    <div>\n      FormSkeleton\n    </div>\n  );\n};\n

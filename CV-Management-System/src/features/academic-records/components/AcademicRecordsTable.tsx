@@ -1,0 +1,1 @@
+export const AcademicRecordsTable = () => {\n  return (\n    <div>\n      AcademicRecordsTable\n    </div>\n  );\n};\n

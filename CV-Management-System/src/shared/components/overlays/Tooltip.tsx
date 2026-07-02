@@ -1,0 +1,1 @@
+export const Tooltip = () => {\n  return (\n    <div>\n      Tooltip\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const ShortlistGuidanceWarning = () => {\n  return (\n    <div>\n      ShortlistGuidanceWarning\n    </div>\n  );\n};\n

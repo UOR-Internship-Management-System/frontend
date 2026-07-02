@@ -1,0 +1,1 @@
+export const AppProviders = () => {\n  return (\n    <div>\n      AppProviders\n    </div>\n  );\n};\n

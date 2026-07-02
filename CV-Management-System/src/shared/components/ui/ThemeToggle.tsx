@@ -1,0 +1,1 @@
+export const ThemeToggle = () => {\n  return (\n    <div>\n      ThemeToggle\n    </div>\n  );\n};\n

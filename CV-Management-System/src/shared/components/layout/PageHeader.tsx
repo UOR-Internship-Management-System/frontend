@@ -1,0 +1,1 @@
+export const PageHeader = () => {\n  return (\n    <div>\n      PageHeader\n    </div>\n  );\n};\n

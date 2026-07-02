@@ -1,0 +1,1 @@
+export const VerifyOtpPage = () => {\n  return (\n    <div>\n      VerifyOtpPage\n    </div>\n  );\n};\n

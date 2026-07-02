@@ -1,0 +1,1 @@
+export const Card = () => {\n  return (\n    <div>\n      Card\n    </div>\n  );\n};\n

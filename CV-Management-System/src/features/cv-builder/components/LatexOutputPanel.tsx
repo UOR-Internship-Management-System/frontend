@@ -1,0 +1,1 @@
+export const LatexOutputPanel = () => {\n  return (\n    <div>\n      LatexOutputPanel\n    </div>\n  );\n};\n

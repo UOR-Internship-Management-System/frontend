@@ -1,0 +1,1 @@
+export const AdminMetricCard = () => {\n  return (\n    <div>\n      AdminMetricCard\n    </div>\n  );\n};\n

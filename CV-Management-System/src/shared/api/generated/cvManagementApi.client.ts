@@ -1,0 +1,1 @@
+export const cvManagementApi.client = {};\n

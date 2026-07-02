@@ -1,0 +1,1 @@
+export const OtpInput = () => {\n  return (\n    <div>\n      OtpInput\n    </div>\n  );\n};\n
