@@ -1,0 +1,1 @@
+export const CandidateResultsTable = () => {\n  return (\n    <div>\n      CandidateResultsTable\n    </div>\n  );\n};\n

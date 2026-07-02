@@ -1,0 +1,1 @@
+export const CreatePasswordPage = () => {\n  return (\n    <div>\n      CreatePasswordPage\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const PaginationBar = () => {\n  return (\n    <div>\n      PaginationBar\n    </div>\n  );\n};\n

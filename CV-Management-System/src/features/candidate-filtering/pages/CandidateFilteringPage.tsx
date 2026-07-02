@@ -1,0 +1,1 @@
+export const CandidateFilteringPage = () => {\n  return (\n    <div>\n      CandidateFilteringPage\n    </div>\n  );\n};\n

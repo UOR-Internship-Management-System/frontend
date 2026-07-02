@@ -1,0 +1,1 @@
+export const LatestSavedCvPanel = () => {\n  return (\n    <div>\n      LatestSavedCvPanel\n    </div>\n  );\n};\n

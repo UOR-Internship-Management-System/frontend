@@ -1,0 +1,1 @@
+export const StudentSignUpForm = () => {\n  return (\n    <div>\n      StudentSignUpForm\n    </div>\n  );\n};\n

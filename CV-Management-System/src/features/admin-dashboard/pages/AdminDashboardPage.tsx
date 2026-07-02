@@ -1,0 +1,1 @@
+export const AdminDashboardPage = () => {\n  return (\n    <div>\n      AdminDashboardPage\n    </div>\n  );\n};\n

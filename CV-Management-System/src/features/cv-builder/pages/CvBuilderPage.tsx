@@ -1,0 +1,1 @@
+export const CvBuilderPage = () => {\n  return (\n    <div>\n      CvBuilderPage\n    </div>\n  );\n};\n

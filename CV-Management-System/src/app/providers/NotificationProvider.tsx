@@ -1,0 +1,1 @@
+export const NotificationProvider = () => {\n  return (\n    <div>\n      NotificationProvider\n    </div>\n  );\n};\n

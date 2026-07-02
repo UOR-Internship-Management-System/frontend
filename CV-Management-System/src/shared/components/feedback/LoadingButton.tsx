@@ -1,0 +1,1 @@
+export const LoadingButton = () => {\n  return (\n    <div>\n      LoadingButton\n    </div>\n  );\n};\n

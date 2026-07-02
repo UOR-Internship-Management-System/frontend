@@ -1,0 +1,1 @@
+export const NotFoundPage = () => {\n  return (\n    <div>\n      NotFoundPage\n    </div>\n  );\n};\n

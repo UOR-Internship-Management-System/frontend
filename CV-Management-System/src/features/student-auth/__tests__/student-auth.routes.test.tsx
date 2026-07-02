@@ -1,0 +1,1 @@
+export const studentauthroutestest = () => {\n  return (\n    <div>\n      studentauthroutestest\n    </div>\n  );\n};\n

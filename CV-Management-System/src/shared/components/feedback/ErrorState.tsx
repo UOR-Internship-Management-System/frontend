@@ -1,0 +1,1 @@
+export const ErrorState = () => {\n  return (\n    <div>\n      ErrorState\n    </div>\n  );\n};\n

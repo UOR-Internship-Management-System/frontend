@@ -1,0 +1,1 @@
+export const StudentLayout = () => {\n  return (\n    <div>\n      StudentLayout\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const Icon = () => {\n  return (\n    <div>\n      Icon\n    </div>\n  );\n};\n

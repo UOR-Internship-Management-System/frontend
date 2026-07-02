@@ -1,0 +1,1 @@
+export const RootLayout = () => {\n  return (\n    <div>\n      RootLayout\n    </div>\n  );\n};\n

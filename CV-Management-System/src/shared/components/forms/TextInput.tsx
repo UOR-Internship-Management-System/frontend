@@ -1,0 +1,1 @@
+export const TextInput = () => {\n  return (\n    <div>\n      TextInput\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const SkeletonBlock = () => {\n  return (\n    <div>\n      SkeletonBlock\n    </div>\n  );\n};\n

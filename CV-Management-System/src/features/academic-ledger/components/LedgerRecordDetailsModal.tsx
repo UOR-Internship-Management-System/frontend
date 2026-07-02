@@ -1,0 +1,1 @@
+export const LedgerRecordDetailsModal = () => {\n  return (\n    <div>\n      LedgerRecordDetailsModal\n    </div>\n  );\n};\n

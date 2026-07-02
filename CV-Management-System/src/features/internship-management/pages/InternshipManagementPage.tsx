@@ -1,0 +1,1 @@
+export const InternshipManagementPage = () => {\n  return (\n    <div>\n      InternshipManagementPage\n    </div>\n  );\n};\n

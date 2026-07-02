@@ -1,0 +1,1 @@
+export const router = () => {\n  return (\n    <div>\n      router\n    </div>\n  );\n};\n

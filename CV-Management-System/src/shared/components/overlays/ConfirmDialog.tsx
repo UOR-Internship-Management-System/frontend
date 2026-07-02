@@ -1,0 +1,1 @@
+export const ConfirmDialog = () => {\n  return (\n    <div>\n      ConfirmDialog\n    </div>\n  );\n};\n

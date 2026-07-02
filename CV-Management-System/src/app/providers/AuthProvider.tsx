@@ -1,0 +1,1 @@
+export const AuthProvider = () => {\n  return (\n    <div>\n      AuthProvider\n    </div>\n  );\n};\n

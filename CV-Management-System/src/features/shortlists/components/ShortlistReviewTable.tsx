@@ -1,0 +1,1 @@
+export const ShortlistReviewTable = () => {\n  return (\n    <div>\n      ShortlistReviewTable\n    </div>\n  );\n};\n

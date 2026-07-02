@@ -1,0 +1,1 @@
+export const renderWithProviders = () => {\n  return (\n    <div>\n      renderWithProviders\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export type internshipSchemas = {};\n

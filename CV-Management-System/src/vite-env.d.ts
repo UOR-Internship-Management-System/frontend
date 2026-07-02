@@ -1,0 +1,1 @@
+export const vite-env.d = {};\n

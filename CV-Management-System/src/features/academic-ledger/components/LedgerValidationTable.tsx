@@ -1,0 +1,1 @@
+export const LedgerValidationTable = () => {\n  return (\n    <div>\n      LedgerValidationTable\n    </div>\n  );\n};\n

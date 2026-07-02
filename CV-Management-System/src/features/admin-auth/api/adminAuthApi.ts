@@ -1,0 +1,1 @@
+export const adminAuthApi = {};\n

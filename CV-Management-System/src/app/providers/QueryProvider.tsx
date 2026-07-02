@@ -1,0 +1,1 @@
+export const QueryProvider = () => {\n  return (\n    <div>\n      QueryProvider\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const Button = () => {\n  return (\n    <div>\n      Button\n    </div>\n  );\n};\n

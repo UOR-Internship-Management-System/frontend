@@ -1,0 +1,1 @@
+export const routeErrorElement = () => {\n  return (\n    <div>\n      routeErrorElement\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const DataTable = () => {\n  return (\n    <div>\n      DataTable\n    </div>\n  );\n};\n

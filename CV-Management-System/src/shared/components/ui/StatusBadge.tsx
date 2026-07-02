@@ -1,0 +1,1 @@
+export const StatusBadge = () => {\n  return (\n    <div>\n      StatusBadge\n    </div>\n  );\n};\n

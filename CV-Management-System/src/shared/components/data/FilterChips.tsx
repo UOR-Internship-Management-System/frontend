@@ -1,0 +1,1 @@
+export const FilterChips = () => {\n  return (\n    <div>\n      FilterChips\n    </div>\n  );\n};\n

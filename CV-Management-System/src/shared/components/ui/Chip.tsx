@@ -1,0 +1,1 @@
+export const Chip = () => {\n  return (\n    <div>\n      Chip\n    </div>\n  );\n};\n

@@ -1,0 +1,1 @@
+export const EmptyState = () => {\n  return (\n    <div>\n      EmptyState\n    </div>\n  );\n};\n

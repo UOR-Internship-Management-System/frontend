@@ -1,0 +1,1 @@
+export const DeclaredSkillFilterPanel = () => {\n  return (\n    <div>\n      DeclaredSkillFilterPanel\n    </div>\n  );\n};\n
