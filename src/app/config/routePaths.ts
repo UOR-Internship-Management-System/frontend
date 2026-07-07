@@ -1,1 +1,27 @@
-export const routePaths = {};\n
+export const routePaths = {
+  home: '/',
+  unauthorized: '/unauthorized',
+  student: {
+    signUp: '/student/sign-up',
+    verifyOtp: '/student/verify-otp',
+    createPassword: '/student/create-password',
+    login: '/student/login',
+    forgotPassword: '/student/forgot-password',
+    dashboard: '/student/dashboard',
+    profile: '/student/profile',
+    skills: '/student/skills',
+    projects: '/student/projects',
+    cvBuilder: '/student/cv-builder',
+    academicRecords: '/student/academic-records',
+  },
+  admin: {
+    login: '/admin/login',
+    dashboard: '/admin/dashboard',
+    academicLedger: '/admin/academic-ledger',
+    students: '/admin/students',
+    studentDeepDive: '/admin/students/:studentId',
+    internships: '/admin/internships',
+    filtering: '/admin/candidate-filtering',
+    shortlists: '/admin/shortlists',
+  },
+} as const
