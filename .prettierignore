@@ -1,0 +1,15 @@
+dist
+coverage
+node_modules
+docs/Project Documentations
+package-lock.json
+src/features
+src/shared/api
+src/shared/components/data
+src/shared/components/feedback
+src/shared/components/forms
+src/shared/components/layout
+src/shared/components/overlays
+src/shared/constants
+src/shared/errors
+src/mocks
