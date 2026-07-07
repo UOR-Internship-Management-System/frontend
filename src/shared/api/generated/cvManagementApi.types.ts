@@ -1,1 +1,3 @@
-export type cvManagementApi.types = {};\n
+export type ApiOperationStub = {
+  readonly operationId: string
+}
