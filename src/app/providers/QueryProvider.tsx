@@ -1,1 +1,9 @@
-export const QueryProvider = () => {\n  return (\n    <div>\n      QueryProvider\n    </div>\n  );\n};\n
+import { type ReactNode } from 'react'
+
+interface QueryProviderProps {
+  readonly children: ReactNode
+}
+
+export function QueryProvider({ children }: QueryProviderProps) {
+  return <>{children}</>
+}
