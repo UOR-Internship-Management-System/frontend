@@ -1,1 +1,10 @@
-export const StatusBadge = () => {\n  return (\n    <div>\n      StatusBadge\n    </div>\n  );\n};\n
+import { Chip } from './Chip'
+
+export type StatusBadgeProps = {
+  children: string
+  tone?: 'neutral' | 'success' | 'danger'
+}
+
+export function StatusBadge({ children, tone = 'neutral' }: StatusBadgeProps) {
+  return <Chip className={`status-${tone}`}>{children}</Chip>
+}

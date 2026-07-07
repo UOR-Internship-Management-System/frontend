@@ -1,24 +1,20 @@
-import { type ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
 import { AuthProvider } from './AuthProvider'
 import { NotificationProvider } from './NotificationProvider'
 import { OverlayProvider } from './OverlayProvider'
 import { QueryProvider } from './QueryProvider'
 import { ThemeProvider } from './ThemeProvider'
 
-interface AppProvidersProps {
-  readonly children: ReactNode
-}
-
-export function AppProviders({ children }: AppProvidersProps) {
+export function AppProviders({ children }: PropsWithChildren) {
   return (
     <QueryProvider>
-      <ThemeProvider>
-        <NotificationProvider>
-          <OverlayProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </OverlayProvider>
-        </NotificationProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <NotificationProvider>
+            <OverlayProvider>{children}</OverlayProvider>
+          </NotificationProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </QueryProvider>
   )
 }

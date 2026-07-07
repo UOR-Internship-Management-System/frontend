@@ -1,1 +1,0 @@
-export const ProjectDetailsModal = () => {\n  return (\n    <div>\n      ProjectDetailsModal\n    </div>\n  );\n};\n

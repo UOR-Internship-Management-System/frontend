@@ -1,1 +1,0 @@
-export const FinalizeShortlistDialog = () => {\n  return (\n    <div>\n      FinalizeShortlistDialog\n    </div>\n  );\n};\n

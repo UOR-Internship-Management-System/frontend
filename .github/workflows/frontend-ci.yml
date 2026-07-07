@@ -1,11 +1,15 @@
 name: Frontend CI
 
 'on':
-  push: {}
-  pull_request: {}
+  push:
+    branches:
+      - main
+      - develop
+      - feature/sprint-1-frontend-completion
+  pull_request:
 
 jobs:
-  validate:
+  quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

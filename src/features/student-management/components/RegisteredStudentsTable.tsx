@@ -1,1 +1,0 @@
-export const RegisteredStudentsTable = () => {\n  return (\n    <div>\n      RegisteredStudentsTable\n    </div>\n  );\n};\n

@@ -1,1 +1,0 @@
-export const InternshipRequestTable = () => {\n  return (\n    <div>\n      InternshipRequestTable\n    </div>\n  );\n};\n

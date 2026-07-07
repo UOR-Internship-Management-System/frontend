@@ -1,1 +1,0 @@
-export const ProfileForm = () => {\n  return (\n    <div>\n      ProfileForm\n    </div>\n  );\n};\n

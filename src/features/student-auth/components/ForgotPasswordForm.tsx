@@ -1,1 +1,0 @@
-export const ForgotPasswordForm = () => {\n  return (\n    <div>\n      ForgotPasswordForm\n    </div>\n  );\n};\n

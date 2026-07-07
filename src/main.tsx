@@ -5,8 +5,8 @@ import './index.css'
 
 const rootElement = document.getElementById('root')
 
-if (rootElement === null) {
-  throw new Error('Missing application root element.')
+if (!rootElement) {
+  throw new Error('Application root element was not found.')
 }
 
 createRoot(rootElement).render(

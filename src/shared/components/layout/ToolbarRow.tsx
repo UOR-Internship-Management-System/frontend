@@ -1,1 +1,5 @@
-export const ToolbarRow = () => {\n  return (\n    <div>\n      ToolbarRow\n    </div>\n  );\n};\n
+import type { HTMLAttributes } from 'react'
+
+export function ToolbarRow({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={`toolbar-row ${className}`.trim()} {...props} />
+}

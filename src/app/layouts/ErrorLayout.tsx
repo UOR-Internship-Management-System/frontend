@@ -1,1 +1,9 @@
-export const ErrorLayout = () => {\n  return (\n    <div>\n      ErrorLayout\n    </div>\n  );\n};\n
+import { Outlet } from 'react-router-dom'
+
+export function ErrorLayout() {
+  return (
+    <section className="section-card">
+      <Outlet />
+    </section>
+  )
+}

@@ -1,6 +1,4 @@
-export const userRoles = {
-  student: 'STUDENT',
-  admin: 'ADMIN',
+export const permissions = {
+  studentShellAccess: ['STUDENT'],
+  adminShellAccess: ['ADMIN'],
 } as const
-
-export type UserRole = (typeof userRoles)[keyof typeof userRoles]

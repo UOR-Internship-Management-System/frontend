@@ -1,5 +1,6 @@
-import { type ApiOperationStub } from './cvManagementApi.types'
+import type { ApiContractMetadata } from './cvManagementApi.types'
 
-export const cvManagementApiClient: ApiOperationStub = {
-  operationId: 'sprintOneGeneratedClientStub',
+export const cvManagementApiContract: ApiContractMetadata = {
+  title: 'CV Management API',
+  openapi: '3.1.1',
 }

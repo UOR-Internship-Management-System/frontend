@@ -1,39 +1,44 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { storageKeys } from '../../shared/constants/storageKeys'
 
 export type ThemeMode = 'light' | 'dark'
 
-interface ThemeContextValue {
-  readonly mode: ThemeMode
-  readonly toggleTheme: () => void
+type ThemeContextValue = {
+  theme: ThemeMode
+  setTheme: (theme: ThemeMode) => void
+  toggleTheme: () => void
 }
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
+const ThemeContext = createContext<ThemeContextValue | null>(null)
 
-interface ThemeProviderProps {
-  readonly children: ReactNode
-}
-
-export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [mode, setMode] = useState<ThemeMode>('light')
+export function ThemeProvider({ children }: PropsWithChildren) {
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    const stored = window.localStorage.getItem(storageKeys.theme)
+    return stored === 'dark' ? 'dark' : 'light'
+  })
 
   useEffect(() => {
-    document.body.classList.toggle('dark-mode', mode === 'dark')
-  }, [mode])
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+    window.localStorage.setItem(storageKeys.theme, theme)
+  }, [theme])
 
-  const value = useMemo<ThemeContextValue>(() => ({
-    mode,
-    toggleTheme: () => setMode((current) => (current === 'dark' ? 'light' : 'dark')),
-  }), [mode])
+  const value = useMemo<ThemeContextValue>(
+    () => ({
+      theme,
+      setTheme: setThemeState,
+      toggleTheme: () => setThemeState((current) => (current === 'dark' ? 'light' : 'dark')),
+    }),
+    [theme],
+  )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }
 
-export function useTheme(): ThemeContextValue {
+export function useTheme() {
   const context = useContext(ThemeContext)
-
   if (!context) {
-    throw new Error('useTheme must be used inside ThemeProvider.')
+    throw new Error('useTheme must be used within ThemeProvider.')
   }
-
   return context
 }

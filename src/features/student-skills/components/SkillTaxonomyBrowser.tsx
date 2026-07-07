@@ -1,1 +1,0 @@
-export const SkillTaxonomyBrowser = () => {\n  return (\n    <div>\n      SkillTaxonomyBrowser\n    </div>\n  );\n};\n

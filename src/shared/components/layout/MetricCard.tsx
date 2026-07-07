@@ -1,1 +1,13 @@
-export const MetricCard = () => {\n  return (\n    <div>\n      MetricCard\n    </div>\n  );\n};\n
+export type MetricCardProps = {
+  label: string
+  value: string
+}
+
+export function MetricCard({ label, value }: MetricCardProps) {
+  return (
+    <article className="section-card">
+      <strong>{value}</strong>
+      <p>{label}</p>
+    </article>
+  )
+}

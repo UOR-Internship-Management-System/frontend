@@ -1,1 +1,10 @@
-export const StudentSkillsPage = () => {\n  return (\n    <div>\n      StudentSkillsPage\n    </div>\n  );\n};\n
+import { ShellPage } from '../../foundation/ShellPage'
+
+export function StudentSkillsPage() {
+  return (
+    <ShellPage
+      description="Student declared skills shell for later implementation."
+      title="Student Skills"
+    />
+  )
+}

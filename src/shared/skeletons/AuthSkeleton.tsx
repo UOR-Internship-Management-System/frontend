@@ -1,1 +1,0 @@
-export const AuthSkeleton = () => {\n  return (\n    <div>\n      AuthSkeleton\n    </div>\n  );\n};\n

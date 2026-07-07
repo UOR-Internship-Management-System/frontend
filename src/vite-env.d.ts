@@ -1,1 +1,1 @@
-export const vite-env.d = {};\n
+/// <reference types="vite/client" />

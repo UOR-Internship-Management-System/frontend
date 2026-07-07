@@ -1,1 +1,5 @@
-export const FileUploadField = () => {\n  return (\n    <div>\n      FileUploadField\n    </div>\n  );\n};\n
+import type { InputHTMLAttributes } from 'react'
+
+export function FileUploadField(props: InputHTMLAttributes<HTMLInputElement>) {
+  return <input className="input" type="file" {...props} />
+}

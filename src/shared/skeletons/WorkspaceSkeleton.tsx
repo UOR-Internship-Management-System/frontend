@@ -1,1 +1,0 @@
-export const WorkspaceSkeleton = () => {\n  return (\n    <div>\n      WorkspaceSkeleton\n    </div>\n  );\n};\n

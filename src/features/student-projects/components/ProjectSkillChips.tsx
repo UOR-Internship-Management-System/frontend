@@ -1,1 +1,0 @@
-export const ProjectSkillChips = () => {\n  return (\n    <div>\n      ProjectSkillChips\n    </div>\n  );\n};\n

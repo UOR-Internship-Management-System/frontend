@@ -1,1 +1,0 @@
-export const CvSourceFreshnessNotice = () => {\n  return (\n    <div>\n      CvSourceFreshnessNotice\n    </div>\n  );\n};\n

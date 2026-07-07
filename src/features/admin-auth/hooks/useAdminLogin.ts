@@ -1,1 +1,0 @@
-export const useAdminLogin = {};\n

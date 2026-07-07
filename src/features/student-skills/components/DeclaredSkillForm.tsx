@@ -1,1 +1,0 @@
-export const DeclaredSkillForm = () => {\n  return (\n    <div>\n      DeclaredSkillForm\n    </div>\n  );\n};\n

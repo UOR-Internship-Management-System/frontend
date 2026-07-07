@@ -1,1 +1,0 @@
-export const CompanyTable = () => {\n  return (\n    <div>\n      CompanyTable\n    </div>\n  );\n};\n

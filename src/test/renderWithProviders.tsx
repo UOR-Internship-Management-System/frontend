@@ -1,1 +1,7 @@
-export const renderWithProviders = () => {\n  return (\n    <div>\n      renderWithProviders\n    </div>\n  );\n};\n
+import type { ReactElement } from 'react'
+import { render } from '@testing-library/react'
+import { AppProviders } from '../app/providers/AppProviders'
+
+export function renderWithProviders(ui: ReactElement) {
+  return render(<AppProviders>{ui}</AppProviders>)
+}

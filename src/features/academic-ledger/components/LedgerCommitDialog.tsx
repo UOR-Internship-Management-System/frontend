@@ -1,1 +1,0 @@
-export const LedgerCommitDialog = () => {\n  return (\n    <div>\n      LedgerCommitDialog\n    </div>\n  );\n};\n

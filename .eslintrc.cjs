@@ -1,1 +1,1 @@
-// script placeholder\n
+module.exports = {}

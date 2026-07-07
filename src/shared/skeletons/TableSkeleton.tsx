@@ -1,1 +1,0 @@
-export const TableSkeleton = () => {\n  return (\n    <div>\n      TableSkeleton\n    </div>\n  );\n};\n

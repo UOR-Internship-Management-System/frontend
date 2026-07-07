@@ -1,11 +1,12 @@
 import { useTheme } from '../../../app/providers/ThemeProvider'
+import { Button } from './Button'
 
 export function ThemeToggle() {
-  const { mode, toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme()
 
   return (
-    <button type="button" className="nav-link" onClick={toggleTheme} aria-label="Toggle color theme">
-      {mode === 'dark' ? 'Light mode' : 'Dark mode'}
-    </button>
+    <Button aria-label="Toggle color theme" onClick={toggleTheme} variant="secondary">
+      {theme === 'dark' ? 'Light' : 'Dark'}
+    </Button>
   )
 }

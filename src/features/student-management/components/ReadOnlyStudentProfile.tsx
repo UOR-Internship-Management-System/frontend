@@ -1,1 +1,0 @@
-export const ReadOnlyStudentProfile = () => {\n  return (\n    <div>\n      ReadOnlyStudentProfile\n    </div>\n  );\n};\n

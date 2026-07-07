@@ -1,25 +1,55 @@
-import { createContext, useContext, type ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { ToastViewport } from '../../shared/components/feedback/ToastViewport'
 
-interface NotificationContextValue {
-  readonly notify: (title: string) => void
+export type NotificationTone = 'info' | 'success' | 'error'
+export type Notification = {
+  id: string
+  title: string
+  message?: string
+  tone: NotificationTone
 }
 
-const NotificationContext = createContext<NotificationContextValue | undefined>(undefined)
-
-interface NotificationProviderProps {
-  readonly children: ReactNode
+type NotificationContextValue = {
+  notifications: Notification[]
+  notify: (notification: Omit<Notification, 'id'>) => void
+  dismiss: (id: string) => void
 }
 
-export function NotificationProvider({ children }: NotificationProviderProps) {
-  return <NotificationContext.Provider value={{ notify: () => undefined }}>{children}</NotificationContext.Provider>
+const NotificationContext = createContext<NotificationContextValue | null>(null)
+
+export function NotificationProvider({ children }: PropsWithChildren) {
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  const dismiss = useCallback((id: string) => {
+    setNotifications((current) => current.filter((notification) => notification.id !== id))
+  }, [])
+
+  const notify = useCallback((notification: Omit<Notification, 'id'>) => {
+    const id =
+      typeof crypto !== 'undefined' && 'randomUUID' in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}`
+    setNotifications((current) => [...current, { ...notification, id }])
+  }, [])
+
+  const value = useMemo(
+    () => ({ notifications, notify, dismiss }),
+    [dismiss, notifications, notify],
+  )
+
+  return (
+    <NotificationContext.Provider value={value}>
+      {children}
+      <ToastViewport notifications={notifications} onDismiss={dismiss} />
+    </NotificationContext.Provider>
+  )
 }
 
-export function useNotifications(): NotificationContextValue {
+export function useNotifications() {
   const context = useContext(NotificationContext)
-
   if (!context) {
-    throw new Error('useNotifications must be used inside NotificationProvider.')
+    throw new Error('useNotifications must be used within NotificationProvider.')
   }
-
   return context
 }

@@ -1,1 +1,3 @@
-export const studentProfileApi = {};\n
+import { createSprintOneDeferredApi } from '../../../shared/api/sprintOneDeferredApi'
+
+export const apiBoundary = createSprintOneDeferredApi('Feature')

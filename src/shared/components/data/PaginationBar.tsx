@@ -1,1 +1,9 @@
-export const PaginationBar = () => {\n  return (\n    <div>\n      PaginationBar\n    </div>\n  );\n};\n
+export function PaginationBar({ page, totalPages }: { page: number; totalPages: number }) {
+  return (
+    <nav aria-label="Pagination">
+      <p>
+        Page {page} of {totalPages}
+      </p>
+    </nav>
+  )
+}

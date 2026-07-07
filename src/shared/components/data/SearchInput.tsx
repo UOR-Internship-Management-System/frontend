@@ -1,1 +1,6 @@
-export const SearchInput = () => {\n  return (\n    <div>\n      SearchInput\n    </div>\n  );\n};\n
+import type { InputHTMLAttributes } from 'react'
+import { TextInput } from '../forms/TextInput'
+
+export function SearchInput(props: InputHTMLAttributes<HTMLInputElement>) {
+  return <TextInput aria-label="Search" type="search" {...props} />
+}

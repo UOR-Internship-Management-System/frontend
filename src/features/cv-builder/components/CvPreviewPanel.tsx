@@ -1,1 +1,0 @@
-export const CvPreviewPanel = () => {\n  return (\n    <div>\n      CvPreviewPanel\n    </div>\n  );\n};\n
