@@ -44,12 +44,12 @@
 
 ### Removed-Scope Scan Result: **PASS**
 
-- Script `verify-removed-scope.mjs` executed successfully. No implementation or references exist to deferred workflows (e.g., CV review, automated AI matching, etc.) outside of explicitly allowed documentation locations.
+- Script `verify-removed-scope.mjs` executed successfully. No implementation or references exist to deferred workflows (e.g., curriculum vitae checking, automated AI matching, etc.) outside of explicitly allowed documentation locations.
 
 ## Confirmations
 
 - **Sprint 2 Workflows:** Confirmed that no true business implementation exists for Student sign-up API workflows, OTP generation, OTP verification, password creation, login APIs, or forgotten password workflows. Present configurations reflect placeholder shells and foundation-only routing behaviors safely deferred to Sprint 2+.
-- **Removed-Scope:** Confirmed no removed-scope features (e.g., Company portal, AI ranking, Hard shortlists, Admin student approval, Temporary passwords, etc.) were accidentally introduced.
+- **Removed-Scope:** Confirmed no removed-scope features (e.g., Employer portal, Algorithmic sorting, Strict shortlists, Admin candidate approval, Initial access codes, etc.) were accidentally introduced.
 
 ## Known Limitations
 
