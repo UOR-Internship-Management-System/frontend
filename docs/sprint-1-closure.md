@@ -4,7 +4,7 @@
 **Repository**: UOR-Internship-Management-System/frontend
 **Branch Name**: chore/sprint-1-frontend-closure-evidence
 **Final Frontend Commit SHA**: 8e6ba72b160dd4a2c73b07d1b21c23afa274d8a7
-**Backend Commit SHA/Branch**: N/A (Integration smoke tests run against mock endpoints due to local environment limitation)
+**Backend Commit SHA/Branch**: N/A
 **Date/Time of Validation**: 2026-07-08T21:15:00+05:30
 **Environment Details**: Windows NT, Node 22.10.x, npm 10.x.x
 
@@ -29,7 +29,9 @@
 
 - Added Playwright test `e2e/api-health.spec.ts`.
 - Validates that the frontend code evaluates `VITE_API_BASE_URL` correctly and performs a request to `/api/v1/health`.
-- _Note:_ The backend is not running in the current isolated frontend repository verification environment. Thus, a mock response matching the standard backend response (`status: 'ok'`, `database: 'connected'`) was supplied to fulfill the response and confirm the test's structure and processing logic.
+- The health E2E test now calls the real backend `/api/v1/health` endpoint.
+- The expected backend response shape is `status: "UP"`, `database: "UP"`, and numeric `appliedMigrations`.
+- The test must be run with the backend active on `http://localhost:8080`.
 
 ### Route Shell Verification Result: **PASS**
 
@@ -50,10 +52,6 @@
 
 - **Sprint 2 Workflows:** Confirmed that no true business implementation exists for Student sign-up API workflows, OTP generation, OTP verification, password creation, login APIs, or forgotten password workflows. Present configurations reflect placeholder shells and foundation-only routing behaviors safely deferred to Sprint 2+.
 - **Removed-Scope:** Confirmed no removed-scope features (e.g., Employer portal, Algorithmic sorting, Strict shortlists, Admin candidate approval, Initial access codes, etc.) were accidentally introduced.
-
-## Known Limitations
-
-- The E2E smoke testing for the `api/v1/health` endpoint incorporates a client-side mock (`page.route()`) inside Playwright because the actual local backend repository is not available in this test environment context. The test verifies that the frontend can successfully execute the request and handle the expected response structure.
 
 ## Approvals
 

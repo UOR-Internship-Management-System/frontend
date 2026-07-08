@@ -10,23 +10,8 @@ test('frontend can make a browser-side request to the backend health endpoint', 
   await expect(page.locator('#root')).toBeVisible()
 
   // 2. We use the same base URL the frontend would use.
-  const baseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
+  const baseUrl = process.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
   const healthUrl = `${baseUrl.replace(/\/$/, '')}/health`
-
-  // Environment Limitation: The backend is not running in this CI/local environment.
-  // We mock the route to prove the frontend can successfully execute the request
-  // and handle the expected response shape.
-  await page.route(healthUrl, async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        status: 'ok',
-        database: 'connected',
-        migrations: 5,
-      }),
-    })
-  })
 
   // 3. Make a browser-side request to the backend health endpoint.
   const healthResult = await page.evaluate(async (url) => {
@@ -47,10 +32,12 @@ test('frontend can make a browser-side request to the backend health endpoint', 
   // 4. Assert backend response was received successfully
   expect(healthResult.error).toBeUndefined()
   expect(healthResult.ok).toBe(true)
+  expect(healthResult.status).toBe(200)
   expect(healthResult.data).toBeDefined()
 
   // 5. Log and verify typical health fields
   console.log('Health check response:', healthResult.data)
-  expect(healthResult.data).toHaveProperty('status', 'ok')
-  expect(healthResult.data).toHaveProperty('database', 'connected')
+  expect(healthResult.data).toHaveProperty('status', 'UP')
+  expect(healthResult.data).toHaveProperty('database', 'UP')
+  expect(typeof healthResult.data?.appliedMigrations).toBe('number')
 })
