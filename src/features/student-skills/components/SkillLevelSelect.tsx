@@ -1,1 +1,0 @@
-export const SkillLevelSelect = () => {\n  return (\n    <div>\n      SkillLevelSelect\n    </div>\n  );\n};\n

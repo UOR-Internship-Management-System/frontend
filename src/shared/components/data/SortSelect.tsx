@@ -1,1 +1,6 @@
-export const SortSelect = () => {\n  return (\n    <div>\n      SortSelect\n    </div>\n  );\n};\n
+import type { SelectHTMLAttributes } from 'react'
+import { SelectField } from '../forms/SelectField'
+
+export function SortSelect(props: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <SelectField aria-label="Sort" {...props} />
+}

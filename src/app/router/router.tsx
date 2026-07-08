@@ -1,1 +1,8 @@
-export const router = () => {\n  return (\n    <div>\n      router\n    </div>\n  );\n};\n
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { routes } from './routes'
+
+const router = createBrowserRouter(routes)
+
+export function AppRouter() {
+  return <RouterProvider router={router} />
+}

@@ -1,1 +1,10 @@
-export const StudentProjectsPage = () => {\n  return (\n    <div>\n      StudentProjectsPage\n    </div>\n  );\n};\n
+import { ShellPage } from '../../foundation/ShellPage'
+
+export function StudentProjectsPage() {
+  return (
+    <ShellPage
+      description="Student project portfolio shell for later implementation."
+      title="Student Projects"
+    />
+  )
+}

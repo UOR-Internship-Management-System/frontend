@@ -1,1 +1,3 @@
-export const FormErrorMessage = () => {\n  return (\n    <div>\n      FormErrorMessage\n    </div>\n  );\n};\n
+export function FormErrorMessage({ message }: { message?: string }) {
+  return message ? <p className="error-text">{message}</p> : null
+}

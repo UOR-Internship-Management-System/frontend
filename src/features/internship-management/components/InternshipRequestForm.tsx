@@ -1,1 +1,0 @@
-export const InternshipRequestForm = () => {\n  return (\n    <div>\n      InternshipRequestForm\n    </div>\n  );\n};\n

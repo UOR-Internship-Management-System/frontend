@@ -1,1 +1,0 @@
-export const CertificateEditor = () => {\n  return (\n    <div>\n      CertificateEditor\n    </div>\n  );\n};\n

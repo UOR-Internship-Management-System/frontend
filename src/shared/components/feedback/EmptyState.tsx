@@ -1,1 +1,3 @@
-export const EmptyState = () => {\n  return (\n    <div>\n      EmptyState\n    </div>\n  );\n};\n
+export function EmptyState({ message }: { message: string }) {
+  return <p className="skeleton-block">{message}</p>
+}

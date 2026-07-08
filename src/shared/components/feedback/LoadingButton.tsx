@@ -1,1 +1,6 @@
-export const LoadingButton = () => {\n  return (\n    <div>\n      LoadingButton\n    </div>\n  );\n};\n
+import type { ButtonProps } from '../ui/Button'
+import { Button } from '../ui/Button'
+
+export function LoadingButton(props: ButtonProps) {
+  return <Button {...props} />
+}

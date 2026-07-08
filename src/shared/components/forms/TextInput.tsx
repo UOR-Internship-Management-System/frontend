@@ -1,1 +1,7 @@
-export const TextInput = () => {\n  return (\n    <div>\n      TextInput\n    </div>\n  );\n};\n
+import type { InputHTMLAttributes } from 'react'
+
+export type TextInputProps = InputHTMLAttributes<HTMLInputElement>
+
+export function TextInput({ className = '', ...props }: TextInputProps) {
+  return <input className={`input ${className}`.trim()} {...props} />
+}

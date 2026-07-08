@@ -1,1 +1,0 @@
-export const DashboardSkeleton = () => {\n  return (\n    <div>\n      DashboardSkeleton\n    </div>\n  );\n};\n

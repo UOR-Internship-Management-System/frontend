@@ -1,1 +1,5 @@
-export const Dropdown = () => {\n  return (\n    <div>\n      Dropdown\n    </div>\n  );\n};\n
+import type { HTMLAttributes } from 'react'
+
+export function Dropdown({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={`section-card ${className}`.trim()} {...props} />
+}

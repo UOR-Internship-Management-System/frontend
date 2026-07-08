@@ -1,1 +1,0 @@
-export const DeclaredSkillsTable = () => {\n  return (\n    <div>\n      DeclaredSkillsTable\n    </div>\n  );\n};\n

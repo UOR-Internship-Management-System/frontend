@@ -1,1 +1,3 @@
-export const requestCancellation = {};\n
+export function createRequestController() {
+  return new AbortController()
+}

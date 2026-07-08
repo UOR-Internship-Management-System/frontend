@@ -1,1 +1,10 @@
-export const AcademicRecordsPage = () => {\n  return (\n    <div>\n      AcademicRecordsPage\n    </div>\n  );\n};\n
+import { ShellPage } from '../../foundation/ShellPage'
+
+export function AcademicRecordsPage() {
+  return (
+    <ShellPage
+      description="Student academic records view shell for later read-only integration."
+      title="Academic Records"
+    />
+  )
+}

@@ -1,1 +1,4 @@
-export const permissions = {};\n
+export const permissions = {
+  studentShellAccess: ['STUDENT'],
+  adminShellAccess: ['ADMIN'],
+} as const

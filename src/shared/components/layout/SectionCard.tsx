@@ -1,1 +1,5 @@
-export const SectionCard = () => {\n  return (\n    <div>\n      SectionCard\n    </div>\n  );\n};\n
+import type { HTMLAttributes } from 'react'
+
+export function SectionCard({ className = '', ...props }: HTMLAttributes<HTMLElement>) {
+  return <section className={`section-card ${className}`.trim()} {...props} />
+}

@@ -1,1 +1,10 @@
-export const StudentDeepDivePage = () => {\n  return (\n    <div>\n      StudentDeepDivePage\n    </div>\n  );\n};\n
+import { ShellPage } from '../../foundation/ShellPage'
+
+export function StudentDeepDivePage() {
+  return (
+    <ShellPage
+      description="Admin read-only student detail shell for later inspection integration."
+      title="Student Detail"
+    />
+  )
+}
