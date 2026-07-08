@@ -10,36 +10,40 @@
 
 ## Quality Gate Execution & Results
 
-| Command | Expected | Result |
-|---------|----------|--------|
-| `npm ci` | Clean dependency install | **PASS** |
-| `npm run validate-env` | Environment vars valid | **PASS** |
-| `npm run format:check` | Code conforms to Prettier | **PASS** |
-| `npm run lint` | ESLint checks pass | **PASS** |
-| `npm run typecheck` | TypeScript compilation | **PASS** |
-| `npm run test` | Unit tests execute | **PASS** |
-| `npm run build` | Production build generated | **PASS** |
+| Command                 | Expected                       | Result   |
+| ----------------------- | ------------------------------ | -------- |
+| `npm ci`                | Clean dependency install       | **PASS** |
+| `npm run validate-env`  | Environment vars valid         | **PASS** |
+| `npm run format:check`  | Code conforms to Prettier      | **PASS** |
+| `npm run lint`          | ESLint checks pass             | **PASS** |
+| `npm run typecheck`     | TypeScript compilation         | **PASS** |
+| `npm run test`          | Unit tests execute             | **PASS** |
+| `npm run build`         | Production build generated     | **PASS** |
 | `npm run openapi:check` | OpenAPI contracts synchronized | **PASS** |
-| `npm run verify:scope` | Removed scope scan passed | **PASS** |
-| `npm run e2e` | Playwright tests execute | **PASS** |
+| `npm run verify:scope`  | Removed scope scan passed      | **PASS** |
+| `npm run e2e`           | Playwright tests execute       | **PASS** |
 
 ## Additional Verification Artifacts
 
 ### Frontend-to-Backend Health Smoke-Test Result: **PASS**
+
 - Added Playwright test `e2e/api-health.spec.ts`.
 - Validates that the frontend code evaluates `VITE_API_BASE_URL` correctly and performs a request to `/api/v1/health`.
-- *Note:* The backend is not running in the current isolated frontend repository verification environment. Thus, a mock response matching the standard backend response (`status: 'ok'`, `database: 'connected'`) was supplied to fulfill the response and confirm the test's structure and processing logic.
+- _Note:_ The backend is not running in the current isolated frontend repository verification environment. Thus, a mock response matching the standard backend response (`status: 'ok'`, `database: 'connected'`) was supplied to fulfill the response and confirm the test's structure and processing logic.
 
 ### Route Shell Verification Result: **PASS**
+
 - Verified public, student-protected, admin-protected route shell existence in E2E tests (`e2e/auth.student.spec.ts`, `e2e/auth.admin.spec.ts`, `e2e/student-profile.spec.ts`, etc.).
 - Verified `Unauthorized` and `Not-Found` shells via `e2e/routing.spec.ts`. Route components rendered safely without crashing.
 
 ### Role Guard Verification Result: **PASS**
+
 - Verified `RequireStudent` and `RequireAdmin` behaviors via unit tests in `src/app/router/__tests__/routeGuards.test.tsx`.
 - Anonymous users redirected to login (`/student/login` or `/admin/login`).
 - Users with incorrect roles accessing protected shells redirected to `/unauthorized`.
 
 ### Removed-Scope Scan Result: **PASS**
+
 - Script `verify-removed-scope.mjs` executed successfully. No implementation or references exist to deferred workflows (e.g., CV review, automated AI matching, etc.) outside of explicitly allowed documentation locations.
 
 ## Confirmations
@@ -48,7 +52,9 @@
 - **Removed-Scope:** Confirmed no removed-scope features (e.g., Company portal, AI ranking, Hard shortlists, Admin student approval, Temporary passwords, etc.) were accidentally introduced.
 
 ## Known Limitations
+
 - The E2E smoke testing for the `api/v1/health` endpoint incorporates a client-side mock (`page.route()`) inside Playwright because the actual local backend repository is not available in this test environment context. The test verifies that the frontend can successfully execute the request and handle the expected response structure.
 
 ## Approvals
+
 - Reviewer/Supervisor: ___________________ (Date: _________)

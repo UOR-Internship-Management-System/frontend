@@ -23,7 +23,7 @@ const renderWithRouterAndAuth = (
   authValue: AuthState,
   initialRoute: string,
   element: React.ReactNode,
-  path: string
+  path: string,
 ) => {
   return render(
     <MockAuthContext value={authValue}>
@@ -35,7 +35,7 @@ const renderWithRouterAndAuth = (
           <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </MemoryRouter>
-    </MockAuthContext>
+    </MockAuthContext>,
   )
 }
 
@@ -48,7 +48,7 @@ describe('Route Guards', () => {
         <RequireStudent>
           <ProtectedStudent />
         </RequireStudent>,
-        '/student/dashboard'
+        '/student/dashboard',
       )
       expect(screen.getByText('Student Login')).toBeInTheDocument()
       expect(screen.queryByText('Student Dashboard')).not.toBeInTheDocument()
@@ -61,7 +61,7 @@ describe('Route Guards', () => {
         <RequireStudent>
           <ProtectedStudent />
         </RequireStudent>,
-        '/student/dashboard'
+        '/student/dashboard',
       )
       expect(screen.getByText('Student Dashboard')).toBeInTheDocument()
     })
@@ -73,7 +73,7 @@ describe('Route Guards', () => {
         <RequireStudent>
           <ProtectedStudent />
         </RequireStudent>,
-        '/student/dashboard'
+        '/student/dashboard',
       )
       expect(screen.getByText('Unauthorized')).toBeInTheDocument()
       expect(screen.queryByText('Student Dashboard')).not.toBeInTheDocument()
@@ -88,7 +88,7 @@ describe('Route Guards', () => {
         <RequireAdmin>
           <ProtectedAdmin />
         </RequireAdmin>,
-        '/admin/dashboard'
+        '/admin/dashboard',
       )
       expect(screen.getByText('Admin Login')).toBeInTheDocument()
       expect(screen.queryByText('Admin Dashboard')).not.toBeInTheDocument()
@@ -101,7 +101,7 @@ describe('Route Guards', () => {
         <RequireAdmin>
           <ProtectedAdmin />
         </RequireAdmin>,
-        '/admin/dashboard'
+        '/admin/dashboard',
       )
       expect(screen.getByText('Admin Dashboard')).toBeInTheDocument()
     })
@@ -113,7 +113,7 @@ describe('Route Guards', () => {
         <RequireAdmin>
           <ProtectedAdmin />
         </RequireAdmin>,
-        '/admin/dashboard'
+        '/admin/dashboard',
       )
       expect(screen.getByText('Unauthorized')).toBeInTheDocument()
       expect(screen.queryByText('Admin Dashboard')).not.toBeInTheDocument()
