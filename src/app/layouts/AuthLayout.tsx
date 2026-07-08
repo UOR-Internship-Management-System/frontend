@@ -7,7 +7,8 @@ export function AuthLayout() {
       <aside className="auth-panel" aria-label="Authentication scope">
         <h1>Account Access</h1>
         <p>
-          Route-safe public authentication shells for the approved student and admin entry points.
+          Complete Sprint 2 authentication for Student onboarding, Student login/reset, and
+          predefined Admin sign-in/reset.
         </p>
         <nav aria-label="Public routes">
           <ul className="nav-list">
@@ -22,8 +23,18 @@ export function AuthLayout() {
               </NavLink>
             </li>
             <li>
+              <NavLink className="nav-link" to={routePaths.studentForgotPassword}>
+                Student reset
+              </NavLink>
+            </li>
+            <li>
               <NavLink className="nav-link" to={routePaths.adminLogin}>
                 Admin login
+              </NavLink>
+            </li>
+            <li>
+              <NavLink className="nav-link" to={routePaths.adminForgotPassword}>
+                Admin reset
               </NavLink>
             </li>
           </ul>

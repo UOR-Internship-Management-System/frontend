@@ -185,6 +185,8 @@ select:focus-visible {
   position: sticky;
   top: 16px;
   padding: 18px;
+  display: grid;
+  gap: 14px;
 }
 
 .content-stack {
@@ -317,6 +319,67 @@ p {
 .error-text {
   color: var(--color-danger);
   font-size: 0.9rem;
+}
+
+.auth-card,
+.auth-form {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-card h1 {
+  font-size: 2rem;
+}
+
+.auth-form-footer,
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.auth-secondary-link,
+.form-helper {
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.inline-alert {
+  border: 1px solid color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 9%, var(--color-card));
+  color: var(--color-text);
+  padding: 12px 14px;
+  line-height: 1.5;
+}
+
+.otp-input {
+  max-width: 220px;
+  letter-spacing: 0.2rem;
+  text-align: center;
+  font-weight: 800;
+}
+
+.status-icon {
+  width: 54px;
+  height: 54px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-weight: 900;
+  background: var(--color-card-muted);
+  color: var(--color-primary-strong);
+}
+
+.status-icon-success {
+  background: color-mix(in srgb, #00875a 16%, var(--color-card));
+  color: #00875a;
+}
+
+.status-icon-failure {
+  background: color-mix(in srgb, var(--color-danger) 16%, var(--color-card));
+  color: var(--color-danger);
 }
 
 .table-responsive {

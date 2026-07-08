@@ -3,27 +3,27 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
-import { StudentOtpForm } from '../components/StudentOtpForm'
-import { useResendStudentOtp } from '../hooks/useResendStudentOtp'
-import { useVerifyStudentOtp } from '../hooks/useVerifyStudentOtp'
+import { StudentResetOtpForm } from '../components/StudentResetOtpForm'
+import { useResendStudentResetOtp } from '../hooks/useResendStudentResetOtp'
+import { useVerifyStudentResetOtp } from '../hooks/useVerifyStudentResetOtp'
 
-export function VerifyOtpPage() {
+export function StudentResetOtpPage() {
   const navigate = useNavigate()
-  const verifyOtp = useVerifyStudentOtp()
-  const resendOtp = useResendStudentOtp()
+  const verifyOtp = useVerifyStudentResetOtp()
+  const resendOtp = useResendStudentResetOtp()
   const [message, setMessage] = useState<string>()
-  const context = authStorage.getVerificationContext()
+  const context = authStorage.getPasswordResetContext()
 
   return (
     <section className="card auth-card">
-      <h1>Verify OTP</h1>
+      <h1>Verify Reset OTP</h1>
       <p>Enter the six-digit OTP sent to {context?.email ?? 'your university email'}.</p>
       {message ? (
         <div className="inline-alert" role="alert">
           {message}
         </div>
       ) : null}
-      <StudentOtpForm
+      <StudentResetOtpForm
         isResending={resendOtp.isPending}
         isSubmitting={verifyOtp.isPending}
         onResend={async () => {
@@ -32,8 +32,8 @@ export function VerifyOtpPage() {
           }
 
           try {
-            await resendOtp.mutateAsync(context.verificationId)
-            setMessage('A new OTP has been sent if the verification context is still valid.')
+            await resendOtp.mutateAsync(context.resetId)
+            setMessage('A new OTP has been sent if the reset context is still valid.')
           } catch (error) {
             setMessage(mapApiError(error).message)
           }
@@ -44,9 +44,9 @@ export function VerifyOtpPage() {
           }
 
           try {
-            await verifyOtp.mutateAsync({ verificationId: context.verificationId, otp })
-            authStorage.setVerificationContext({ ...context, verified: true })
-            navigate(routePaths.studentCreatePassword)
+            await verifyOtp.mutateAsync({ resetId: context.resetId, otp })
+            authStorage.setPasswordResetContext({ ...context, otpVerified: true })
+            navigate(routePaths.studentResetCreatePassword)
           } catch (error) {
             setMessage(mapApiError(error).message)
           }

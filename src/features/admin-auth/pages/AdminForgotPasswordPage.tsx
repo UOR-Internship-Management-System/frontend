@@ -3,24 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
-import { StudentForgotPasswordForm } from '../components/StudentForgotPasswordForm'
-import { useStartStudentPasswordReset } from '../hooks/useStartStudentPasswordReset'
+import { AdminForgotPasswordForm } from '../components/AdminForgotPasswordForm'
+import { useStartAdminPasswordReset } from '../hooks/useStartAdminPasswordReset'
 
-export function ForgotPasswordPage() {
+export function AdminForgotPasswordPage() {
   const navigate = useNavigate()
-  const startReset = useStartStudentPasswordReset()
+  const startReset = useStartAdminPasswordReset()
   const [message, setMessage] = useState<string>()
 
   return (
-    <section className="card auth-card">
-      <h1>Forgot Password</h1>
-      <p>Enter your university email to request a one-time password.</p>
+    <section className="card auth-card admin-auth-card">
+      <h1>Forgot Password?</h1>
+      <p>Provide your administrator email address to request a One-Time Password.</p>
       {message ? (
         <div className="inline-alert" role="status">
           {message}
         </div>
       ) : null}
-      <StudentForgotPasswordForm
+      <AdminForgotPasswordForm
         isSubmitting={startReset.isPending}
         onSubmit={async (email) => {
           try {
@@ -29,11 +29,11 @@ export function ForgotPasswordPage() {
             if (response.resetId) {
               authStorage.setPasswordResetContext({
                 resetId: response.resetId,
-                accountType: 'STUDENT',
+                accountType: 'ADMIN',
                 email,
                 expiresAt: response.expiresAt,
               })
-              navigate(routePaths.studentResetVerifyOtp)
+              navigate(routePaths.adminVerifyResetOtp)
             }
           } catch (error) {
             setMessage(mapApiError(error).message)

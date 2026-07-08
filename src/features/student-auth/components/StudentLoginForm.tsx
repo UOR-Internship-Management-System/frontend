@@ -4,19 +4,15 @@ import { routePaths } from '../../../app/config/routePaths'
 import { FormField } from '../../../shared/components/forms/FormField'
 import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Button } from '../../../shared/components/ui/Button'
-import {
-  adminLoginSchema,
-  flattenAdminZodErrors,
-  type AdminLoginFormValues,
-} from '../schemas/adminAuthSchemas'
+import { flattenZodErrors, loginSchema, type LoginFormValues } from '../schemas/studentAuthSchemas'
 
-type AdminLoginFormProps = {
+type StudentLoginFormProps = {
   isSubmitting: boolean
-  onSubmit: (values: AdminLoginFormValues) => void
+  onSubmit: (values: LoginFormValues) => void
 }
 
-export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) {
-  const [values, setValues] = useState<AdminLoginFormValues>({ email: '', password: '' })
+export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormProps) {
+  const [values, setValues] = useState<LoginFormValues>({ email: '', password: '' })
   const [errors, setErrors] = useState<Record<string, string | undefined>>({})
 
   return (
@@ -25,9 +21,9 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
       noValidate
       onSubmit={(event) => {
         event.preventDefault()
-        const result = adminLoginSchema.safeParse(values)
+        const result = loginSchema.safeParse(values)
         if (!result.success) {
-          setErrors(flattenAdminZodErrors(result.error))
+          setErrors(flattenZodErrors(result.error))
           return
         }
 
@@ -35,19 +31,19 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
         onSubmit(result.data)
       }}
     >
-      <FormField error={errors.email} htmlFor="admin-email" label="Admin Email Address">
+      <FormField error={errors.email} htmlFor="student-login-email" label="University Email">
         <TextInput
           autoComplete="email"
-          id="admin-email"
+          id="student-login-email"
           onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
           type="email"
           value={values.email}
         />
       </FormField>
-      <FormField error={errors.password} htmlFor="admin-password" label="Security Password">
+      <FormField error={errors.password} htmlFor="student-login-password" label="Password">
         <TextInput
           autoComplete="current-password"
-          id="admin-password"
+          id="student-login-password"
           onChange={(event) =>
             setValues((current) => ({ ...current, password: event.target.value }))
           }
@@ -59,7 +55,7 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
         <Button isLoading={isSubmitting} type="submit">
           Log In
         </Button>
-        <Link className="nav-link" to={routePaths.adminForgotPassword}>
+        <Link className="nav-link" to={routePaths.studentForgotPassword}>
           Forgot Password
         </Link>
       </div>

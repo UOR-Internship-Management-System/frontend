@@ -8,13 +8,22 @@ import { RootLayout } from '../layouts/RootLayout'
 import { StudentLayout } from '../layouts/StudentLayout'
 import { RouteErrorElement } from '../../shared/errors/routeErrorElement'
 import { SkeletonBlock } from '../../shared/components/feedback/SkeletonBlock'
-import { RequireAdmin, RequireStudent } from './routeGuards'
+import {
+  PublicOnlyRoute,
+  RequireAdmin,
+  RequireResetContextRoute,
+  RequireStudent,
+  RequireVerificationContextRoute,
+} from './routeGuards'
 import { fallbackRoutes } from './fallbackRoutes'
 import {
   AcademicLedgerPage,
   AcademicRecordsPage,
+  AdminCreatePasswordPage,
   AdminDashboardPage,
+  AdminForgotPasswordPage,
   AdminLoginPage,
+  AdminVerifyResetOtpPage,
   CandidateFilteringPage,
   CreatePasswordPage,
   CvBuilderPage,
@@ -28,6 +37,8 @@ import {
   StudentLoginPage,
   StudentProfilePage,
   StudentProjectsPage,
+  StudentResetOtpPage,
+  StudentResetPasswordPage,
   StudentSignUpPage,
   StudentSkillsPage,
   VerifyOtpPage,
@@ -47,12 +58,120 @@ export const routes: RouteObject[] = [
       {
         element: <AuthLayout />,
         children: [
-          { path: routePaths.studentSignUp, element: withSuspense(<StudentSignUpPage />) },
-          { path: routePaths.studentVerifyOtp, element: withSuspense(<VerifyOtpPage />) },
-          { path: routePaths.studentCreatePassword, element: withSuspense(<CreatePasswordPage />) },
-          { path: routePaths.studentLogin, element: withSuspense(<StudentLoginPage />) },
-          { path: routePaths.studentForgotPassword, element: withSuspense(<ForgotPasswordPage />) },
-          { path: routePaths.adminLogin, element: withSuspense(<AdminLoginPage />) },
+          {
+            path: routePaths.studentSignUp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <StudentSignUpPage />
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentVerifyOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireVerificationContextRoute>
+                  <VerifyOtpPage />
+                </RequireVerificationContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireVerificationContextRoute requireVerified>
+                  <CreatePasswordPage />
+                </RequireVerificationContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentLogin,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <StudentLoginPage />
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentForgotPassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <ForgotPasswordPage />
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentResetVerifyOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="STUDENT"
+                  redirectTo={routePaths.studentForgotPassword}
+                >
+                  <StudentResetOtpPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.studentResetCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="STUDENT"
+                  redirectTo={routePaths.studentForgotPassword}
+                  requireVerified
+                >
+                  <StudentResetPasswordPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.adminLogin,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <AdminLoginPage />
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.adminForgotPassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <AdminForgotPasswordPage />
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.adminVerifyResetOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="ADMIN"
+                  redirectTo={routePaths.adminForgotPassword}
+                >
+                  <AdminVerifyResetOtpPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
+          {
+            path: routePaths.adminCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="ADMIN"
+                  redirectTo={routePaths.adminForgotPassword}
+                  requireVerified
+                >
+                  <AdminCreatePasswordPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+            ),
+          },
         ],
       },
       {
