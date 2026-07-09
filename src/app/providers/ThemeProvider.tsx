@@ -20,7 +20,9 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
+    document.body.classList.toggle('dark-mode', theme === 'dark')
     window.localStorage.setItem(storageKeys.theme, theme)
+    window.localStorage.setItem('studentPortalDarkMode', String(theme === 'dark'))
   }, [theme])
 
   const value = useMemo<ThemeContextValue>(
