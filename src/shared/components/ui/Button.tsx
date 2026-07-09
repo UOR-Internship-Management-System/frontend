@@ -20,13 +20,22 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`button button-${variant} ${className}`.trim()}
+      aria-busy={isLoading || undefined}
+      className={`button button-${variant} ${isLoading ? 'button-loading' : ''} ${className}`.trim()}
       disabled={disabled || isLoading}
       type={type}
       {...props}
     >
-      {icon}
-      {isLoading ? 'Loading' : children}
+      <span className="button-content" aria-hidden={isLoading || undefined}>
+        {icon}
+        {children}
+      </span>
+      {isLoading ? (
+        <>
+          <span className="visually-hidden">Loading</span>
+          <span aria-hidden="true" className="app-spinner button-spinner" />
+        </>
+      ) : null}
     </button>
   )
 }

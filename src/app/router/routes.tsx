@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Suspense } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { routePaths } from '../config/routePaths'
@@ -7,7 +7,6 @@ import { AuthLayout } from '../layouts/AuthLayout'
 import { RootLayout } from '../layouts/RootLayout'
 import { StudentLayout } from '../layouts/StudentLayout'
 import { RouteErrorElement } from '../../shared/errors/routeErrorElement'
-import { SkeletonBlock } from '../../shared/components/feedback/SkeletonBlock'
 import {
   PublicOnlyRoute,
   RequireAdmin,
@@ -44,8 +43,17 @@ import {
   VerifyOtpPage,
 } from './lazyRoutes'
 
-const withSuspense = (element: ReactElement) => (
-  <Suspense fallback={<SkeletonBlock />}>{element}</Suspense>
+import {
+  AuthSkeleton,
+  StudentDashboardSkeleton,
+  AdminDashboardSkeleton,
+  TableSkeleton,
+  WorkspaceSkeleton,
+  FormSkeleton,
+} from '../../shared/skeletons'
+
+const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
+  <Suspense fallback={fallback}>{element}</Suspense>
 )
 
 export const routes: RouteObject[] = [
@@ -54,7 +62,7 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: withSuspense(<HomePage />) },
+      { index: true, element: withSuspense(<HomePage />, <FormSkeleton />) },
       {
         element: <AuthLayout />,
         children: [
@@ -64,6 +72,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentSignUpPage />
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="student-sign-up" />
             ),
           },
           {
@@ -74,6 +83,7 @@ export const routes: RouteObject[] = [
                   <VerifyOtpPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />
             ),
           },
           {
@@ -84,6 +94,7 @@ export const routes: RouteObject[] = [
                   <CreatePasswordPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />
             ),
           },
           {
@@ -92,6 +103,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentLoginPage />
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="student-login" />
             ),
           },
           {
@@ -100,6 +112,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <ForgotPasswordPage />
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="forgot-password" />
             ),
           },
           {
@@ -113,6 +126,7 @@ export const routes: RouteObject[] = [
                   <StudentResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />
             ),
           },
           {
@@ -127,6 +141,7 @@ export const routes: RouteObject[] = [
                   <StudentResetPasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />
             ),
           },
           {
@@ -135,6 +150,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminLoginPage />
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="admin-login" />
             ),
           },
           {
@@ -143,6 +159,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminForgotPasswordPage />
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="forgot-password" />
             ),
           },
           {
@@ -156,6 +173,7 @@ export const routes: RouteObject[] = [
                   <AdminVerifyResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />
             ),
           },
           {
@@ -170,6 +188,7 @@ export const routes: RouteObject[] = [
                   <AdminCreatePasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />
             ),
           },
         ],
@@ -181,14 +200,29 @@ export const routes: RouteObject[] = [
           </RequireStudent>
         ),
         children: [
-          { path: routePaths.studentDashboard, element: withSuspense(<StudentDashboardPage />) },
-          { path: routePaths.studentProfile, element: withSuspense(<StudentProfilePage />) },
-          { path: routePaths.studentSkills, element: withSuspense(<StudentSkillsPage />) },
-          { path: routePaths.studentProjects, element: withSuspense(<StudentProjectsPage />) },
-          { path: routePaths.studentCvBuilder, element: withSuspense(<CvBuilderPage />) },
+          {
+            path: routePaths.studentDashboard,
+            element: withSuspense(<StudentDashboardPage />, <StudentDashboardSkeleton />),
+          },
+          {
+            path: routePaths.studentProfile,
+            element: withSuspense(<StudentProfilePage />, <FormSkeleton variant="profile" />),
+          },
+          {
+            path: routePaths.studentSkills,
+            element: withSuspense(<StudentSkillsPage />, <WorkspaceSkeleton variant="skills" />),
+          },
+          {
+            path: routePaths.studentProjects,
+            element: withSuspense(<StudentProjectsPage />, <TableSkeleton variant="student-projects" />),
+          },
+          {
+            path: routePaths.studentCvBuilder,
+            element: withSuspense(<CvBuilderPage />, <WorkspaceSkeleton variant="cv-builder" />),
+          },
           {
             path: routePaths.studentAcademicRecords,
-            element: withSuspense(<AcademicRecordsPage />),
+            element: withSuspense(<AcademicRecordsPage />, <TableSkeleton variant="academic-records" />),
           },
         ],
       },
@@ -199,19 +233,34 @@ export const routes: RouteObject[] = [
           </RequireAdmin>
         ),
         children: [
-          { path: routePaths.adminDashboard, element: withSuspense(<AdminDashboardPage />) },
-          { path: routePaths.adminAcademicLedger, element: withSuspense(<AcademicLedgerPage />) },
-          { path: routePaths.adminStudents, element: withSuspense(<RegisteredStudentsPage />) },
-          { path: routePaths.adminStudentDetail, element: withSuspense(<StudentDeepDivePage />) },
+          {
+            path: routePaths.adminDashboard,
+            element: withSuspense(<AdminDashboardPage />, <AdminDashboardSkeleton />),
+          },
+          {
+            path: routePaths.adminAcademicLedger,
+            element: withSuspense(<AcademicLedgerPage />, <TableSkeleton variant="academic-ledger" />),
+          },
+          {
+            path: routePaths.adminStudents,
+            element: withSuspense(<RegisteredStudentsPage />, <TableSkeleton variant="registered-students" />),
+          },
+          {
+            path: routePaths.adminStudentDetail,
+            element: withSuspense(<StudentDeepDivePage />, <FormSkeleton variant="student-detail" />),
+          },
           {
             path: routePaths.adminInternships,
-            element: withSuspense(<InternshipManagementPage />),
+            element: withSuspense(<InternshipManagementPage />, <TableSkeleton variant="internship-management" />),
           },
           {
             path: routePaths.adminCandidateFiltering,
-            element: withSuspense(<CandidateFilteringPage />),
+            element: withSuspense(<CandidateFilteringPage />, <TableSkeleton variant="candidate-filtering" />),
           },
-          { path: routePaths.adminShortlists, element: withSuspense(<ShortlistsPage />) },
+          {
+            path: routePaths.adminShortlists,
+            element: withSuspense(<ShortlistsPage />, <TableSkeleton variant="shortlists" />),
+          },
         ],
       },
       ...fallbackRoutes,

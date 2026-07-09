@@ -24,7 +24,7 @@ export function RootLayout() {
 
   return (
     <div className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''}`.trim()}>
-      <ThemeToggle className="global-theme-toggle" />
+      {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
 
       {!isStandalone ? (
         <header className="app-header">
@@ -33,6 +33,7 @@ export function RootLayout() {
               <span className="brand-dot" />
               CV Management
             </Link>
+            <ThemeToggle />
           </div>
         </header>
       ) : null}

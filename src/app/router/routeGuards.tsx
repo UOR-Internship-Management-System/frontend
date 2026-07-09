@@ -5,6 +5,7 @@ import { useAuth } from '../../shared/hooks/useAuth'
 import { authStorage } from '../../shared/auth/authStorage'
 import type { AuthRole } from '../../shared/auth/authTypes'
 import { getDashboardPathForRole, getLoginPathForRole } from '../../shared/auth/redirects'
+import { AuthSkeleton } from '../../shared/skeletons'
 
 type RoleGuardProps = PropsWithChildren<{
   role: AuthRole
@@ -20,7 +21,7 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
   const auth = useAuth()
 
   if (auth.status === 'loading') {
-    return <div className="skeleton-block">Loading account session</div>
+    return <AuthSkeleton variant="session" />
   }
 
   if (auth.currentUser) {
@@ -35,7 +36,7 @@ export function RequireRole({ children, role }: RoleGuardProps) {
   const location = useLocation()
 
   if (auth.status === 'loading') {
-    return <div className="skeleton-block">Loading account session</div>
+    return <AuthSkeleton variant="session" />
   }
 
   if (auth.status === 'anonymous') {

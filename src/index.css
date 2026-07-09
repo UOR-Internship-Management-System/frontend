@@ -226,14 +226,14 @@ select:focus-visible {
   place-items: center;
 }
 
-.global-theme-toggle {
+.button.global-theme-toggle {
   position: fixed;
   top: 18px;
   right: 18px;
   z-index: 100;
 }
 
-.theme-toggle {
+.button.theme-toggle {
   width: 44px;
   min-width: 44px;
   height: 44px;
@@ -250,12 +250,12 @@ select:focus-visible {
   backdrop-filter: blur(10px);
 }
 
-.theme-toggle:hover:not(:disabled) {
+.button.theme-toggle:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
 }
 
-.theme-toggle .material-symbols-outlined {
+.button.theme-toggle .material-symbols-outlined {
   font-size: 23px;
 }
 
@@ -720,31 +720,289 @@ p {
   padding: 22px;
 }
 
-.skeleton-block {
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.skeleton-block,
+.skeleton-card,
+.skeleton-inline,
+.skeleton-circle {
+  --skeleton-base: color-mix(in srgb, var(--color-border) 58%, var(--color-card-muted));
+  --skeleton-highlight: color-mix(in srgb, var(--color-primary) 18%, var(--color-card));
   display: grid;
   gap: 12px;
+}
+
+.skeleton-block {
   padding: 18px;
   border-radius: var(--radius-md);
-  background: var(--color-card-muted);
-  border: 1px dashed var(--color-border);
+  background: color-mix(in srgb, var(--color-card-muted) 82%, var(--color-card));
+  border: 1px solid var(--color-border);
+}
+
+.skeleton-card {
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.skeleton-inline {
+  display: inline-grid;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  vertical-align: middle;
+}
+
+.skeleton-circle {
+  display: inline-grid;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.skeleton-rounded {
+  border-radius: 999px !important;
+  overflow: hidden;
+}
+
+.skeleton-empty {
+  min-width: 1px;
+  min-height: 1px;
+  background:
+    linear-gradient(
+      90deg,
+      var(--skeleton-base) 0%,
+      var(--skeleton-highlight) 45%,
+      var(--skeleton-base) 90%
+    );
+  background-size: 220% 100%;
+  animation: shimmer 1.45s infinite linear;
 }
 
 .skeleton-line {
+  width: 100%;
   height: 12px;
   border-radius: 999px;
   background:
     linear-gradient(
       90deg,
-      transparent,
-      color-mix(in srgb, var(--color-primary) 18%, transparent),
-      transparent
-    ),
-    var(--color-border);
+      var(--skeleton-base) 0%,
+      var(--skeleton-highlight) 45%,
+      var(--skeleton-base) 90%
+    );
   background-size: 220% 100%;
-  animation: shimmer 1.7s infinite linear;
+  animation: shimmer 1.45s infinite linear;
+}
+
+.skeleton-line:last-child {
+  width: 78%;
+}
+
+.route-skeleton {
+  min-height: min(620px, calc(100vh - 160px));
+  display: grid;
+  place-items: center;
+}
+
+.route-skeleton-session {
+  min-height: calc(100vh - 120px);
+}
+
+.session-skeleton-card {
+  width: min(360px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.auth-skeleton-card,
+.auth-skeleton-centered,
+.auth-skeleton-fields,
+.auth-skeleton-heading,
+.auth-skeleton-welcome {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-skeleton-welcome {
+  width: min(460px, 100%);
+}
+
+.auth-skeleton-card {
+  width: min(420px, 100%);
+}
+
+.auth-skeleton-field {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-skeleton-submit {
+  justify-self: center;
+}
+
+.auth-skeleton-centered {
+  width: 100%;
+}
+
+.auth-skeleton-card-shell .auth-icon .material-symbols-outlined {
+  color: transparent;
+}
+
+.auth-skeleton-otp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 48px));
+  justify-content: center;
+  gap: 8px;
+}
+
+.skeleton-page-header {
+  align-items: flex-start;
+}
+
+.skeleton-page-header > div {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.skeleton-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.metric-skeleton-card,
+.dashboard-welcome-skeleton,
+.form-skeleton-card,
+.profile-skeleton-summary,
+.table-skeleton-card,
+.upload-skeleton-panel,
+.cv-preview-skeleton,
+.cv-source-skeleton,
+.skills-browser-skeleton,
+.declared-skills-skeleton {
+  display: grid;
+  gap: 16px;
+}
+
+.form-skeleton-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.form-skeleton-grid.two-column {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.form-skeleton-field {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-skeleton-layout,
+.student-detail-skeleton-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.32fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.table-skeleton-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.table-skeleton-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-skeleton-wrapper {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.table-skeleton-grid {
+  min-width: 720px;
+  display: grid;
+}
+
+.table-skeleton-cell {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.table-skeleton-head {
+  min-height: 46px;
+  background: var(--color-card-muted);
+}
+
+.pagination-skeleton {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.cv-workspace-skeleton,
+.skills-workspace-skeleton {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.cv-paper-skeleton {
+  min-height: 560px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-card-muted);
+}
+
+.skill-category-skeleton,
+.declared-skill-row-skeleton {
+  display: grid;
+  gap: 10px;
+  padding: 14px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.skill-chip-skeleton-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.declared-skill-row-skeleton {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
 }
 
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -772,6 +1030,24 @@ p {
 .button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.button-loading .button-content {
+  visibility: hidden;
+}
+
+.button-spinner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-width: 3px;
 }
 
 .button-primary {
@@ -894,6 +1170,15 @@ p {
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+
+.empty-state-message {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+  color: var(--color-muted);
 }
 
 .status-icon-success {
@@ -1104,8 +1389,8 @@ td {
     width: 100%;
   }
 
-  .theme-toggle,
-  .global-theme-toggle {
+  .button.theme-toggle,
+  .button.global-theme-toggle {
     width: 44px;
     min-width: 44px;
     height: 44px;
@@ -1113,7 +1398,7 @@ td {
     padding: 0;
   }
 
-  .global-theme-toggle {
+  .button.global-theme-toggle {
     top: 14px;
     right: 14px;
   }
@@ -1135,6 +1420,29 @@ td {
   .shell-bar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .form-skeleton-grid.two-column,
+  .profile-skeleton-layout,
+  .student-detail-skeleton-layout,
+  .cv-workspace-skeleton,
+  .skills-workspace-skeleton {
+    grid-template-columns: 1fr;
+  }
+
+  .table-skeleton-toolbar,
+  .pagination-skeleton {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-skeleton-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .auth-skeleton-otp-grid {
+    grid-template-columns: repeat(6, minmax(0, 42px));
   }
 }
 
