@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthSplitShell } from '../../../shared/components/layout/AuthShell'
 import { useAuth } from '../../../shared/hooks/useAuth'
 import { StudentLoginForm } from '../components/StudentLoginForm'
 import { useStudentLogin } from '../hooks/useStudentLogin'
@@ -32,18 +33,27 @@ export function StudentLoginPage() {
   }
 
   return (
-    <section className="card auth-card">
-      <h1>Student Login</h1>
-      <p>Use your university email and password to access your Student workspace.</p>
-      {message ? (
-        <div className="inline-alert" role="alert">
-          {message}
-        </div>
-      ) : null}
-      <StudentLoginForm isSubmitting={login.isPending} onSubmit={handleSubmit} />
-      <p className="auth-secondary-link">
-        New student? <Link to={routePaths.studentSignUp}>Start sign up</Link>
-      </p>
-    </section>
+    <AuthSplitShell
+      title={
+        <>
+          Advance your career,
+          <br />
+          <span>student.</span>
+        </>
+      }
+    >
+      <section className="auth-form-card">
+        <h1>Login</h1>
+        {message ? (
+          <div className="inline-alert" role="alert">
+            {message}
+          </div>
+        ) : null}
+        <StudentLoginForm isSubmitting={login.isPending} onSubmit={handleSubmit} />
+        <p className="auth-secondary-link">
+          New student? <Link to={routePaths.studentSignUp}>Student Registration</Link>
+        </p>
+      </section>
+    </AuthSplitShell>
   )
 }

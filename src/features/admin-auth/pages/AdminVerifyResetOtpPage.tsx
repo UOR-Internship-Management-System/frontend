@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthCardShell } from '../../../shared/components/layout/AuthShell'
 import { AdminResetOtpForm } from '../components/AdminResetOtpForm'
 import { useResendAdminResetOtp } from '../hooks/useResendAdminResetOtp'
 import { useVerifyAdminResetOtp } from '../hooks/useVerifyAdminResetOtp'
@@ -15,9 +16,12 @@ export function AdminVerifyResetOtpPage() {
   const context = authStorage.getPasswordResetContext()
 
   return (
-    <section className="card auth-card admin-auth-card">
-      <h1>Verify Reset OTP</h1>
-      <p>Enter the six-digit OTP sent to {context?.email ?? 'your administrator email'}.</p>
+    <AuthCardShell
+      className="admin-auth-card"
+      description={`We sent a 6-digit reset code to ${context?.email ?? 'your administrator email'}.`}
+      icon="lock_open"
+      title="Verify Your Identity"
+    >
       {message ? (
         <div className="inline-alert" role="alert">
           {message}
@@ -52,6 +56,6 @@ export function AdminVerifyResetOtpPage() {
           }
         }}
       />
-    </section>
+    </AuthCardShell>
   )
 }

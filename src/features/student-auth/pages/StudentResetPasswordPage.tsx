@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthCardShell } from '../../../shared/components/layout/AuthShell'
 import { StudentResetPasswordForm } from '../components/StudentResetPasswordForm'
 import { useCompleteStudentPasswordReset } from '../hooks/useCompleteStudentPasswordReset'
 import type { PasswordFormValues } from '../schemas/studentAuthSchemas'
@@ -28,9 +29,11 @@ export function StudentResetPasswordPage() {
   }
 
   return (
-    <section className="card auth-card">
-      <h1>Create New Password</h1>
-      <p>Create your new Student password. You will log in separately after reset.</p>
+    <AuthCardShell
+      description="Create your new Student password. You will log in separately after reset."
+      icon="lock_reset"
+      title="Create your new password."
+    >
       {message ? (
         <div className="inline-alert" role="alert">
           {message}
@@ -41,6 +44,6 @@ export function StudentResetPasswordPage() {
         isSubmitting={completeReset.isPending}
         onSubmit={handleSubmit}
       />
-    </section>
+    </AuthCardShell>
   )
 }

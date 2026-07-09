@@ -4,7 +4,7 @@ test('student public shells load and protected route redirects anonymous users',
   page,
 }) => {
   await page.goto('/student/login')
-  await expect(page.getByRole('heading', { name: 'Student Login' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible()
 
   await page.goto('/student/dashboard')
   await expect(page).toHaveURL(/\/student\/login$/)
@@ -53,11 +53,11 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
   await page.getByLabel('Full Name').fill('E2E Student')
   await page.getByLabel('Index Number').fill('SC/2020/001')
   await page.getByLabel('University Email').fill('student@dcs.ruh.ac.lk')
-  await page.getByRole('button', { name: 'Sign Up' }).click()
+  await page.getByRole('button', { name: 'Send Request' }).click()
 
   await expect(page).toHaveURL(/\/student\/verify-otp$/)
-  await page.getByLabel('Six-digit OTP').fill('123456')
-  await page.getByRole('button', { name: 'Verify OTP' }).click()
+  await page.getByLabel('Six-digit OTP').pressSequentially('123456')
+  await page.getByRole('button', { name: 'Verify Code' }).click()
 
   await expect(page).toHaveURL(/\/student\/create-password$/)
   await page.getByLabel('New Password', { exact: true }).fill('Password@123')

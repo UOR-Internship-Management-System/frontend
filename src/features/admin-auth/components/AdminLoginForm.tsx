@@ -40,6 +40,7 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
           autoComplete="email"
           id="admin-email"
           onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
+          placeholder="e.g., admin.name@ruh.ac.lk"
           type="email"
           value={values.email}
         />
@@ -51,6 +52,7 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
           onChange={(event) =>
             setValues((current) => ({ ...current, password: event.target.value }))
           }
+          placeholder="Enter your security password"
           type="password"
           value={values.password}
         />
@@ -60,7 +62,7 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
           Log In
         </Button>
         <Link className="nav-link" to={routePaths.adminForgotPassword}>
-          Forgot Password
+          Forgot Password?
         </Link>
       </div>
     </form>

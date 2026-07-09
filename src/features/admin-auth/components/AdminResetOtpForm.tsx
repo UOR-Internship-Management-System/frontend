@@ -49,25 +49,28 @@ export function AdminResetOtpForm({
       <FormField error={error} htmlFor="admin-reset-otp" label="Six-digit OTP">
         <OtpInput
           id="admin-reset-otp"
-          onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          onChange={setOtp}
           value={otp}
         />
       </FormField>
       <div className="form-actions">
         <Button isLoading={isSubmitting} type="submit">
-          Verify OTP
+          Verify Code
         </Button>
-        <Button
-          disabled={cooldown > 0}
-          isLoading={isResending}
-          onClick={() => {
-            onResend()
-            setCooldown(60)
-          }}
-          variant="secondary"
-        >
-          {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
-        </Button>
+        <p className="otp-resend-copy">
+          Didn't receive the code?{' '}
+          <button
+            className="link-button"
+            disabled={cooldown > 0 || isResending}
+            onClick={() => {
+              onResend()
+              setCooldown(60)
+            }}
+            type="button"
+          >
+            {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
+          </button>
+        </p>
       </div>
     </form>
   )

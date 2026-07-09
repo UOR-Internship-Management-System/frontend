@@ -17,7 +17,7 @@ export function StudentOtpForm({
   isSubmitting,
   onResend,
   onSubmit,
-  submitLabel = 'Verify OTP',
+  submitLabel = 'Verify Code',
 }: StudentOtpFormProps) {
   const [otp, setOtp] = useState('')
   const [error, setError] = useState<string>()
@@ -52,7 +52,7 @@ export function StudentOtpForm({
         <OtpInput
           id="student-otp"
           name="otp"
-          onChange={(event) => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))}
+          onChange={setOtp}
           value={otp}
         />
       </FormField>
@@ -60,17 +60,20 @@ export function StudentOtpForm({
         <Button isLoading={isSubmitting} type="submit">
           {submitLabel}
         </Button>
-        <Button
-          disabled={cooldown > 0}
-          isLoading={isResending}
-          onClick={() => {
-            onResend()
-            setCooldown(60)
-          }}
-          variant="secondary"
-        >
-          {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
-        </Button>
+        <p className="otp-resend-copy">
+          Didn't receive the code?{' '}
+          <button
+            className="link-button"
+            disabled={cooldown > 0 || isResending}
+            onClick={() => {
+              onResend()
+              setCooldown(60)
+            }}
+            type="button"
+          >
+            {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
+          </button>
+        </p>
       </div>
     </form>
   )

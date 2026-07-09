@@ -47,6 +47,7 @@ export function StudentSignUpForm({ isSubmitting, onSubmit }: StudentSignUpFormP
           onChange={(event) =>
             setValues((current) => ({ ...current, fullName: event.target.value }))
           }
+          placeholder="e.g., K. Kavindu Lakshan"
           value={values.fullName}
         />
       </FormField>
@@ -58,6 +59,7 @@ export function StudentSignUpForm({ isSubmitting, onSubmit }: StudentSignUpFormP
           onChange={(event) =>
             setValues((current) => ({ ...current, indexNumber: event.target.value }))
           }
+          placeholder="e.g., SC/2022/12865"
           value={values.indexNumber}
         />
       </FormField>
@@ -73,12 +75,13 @@ export function StudentSignUpForm({ isSubmitting, onSubmit }: StudentSignUpFormP
           onChange={(event) =>
             setValues((current) => ({ ...current, universityEmail: event.target.value }))
           }
+          placeholder="e.g., username@usci.ruh.ac.lk"
           type="email"
           value={values.universityEmail}
         />
       </FormField>
       <Button isLoading={isSubmitting} type="submit">
-        Sign Up
+        Send Request
       </Button>
     </form>
   )

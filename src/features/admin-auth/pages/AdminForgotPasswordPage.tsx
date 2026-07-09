@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthCardShell } from '../../../shared/components/layout/AuthShell'
 import { AdminForgotPasswordForm } from '../components/AdminForgotPasswordForm'
 import { useStartAdminPasswordReset } from '../hooks/useStartAdminPasswordReset'
 
@@ -12,9 +13,12 @@ export function AdminForgotPasswordPage() {
   const [message, setMessage] = useState<string>()
 
   return (
-    <section className="card auth-card admin-auth-card">
-      <h1>Forgot Password?</h1>
-      <p>Provide your administrator email address to request a One-Time Password.</p>
+    <AuthCardShell
+      className="admin-auth-card"
+      description="Provide your administrator email address to request a One-Time Password."
+      icon="lock_reset"
+      title="Forgot Password?"
+    >
       {message ? (
         <div className="inline-alert" role="status">
           {message}
@@ -40,6 +44,6 @@ export function AdminForgotPasswordPage() {
           }
         }}
       />
-    </section>
+    </AuthCardShell>
   )
 }

@@ -5,11 +5,6 @@ import { useAuth } from '../../shared/hooks/useAuth'
 
 const links = [
   ['Dashboard', routePaths.adminDashboard],
-  ['Academic Ledger', routePaths.adminAcademicLedger],
-  ['Students', routePaths.adminStudents],
-  ['Internships', routePaths.adminInternships],
-  ['Candidate Filtering', routePaths.adminCandidateFiltering],
-  ['Shortlists', routePaths.adminShortlists],
 ] as const
 
 export function AdminLayout() {

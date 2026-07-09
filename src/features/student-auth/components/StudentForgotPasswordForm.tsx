@@ -39,6 +39,7 @@ export function StudentForgotPasswordForm({
           autoComplete="email"
           id="student-reset-email"
           onChange={(event) => setEmail(event.target.value)}
+          placeholder="username@usci.ruh.ac.lk"
           type="email"
           value={email}
         />

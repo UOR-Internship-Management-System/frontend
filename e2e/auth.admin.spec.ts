@@ -52,8 +52,8 @@ test('admin resets password and logs in with mocked Sprint 2 APIs', async ({ pag
   await page.getByRole('button', { name: 'Send OTP' }).click()
 
   await expect(page).toHaveURL(/\/admin\/verify-reset-otp$/)
-  await page.getByLabel('Six-digit OTP').fill('123456')
-  await page.getByRole('button', { name: 'Verify OTP' }).click()
+  await page.getByLabel('Six-digit OTP').pressSequentially('123456')
+  await page.getByRole('button', { name: 'Verify Code' }).click()
 
   await expect(page).toHaveURL(/\/admin\/create-password$/)
   await page.getByLabel('New Password', { exact: true }).fill('Password@123')

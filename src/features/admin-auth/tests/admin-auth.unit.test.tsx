@@ -23,6 +23,18 @@ describe('admin Sprint 2 authentication', () => {
     expect(screen.getAllByText('This field is required.')).toHaveLength(2)
   })
 
+  it('renders finalized Admin login welcome panel and form heading', () => {
+    renderWithProviders(
+      <MemoryRouter>
+        <AdminLoginPage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: /welcome back, administrator/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /contact it operations/i })).toBeInTheDocument()
+  })
+
   it('logs in a predefined Admin and redirects to the Admin dashboard shell', async () => {
     const user = userEvent.setup()
 

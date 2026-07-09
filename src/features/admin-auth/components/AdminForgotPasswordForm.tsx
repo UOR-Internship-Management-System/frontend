@@ -36,6 +36,7 @@ export function AdminForgotPasswordForm({ isSubmitting, onSubmit }: AdminForgotP
           autoComplete="email"
           id="admin-reset-email"
           onChange={(event) => setEmail(event.target.value)}
+          placeholder="e.g., admin.name@ruh.ac.lk"
           type="email"
           value={email}
         />

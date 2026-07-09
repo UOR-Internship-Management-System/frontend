@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthCardShell } from '../../../shared/components/layout/AuthShell'
 import { StudentForgotPasswordForm } from '../components/StudentForgotPasswordForm'
 import { useStartStudentPasswordReset } from '../hooks/useStartStudentPasswordReset'
 
@@ -12,9 +13,11 @@ export function ForgotPasswordPage() {
   const [message, setMessage] = useState<string>()
 
   return (
-    <section className="card auth-card">
-      <h1>Forgot Password</h1>
-      <p>Enter your university email to request a one-time password.</p>
+    <AuthCardShell
+      description="Provide your institutional email address to request a One Time Password to reset your current Password."
+      icon="lock_reset"
+      title="Forgot Password?"
+    >
       {message ? (
         <div className="inline-alert" role="status">
           {message}
@@ -40,6 +43,6 @@ export function ForgotPasswordPage() {
           }
         }}
       />
-    </section>
+    </AuthCardShell>
   )
 }

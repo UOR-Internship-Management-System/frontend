@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { AuthSplitShell } from '../../../shared/components/layout/AuthShell'
 import { StudentSignUpForm } from '../components/StudentSignUpForm'
 import { VerificationStatusDialog } from '../components/VerificationStatusDialog'
 import { useStartStudentVerification } from '../hooks/useStartStudentVerification'
@@ -36,14 +37,18 @@ export function StudentSignUpPage() {
 
   return (
     <>
-      <section className="card auth-card">
-        <h1>Student Sign Up</h1>
-        <p>
-          Enter your display name, index number, and university email to begin automatic
-          verification.
-        </p>
-        <StudentSignUpForm isSubmitting={startVerification.isPending} onSubmit={handleSubmit} />
-      </section>
+      <AuthSplitShell
+        description="Welcome to the department's centralized talent placement ecosystem. Submit your registration request to initialize your single-source profile pipeline."
+        title="Launch your placement profile."
+      >
+        <section className="auth-form-card">
+          <div className="form-header">
+            <h1>Student Registration</h1>
+            <p>Initialize your passwordless account authorization request below.</p>
+          </div>
+          <StudentSignUpForm isSubmitting={startVerification.isPending} onSubmit={handleSubmit} />
+        </section>
+      </AuthSplitShell>
       <VerificationStatusDialog
         isOpen={dialog.isOpen}
         message={dialog.message}

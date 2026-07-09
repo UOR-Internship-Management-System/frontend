@@ -36,6 +36,7 @@ export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormPro
           autoComplete="email"
           id="student-login-email"
           onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
+          placeholder="username@usci.ruh.ac.lk"
           type="email"
           value={values.email}
         />
@@ -47,6 +48,7 @@ export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormPro
           onChange={(event) =>
             setValues((current) => ({ ...current, password: event.target.value }))
           }
+          placeholder="Enter your password"
           type="password"
           value={values.password}
         />
@@ -56,7 +58,7 @@ export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormPro
           Log In
         </Button>
         <Link className="nav-link" to={routePaths.studentForgotPassword}>
-          Forgot Password
+          Forgot Password?
         </Link>
       </div>
     </form>

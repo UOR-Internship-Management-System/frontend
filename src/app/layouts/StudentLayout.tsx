@@ -5,11 +5,6 @@ import { useAuth } from '../../shared/hooks/useAuth'
 
 const links = [
   ['Dashboard', routePaths.studentDashboard],
-  ['Profile', routePaths.studentProfile],
-  ['Skills', routePaths.studentSkills],
-  ['Projects', routePaths.studentProjects],
-  ['CV Builder', routePaths.studentCvBuilder],
-  ['Academic Records', routePaths.studentAcademicRecords],
 ] as const
 
 export function StudentLayout() {
