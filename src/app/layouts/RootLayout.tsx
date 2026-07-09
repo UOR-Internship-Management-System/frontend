@@ -1,27 +1,56 @@
-import { Link, Outlet } from 'react-router-dom'
+import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { routePaths } from '../config/routePaths'
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle'
 
+const standaloneRoutes = new Set<string>([
+  routePaths.home,
+  routePaths.studentSignUp,
+  routePaths.studentVerifyOtp,
+  routePaths.studentCreatePassword,
+  routePaths.studentLogin,
+  routePaths.studentForgotPassword,
+  routePaths.studentResetVerifyOtp,
+  routePaths.studentResetCreatePassword,
+  routePaths.adminLogin,
+  routePaths.adminForgotPassword,
+  routePaths.adminVerifyResetOtp,
+  routePaths.adminCreatePassword,
+])
+
 export function RootLayout() {
+  const location = useLocation()
+  const outlet = useOutlet()
+  const isStandalone = standaloneRoutes.has(location.pathname)
+
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div className="shell-bar">
-          <Link className="brand-mark" to={routePaths.home}>
-            <span className="brand-dot" />
-            CV Management
-          </Link>
-          <ThemeToggle />
+    <div className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''}`.trim()}>
+      {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
+
+      {!isStandalone ? (
+        <header className="app-header">
+          <div className="shell-bar">
+            <Link className="brand-mark" to={routePaths.home}>
+              <span className="brand-dot" />
+              CV Management
+            </Link>
+            <ThemeToggle />
+          </div>
+        </header>
+      ) : null}
+
+      <main className={isStandalone ? 'app-main app-main-standalone' : 'app-main'}>
+        <div className="page-transition" key={location.pathname}>
+          {outlet}
         </div>
-      </header>
-      <main className="app-main">
-        <Outlet />
       </main>
-      <footer className="app-footer">
-        <div className="shell-bar">
-          <p>Sprint 1 frontend foundation.</p>
-        </div>
-      </footer>
+
+      {!isStandalone ? (
+        <footer className="app-footer">
+          <div className="shell-bar">
+            <p>CV Management and Candidate Filtering System.</p>
+          </div>
+        </footer>
+      ) : null}
     </div>
   )
 }

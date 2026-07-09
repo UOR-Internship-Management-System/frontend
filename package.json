@@ -17,6 +17,7 @@
     "openapi:check": "node scripts/check-openapi-sync.mjs",
     "openapi:generate": "node scripts/generate-api-client.mjs",
     "verify:scope": "node scripts/verify-removed-scope.mjs",
+    "verify:removed-scope": "node scripts/verify-removed-scope.mjs",
     "validate-env": "node scripts/validate-env.mjs"
   },
   "dependencies": {

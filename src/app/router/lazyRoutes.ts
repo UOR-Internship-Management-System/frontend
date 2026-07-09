@@ -28,9 +28,34 @@ export const ForgotPasswordPage = lazy(() =>
     default: module.ForgotPasswordPage,
   })),
 )
+export const StudentResetOtpPage = lazy(() =>
+  import('../../features/student-auth/pages/StudentResetOtpPage').then((module) => ({
+    default: module.StudentResetOtpPage,
+  })),
+)
+export const StudentResetPasswordPage = lazy(() =>
+  import('../../features/student-auth/pages/StudentResetPasswordPage').then((module) => ({
+    default: module.StudentResetPasswordPage,
+  })),
+)
 export const AdminLoginPage = lazy(() =>
   import('../../features/admin-auth/pages/AdminLoginPage').then((module) => ({
     default: module.AdminLoginPage,
+  })),
+)
+export const AdminForgotPasswordPage = lazy(() =>
+  import('../../features/admin-auth/pages/AdminForgotPasswordPage').then((module) => ({
+    default: module.AdminForgotPasswordPage,
+  })),
+)
+export const AdminVerifyResetOtpPage = lazy(() =>
+  import('../../features/admin-auth/pages/AdminVerifyResetOtpPage').then((module) => ({
+    default: module.AdminVerifyResetOtpPage,
+  })),
+)
+export const AdminCreatePasswordPage = lazy(() =>
+  import('../../features/admin-auth/pages/AdminCreatePasswordPage').then((module) => ({
+    default: module.AdminCreatePasswordPage,
   })),
 )
 export const StudentDashboardPage = lazy(() =>

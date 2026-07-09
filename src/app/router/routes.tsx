@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react'
+import type { ReactElement, ReactNode } from 'react'
 import { Suspense } from 'react'
 import type { RouteObject } from 'react-router-dom'
 import { routePaths } from '../config/routePaths'
@@ -7,14 +7,22 @@ import { AuthLayout } from '../layouts/AuthLayout'
 import { RootLayout } from '../layouts/RootLayout'
 import { StudentLayout } from '../layouts/StudentLayout'
 import { RouteErrorElement } from '../../shared/errors/routeErrorElement'
-import { SkeletonBlock } from '../../shared/components/feedback/SkeletonBlock'
-import { RequireAdmin, RequireStudent } from './routeGuards'
+import {
+  PublicOnlyRoute,
+  RequireAdmin,
+  RequireResetContextRoute,
+  RequireStudent,
+  RequireVerificationContextRoute,
+} from './routeGuards'
 import { fallbackRoutes } from './fallbackRoutes'
 import {
   AcademicLedgerPage,
   AcademicRecordsPage,
+  AdminCreatePasswordPage,
   AdminDashboardPage,
+  AdminForgotPasswordPage,
   AdminLoginPage,
+  AdminVerifyResetOtpPage,
   CandidateFilteringPage,
   CreatePasswordPage,
   CvBuilderPage,
@@ -28,13 +36,24 @@ import {
   StudentLoginPage,
   StudentProfilePage,
   StudentProjectsPage,
+  StudentResetOtpPage,
+  StudentResetPasswordPage,
   StudentSignUpPage,
   StudentSkillsPage,
   VerifyOtpPage,
 } from './lazyRoutes'
 
-const withSuspense = (element: ReactElement) => (
-  <Suspense fallback={<SkeletonBlock />}>{element}</Suspense>
+import {
+  AuthSkeleton,
+  StudentDashboardSkeleton,
+  AdminDashboardSkeleton,
+  TableSkeleton,
+  WorkspaceSkeleton,
+  FormSkeleton,
+} from '../../shared/skeletons'
+
+const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
+  <Suspense fallback={fallback}>{element}</Suspense>
 )
 
 export const routes: RouteObject[] = [
@@ -43,16 +62,135 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: withSuspense(<HomePage />) },
+      { index: true, element: withSuspense(<HomePage />, <FormSkeleton />) },
       {
         element: <AuthLayout />,
         children: [
-          { path: routePaths.studentSignUp, element: withSuspense(<StudentSignUpPage />) },
-          { path: routePaths.studentVerifyOtp, element: withSuspense(<VerifyOtpPage />) },
-          { path: routePaths.studentCreatePassword, element: withSuspense(<CreatePasswordPage />) },
-          { path: routePaths.studentLogin, element: withSuspense(<StudentLoginPage />) },
-          { path: routePaths.studentForgotPassword, element: withSuspense(<ForgotPasswordPage />) },
-          { path: routePaths.adminLogin, element: withSuspense(<AdminLoginPage />) },
+          {
+            path: routePaths.studentSignUp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <StudentSignUpPage />
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="student-sign-up" />,
+            ),
+          },
+          {
+            path: routePaths.studentVerifyOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireVerificationContextRoute>
+                  <VerifyOtpPage />
+                </RequireVerificationContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />,
+            ),
+          },
+          {
+            path: routePaths.studentCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireVerificationContextRoute requireVerified>
+                  <CreatePasswordPage />
+                </RequireVerificationContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />,
+            ),
+          },
+          {
+            path: routePaths.studentLogin,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <StudentLoginPage />
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="student-login" />,
+            ),
+          },
+          {
+            path: routePaths.studentForgotPassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <ForgotPasswordPage />
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="forgot-password" />,
+            ),
+          },
+          {
+            path: routePaths.studentResetVerifyOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="STUDENT"
+                  redirectTo={routePaths.studentForgotPassword}
+                >
+                  <StudentResetOtpPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />,
+            ),
+          },
+          {
+            path: routePaths.studentResetCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="STUDENT"
+                  redirectTo={routePaths.studentForgotPassword}
+                  requireVerified
+                >
+                  <StudentResetPasswordPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />,
+            ),
+          },
+          {
+            path: routePaths.adminLogin,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <AdminLoginPage />
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="admin-login" />,
+            ),
+          },
+          {
+            path: routePaths.adminForgotPassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <AdminForgotPasswordPage />
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="forgot-password" />,
+            ),
+          },
+          {
+            path: routePaths.adminVerifyResetOtp,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="ADMIN"
+                  redirectTo={routePaths.adminForgotPassword}
+                >
+                  <AdminVerifyResetOtpPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="otp" />,
+            ),
+          },
+          {
+            path: routePaths.adminCreatePassword,
+            element: withSuspense(
+              <PublicOnlyRoute>
+                <RequireResetContextRoute
+                  accountType="ADMIN"
+                  redirectTo={routePaths.adminForgotPassword}
+                  requireVerified
+                >
+                  <AdminCreatePasswordPage />
+                </RequireResetContextRoute>
+              </PublicOnlyRoute>,
+              <AuthSkeleton variant="create-password" />,
+            ),
+          },
         ],
       },
       {
@@ -62,14 +200,35 @@ export const routes: RouteObject[] = [
           </RequireStudent>
         ),
         children: [
-          { path: routePaths.studentDashboard, element: withSuspense(<StudentDashboardPage />) },
-          { path: routePaths.studentProfile, element: withSuspense(<StudentProfilePage />) },
-          { path: routePaths.studentSkills, element: withSuspense(<StudentSkillsPage />) },
-          { path: routePaths.studentProjects, element: withSuspense(<StudentProjectsPage />) },
-          { path: routePaths.studentCvBuilder, element: withSuspense(<CvBuilderPage />) },
+          {
+            path: routePaths.studentDashboard,
+            element: withSuspense(<StudentDashboardPage />, <StudentDashboardSkeleton />),
+          },
+          {
+            path: routePaths.studentProfile,
+            element: withSuspense(<StudentProfilePage />, <FormSkeleton variant="profile" />),
+          },
+          {
+            path: routePaths.studentSkills,
+            element: withSuspense(<StudentSkillsPage />, <WorkspaceSkeleton variant="skills" />),
+          },
+          {
+            path: routePaths.studentProjects,
+            element: withSuspense(
+              <StudentProjectsPage />,
+              <TableSkeleton variant="student-projects" />,
+            ),
+          },
+          {
+            path: routePaths.studentCvBuilder,
+            element: withSuspense(<CvBuilderPage />, <WorkspaceSkeleton variant="cv-builder" />),
+          },
           {
             path: routePaths.studentAcademicRecords,
-            element: withSuspense(<AcademicRecordsPage />),
+            element: withSuspense(
+              <AcademicRecordsPage />,
+              <TableSkeleton variant="academic-records" />,
+            ),
           },
         ],
       },
@@ -80,19 +239,49 @@ export const routes: RouteObject[] = [
           </RequireAdmin>
         ),
         children: [
-          { path: routePaths.adminDashboard, element: withSuspense(<AdminDashboardPage />) },
-          { path: routePaths.adminAcademicLedger, element: withSuspense(<AcademicLedgerPage />) },
-          { path: routePaths.adminStudents, element: withSuspense(<RegisteredStudentsPage />) },
-          { path: routePaths.adminStudentDetail, element: withSuspense(<StudentDeepDivePage />) },
+          {
+            path: routePaths.adminDashboard,
+            element: withSuspense(<AdminDashboardPage />, <AdminDashboardSkeleton />),
+          },
+          {
+            path: routePaths.adminAcademicLedger,
+            element: withSuspense(
+              <AcademicLedgerPage />,
+              <TableSkeleton variant="academic-ledger" />,
+            ),
+          },
+          {
+            path: routePaths.adminStudents,
+            element: withSuspense(
+              <RegisteredStudentsPage />,
+              <TableSkeleton variant="registered-students" />,
+            ),
+          },
+          {
+            path: routePaths.adminStudentDetail,
+            element: withSuspense(
+              <StudentDeepDivePage />,
+              <FormSkeleton variant="student-detail" />,
+            ),
+          },
           {
             path: routePaths.adminInternships,
-            element: withSuspense(<InternshipManagementPage />),
+            element: withSuspense(
+              <InternshipManagementPage />,
+              <TableSkeleton variant="internship-management" />,
+            ),
           },
           {
             path: routePaths.adminCandidateFiltering,
-            element: withSuspense(<CandidateFilteringPage />),
+            element: withSuspense(
+              <CandidateFilteringPage />,
+              <TableSkeleton variant="candidate-filtering" />,
+            ),
           },
-          { path: routePaths.adminShortlists, element: withSuspense(<ShortlistsPage />) },
+          {
+            path: routePaths.adminShortlists,
+            element: withSuspense(<ShortlistsPage />, <TableSkeleton variant="shortlists" />),
+          },
         ],
       },
       ...fallbackRoutes,

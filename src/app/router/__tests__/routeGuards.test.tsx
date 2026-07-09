@@ -1,14 +1,41 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
-import { AuthContext, AuthState, AuthContextValue } from '../../providers/AuthProvider'
+import { describe, expect, it, vi } from 'vitest'
+import { AuthContext, AuthContextValue, AuthState } from '../../providers/AuthProvider'
+import type { CurrentUser } from '../../../shared/auth/authTypes'
 import { RequireAdmin, RequireStudent } from '../routeGuards'
 
+const studentUser: CurrentUser = {
+  userId: 'student-user-1',
+  accountId: 'student-account-1',
+  email: 'student@dcs.ruh.ac.lk',
+  displayName: 'Student User',
+  roles: ['STUDENT'],
+  primaryRole: 'STUDENT',
+}
+
+const adminUser: CurrentUser = {
+  userId: 'admin-user-1',
+  accountId: 'admin-account-1',
+  email: 'admin@dcs.ruh.ac.lk',
+  displayName: 'Admin User',
+  roles: ['ADMIN'],
+  primaryRole: 'ADMIN',
+}
+
 const MockAuthContext = ({ value, children }: { value: AuthState; children: React.ReactNode }) => {
+  const roles = value.currentUser?.roles ?? []
+  const primaryRole = value.currentUser?.primaryRole ?? null
   const contextValue: AuthContextValue = {
     ...value,
-    setFoundationRole: () => {},
-    clearFoundationAuth: () => {},
+    isAuthenticated: value.status === 'authenticated',
+    roles,
+    primaryRole,
+    role: primaryRole,
+    userId: value.currentUser?.userId ?? null,
+    signInWithToken: vi.fn(),
+    refreshCurrentUser: vi.fn(),
+    logout: vi.fn(),
   }
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
 }
@@ -43,7 +70,7 @@ describe('Route Guards', () => {
   describe('RequireStudent', () => {
     it('redirects anonymous user to student login', () => {
       renderWithRouterAndAuth(
-        { status: 'anonymous', role: null, userId: null },
+        { status: 'anonymous', currentUser: null },
         '/student/dashboard',
         <RequireStudent>
           <ProtectedStudent />
@@ -56,7 +83,7 @@ describe('Route Guards', () => {
 
     it('renders protected content for student role', () => {
       renderWithRouterAndAuth(
-        { status: 'authenticated', role: 'STUDENT', userId: 'user-1' },
+        { status: 'authenticated', currentUser: studentUser },
         '/student/dashboard',
         <RequireStudent>
           <ProtectedStudent />
@@ -68,7 +95,7 @@ describe('Route Guards', () => {
 
     it('redirects admin role to unauthorized page', () => {
       renderWithRouterAndAuth(
-        { status: 'authenticated', role: 'ADMIN', userId: 'user-1' },
+        { status: 'authenticated', currentUser: adminUser },
         '/student/dashboard',
         <RequireStudent>
           <ProtectedStudent />
@@ -83,7 +110,7 @@ describe('Route Guards', () => {
   describe('RequireAdmin', () => {
     it('redirects anonymous user to admin login', () => {
       renderWithRouterAndAuth(
-        { status: 'anonymous', role: null, userId: null },
+        { status: 'anonymous', currentUser: null },
         '/admin/dashboard',
         <RequireAdmin>
           <ProtectedAdmin />
@@ -96,7 +123,7 @@ describe('Route Guards', () => {
 
     it('renders protected content for admin role', () => {
       renderWithRouterAndAuth(
-        { status: 'authenticated', role: 'ADMIN', userId: 'user-1' },
+        { status: 'authenticated', currentUser: adminUser },
         '/admin/dashboard',
         <RequireAdmin>
           <ProtectedAdmin />
@@ -108,7 +135,7 @@ describe('Route Guards', () => {
 
     it('redirects student role to unauthorized page', () => {
       renderWithRouterAndAuth(
-        { status: 'authenticated', role: 'STUDENT', userId: 'user-1' },
+        { status: 'authenticated', currentUser: studentUser },
         '/admin/dashboard',
         <RequireAdmin>
           <ProtectedAdmin />
