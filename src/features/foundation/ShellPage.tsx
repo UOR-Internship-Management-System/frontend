@@ -12,9 +12,7 @@ export function ShellPage({ description, title }: ShellPageProps) {
       <PageHeader description={description} title={title} />
       <SectionCard aria-label={`${title} placeholder`}>
         <h2>Feature Placeholder</h2>
-        <p>
-          This area is designated for a future feature. Functionality is currently deferred.
-        </p>
+        <p>This area is designated for a future feature. Functionality is currently deferred.</p>
       </SectionCard>
     </article>
   )

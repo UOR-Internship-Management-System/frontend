@@ -72,7 +72,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentSignUpPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="student-sign-up" />
+              <AuthSkeleton variant="student-sign-up" />,
             ),
           },
           {
@@ -83,7 +83,7 @@ export const routes: RouteObject[] = [
                   <VerifyOtpPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />
+              <AuthSkeleton variant="otp" />,
             ),
           },
           {
@@ -94,7 +94,7 @@ export const routes: RouteObject[] = [
                   <CreatePasswordPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />
+              <AuthSkeleton variant="create-password" />,
             ),
           },
           {
@@ -103,7 +103,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentLoginPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="student-login" />
+              <AuthSkeleton variant="student-login" />,
             ),
           },
           {
@@ -112,7 +112,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <ForgotPasswordPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="forgot-password" />
+              <AuthSkeleton variant="forgot-password" />,
             ),
           },
           {
@@ -126,7 +126,7 @@ export const routes: RouteObject[] = [
                   <StudentResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />
+              <AuthSkeleton variant="otp" />,
             ),
           },
           {
@@ -141,7 +141,7 @@ export const routes: RouteObject[] = [
                   <StudentResetPasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />
+              <AuthSkeleton variant="create-password" />,
             ),
           },
           {
@@ -150,7 +150,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminLoginPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="admin-login" />
+              <AuthSkeleton variant="admin-login" />,
             ),
           },
           {
@@ -159,7 +159,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminForgotPasswordPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="forgot-password" />
+              <AuthSkeleton variant="forgot-password" />,
             ),
           },
           {
@@ -173,7 +173,7 @@ export const routes: RouteObject[] = [
                   <AdminVerifyResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />
+              <AuthSkeleton variant="otp" />,
             ),
           },
           {
@@ -188,7 +188,7 @@ export const routes: RouteObject[] = [
                   <AdminCreatePasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />
+              <AuthSkeleton variant="create-password" />,
             ),
           },
         ],
@@ -214,7 +214,10 @@ export const routes: RouteObject[] = [
           },
           {
             path: routePaths.studentProjects,
-            element: withSuspense(<StudentProjectsPage />, <TableSkeleton variant="student-projects" />),
+            element: withSuspense(
+              <StudentProjectsPage />,
+              <TableSkeleton variant="student-projects" />,
+            ),
           },
           {
             path: routePaths.studentCvBuilder,
@@ -222,7 +225,10 @@ export const routes: RouteObject[] = [
           },
           {
             path: routePaths.studentAcademicRecords,
-            element: withSuspense(<AcademicRecordsPage />, <TableSkeleton variant="academic-records" />),
+            element: withSuspense(
+              <AcademicRecordsPage />,
+              <TableSkeleton variant="academic-records" />,
+            ),
           },
         ],
       },
@@ -239,23 +245,38 @@ export const routes: RouteObject[] = [
           },
           {
             path: routePaths.adminAcademicLedger,
-            element: withSuspense(<AcademicLedgerPage />, <TableSkeleton variant="academic-ledger" />),
+            element: withSuspense(
+              <AcademicLedgerPage />,
+              <TableSkeleton variant="academic-ledger" />,
+            ),
           },
           {
             path: routePaths.adminStudents,
-            element: withSuspense(<RegisteredStudentsPage />, <TableSkeleton variant="registered-students" />),
+            element: withSuspense(
+              <RegisteredStudentsPage />,
+              <TableSkeleton variant="registered-students" />,
+            ),
           },
           {
             path: routePaths.adminStudentDetail,
-            element: withSuspense(<StudentDeepDivePage />, <FormSkeleton variant="student-detail" />),
+            element: withSuspense(
+              <StudentDeepDivePage />,
+              <FormSkeleton variant="student-detail" />,
+            ),
           },
           {
             path: routePaths.adminInternships,
-            element: withSuspense(<InternshipManagementPage />, <TableSkeleton variant="internship-management" />),
+            element: withSuspense(
+              <InternshipManagementPage />,
+              <TableSkeleton variant="internship-management" />,
+            ),
           },
           {
             path: routePaths.adminCandidateFiltering,
-            element: withSuspense(<CandidateFilteringPage />, <TableSkeleton variant="candidate-filtering" />),
+            element: withSuspense(
+              <CandidateFilteringPage />,
+              <TableSkeleton variant="candidate-filtering" />,
+            ),
           },
           {
             path: routePaths.adminShortlists,

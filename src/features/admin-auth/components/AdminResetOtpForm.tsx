@@ -47,11 +47,7 @@ export function AdminResetOtpForm({
       }}
     >
       <FormField error={error} htmlFor="admin-reset-otp" label="Six-digit OTP">
-        <OtpInput
-          id="admin-reset-otp"
-          onChange={setOtp}
-          value={otp}
-        />
+        <OtpInput id="admin-reset-otp" onChange={setOtp} value={otp} />
       </FormField>
       <div className="form-actions">
         <Button isLoading={isSubmitting} type="submit">

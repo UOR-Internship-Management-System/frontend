@@ -49,12 +49,7 @@ export function StudentOtpForm({
       }}
     >
       <FormField error={error} htmlFor="student-otp" label="Six-digit OTP">
-        <OtpInput
-          id="student-otp"
-          name="otp"
-          onChange={setOtp}
-          value={otp}
-        />
+        <OtpInput id="student-otp" name="otp" onChange={setOtp} value={otp} />
       </FormField>
       <div className="form-actions">
         <Button isLoading={isSubmitting} type="submit">

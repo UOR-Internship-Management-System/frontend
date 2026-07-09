@@ -52,7 +52,9 @@ describe('student Sprint 2 authentication', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { name: /launch your placement profile/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /launch your placement profile/i }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /student registration/i })).toBeInTheDocument()
   })
 

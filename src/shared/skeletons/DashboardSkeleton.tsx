@@ -1,8 +1,25 @@
 import type { CSSProperties } from 'react'
 import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 
-function Shape({ height = 14, rounded = false, width = '100%' }: { height?: CSSProperties['height']; rounded?: boolean; width?: CSSProperties['width'] }) {
-  return <SkeletonBlock decorative height={height} lines={0} rounded={rounded} variant="inline" width={width} />
+function Shape({
+  height = 14,
+  rounded = false,
+  width = '100%',
+}: {
+  height?: CSSProperties['height']
+  rounded?: boolean
+  width?: CSSProperties['width']
+}) {
+  return (
+    <SkeletonBlock
+      decorative
+      height={height}
+      lines={0}
+      rounded={rounded}
+      variant="inline"
+      width={width}
+    />
+  )
 }
 
 function PageHeaderSkeleton({ label }: { label: string }) {
@@ -11,7 +28,12 @@ function PageHeaderSkeleton({ label }: { label: string }) {
       <div>
         <Shape height={24} rounded width={150} />
         <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock decorative lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']} lines={2} variant="inline" />
+        <SkeletonBlock
+          decorative
+          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
+          lines={2}
+          variant="inline"
+        />
       </div>
       <Shape height={42} rounded width={138} />
       <span className="visually-hidden">{label}</span>
@@ -42,7 +64,12 @@ function MetricsGridSkeleton({ count }: { count: number }) {
 
 export function StudentDashboardSkeleton() {
   return (
-    <section aria-busy="true" aria-label="Loading student dashboard" className="content-stack" role="status">
+    <section
+      aria-busy="true"
+      aria-label="Loading student dashboard"
+      className="content-stack"
+      role="status"
+    >
       <span className="visually-hidden">Loading student dashboard</span>
       <PageHeaderSkeleton label="Student dashboard header loading" />
       <article className="section-card dashboard-welcome-skeleton" aria-hidden="true">
@@ -56,7 +83,12 @@ export function StudentDashboardSkeleton() {
 
 export function AdminDashboardSkeleton() {
   return (
-    <section aria-busy="true" aria-label="Loading admin dashboard" className="content-stack" role="status">
+    <section
+      aria-busy="true"
+      aria-label="Loading admin dashboard"
+      className="content-stack"
+      role="status"
+    >
       <span className="visually-hidden">Loading admin dashboard</span>
       <PageHeaderSkeleton label="Admin dashboard header loading" />
       <MetricsGridSkeleton count={3} />

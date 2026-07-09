@@ -30,7 +30,9 @@ describe('admin Sprint 2 authentication', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { name: /welcome back, administrator/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /welcome back, administrator/i }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: /admin login/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /contact it operations/i })).toBeInTheDocument()
   })

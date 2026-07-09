@@ -3,8 +3,25 @@ import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 
 export type WorkspaceSkeletonVariant = 'cv-builder' | 'skills'
 
-function Shape({ height = 14, rounded = false, width = '100%' }: { height?: CSSProperties['height']; rounded?: boolean; width?: CSSProperties['width'] }) {
-  return <SkeletonBlock decorative height={height} lines={0} rounded={rounded} variant="inline" width={width} />
+function Shape({
+  height = 14,
+  rounded = false,
+  width = '100%',
+}: {
+  height?: CSSProperties['height']
+  rounded?: boolean
+  width?: CSSProperties['width']
+}) {
+  return (
+    <SkeletonBlock
+      decorative
+      height={height}
+      lines={0}
+      rounded={rounded}
+      variant="inline"
+      width={width}
+    />
+  )
 }
 
 function PageHeaderSkeleton() {
@@ -13,7 +30,12 @@ function PageHeaderSkeleton() {
       <div>
         <Shape height={24} rounded width={150} />
         <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock decorative lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']} lines={2} variant="inline" />
+        <SkeletonBlock
+          decorative
+          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
+          lines={2}
+          variant="inline"
+        />
       </div>
       <Shape height={42} rounded width={150} />
     </header>
@@ -27,9 +49,19 @@ function CvBuilderWorkspaceSkeleton() {
         <Shape height={28} width={220} />
         <div className="cv-paper-skeleton">
           <Shape height={30} width="62%" />
-          <SkeletonBlock decorative lineWidths={['82%', '92%', '76%', '88%', '66%']} lines={5} variant="inline" />
+          <SkeletonBlock
+            decorative
+            lineWidths={['82%', '92%', '76%', '88%', '66%']}
+            lines={5}
+            variant="inline"
+          />
           <Shape height={1} />
-          <SkeletonBlock decorative lineWidths={['72%', '84%', '58%', '76%', '64%', '52%']} lines={6} variant="inline" />
+          <SkeletonBlock
+            decorative
+            lineWidths={['72%', '84%', '58%', '76%', '64%', '52%']}
+            lines={6}
+            variant="inline"
+          />
         </div>
       </section>
       <section className="section-card cv-source-skeleton">
@@ -73,9 +105,18 @@ function SkillsWorkspaceSkeleton() {
   )
 }
 
-export function WorkspaceSkeleton({ variant = 'cv-builder' }: { variant?: WorkspaceSkeletonVariant }) {
+export function WorkspaceSkeleton({
+  variant = 'cv-builder',
+}: {
+  variant?: WorkspaceSkeletonVariant
+}) {
   return (
-    <section aria-busy="true" aria-label="Loading workspace content" className="content-stack" role="status">
+    <section
+      aria-busy="true"
+      aria-label="Loading workspace content"
+      className="content-stack"
+      role="status"
+    >
       <span className="visually-hidden">Loading workspace content</span>
       <PageHeaderSkeleton />
       {variant === 'skills' ? <SkillsWorkspaceSkeleton /> : <CvBuilderWorkspaceSkeleton />}

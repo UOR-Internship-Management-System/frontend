@@ -3,9 +3,7 @@ import { routePaths } from '../config/routePaths'
 import { Button } from '../../shared/components/ui/Button'
 import { useAuth } from '../../shared/hooks/useAuth'
 
-const links = [
-  ['Dashboard', routePaths.adminDashboard],
-] as const
+const links = [['Dashboard', routePaths.adminDashboard]] as const
 
 export function AdminLayout() {
   const auth = useAuth()

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('unauthorized route shell renders safely', async ({ page }) => {
-  const response = await page.goto('/unauthorized')
+  const response = await page.goto('/unauthorized', { waitUntil: 'domcontentloaded' })
   expect(response?.status()).toBe(200)
 
   // Checking for basic shell contents or heading
@@ -14,7 +14,9 @@ test('unauthorized route shell renders safely', async ({ page }) => {
 })
 
 test('not-found route shell renders safely', async ({ page }) => {
-  const response = await page.goto('/some-random-not-found-route-12345')
+  const response = await page.goto('/some-random-not-found-route-12345', {
+    waitUntil: 'domcontentloaded',
+  })
   expect(response?.status()).toBe(200) // SPA routing returns 200 for index.html
 
   await expect(page.locator('body')).toBeVisible()

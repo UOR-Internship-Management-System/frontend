@@ -90,7 +90,11 @@ export function OtpInput({
   }
 
   return (
-    <div className={`otp-input-group ${className}`.trim()} role="group" aria-describedby={ariaDescribedBy}>
+    <div
+      className={`otp-input-group ${className}`.trim()}
+      role="group"
+      aria-describedby={ariaDescribedBy}
+    >
       {Array.from({ length: OTP_LENGTH }, (_, index) => (
         <input
           aria-label={index === 0 ? undefined : `OTP digit ${index + 1}`}

@@ -11,7 +11,10 @@ export type TableSkeletonVariant =
   | 'candidate-filtering'
   | 'shortlists'
 
-const TABLE_CONFIG: Record<TableSkeletonVariant, { columns: number; rows: number; showUpload?: boolean; showFilters?: boolean }> = {
+const TABLE_CONFIG: Record<
+  TableSkeletonVariant,
+  { columns: number; rows: number; showUpload?: boolean; showFilters?: boolean }
+> = {
   generic: { columns: 4, rows: 5 },
   'academic-ledger': { columns: 5, rows: 5, showUpload: true },
   'academic-records': { columns: 5, rows: 4 },
@@ -22,8 +25,25 @@ const TABLE_CONFIG: Record<TableSkeletonVariant, { columns: number; rows: number
   shortlists: { columns: 5, rows: 5, showFilters: true },
 }
 
-function Shape({ height = 14, rounded = false, width = '100%' }: { height?: CSSProperties['height']; rounded?: boolean; width?: CSSProperties['width'] }) {
-  return <SkeletonBlock decorative height={height} lines={0} rounded={rounded} variant="inline" width={width} />
+function Shape({
+  height = 14,
+  rounded = false,
+  width = '100%',
+}: {
+  height?: CSSProperties['height']
+  rounded?: boolean
+  width?: CSSProperties['width']
+}) {
+  return (
+    <SkeletonBlock
+      decorative
+      height={height}
+      lines={0}
+      rounded={rounded}
+      variant="inline"
+      width={width}
+    />
+  )
 }
 
 function PageHeaderSkeleton() {
@@ -32,7 +52,12 @@ function PageHeaderSkeleton() {
       <div>
         <Shape height={24} rounded width={150} />
         <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock decorative lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']} lines={2} variant="inline" />
+        <SkeletonBlock
+          decorative
+          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
+          lines={2}
+          variant="inline"
+        />
       </div>
       <Shape height={42} rounded width={150} />
     </header>
@@ -65,7 +90,10 @@ function UploadPanelSkeleton() {
 function TableGridSkeleton({ columns, rows }: { columns: number; rows: number }) {
   return (
     <div className="table-responsive table-skeleton-wrapper" aria-hidden="true">
-      <div className="table-skeleton-grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(120px, 1fr))` }}>
+      <div
+        className="table-skeleton-grid"
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(120px, 1fr))` }}
+      >
         {Array.from({ length: columns }, (_, index) => (
           <div className="table-skeleton-cell table-skeleton-head" key={`head-${index}`}>
             <Shape height={14} width={index === columns - 1 ? '58%' : '76%'} />
@@ -76,7 +104,7 @@ function TableGridSkeleton({ columns, rows }: { columns: number; rows: number })
             <div className="table-skeleton-cell" key={`row-${rowIndex}-col-${columnIndex}`}>
               <Shape height={12} width={columnIndex === columns - 1 ? '52%' : '84%'} />
             </div>
-          ))
+          )),
         )}
       </div>
     </div>
@@ -96,7 +124,12 @@ export function TableSkeleton({ variant = 'generic' }: { variant?: TableSkeleton
   const config = TABLE_CONFIG[variant]
 
   return (
-    <section aria-busy="true" aria-label="Loading table content" className="content-stack" role="status">
+    <section
+      aria-busy="true"
+      aria-label="Loading table content"
+      className="content-stack"
+      role="status"
+    >
       <span className="visually-hidden">Loading table content</span>
       <PageHeaderSkeleton />
       {config.showUpload ? <UploadPanelSkeleton /> : null}

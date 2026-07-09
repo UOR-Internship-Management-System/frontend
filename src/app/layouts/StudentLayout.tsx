@@ -3,9 +3,7 @@ import { routePaths } from '../config/routePaths'
 import { Button } from '../../shared/components/ui/Button'
 import { useAuth } from '../../shared/hooks/useAuth'
 
-const links = [
-  ['Dashboard', routePaths.studentDashboard],
-] as const
+const links = [['Dashboard', routePaths.studentDashboard]] as const
 
 export function StudentLayout() {
   const auth = useAuth()

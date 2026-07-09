@@ -4,7 +4,7 @@ test('frontend can make a browser-side request to the backend health endpoint', 
   page,
 }) => {
   // 1. Prove the frontend app loads successfully
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
 
   // Wait for the app shell to render
   await expect(page.locator('#root')).toBeVisible()

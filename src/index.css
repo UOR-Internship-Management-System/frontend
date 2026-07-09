@@ -323,9 +323,10 @@ select:focus-visible {
   right: 0;
   bottom: 0;
   z-index: 0;
-  background: 
+  background:
     linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%),
-    url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=3174&auto=format&fit=crop') center/cover no-repeat;
+    url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=3174&auto=format&fit=crop')
+      center/cover no-repeat;
 }
 
 .gateway-hero::before,
@@ -586,7 +587,11 @@ select:focus-visible {
   gap: 18px;
   border-right: 1px solid var(--color-border);
   background:
-    radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 14%, transparent), transparent 42%),
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--primary) 14%, transparent),
+      transparent 42%
+    ),
     var(--input-bg);
 }
 
@@ -814,13 +819,12 @@ p {
 .skeleton-empty {
   min-width: 1px;
   min-height: 1px;
-  background:
-    linear-gradient(
-      90deg,
-      var(--skeleton-base) 0%,
-      var(--skeleton-highlight) 45%,
-      var(--skeleton-base) 90%
-    );
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-highlight) 45%,
+    var(--skeleton-base) 90%
+  );
   background-size: 220% 100%;
   animation: shimmer 1.45s infinite linear;
 }
@@ -829,13 +833,12 @@ p {
   width: 100%;
   height: 12px;
   border-radius: 999px;
-  background:
-    linear-gradient(
-      90deg,
-      var(--skeleton-base) 0%,
-      var(--skeleton-highlight) 45%,
-      var(--skeleton-base) 90%
-    );
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base) 0%,
+    var(--skeleton-highlight) 45%,
+    var(--skeleton-base) 90%
+  );
   background-size: 220% 100%;
   animation: shimmer 1.45s infinite linear;
 }

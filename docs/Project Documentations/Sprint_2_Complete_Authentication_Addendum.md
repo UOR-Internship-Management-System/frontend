@@ -1,9 +1,9 @@
 # Sprint 2 Complete Authentication Addendum
 
-**Project:** CV Management and Deterministic Internship Candidate Filtering System  
-**Document type:** Supplemental Sprint 2 implementation addendum  
-**Status:** Draft for supervisor/team review  
-**Generated:** 2026-07-09  
+**Project:** CV Management and Deterministic Internship Candidate Filtering System
+**Document type:** Supplemental Sprint 2 implementation addendum
+**Status:** Draft for supervisor/team review
+**Generated:** 2026-07-09
 **Purpose:** Capture the supervisor-requested Sprint 2 authentication expansion without modifying existing project documents directly.
 
 ---

@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 
 test('admin public shell loads and protected route redirects anonymous users', async ({ page }) => {
-  await page.goto('/admin/login')
+  await page.goto('/admin/login', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { name: 'Admin Login' })).toBeVisible()
 
-  await page.goto('/admin/dashboard')
+  await page.goto('/admin/dashboard', { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/admin\/login$/)
 })
 
@@ -47,7 +47,7 @@ test('admin resets password and logs in with mocked Sprint 2 APIs', async ({ pag
     })
   })
 
-  await page.goto('/admin/forgot-password')
+  await page.goto('/admin/forgot-password', { waitUntil: 'domcontentloaded' })
   await page.getByLabel('Admin Email Address').fill('admin@dcs.ruh.ac.lk')
   await page.getByRole('button', { name: 'Send OTP' }).click()
 

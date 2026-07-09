@@ -35,7 +35,9 @@ function TextGroup({ lines = 2 }: { lines?: number }) {
   return (
     <SkeletonBlock
       decorative
-      lineWidths={Array.from({ length: lines }, (_, index) => (index === lines - 1 ? '72%' : '100%'))}
+      lineWidths={Array.from({ length: lines }, (_, index) =>
+        index === lines - 1 ? '72%' : '100%',
+      )}
       lines={lines}
       variant="inline"
       width="100%"
@@ -60,7 +62,13 @@ function SplitAuthSkeletonLayout({ fieldCount, label }: { fieldCount: number; la
         <div className="auth-skeleton-welcome">
           <Shape height={44} width="88%" />
           <Shape height={44} width="64%" />
-          <SkeletonBlock decorative lineWidths={['82%', '92%', '58%']} lines={3} variant="inline" width="100%" />
+          <SkeletonBlock
+            decorative
+            lineWidths={['82%', '92%', '58%']}
+            lines={3}
+            variant="inline"
+            width="100%"
+          />
         </div>
       </aside>
       <div className="auth-form-panel">
@@ -94,9 +102,21 @@ function AuthCardSkeletonLayout({
   otp?: boolean
 }) {
   return (
-    <section aria-busy="true" aria-label={label} className="auth-centered-card auth-skeleton-card-shell" role="status">
+    <section
+      aria-busy="true"
+      aria-label={label}
+      className="auth-centered-card auth-skeleton-card-shell"
+      role="status"
+    >
       <span className="visually-hidden">{label}</span>
-      <SkeletonBlock decorative height={iconSize} lines={0} rounded variant="circle" width={iconSize} />
+      <SkeletonBlock
+        decorative
+        height={iconSize}
+        lines={0}
+        rounded
+        variant="circle"
+        width={iconSize}
+      />
       <div className="auth-skeleton-centered" aria-hidden="true">
         <Shape height={28} width="72%" />
         <TextGroup lines={2} />
@@ -132,7 +152,13 @@ export function AuthSkeleton({ variant }: { variant: AuthSkeletonVariant }) {
         <span className="visually-hidden">Loading account session</span>
         <div className="section-card session-skeleton-card" aria-hidden="true">
           <SkeletonBlock decorative height={48} lines={0} rounded variant="circle" width={48} />
-          <SkeletonBlock decorative lineWidths={['72%', '48%']} lines={2} variant="inline" width={220} />
+          <SkeletonBlock
+            decorative
+            lineWidths={['72%', '48%']}
+            lines={2}
+            variant="inline"
+            width={220}
+          />
         </div>
       </section>
     )

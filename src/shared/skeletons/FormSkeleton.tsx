@@ -3,8 +3,25 @@ import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 
 export type FormSkeletonVariant = 'generic' | 'profile' | 'student-detail'
 
-function Shape({ height = 14, rounded = false, width = '100%' }: { height?: CSSProperties['height']; rounded?: boolean; width?: CSSProperties['width'] }) {
-  return <SkeletonBlock decorative height={height} lines={0} rounded={rounded} variant="inline" width={width} />
+function Shape({
+  height = 14,
+  rounded = false,
+  width = '100%',
+}: {
+  height?: CSSProperties['height']
+  rounded?: boolean
+  width?: CSSProperties['width']
+}) {
+  return (
+    <SkeletonBlock
+      decorative
+      height={height}
+      lines={0}
+      rounded={rounded}
+      variant="inline"
+      width={width}
+    />
+  )
 }
 
 function FieldSkeleton() {
@@ -22,7 +39,12 @@ function PageHeaderSkeleton() {
       <div>
         <Shape height={24} rounded width={150} />
         <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock decorative lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']} lines={2} variant="inline" />
+        <SkeletonBlock
+          decorative
+          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
+          lines={2}
+          variant="inline"
+        />
       </div>
     </header>
   )
@@ -89,7 +111,12 @@ function StudentDetailSkeleton() {
 
 export function FormSkeleton({ variant = 'generic' }: { variant?: FormSkeletonVariant }) {
   return (
-    <section aria-busy="true" aria-label="Loading form content" className="content-stack" role="status">
+    <section
+      aria-busy="true"
+      aria-label="Loading form content"
+      className="content-stack"
+      role="status"
+    >
       <span className="visually-hidden">Loading form content</span>
       <PageHeaderSkeleton />
       {variant === 'profile' ? <ProfileFormSkeleton /> : null}

@@ -3,10 +3,10 @@ import { expect, test } from '@playwright/test'
 test('student public shells load and protected route redirects anonymous users', async ({
   page,
 }) => {
-  await page.goto('/student/login')
+  await page.goto('/student/login', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { name: 'Login' })).toBeVisible()
 
-  await page.goto('/student/dashboard')
+  await page.goto('/student/dashboard', { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/student\/login$/)
 })
 
@@ -49,7 +49,7 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
     })
   })
 
-  await page.goto('/student/sign-up')
+  await page.goto('/student/sign-up', { waitUntil: 'domcontentloaded' })
   await page.getByLabel('Full Name').fill('E2E Student')
   await page.getByLabel('Index Number').fill('SC/2020/001')
   await page.getByLabel('University Email').fill('student@dcs.ruh.ac.lk')

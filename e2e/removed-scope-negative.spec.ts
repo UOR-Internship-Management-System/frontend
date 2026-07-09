@@ -10,7 +10,7 @@ const forbiddenVisibleText = [
 ]
 
 test('active app shell does not expose removed-scope visible text', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
 
   for (const text of forbiddenVisibleText) {
     await expect(page.getByText(text, { exact: false })).toHaveCount(0)
