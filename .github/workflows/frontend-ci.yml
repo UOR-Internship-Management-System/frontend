@@ -6,6 +6,7 @@ name: Frontend CI
       - main
       - develop
       - feature/sprint-1-frontend-completion
+      - 'feature/**'
   pull_request:
 
 jobs:
