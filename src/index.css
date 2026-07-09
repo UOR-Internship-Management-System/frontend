@@ -226,7 +226,6 @@ select:focus-visible {
   place-items: center;
 }
 
-/* CRITICAL: Remove transform on gateway page so position: fixed anchors to the viewport, not the transition container */
 .page-transition:has(.gateway-page) {
   animation: none !important;
   transform: none !important;
@@ -290,8 +289,12 @@ select:focus-visible {
   position: fixed;
   inset: 0;
   z-index: 50;
-  overflow: hidden; /* CRITICAL: No native scrolling */
-  background: #000;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
+  min-height: 100vh;
+  overflow-y: auto;
+  background: #050505;
+  color: #fff;
 }
 
 .gateway-scroll-section {
@@ -305,14 +308,13 @@ select:focus-visible {
 }
 
 .gateway-hero {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-rows: 1fr;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
   align-items: center;
-  justify-items: center;
+  justify-content: flex-start;
   overflow: hidden;
-  padding: 0;
+  padding: clamp(56px, 7vw, 112px);
   border: none;
 }
 
@@ -374,7 +376,7 @@ select:focus-visible {
 }
 
 .gateway-eyebrow {
-  margin-bottom: 12px;
+  margin: 0 0 12px;
   color: var(--color-primary);
   font-weight: 800;
 }
@@ -384,7 +386,8 @@ select:focus-visible {
   margin: 0;
   font-size: clamp(2.6rem, 7vw, 5.9rem);
   line-height: 0.96;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
+  color: #fff;
 }
 
 .gateway-hero-content p:not(.gateway-eyebrow) {
@@ -392,7 +395,7 @@ select:focus-visible {
   margin: 24px 0 0;
   font-size: clamp(1rem, 1.45vw, 1.18rem);
   line-height: 1.75;
-  color: var(--color-muted);
+  color: #e7deee;
 }
 
 .gateway-scroll-link {
@@ -414,38 +417,41 @@ select:focus-visible {
 }
 
 .gateway-access {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  align-content: center;
-  gap: 48px;
-  padding: 0 5vw;
-  background: #050505;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(24px, 4vw, 40px);
+  padding: clamp(48px, 6vw, 88px);
+  background: linear-gradient(180deg, #090909 0%, #050505 100%);
 }
 
 .gateway-access-header {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   gap: 16px;
 }
 
 .gateway-access-header h2 {
   margin: 0;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2rem, 4vw, 3.2rem);
   line-height: 1.05;
   color: #fff;
   text-transform: uppercase;
   font-weight: 900;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .gateway-access-header p {
-  max-width: 480px;
+  max-width: 560px;
+  margin: 0;
   color: #a0a0a0;
   font-size: 1.1rem;
+  line-height: 1.6;
 }
 
 .small-label {
@@ -458,23 +464,23 @@ select:focus-visible {
 
 .gateway-split-panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px;
+  grid-template-columns: 1fr;
+  gap: 1px;
   background: #222;
-  border-radius: var(--radius-modal);
+  border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
 }
 
 .gateway-card {
-  min-height: 480px;
+  min-height: 210px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  text-align: center;
-  gap: 24px;
-  padding: clamp(32px, 6vw, 64px);
+  align-items: flex-start;
+  text-align: left;
+  gap: 14px;
+  padding: clamp(24px, 3vw, 34px);
   background: #111;
   transition:
     transform 0.4s var(--motion-emphasized),
@@ -482,7 +488,7 @@ select:focus-visible {
 }
 
 .gateway-card + .gateway-card {
-  border-left: none;
+  border-top: 1px solid #222;
 }
 
 .gateway-card:hover {
@@ -491,20 +497,20 @@ select:focus-visible {
 }
 
 .gateway-card .material-symbols-outlined {
-  width: 80px;
-  height: 80px;
+  width: 56px;
+  height: 56px;
   display: grid;
   place-items: center;
   border-radius: 50%;
   background: #222;
   color: #fff;
-  font-size: 42px;
-  margin-bottom: 12px;
+  font-size: 31px;
+  margin-bottom: 2px;
 }
 
 .gateway-card h3 {
   margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: clamp(1.55rem, 2.6vw, 2.1rem);
   line-height: 1.05;
   color: #fff;
   font-weight: 800;
@@ -513,17 +519,18 @@ select:focus-visible {
 
 .gateway-card p {
   max-width: 380px;
+  margin: 0;
   color: #888;
   line-height: 1.65;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .gateway-actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 4px;
 }
 
 @keyframes gatewayIntroRise {
@@ -1355,19 +1362,19 @@ td {
   }
 
   .gateway-page {
-    /* Maintained fixed height for controlled slides */
-    height: 100%;
-    overflow: hidden;
+    grid-template-columns: 1fr;
+    min-height: 100vh;
+    overflow-y: auto;
   }
 
   .gateway-scroll-section {
-    height: 100%;
     padding: 24px;
     box-sizing: border-box;
   }
 
   .gateway-hero {
-    padding: 24px;
+    min-height: 48vh;
+    padding: 88px 24px 40px;
   }
 
   .gateway-hero h1 {
@@ -1375,12 +1382,14 @@ td {
   }
 
   .gateway-access {
+    min-height: auto;
     gap: 24px;
+    padding: 32px 24px 56px;
   }
 
   .gateway-access-header {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
 
   .gateway-split-panel {
@@ -1388,8 +1397,7 @@ td {
   }
 
   .gateway-card + .gateway-card {
-    border-left: 0;
-    border-top: 2px solid #222;
+    border-top: 1px solid #222;
   }
 
   .gateway-card {
