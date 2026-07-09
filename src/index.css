@@ -226,6 +226,12 @@ select:focus-visible {
   place-items: center;
 }
 
+/* CRITICAL: Remove transform on gateway page so position: fixed anchors to the viewport, not the transition container */
+.page-transition:has(.gateway-page) {
+  animation: none !important;
+  transform: none !important;
+}
+
 .button.global-theme-toggle {
   position: fixed;
   top: 18px;
@@ -276,35 +282,50 @@ select:focus-visible {
   display: grid;
   justify-items: center;
 }
+.gateway-page::-webkit-scrollbar {
+  display: none;
+}
 
 .gateway-page {
-  width: 100%;
-  height: calc(100vh - 48px);
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
-  border-radius: var(--radius-xl);
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden; /* CRITICAL: No native scrolling */
+  background: #000;
 }
 
 .gateway-scroll-section {
-  min-height: calc(100vh - 48px);
-  scroll-snap-align: start;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 .gateway-hero {
-  position: relative;
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 32px;
+  grid-template-rows: 1fr;
+  align-items: center;
+  justify-items: center;
   overflow: hidden;
-  padding: 32px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  background:
-    radial-gradient(circle at 18% 20%, rgba(103, 80, 164, 0.22), transparent 32%),
-    radial-gradient(circle at 88% 76%, rgba(103, 80, 164, 0.14), transparent 34%),
-    var(--color-card);
-  box-shadow: var(--shadow-card);
+  padding: 0;
+  border: none;
+}
+
+.gateway-hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background: 
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%),
+    url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=3174&auto=format&fit=crop') center/cover no-repeat;
 }
 
 .gateway-hero::before,
@@ -392,29 +413,38 @@ select:focus-visible {
 }
 
 .gateway-access {
+  position: absolute;
+  inset: 0;
   display: grid;
   align-content: center;
-  gap: 28px;
-  padding: 32px 0 0;
+  gap: 48px;
+  padding: 0 5vw;
+  background: #050505;
 }
 
 .gateway-access-header {
   display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 24px;
-  padding: 0 4px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
 }
 
 .gateway-access-header h2 {
-  margin: 8px 0 0;
-  font-size: clamp(1.8rem, 3.5vw, 3rem);
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 4rem);
   line-height: 1.05;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: -0.02em;
 }
 
 .gateway-access-header p {
-  max-width: 360px;
-  color: var(--color-muted);
+  max-width: 480px;
+  color: #a0a0a0;
+  font-size: 1.1rem;
 }
 
 .small-label {
@@ -428,66 +458,71 @@ select:focus-visible {
 .gateway-split-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--color-border);
+  gap: 2px;
+  background: #222;
   border-radius: var(--radius-modal);
-  background: var(--color-card);
-  box-shadow: var(--shadow-card);
-  animation: gatewayPanelIn 0.55s var(--motion-emphasized) both;
+  overflow: hidden;
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.6);
 }
 
 .gateway-card {
-  min-height: 420px;
+  min-height: 480px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 22px;
-  padding: clamp(28px, 5vw, 56px);
-  background: var(--color-card);
+  align-items: center;
+  text-align: center;
+  gap: 24px;
+  padding: clamp(32px, 6vw, 64px);
+  background: #111;
   transition:
-    transform 0.24s var(--motion-standard),
-    box-shadow 0.24s var(--motion-standard),
-    background-color 0.24s var(--motion-standard),
-    border-color 0.24s var(--motion-standard);
+    transform 0.4s var(--motion-emphasized),
+    background-color 0.4s var(--motion-emphasized);
 }
 
 .gateway-card + .gateway-card {
-  border-left: 1px solid var(--color-border);
+  border-left: none;
 }
 
 .gateway-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
+  background: #1a1a1a;
+  transform: translateY(-8px);
 }
 
 .gateway-card .material-symbols-outlined {
-  width: 62px;
-  height: 62px;
+  width: 80px;
+  height: 80px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--surface-container-high);
-  color: var(--primary);
-  font-size: 36px;
+  background: #222;
+  color: #fff;
+  font-size: 42px;
+  margin-bottom: 12px;
 }
 
 .gateway-card h3 {
-  margin: 0 0 10px;
-  font-size: clamp(1.55rem, 2.7vw, 2.35rem);
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
   line-height: 1.05;
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .gateway-card p {
-  max-width: 420px;
-  color: var(--color-muted);
+  max-width: 380px;
+  color: #888;
   line-height: 1.65;
+  font-size: 1.1rem;
 }
 
 .gateway-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 10px;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 @keyframes gatewayIntroRise {
@@ -1317,26 +1352,27 @@ td {
   }
 
   .gateway-page {
-    height: auto;
-    overflow-y: visible;
-    scroll-snap-type: none;
+    /* Maintained fixed height for controlled slides */
+    height: 100%;
+    overflow: hidden;
   }
 
   .gateway-scroll-section {
-    min-height: auto;
+    height: 100%;
+    padding: 24px;
+    box-sizing: border-box;
   }
 
   .gateway-hero {
-    min-height: calc(100vh - 48px);
     padding: 24px;
   }
 
   .gateway-hero h1 {
-    font-size: clamp(2.5rem, 15vw, 4rem);
+    font-size: clamp(2rem, 12vw, 3rem);
   }
 
   .gateway-access {
-    padding-top: 24px;
+    gap: 24px;
   }
 
   .gateway-access-header {
@@ -1350,11 +1386,24 @@ td {
 
   .gateway-card + .gateway-card {
     border-left: 0;
-    border-top: 1px solid var(--color-border);
+    border-top: 2px solid #222;
   }
 
   .gateway-card {
     min-height: auto;
+    padding: 24px;
+    gap: 16px;
+  }
+
+  .gateway-card .material-symbols-outlined {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+    margin-bottom: 0;
+  }
+
+  .gateway-card h3 {
+    font-size: 1.5rem;
   }
 
   .gateway-actions,
@@ -1362,7 +1411,6 @@ td {
     width: 100%;
   }
 
-  .gateway-card,
   .auth-welcome-panel,
   .auth-form-panel,
   .auth-centered-card {
