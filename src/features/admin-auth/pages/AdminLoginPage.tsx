@@ -38,7 +38,7 @@ export function AdminLoginPage() {
         <>
           Welcome back,
           <br />
-          <span>administrator.</span>
+          <span className="auth-admin-headline-word">administrator.</span>
         </>
       }
     >

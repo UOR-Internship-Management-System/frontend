@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { ThemeToggle } from '../ui/ThemeToggle'
 
 type AuthSplitShellProps = {
   title: ReactNode
@@ -22,10 +21,7 @@ export function AuthSplitShell({ children, description, title }: AuthSplitShellP
         <h1>{title}</h1>
         {description ? <p>{description}</p> : null}
       </aside>
-      <div className="auth-form-panel">
-        <ThemeToggle className="auth-theme-toggle" />
-        {children}
-      </div>
+      <div className="auth-form-panel">{children}</div>
     </section>
   )
 }
@@ -39,7 +35,6 @@ export function AuthCardShell({
 }: AuthCardShellProps) {
   return (
     <section className={`auth-centered-card ${className}`.trim()}>
-      <ThemeToggle className="auth-theme-toggle" />
       <div className="auth-icon" aria-hidden="true">
         <span className="material-symbols-outlined">{icon}</span>
       </div>

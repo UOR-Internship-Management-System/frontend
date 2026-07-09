@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Link, useLocation, useOutlet } from 'react-router-dom'
 import { routePaths } from '../config/routePaths'
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle'
 
@@ -19,10 +19,13 @@ const standaloneRoutes = new Set<string>([
 
 export function RootLayout() {
   const location = useLocation()
+  const outlet = useOutlet()
   const isStandalone = standaloneRoutes.has(location.pathname)
 
   return (
     <div className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''}`.trim()}>
+      <ThemeToggle className="global-theme-toggle" />
+
       {!isStandalone ? (
         <header className="app-header">
           <div className="shell-bar">
@@ -30,13 +33,16 @@ export function RootLayout() {
               <span className="brand-dot" />
               CV Management
             </Link>
-            <ThemeToggle />
           </div>
         </header>
       ) : null}
+
       <main className={isStandalone ? 'app-main app-main-standalone' : 'app-main'}>
-        <Outlet />
+        <div className="page-transition" key={location.pathname}>
+          {outlet}
+        </div>
       </main>
+
       {!isStandalone ? (
         <footer className="app-footer">
           <div className="shell-bar">
