@@ -60,7 +60,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const logout = useCallback(async () => {
     try {
       if (authStorage.getToken()) {
-        await httpClient<void>('/auth/logout', { method: 'POST', body: {} })
+        await httpClient<void>('/auth/logout', { method: 'POST' })
       }
     } finally {
       authStorage.clearToken()

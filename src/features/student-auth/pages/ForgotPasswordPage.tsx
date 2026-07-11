@@ -34,7 +34,7 @@ export function ForgotPasswordPage() {
                 resetId: response.resetId,
                 accountType: 'STUDENT',
                 email,
-                expiresAt: response.expiresAt,
+                expiresAt: new Date(Date.now() + response.expiresInSeconds * 1000).toISOString(),
               })
               navigate(routePaths.studentResetVerifyOtp)
             }

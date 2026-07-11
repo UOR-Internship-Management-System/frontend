@@ -8,18 +8,22 @@ export type StudentVerificationStartRequest = {
 
 export type StudentVerificationResponse = {
   verificationId: string
-  email: string
+  status: 'OTP_SENT' | 'VERIFICATION_FAILED'
   expiresAt?: string
   message?: string
 }
 
 export type OtpRequest = {
-  otp: string
+  otpCode: string
 }
 
 export type OtpVerifyResponse = {
-  message?: string
-  expiresAt?: string
+  verified: true
+}
+
+export type OtpResendResponse = {
+  message: string
+  expiresInSeconds: number
 }
 
 export type PasswordRequest = {
@@ -38,10 +42,9 @@ export type PasswordResetStartRequest = {
 }
 
 export type PasswordResetResponse = {
-  resetId?: string | null
+  resetId: string
   message: string
-  expiresAt?: string
-  expiresInSeconds?: number
+  expiresInSeconds: number
 }
 
 export type StudentLoginResponse = AuthTokenResponse

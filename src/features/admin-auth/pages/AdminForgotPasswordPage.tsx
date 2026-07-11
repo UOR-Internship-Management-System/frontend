@@ -35,7 +35,7 @@ export function AdminForgotPasswordPage() {
                 resetId: response.resetId,
                 accountType: 'ADMIN',
                 email,
-                expiresAt: response.expiresAt,
+                expiresAt: new Date(Date.now() + response.expiresInSeconds * 1000).toISOString(),
               })
               navigate(routePaths.adminVerifyResetOtp)
             }

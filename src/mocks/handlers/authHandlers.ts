@@ -34,27 +34,28 @@ function currentUserFromRequest(request: Request) {
 
 export const authHandlers = [
   http.post(`${apiBase}/student-verifications`, async ({ request }) => {
-    const body = (await request.json()) as { universityEmail?: string }
+    await request.json()
     return HttpResponse.json(
       {
         verificationId: 'verification-1',
-        email: body.universityEmail ?? users.student.email,
+        status: 'OTP_SENT',
         message: 'Verification started.',
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
       },
       { status: 201 },
     )
   }),
 
   http.post(`${apiBase}/student-verifications/:verificationId/otp/verify`, async ({ request }) => {
-    const body = (await request.json()) as { otp?: string }
-    if (body.otp !== '123456') {
+    const body = (await request.json()) as { otpCode?: string }
+    if (body.otpCode !== '123456') {
       return HttpResponse.json({ title: 'Incorrect OTP.', status: 422 }, { status: 422 })
     }
-    return HttpResponse.json({ message: 'OTP verified.' })
+    return HttpResponse.json({ verified: true })
   }),
 
   http.post(`${apiBase}/student-verifications/:verificationId/otp/resend`, () =>
-    HttpResponse.json({ message: 'OTP resent.' }),
+    HttpResponse.json({ message: 'OTP resent.', expiresInSeconds: 300 }, { status: 202 }),
   ),
 
   http.post(
@@ -103,23 +104,26 @@ export const authHandlers = [
 
   http.post(`${apiBase}/password-resets`, async ({ request }) => {
     const body = (await request.json()) as { accountType?: 'STUDENT' | 'ADMIN'; email?: string }
-    return HttpResponse.json({
-      resetId: `${body.accountType?.toLowerCase() ?? 'student'}-reset-1`,
-      message: 'If the account can be recovered, an OTP has been sent.',
-      expiresInSeconds: 300,
-    })
+    return HttpResponse.json(
+      {
+        resetId: `${body.accountType?.toLowerCase() ?? 'student'}-reset-1`,
+        message: 'If the account can be recovered, an OTP has been sent.',
+        expiresInSeconds: 300,
+      },
+      { status: 202 },
+    )
   }),
 
   http.post(`${apiBase}/password-resets/:resetId/otp/verify`, async ({ request }) => {
-    const body = (await request.json()) as { otp?: string }
-    if (body.otp !== '123456') {
+    const body = (await request.json()) as { otpCode?: string }
+    if (body.otpCode !== '123456') {
       return HttpResponse.json({ title: 'Incorrect OTP.', status: 422 }, { status: 422 })
     }
-    return HttpResponse.json({ message: 'OTP verified.' })
+    return HttpResponse.json({ verified: true })
   }),
 
   http.post(`${apiBase}/password-resets/:resetId/otp/resend`, () =>
-    HttpResponse.json({ message: 'OTP resent.' }),
+    HttpResponse.json({ message: 'OTP resent.', expiresInSeconds: 300 }, { status: 202 }),
   ),
 
   http.post(
