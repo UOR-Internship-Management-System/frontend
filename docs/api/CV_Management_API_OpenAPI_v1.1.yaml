@@ -1,8 +1,16 @@
 openapi: 3.1.1
 info:
   title: CV Management and Deterministic Internship Candidate Filtering API
-  version: 1.0.0
-  description: REST/JSON API contract for the locked Version 1 scope.
+  version: 1.1.0
+  description: REST/JSON API contract for the locked Version 1 scope, revised for Sprint 2 Complete 
+    Authentication for Student and predefined Department Admin accounts.
+  x-revision-summary:
+    - Expanded Sprint 2 authentication to predefined Department Admin accounts.
+    - Generalized OTP-based password reset to STUDENT and ADMIN account types.
+    - Added password-reset OTP resend endpoint.
+    - Standardized authentication response DTOs and success status codes.
+    - Removed required logout request body.
+    - Defined non-enumerating password-reset start behavior.
 servers:
   - url: /api/v1
 security:
@@ -10,6 +18,8 @@ security:
 tags:
   - name: Authentication
   - name: Student Verification and OTP
+  - name: Password Reset
+    description: Shared OTP-based password recovery for supported STUDENT and ADMIN accounts.
   - name: Student Profile
   - name: Declared Skills and Taxonomy
   - name: Project Portfolio
@@ -60,7 +70,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. No company login or admin approval path.'
+      description: 'Access: Public. Audit: Security. Authenticates an existing Student account only; no Admin approval,
+        company login, or temporary-password workflow.'
       security: []
       requestBody:
         required: true
@@ -103,7 +114,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Predefined Admin only; no Admin self-registration.'
+      description: 'Access: Public. Audit: Security. Authenticates a predefined, enabled Department Admin only;
+        no Admin self-registration or account creation is permitted.'
       security: []
       requestBody:
         required: true
@@ -115,7 +127,7 @@ paths:
     post:
       tags:
         - Authentication
-      summary: Invalidate or rotate the current authenticated session/token context where supported.
+      summary: End the current authenticated session or token context.
       operationId: postAuthLogout
       responses:
         '204':
@@ -142,13 +154,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student/Admin. Audit: Security. Token persistence details remain backend-controlled.'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LogoutRequest'
+      description: 'Access: Student/Admin. Audit: Security. No request body is required. The backend invalidates
+        server-side session or refresh-token state where supported; clients must clear local auth state.'
   /auth/me:
     get:
       tags:
@@ -220,9 +227,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description:
-        'Access: Public. Audit: Security. Full name is display data only; index number and university email are
-        verification authority.'
+      description: 'Access: Public. Audit: Security. Full name is display data only; index number and university
+        email are verification authority.'
       security: []
       requestBody:
         required: true
@@ -288,8 +294,8 @@ paths:
       summary: Resend a valid OTP after expiry or non-delivery subject to rate limits.
       operationId: postStudentVerificationsByVerificationIdOtpResend
       responses:
-        '200':
-          description: Successful response.
+        '202':
+          description: OTP resend request accepted.
           content:
             application/json:
               schema:
@@ -316,7 +322,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Must enforce anti-abuse limits.'
+      description: 'Access: Public. Audit: Security. Enforces expiry, resend cooldown, resend limits, and anti-abuse
+        controls. Raw OTP values are never returned or logged.'
       security: []
       parameters:
         - name: verificationId
@@ -333,12 +340,8 @@ paths:
       summary: Create initial Student password after OTP verification.
       operationId: postStudentVerificationsByVerificationIdPassword
       responses:
-        '201':
-          description: Successful response.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OperationResponse'
+        '204':
+          description: Initial Student password created successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -361,7 +364,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. No temporary password workflow.'
+      description: 'Access: Public with a verified onboarding context. Audit: Security. Creates the initial Student
+        password hash only; no temporary password is generated or returned.'
       security: []
       parameters:
         - name: verificationId
@@ -380,28 +384,18 @@ paths:
   /password-resets:
     post:
       tags:
-        - Student Verification and OTP
-      summary: Start forgot-password flow for a Student university email.
+        - Password Reset
+      summary: Start OTP-based password reset for a supported Student or Admin account.
       operationId: postPasswordResets
       responses:
-        '201':
-          description: Successful response.
+        '202':
+          description: Password-reset request accepted.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PasswordResetResponse'
         '400':
           $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/Error409'
-        '412':
-          $ref: '#/components/responses/Error412'
         '415':
           $ref: '#/components/responses/Error415'
         '422':
@@ -412,7 +406,10 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Uses OTP, not temporary password.'
+      description: 'Access: Public. Audit: Security. Supports STUDENT and predefined ADMIN accounts. For every syntactically
+        valid request, the API returns the same 202 status and safe response shape. The response must not confirm
+        whether an eligible account exists. This endpoint never creates accounts, approves registrations, or issues
+        temporary passwords.'
       security: []
       requestBody:
         required: true
@@ -423,12 +420,12 @@ paths:
   /password-resets/{resetId}/otp/verify:
     post:
       tags:
-        - Student Verification and OTP
-      summary: Verify password reset OTP.
+        - Password Reset
+      summary: Verify the OTP for an active password-reset context.
       operationId: postPasswordResetsByResetIdOtpVerify
       responses:
         '200':
-          description: Successful response.
+          description: Password-reset OTP verified.
           content:
             application/json:
               schema:
@@ -455,7 +452,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Failure states include invalid, expired and rate-limited OTP.'
+      description: 'Access: Public with a valid reset context. Audit: Security. Enforces OTP expiry, verification-attempt
+        limits, and rate limits. Raw OTP values are never returned or logged.'
       security: []
       parameters:
         - name: resetId
@@ -471,19 +469,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/OtpVerifyRequest'
-  /password-resets/{resetId}/password:
+  /password-resets/{resetId}/otp/resend:
     post:
       tags:
-        - Student Verification and OTP
-      summary: Set a new password after reset OTP verification.
-      operationId: postPasswordResetsByResetIdPassword
+        - Password Reset
+      summary: Resend the OTP for an active password-reset context.
+      operationId: postPasswordResetsByResetIdOtpResend
       responses:
-        '200':
-          description: Successful response.
+        '202':
+          description: Password-reset OTP resend request accepted.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OperationResponse'
+                $ref: '#/components/schemas/OtpResendResponse'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -506,7 +504,50 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Password hash update only; no password returned.'
+      description: 'Access: Public with a valid reset context. Audit: Security. Enforces expiry, resend cooldown,
+        resend limits, and anti-abuse controls. Raw OTP values are never returned or logged.'
+      security: []
+      parameters:
+        - name: resetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Opaque resetId identifier.
+  /password-resets/{resetId}/password:
+    post:
+      tags:
+        - Password Reset
+      summary: Set a new password after successful password-reset OTP verification.
+      operationId: postPasswordResetsByResetIdPassword
+      responses:
+        '204':
+          description: Password updated successfully; no response body.
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+      description: 'Access: Public with a verified reset context. Audit: Security. Updates only the password hash,
+        closes the reset context, and returns no password or temporary credential.'
       security: []
       parameters:
         - name: resetId
@@ -2398,7 +2439,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are non-authoritative.'
+      description: 'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are
+        non-authoritative.'
   /admin/academic-ledger/uploads:
     post:
       tags:
@@ -4451,26 +4493,24 @@ components:
           $ref: '#/components/schemas/CvVersionResponse'
     AuthTokenResponse:
       type: object
+      additionalProperties: false
       required:
         - accessToken
         - tokenType
-        - expiresIn
-        - role
+        - expiresInSeconds
+        - user
       properties:
         accessToken:
           type: string
+          minLength: 1
         tokenType:
           type: string
           const: Bearer
-        expiresIn:
+        expiresInSeconds:
           type: integer
-        role:
-          type: string
-          enum:
-            - STUDENT
-            - ADMIN
-        displayName:
-          type: string
+          minimum: 1
+        user:
+          $ref: '#/components/schemas/CurrentUserResponse'
     AwardRequest:
       type: object
       properties:
@@ -4659,20 +4699,32 @@ components:
           format: date
     CurrentUserResponse:
       type: object
+      additionalProperties: false
+      required:
+        - userId
+        - email
+        - primaryRole
+        - roles
       properties:
         userId:
           type: string
           format: uuid
-        role:
-          type: string
-          enum:
-            - STUDENT
-            - ADMIN
-        displayName:
-          type: string
-        universityEmail:
+        email:
           type: string
           format: email
+          maxLength: 254
+        displayName:
+          type:
+            - string
+            - 'null'
+        primaryRole:
+          $ref: '#/components/schemas/AccountType'
+        roles:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: '#/components/schemas/AccountType'
     CvFreshnessResponse:
       type: object
       properties:
@@ -4984,12 +5036,6 @@ components:
             - BEGINNER
             - INTERMEDIATE
             - ADVANCED
-    LogoutRequest:
-      type: object
-      properties:
-        allDevices:
-          type: boolean
-          default: false
     OperationResponse:
       type: object
       properties:
@@ -5001,14 +5047,16 @@ components:
           type: string
     OtpResendResponse:
       type: object
+      additionalProperties: false
+      required:
+        - message
+        - expiresInSeconds
       properties:
-        status:
-          type: string
         message:
           type: string
-        expiresAt:
-          type: string
-          format: date-time
+        expiresInSeconds:
+          type: integer
+          minimum: 1
     OtpVerifyRequest:
       type: object
       required:
@@ -5021,14 +5069,13 @@ components:
           writeOnly: true
     OtpVerifyResponse:
       type: object
+      additionalProperties: false
+      required:
+        - verified
       properties:
-        status:
-          type: string
-        message:
-          type: string
-        expiresAt:
-          type: string
-          format: date-time
+        verified:
+          type: boolean
+          const: true
     PageMetadata:
       type: object
       required:
@@ -5104,7 +5151,7 @@ components:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/CandidateFilteringCandidateResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedCertificateResponse:
@@ -5167,7 +5214,7 @@ components:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/IndividualSkillResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedInternshipRequestResponse:
@@ -5212,7 +5259,7 @@ components:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/SkillCategoryResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedSkillClusterResponse:
@@ -5221,7 +5268,7 @@ components:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/SkillClusterResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedStudentSummaryResponse:
@@ -5230,7 +5277,7 @@ components:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/StudentSummaryResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PasswordCreateRequest:
@@ -5249,22 +5296,38 @@ components:
           writeOnly: true
     PasswordResetResponse:
       type: object
+      additionalProperties: false
+      required:
+        - resetId
+        - message
+        - expiresInSeconds
       properties:
-        status:
+        resetId:
           type: string
+          format: uuid
+          description: Opaque reset-flow identifier returned for every syntactically valid request. Its 
+            presence does not confirm that an eligible account exists.
         message:
           type: string
-        expiresAt:
-          type: string
-          format: date-time
+          example: If the account is eligible, a One-Time Password has been sent.
+        expiresInSeconds:
+          type: integer
+          minimum: 1
+          example: 300
     PasswordResetStartRequest:
       type: object
+      additionalProperties: false
       required:
-        - universityEmail
+        - accountType
+        - email
       properties:
-        universityEmail:
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        email:
           type: string
           format: email
+          maxLength: 254
+          description: University email for Student or provisioned email for Department Admin.
     ProblemDetails:
       type: object
       required:
@@ -5516,6 +5579,132 @@ components:
           format: date-time
         correlationId:
           type: string
+    AccountType:
+      type: string
+      enum:
+        - STUDENT
+        - ADMIN
+      description: Supported authenticated account type for the locked Version 1 scope.
+    StudentSummaryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - studentId
+        - indexNumber
+        - fullName
+        - universityEmail
+        - currentLevel
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        indexNumber:
+          type: string
+        fullName:
+          type: string
+        universityEmail:
+          type: string
+          format: email
+        currentLevel:
+          type: integer
+          enum:
+            - 3
+            - 4
+        officialGpa:
+          type:
+            - number
+            - 'null'
+          format: double
+          minimum: 0
+          maximum: 4
+          description: Latest committed official Computer Science GPA when available.
+    IndividualSkillResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - skillId
+        - name
+      properties:
+        skillId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+    SkillCategoryResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - categoryId
+        - name
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndividualSkillResponse'
+    SkillClusterResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - clusterId
+        - name
+      properties:
+        clusterId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type:
+            - string
+            - 'null'
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategoryResponse'
+    CandidateFilteringCandidateResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - studentId
+        - indexNumber
+        - fullName
+        - officialGpa
+        - declaredSkills
+        - crossShortlistWarning
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        indexNumber:
+          type: string
+        fullName:
+          type: string
+        officialGpa:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 4
+          description: Latest committed official Computer Science GPA used at runtime.
+        declaredSkills:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeclaredSkillResponse'
+        crossShortlistWarning:
+          type: boolean
+          description: Non-blocking warning that the Student appears in another relevant shortlist.
   examples:
     ValidationFailed:
       value:
