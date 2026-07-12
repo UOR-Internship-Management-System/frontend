@@ -2,7 +2,7 @@ openapi: 3.1.1
 info:
   title: CV Management and Deterministic Internship Candidate Filtering API
   version: 1.1.0
-  description: REST/JSON API contract for the locked Version 1 scope, revised for Sprint 2 Complete 
+  description: REST/JSON API contract for the locked Version 1 scope, revised for Sprint 2 Complete
     Authentication for Student and predefined Department Admin accounts.
   x-revision-summary:
     - Expanded Sprint 2 authentication to predefined Department Admin accounts.
@@ -70,7 +70,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Authenticates an existing Student account only; no Admin approval,
+      description:
+        'Access: Public. Audit: Security. Authenticates an existing Student account only; no Admin approval,
         company login, or temporary-password workflow.'
       security: []
       requestBody:
@@ -114,7 +115,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Authenticates a predefined, enabled Department Admin only;
+      description:
+        'Access: Public. Audit: Security. Authenticates a predefined, enabled Department Admin only;
         no Admin self-registration or account creation is permitted.'
       security: []
       requestBody:
@@ -154,7 +156,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student/Admin. Audit: Security. No request body is required. The backend invalidates
+      description:
+        'Access: Student/Admin. Audit: Security. No request body is required. The backend invalidates
         server-side session or refresh-token state where supported; clients must clear local auth state.'
   /auth/me:
     get:
@@ -227,7 +230,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Full name is display data only; index number and university
+      description:
+        'Access: Public. Audit: Security. Full name is display data only; index number and university
         email are verification authority.'
       security: []
       requestBody:
@@ -322,7 +326,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Enforces expiry, resend cooldown, resend limits, and anti-abuse
+      description:
+        'Access: Public. Audit: Security. Enforces expiry, resend cooldown, resend limits, and anti-abuse
         controls. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -364,7 +369,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a verified onboarding context. Audit: Security. Creates the initial Student
+      description:
+        'Access: Public with a verified onboarding context. Audit: Security. Creates the initial Student
         password hash only; no temporary password is generated or returned.'
       security: []
       parameters:
@@ -406,7 +412,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Supports STUDENT and predefined ADMIN accounts. For every syntactically
+      description:
+        'Access: Public. Audit: Security. Supports STUDENT and predefined ADMIN accounts. For every syntactically
         valid request, the API returns the same 202 status and safe response shape. The response must not confirm
         whether an eligible account exists. This endpoint never creates accounts, approves registrations, or issues
         temporary passwords.'
@@ -452,7 +459,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a valid reset context. Audit: Security. Enforces OTP expiry, verification-attempt
+      description:
+        'Access: Public with a valid reset context. Audit: Security. Enforces OTP expiry, verification-attempt
         limits, and rate limits. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -504,7 +512,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a valid reset context. Audit: Security. Enforces expiry, resend cooldown,
+      description:
+        'Access: Public with a valid reset context. Audit: Security. Enforces expiry, resend cooldown,
         resend limits, and anti-abuse controls. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -546,7 +555,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a verified reset context. Audit: Security. Updates only the password hash,
+      description:
+        'Access: Public with a verified reset context. Audit: Security. Updates only the password hash,
         closes the reset context, and returns no password or temporary credential.'
       security: []
       parameters:
@@ -2439,7 +2449,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are
+      description:
+        'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are
         non-authoritative.'
   /admin/academic-ledger/uploads:
     post:
@@ -5305,7 +5316,8 @@ components:
         resetId:
           type: string
           format: uuid
-          description: Opaque reset-flow identifier returned for every syntactically valid request. Its 
+          description:
+            Opaque reset-flow identifier returned for every syntactically valid request. Its
             presence does not confirm that an eligible account exists.
         message:
           type: string
