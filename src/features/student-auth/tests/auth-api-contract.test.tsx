@@ -47,11 +47,15 @@ describe('Sprint 2 auth API contract', () => {
     await studentAuthApi.verifyOtp('verification-id', { otpCode: '123456' })
     await adminAuthApi.verifyResetOtp('reset-id', { otpCode: '654321' })
 
-    expect(mockedHttpClient).toHaveBeenNthCalledWith(1, '/student-verifications/verification-id/otp/verify', {
-      method: 'POST',
-      body: { otpCode: '123456' },
-      signal: undefined,
-    })
+    expect(mockedHttpClient).toHaveBeenNthCalledWith(
+      1,
+      '/student-verifications/verification-id/otp/verify',
+      {
+        method: 'POST',
+        body: { otpCode: '123456' },
+        signal: undefined,
+      },
+    )
     expect(mockedHttpClient).toHaveBeenNthCalledWith(2, '/password-resets/reset-id/otp/verify', {
       method: 'POST',
       body: { otpCode: '654321' },
@@ -63,10 +67,14 @@ describe('Sprint 2 auth API contract', () => {
     await studentAuthApi.resendOtp('verification-id')
     await studentAuthApi.resendResetOtp('reset-id')
 
-    expect(mockedHttpClient).toHaveBeenNthCalledWith(1, '/student-verifications/verification-id/otp/resend', {
-      method: 'POST',
-      signal: undefined,
-    })
+    expect(mockedHttpClient).toHaveBeenNthCalledWith(
+      1,
+      '/student-verifications/verification-id/otp/resend',
+      {
+        method: 'POST',
+        signal: undefined,
+      },
+    )
     expect(mockedHttpClient).toHaveBeenNthCalledWith(2, '/password-resets/reset-id/otp/resend', {
       method: 'POST',
       signal: undefined,
