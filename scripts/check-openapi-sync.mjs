@@ -3,7 +3,7 @@ import path from 'node:path'
 
 const root = process.cwd()
 const requiredFiles = [
-  'docs/api/CV_Management_API_OpenAPI_v1.0.yaml',
+  'docs/api/CV_Management_API_OpenAPI_v1.1.yaml',
   'docs/api/generated-client-notes.md',
   'src/shared/api/generated/README.md',
   'src/shared/api/generated/cvManagementApi.client.ts',
@@ -31,4 +31,4 @@ for (const file of requiredFiles.filter((item) => item.endsWith('.ts'))) {
   }
 }
 
-console.log('OpenAPI contract and generated stubs are synchronized for Sprint 1.')
+console.log('OpenAPI contract and generated stubs are synchronized for Sprint 2.')

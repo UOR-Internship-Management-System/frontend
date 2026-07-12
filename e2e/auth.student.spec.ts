@@ -17,15 +17,19 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
       contentType: 'application/json',
       body: JSON.stringify({
         verificationId: 'verification-e2e',
-        email: 'student@dcs.ruh.ac.lk',
+        status: 'OTP_SENT',
+        message: 'Verification started.',
+        expiresAt: new Date(Date.now() + 300_000).toISOString(),
       }),
     })
   })
   await page.route('**/api/v1/student-verifications/verification-e2e/otp/verify', async (route) => {
+    const body = route.request().postDataJSON() as { otpCode?: string }
+    expect(body.otpCode).toBe('123456')
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ message: 'OTP verified.' }),
+      body: JSON.stringify({ verified: true }),
     })
   })
   await page.route('**/api/v1/student-verifications/verification-e2e/password', async (route) => {
@@ -51,7 +55,7 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
 
   await page.goto('/student/sign-up', { waitUntil: 'domcontentloaded' })
   await page.getByLabel('Full Name').fill('E2E Student')
-  await page.getByLabel('Index Number').fill('SC/2020/001')
+  await page.getByLabel('Index Number').fill('SC-2020-001')
   await page.getByLabel('University Email').fill('student@dcs.ruh.ac.lk')
   await page.getByRole('button', { name: 'Send Request' }).click()
 

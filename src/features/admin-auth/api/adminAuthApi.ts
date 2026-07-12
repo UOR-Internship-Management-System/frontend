@@ -3,6 +3,8 @@ import type {
   AdminLoginRequest,
   AdminLoginResponse,
   AdminOtpRequest,
+  AdminOtpResendResponse,
+  AdminOtpVerifyResponse,
   AdminPasswordRequest,
   AdminPasswordResetResponse,
   AdminPasswordResetStartRequest,
@@ -24,16 +26,15 @@ export const adminAuthApi = {
     }),
 
   verifyResetOtp: (resetId: string, request: AdminOtpRequest, signal?: AbortSignal) =>
-    httpClient<void>(`/password-resets/${resetId}/otp/verify`, {
+    httpClient<AdminOtpVerifyResponse>(`/password-resets/${resetId}/otp/verify`, {
       method: 'POST',
       body: request,
       signal,
     }),
 
   resendResetOtp: (resetId: string, signal?: AbortSignal) =>
-    httpClient<void>(`/password-resets/${resetId}/otp/resend`, {
+    httpClient<AdminOtpResendResponse>(`/password-resets/${resetId}/otp/resend`, {
       method: 'POST',
-      body: {},
       signal,
     }),
 
