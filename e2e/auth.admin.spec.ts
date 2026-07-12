@@ -11,19 +11,22 @@ test('admin public shell loads and protected route redirects anonymous users', a
 test('admin resets password and logs in with mocked Sprint 2 APIs', async ({ page }) => {
   await page.route('**/api/v1/password-resets', async (route) => {
     await route.fulfill({
-      status: 200,
+      status: 202,
       contentType: 'application/json',
       body: JSON.stringify({
         resetId: 'admin-reset-e2e',
         message: 'If the account can be recovered, an OTP has been sent.',
+        expiresInSeconds: 300,
       }),
     })
   })
   await page.route('**/api/v1/password-resets/admin-reset-e2e/otp/verify', async (route) => {
+    const body = route.request().postDataJSON() as { otpCode?: string }
+    expect(body.otpCode).toBe('123456')
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ message: 'OTP verified.' }),
+      body: JSON.stringify({ verified: true }),
     })
   })
   await page.route('**/api/v1/password-resets/admin-reset-e2e/password', async (route) => {

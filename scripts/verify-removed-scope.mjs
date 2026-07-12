@@ -7,7 +7,7 @@ const allowed = [
   'scripts/verify-removed-scope.mjs',
   'src/shared/constants/removedScope.ts',
   'docs/architecture/removed-scope-guardrails.md',
-  'docs/api/CV_Management_API_OpenAPI_v1.0.yaml',
+  'docs/api/CV_Management_API_OpenAPI_v1.1.yaml',
   'docs/Project Documentations',
   'docs/Sprint plans',
 ]

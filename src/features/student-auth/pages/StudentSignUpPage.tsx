@@ -25,7 +25,7 @@ export function StudentSignUpPage() {
       const response = await startVerification.mutateAsync(values)
       authStorage.setVerificationContext({
         verificationId: response.verificationId,
-        email: response.email || values.universityEmail,
+        email: values.universityEmail,
         expiresAt: response.expiresAt,
       })
       setDialog({ isOpen: true, status: 'success' })

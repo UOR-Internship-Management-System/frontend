@@ -16,30 +16,19 @@ import {
 } from './routeGuards'
 import { fallbackRoutes } from './fallbackRoutes'
 import {
-  AcademicLedgerPage,
-  AcademicRecordsPage,
   AdminCreatePasswordPage,
   AdminDashboardPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
-  CandidateFilteringPage,
   CreatePasswordPage,
-  CvBuilderPage,
   ForgotPasswordPage,
   HomePage,
-  InternshipManagementPage,
-  RegisteredStudentsPage,
-  ShortlistsPage,
   StudentDashboardPage,
-  StudentDeepDivePage,
   StudentLoginPage,
-  StudentProfilePage,
-  StudentProjectsPage,
   StudentResetOtpPage,
   StudentResetPasswordPage,
   StudentSignUpPage,
-  StudentSkillsPage,
   VerifyOtpPage,
 } from './lazyRoutes'
 
@@ -47,8 +36,6 @@ import {
   AuthSkeleton,
   StudentDashboardSkeleton,
   AdminDashboardSkeleton,
-  TableSkeleton,
-  WorkspaceSkeleton,
   FormSkeleton,
 } from '../../shared/skeletons'
 
@@ -204,32 +191,6 @@ export const routes: RouteObject[] = [
             path: routePaths.studentDashboard,
             element: withSuspense(<StudentDashboardPage />, <StudentDashboardSkeleton />),
           },
-          {
-            path: routePaths.studentProfile,
-            element: withSuspense(<StudentProfilePage />, <FormSkeleton variant="profile" />),
-          },
-          {
-            path: routePaths.studentSkills,
-            element: withSuspense(<StudentSkillsPage />, <WorkspaceSkeleton variant="skills" />),
-          },
-          {
-            path: routePaths.studentProjects,
-            element: withSuspense(
-              <StudentProjectsPage />,
-              <TableSkeleton variant="student-projects" />,
-            ),
-          },
-          {
-            path: routePaths.studentCvBuilder,
-            element: withSuspense(<CvBuilderPage />, <WorkspaceSkeleton variant="cv-builder" />),
-          },
-          {
-            path: routePaths.studentAcademicRecords,
-            element: withSuspense(
-              <AcademicRecordsPage />,
-              <TableSkeleton variant="academic-records" />,
-            ),
-          },
         ],
       },
       {
@@ -242,45 +203,6 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminDashboard,
             element: withSuspense(<AdminDashboardPage />, <AdminDashboardSkeleton />),
-          },
-          {
-            path: routePaths.adminAcademicLedger,
-            element: withSuspense(
-              <AcademicLedgerPage />,
-              <TableSkeleton variant="academic-ledger" />,
-            ),
-          },
-          {
-            path: routePaths.adminStudents,
-            element: withSuspense(
-              <RegisteredStudentsPage />,
-              <TableSkeleton variant="registered-students" />,
-            ),
-          },
-          {
-            path: routePaths.adminStudentDetail,
-            element: withSuspense(
-              <StudentDeepDivePage />,
-              <FormSkeleton variant="student-detail" />,
-            ),
-          },
-          {
-            path: routePaths.adminInternships,
-            element: withSuspense(
-              <InternshipManagementPage />,
-              <TableSkeleton variant="internship-management" />,
-            ),
-          },
-          {
-            path: routePaths.adminCandidateFiltering,
-            element: withSuspense(
-              <CandidateFilteringPage />,
-              <TableSkeleton variant="candidate-filtering" />,
-            ),
-          },
-          {
-            path: routePaths.adminShortlists,
-            element: withSuspense(<ShortlistsPage />, <TableSkeleton variant="shortlists" />),
           },
         ],
       },

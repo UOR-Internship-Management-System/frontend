@@ -13,14 +13,22 @@ export type AdminPasswordResetStartRequest = {
 }
 
 export type AdminPasswordResetResponse = {
-  resetId?: string | null
+  resetId: string
   message: string
-  expiresAt?: string
-  expiresInSeconds?: number
+  expiresInSeconds: number
 }
 
 export type AdminOtpRequest = {
-  otp: string
+  otpCode: string
+}
+
+export type AdminOtpVerifyResponse = {
+  verified: true
+}
+
+export type AdminOtpResendResponse = {
+  message: string
+  expiresInSeconds: number
 }
 
 export type AdminPasswordRequest = {

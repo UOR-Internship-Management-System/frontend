@@ -2,6 +2,7 @@ import { httpClient } from '../../../shared/api/httpClient'
 import type {
   LoginRequest,
   OtpRequest,
+  OtpResendResponse,
   OtpVerifyResponse,
   PasswordRequest,
   PasswordResetResponse,
@@ -27,9 +28,8 @@ export const studentAuthApi = {
     }),
 
   resendOtp: (verificationId: string, signal?: AbortSignal) =>
-    httpClient<OtpVerifyResponse>(`/student-verifications/${verificationId}/otp/resend`, {
+    httpClient<OtpResendResponse>(`/student-verifications/${verificationId}/otp/resend`, {
       method: 'POST',
-      body: {},
       signal,
     }),
 
@@ -62,9 +62,8 @@ export const studentAuthApi = {
     }),
 
   resendResetOtp: (resetId: string, signal?: AbortSignal) =>
-    httpClient<OtpVerifyResponse>(`/password-resets/${resetId}/otp/resend`, {
+    httpClient<OtpResendResponse>(`/password-resets/${resetId}/otp/resend`, {
       method: 'POST',
-      body: {},
       signal,
     }),
 
