@@ -1,5 +1,6 @@
 import { apiConfig } from './apiConfig'
 import { authTokenStorage } from './authTokenStorage'
+import { sessionEvents } from '../auth/sessionEvents'
 
 export type HttpRequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -32,6 +33,9 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
   })
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      sessionEvents.notifyExpired()
+    }
     throw await safeReadError(response)
   }
 
@@ -46,6 +50,13 @@ async function safeReadError(response: Response) {
   try {
     return await response.json()
   } catch {
-    return { title: 'Request failed', status: response.status }
+    return {
+      type: 'about:blank',
+      title: 'Request failed',
+      status: response.status,
+      code: `HTTP_${response.status}`,
+      message: 'The request could not be completed.',
+      correlationId: response.headers.get(apiConfig.requestIdHeader) ?? 'unavailable',
+    }
   }
 }
