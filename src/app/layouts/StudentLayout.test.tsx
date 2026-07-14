@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
@@ -71,7 +71,7 @@ describe('StudentLayout', () => {
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveFocus()
 
     await user.keyboard('{Escape}')
-    expect(menuButton).toHaveFocus()
+    await waitFor(() => expect(menuButton).toHaveFocus())
     expect(menuButton).toHaveAttribute('aria-expanded', 'false')
 
     await user.click(screen.getByRole('button', { name: 'Log Out' }))
