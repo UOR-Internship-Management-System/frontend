@@ -75,13 +75,11 @@ function ProfileFormSkeleton() {
       </section>
       <section className="section-card form-skeleton-card">
         <Shape height={28} width={260} />
-        <div className="form-skeleton-grid two-column">
-          <FieldSkeleton />
+        <div className="form-skeleton-grid">
           <FieldSkeleton />
           <FieldSkeleton />
           <FieldSkeleton />
         </div>
-        <Shape height={112} rounded />
         <Shape height={44} rounded width={160} />
       </section>
     </div>

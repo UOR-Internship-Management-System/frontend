@@ -118,7 +118,8 @@ textarea {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
   outline-offset: 3px;
 }
@@ -130,7 +131,7 @@ select:focus-visible {
 }
 
 .app-main {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1340px, calc(100% - 32px));
   margin: 0 auto;
   padding: 32px 0 48px;
   flex: 1;
@@ -148,7 +149,7 @@ select:focus-visible {
 }
 
 .shell-bar {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1340px, calc(100% - 32px));
   margin: 0 auto;
   padding: 16px 0;
   display: flex;
@@ -747,6 +748,150 @@ select:focus-visible {
 
 .student-content {
   min-width: 0;
+}
+
+.profile-page {
+  min-width: 0;
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.34fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.profile-identity-card,
+.profile-form-card {
+  border-radius: var(--radius-xl);
+}
+
+.profile-identity-card {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.profile-avatar,
+.profile-avatar-fallback {
+  width: 132px;
+  height: 132px;
+  border: 4px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-card));
+  border-radius: 50%;
+  box-shadow: var(--shadow-card);
+}
+
+.profile-avatar {
+  display: block;
+  object-fit: cover;
+  background: var(--color-card-muted);
+}
+
+.profile-avatar-fallback {
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.profile-identity-heading h2,
+.profile-identity-heading p {
+  margin: 0;
+}
+
+.profile-identity-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.profile-identity-list {
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  text-align: left;
+}
+
+.profile-identity-list > div {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.profile-identity-list dt {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.profile-identity-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.profile-identity-note {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.profile-form-card,
+.profile-form {
+  display: grid;
+  gap: 20px;
+}
+
+.profile-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.profile-section-heading h2,
+.profile-section-heading p,
+.profile-form-alert p {
+  margin: 0;
+}
+
+.profile-unsaved-indicator {
+  flex: none;
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.profile-summary-input {
+  min-height: 144px;
+  resize: vertical;
+}
+
+.profile-form-alert {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.profile-form-actions {
+  padding-top: 4px;
+}
+
+.error-reference {
+  overflow-wrap: anywhere;
+  font-size: 0.88rem;
 }
 
 .content-stack {
@@ -1554,11 +1699,16 @@ td {
   }
 
   .form-skeleton-grid.two-column,
+  .profile-layout,
   .profile-skeleton-layout,
   .student-detail-skeleton-layout,
   .cv-workspace-skeleton,
   .skills-workspace-skeleton {
     grid-template-columns: 1fr;
+  }
+
+  .profile-section-heading {
+    flex-direction: column;
   }
 
   .table-skeleton-toolbar,
