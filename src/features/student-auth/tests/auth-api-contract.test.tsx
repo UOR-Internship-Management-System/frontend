@@ -97,10 +97,10 @@ describe('Sprint 2 auth API contract', () => {
     expect(mockedHttpClient).toHaveBeenCalledWith('/auth/logout', { method: 'POST' })
   })
 
-  it('does not register later-sprint routes in the Sprint 2 production router', () => {
+  it('registers Profile while keeping later Student and Admin routes inactive', () => {
+    expect(collectRoutePaths(routes)).toContain('/student/profile')
     expect(collectRoutePaths(routes)).not.toEqual(
       expect.arrayContaining([
-        '/student/profile',
         '/student/skills',
         '/student/projects',
         '/student/cv-builder',

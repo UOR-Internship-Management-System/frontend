@@ -125,3 +125,7 @@ export function FormSkeleton({ variant = 'generic' }: { variant?: FormSkeletonVa
     </section>
   )
 }
+
+export function StudentProfileSkeleton() {
+  return <FormSkeleton variant="profile" />
+}

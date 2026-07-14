@@ -19,7 +19,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     ).toBeInTheDocument()
   })
 
-  it('does not expose later-sprint navigation in Sprint 2 authenticated shells', () => {
+  it('exposes only the approved Sprint 3 student navigation', () => {
     renderWithProviders(
       <MemoryRouter initialEntries={[routePaths.studentDashboard]}>
         <Routes>
@@ -29,7 +29,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     )
 
     expect(screen.getByRole('link', { name: /^dashboard$/i })).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /profile/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^profile$/i })).toBeInTheDocument()
     expect(screen.queryByRole('link', { name: /skills/i })).not.toBeInTheDocument()
 
     renderWithProviders(

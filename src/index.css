@@ -705,6 +705,10 @@ select:focus-visible {
   gap: 24px;
 }
 
+.student-mobile-toolbar {
+  display: none;
+}
+
 .sidebar {
   align-self: start;
   position: sticky;
@@ -712,6 +716,37 @@ select:focus-visible {
   padding: 18px;
   display: grid;
   gap: 14px;
+}
+
+.student-sidebar-heading {
+  display: grid;
+  gap: 4px;
+}
+
+.student-sidebar-heading h2,
+.student-sidebar-heading p {
+  margin: 0;
+}
+
+.student-sidebar-eyebrow,
+.student-mobile-label {
+  color: var(--color-primary-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.student-sidebar .nav-list {
+  display: grid;
+}
+
+.student-nav-link {
+  width: 100%;
+}
+
+.student-content {
+  min-width: 0;
 }
 
 .content-stack {
@@ -1471,8 +1506,45 @@ td {
     grid-template-columns: 1fr;
   }
 
-  .sidebar {
+  .student-mobile-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .student-mobile-toolbar > div {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .student-mobile-toolbar strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-menu-button {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .student-sidebar {
+    display: none;
     position: static;
+  }
+
+  .student-sidebar.student-sidebar-open {
+    display: grid;
   }
 
   .page-header,
