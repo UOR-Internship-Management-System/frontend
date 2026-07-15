@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { routePaths } from '../config/routePaths'
+import { ThemeProvider } from '../providers/ThemeProvider'
 import { AuthContext } from '../../shared/auth/AuthProvider'
 import type { AuthContextValue } from '../../shared/auth/authTypes'
 import { StudentLayout } from './StudentLayout'
@@ -30,16 +31,18 @@ function renderStudentLayout(initialPath = routePaths.studentProfile) {
   }
 
   render(
-    <AuthContext.Provider value={auth}>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <Routes>
-          <Route element={<StudentLayout />}>
-            <Route path={routePaths.studentDashboard} element={<h1>Dashboard</h1>} />
-            <Route path={routePaths.studentProfile} element={<h1>Profile</h1>} />
-          </Route>
-        </Routes>
-      </MemoryRouter>
-    </AuthContext.Provider>,
+    <ThemeProvider>
+      <AuthContext.Provider value={auth}>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <Routes>
+            <Route element={<StudentLayout />}>
+              <Route path={routePaths.studentDashboard} element={<h1>Dashboard</h1>} />
+              <Route path={routePaths.studentProfile} element={<h1>Profile</h1>} />
+            </Route>
+          </Routes>
+        </MemoryRouter>
+      </AuthContext.Provider>
+    </ThemeProvider>,
   )
 
   return { logout }
@@ -52,7 +55,9 @@ describe('StudentLayout', () => {
     expect(screen.getAllByText('Test Student')).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getAllByRole('link')).toHaveLength(2)
+    expect(
+      within(screen.getByRole('navigation', { name: 'Student navigation' })).getAllByRole('link'),
+    ).toHaveLength(2)
     expect(
       screen.queryByRole('link', { name: /skills|projects|cv builder|academic/i }),
     ).not.toBeInTheDocument()
@@ -64,11 +69,9 @@ describe('StudentLayout', () => {
     const menuButton = screen.getByRole('button', { name: 'Open student navigation' })
 
     await user.click(menuButton)
-    expect(screen.getByRole('button', { name: 'Close student navigation' })).toHaveAttribute(
-      'aria-expanded',
-      'true',
-    )
-    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveFocus()
+    expect(menuButton).toHaveAccessibleName('Close student navigation')
+    expect(menuButton).toHaveAttribute('aria-expanded', 'true')
+    await waitFor(() => expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveFocus())
 
     await user.keyboard('{Escape}')
     await waitFor(() => expect(menuButton).toHaveFocus())
