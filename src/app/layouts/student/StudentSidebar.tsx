@@ -108,6 +108,7 @@ export function StudentSidebar({
           {navigationItems.map((item, index) => (
             <li key={item.route}>
               <NavLink
+                aria-label={item.label}
                 className={({ isActive }) =>
                   `student-sidebar-item ${isActive ? 'student-sidebar-item-selected' : ''}`.trim()
                 }
@@ -129,6 +130,7 @@ export function StudentSidebar({
       </nav>
 
       <Button
+        aria-label="Log Out"
         className="student-sidebar-logout"
         data-tooltip="Log Out"
         data-student-logout

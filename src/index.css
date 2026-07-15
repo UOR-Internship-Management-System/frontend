@@ -98,7 +98,7 @@ body.dark-mode {
 }
 
 body {
-  min-width: 320px;
+  min-width: min(320px, 100%);
   min-height: 100vh;
   margin: 0;
   background: var(--color-page);
@@ -728,6 +728,7 @@ body.student-mobile-drawer-open {
   --student-sidebar-current-width: var(--student-sidebar-expanded-width);
   min-width: 0;
   min-height: 100dvh;
+  overflow-x: clip;
   background: var(--color-page);
 }
 
@@ -765,7 +766,7 @@ body.student-mobile-drawer-open {
 }
 
 .student-mobile-context,
-.student-mobile-menu {
+.student-sidebar-icon-button.student-mobile-menu {
   display: none;
 }
 
@@ -2049,6 +2050,7 @@ td {
 
   .student-sidebar,
   .student-shell-collapsed .student-sidebar {
+    z-index: 40;
     width: min(320px, calc(100vw - 24px));
     padding: 20px 16px;
     visibility: hidden;
@@ -2072,7 +2074,7 @@ td {
   }
 
   .student-sidebar-mobile-close,
-  .student-mobile-menu {
+  .student-sidebar-icon-button.student-mobile-menu {
     display: inline-grid;
   }
 
