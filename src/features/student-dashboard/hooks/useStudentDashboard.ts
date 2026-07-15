@@ -23,7 +23,7 @@ export function shouldRetryStudentDashboardQuery(failureCount: number, error: un
 export function useStudentDashboard() {
   return useQuery({
     queryKey: studentDashboardKeys.metrics(),
-    queryFn: () => studentDashboardApi.getMetrics(),
+    queryFn: ({ signal }) => studentDashboardApi.getMetrics(signal),
     retry: shouldRetryStudentDashboardQuery,
   })
 }

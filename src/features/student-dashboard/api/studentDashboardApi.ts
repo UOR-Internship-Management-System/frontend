@@ -2,10 +2,8 @@ import { httpClient } from '../../../shared/api/httpClient'
 import { studentDashboardMetricsSchema } from '../schemas/studentDashboardSchemas'
 import type { StudentDashboardMetrics } from '../types/studentDashboardTypes'
 export const studentDashboardApi = {
-  async getMetrics(): Promise<StudentDashboardMetrics> {
-    // Note: intentionally omitting `signal` in `httpClient` below
-    // to avoid JSDOM AbortSignal vs Undici AbortSignal TypeError in vitest.
-    const response = await httpClient<unknown>('/me/dashboard/metrics')
+  async getMetrics(signal?: AbortSignal): Promise<StudentDashboardMetrics> {
+    const response = await httpClient<unknown>('/me/dashboard/metrics', { signal })
     return studentDashboardMetricsSchema.parse(response)
   },
 }

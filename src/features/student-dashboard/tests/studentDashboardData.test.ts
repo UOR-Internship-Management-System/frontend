@@ -1,8 +1,14 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ZodError } from 'zod'
 import { studentDashboardFixture } from '../../../mocks/fixtures/studentDashboard.fixture'
+import { httpClient } from '../../../shared/api/httpClient'
+import { studentDashboardApi } from '../api/studentDashboardApi'
 import { shouldRetryStudentDashboardQuery } from '../hooks/useStudentDashboard'
 import { studentDashboardMetricsSchema } from '../schemas/studentDashboardSchemas'
+
+vi.mock('../../../shared/api/httpClient', () => ({
+  httpClient: vi.fn(),
+}))
 
 describe('Student Dashboard data contract', () => {
   it('accepts the OpenAPI-aligned dashboard response', () => {
@@ -58,5 +64,17 @@ describe('Student Dashboard data contract', () => {
         status: 503,
       }),
     ).toBe(false)
+  })
+
+  it('forwards an AbortSignal to the httpClient when requesting metrics', async () => {
+    const mockHttpClient = vi.mocked(httpClient)
+    mockHttpClient.mockResolvedValueOnce(studentDashboardFixture)
+
+    const controller = new AbortController()
+    await studentDashboardApi.getMetrics(controller.signal)
+
+    expect(mockHttpClient).toHaveBeenCalledWith('/me/dashboard/metrics', {
+      signal: controller.signal,
+    })
   })
 })
