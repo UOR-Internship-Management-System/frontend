@@ -1,5 +1,5 @@
-# Generated Client Notes
+# Generated API Metadata Notes
 
-The Sprint 2 frontend stores the official OpenAPI 3.1.1 contract in `docs/api/CV_Management_API_OpenAPI_v1.1.yaml`.
+The frontend stores the canonical OpenAPI 3.1.1 contract, version 1.2.0, in `docs/api/CV_Management_API_OpenAPI_v1.2.0.yaml`.
 
-Full endpoint-specific client generation is deferred until feature integration sprints. The current generated files are deterministic TypeScript stubs used to validate contract placement and import boundaries.
+The current generator intentionally produces deterministic metadata only. Student Profile transport DTOs and Zod schemas remain feature-owned so runtime validation stays close to the integration boundary.

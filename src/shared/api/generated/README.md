@@ -1,5 +1,5 @@
-# Generated API Client
+# Generated API Metadata
 
-Sprint 2 keeps syntactically valid generated stubs here while the official OpenAPI contract is governed from `docs/api/CV_Management_API_OpenAPI_v1.1.yaml`.
+The canonical frontend contract is OpenAPI 3.1.1 at `docs/api/CV_Management_API_OpenAPI_v1.2.0.yaml`.
 
-Run `npm run openapi:generate` after the contract changes.
+`npm run openapi:generate` produces deterministic contract metadata stubs. It does not generate a complete endpoint SDK; feature-owned API modules remain responsible for typed transport and runtime validation.
