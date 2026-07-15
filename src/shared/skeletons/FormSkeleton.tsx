@@ -73,17 +73,29 @@ function ProfileFormSkeleton() {
         <Shape height={26} width="70%" />
         <SkeletonBlock decorative lineWidths={['86%', '54%']} lines={2} variant="inline" />
       </section>
-      <section className="section-card form-skeleton-card">
-        <Shape height={28} width={260} />
-        <div className="form-skeleton-grid two-column">
+      <div className="profile-skeleton-main">
+        <section className="section-card form-skeleton-card">
+          <Shape height={28} width={260} />
+          <div className="form-skeleton-grid two-column">
+            <FieldSkeleton />
+            <FieldSkeleton />
+            <FieldSkeleton />
+            <FieldSkeleton />
+            <FieldSkeleton />
+          </div>
           <FieldSkeleton />
-          <FieldSkeleton />
-          <FieldSkeleton />
-          <FieldSkeleton />
-        </div>
-        <Shape height={112} rounded />
-        <Shape height={44} rounded width={160} />
-      </section>
+          <Shape height={44} rounded width={160} />
+        </section>
+        {['Professional Links', 'Certificates', 'Awards', 'Activities', 'Experience'].map(
+          (title) => (
+            <section className="section-card profile-section-skeleton" key={title}>
+              <Shape height={26} width="42%" />
+              <Shape height={48} rounded />
+              <SkeletonBlock decorative lines={3} />
+            </section>
+          ),
+        )}
+      </div>
     </div>
   )
 }
@@ -124,4 +136,8 @@ export function FormSkeleton({ variant = 'generic' }: { variant?: FormSkeletonVa
       {variant === 'generic' ? <GenericFormSkeleton /> : null}
     </section>
   )
+}
+
+export function StudentProfileSkeleton() {
+  return <FormSkeleton variant="profile" />
 }

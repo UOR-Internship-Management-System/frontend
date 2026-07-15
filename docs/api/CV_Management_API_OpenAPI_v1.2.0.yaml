@@ -1,16 +1,24 @@
 openapi: 3.1.1
 info:
   title: CV Management and Deterministic Internship Candidate Filtering API
-  version: 1.1.0
-  description: REST/JSON API contract for the locked Version 1 scope, revised for Sprint 2 Complete 
-    Authentication for Student and predefined Department Admin accounts.
+  version: 1.2.0
+  description:
+    REST/JSON API contract for the locked Version 1 scope, revised for Sprint 3 frontend implementation
+    of the protected Student Dashboard and the complete Student Profile interface. This contract supersedes the
+    incomplete Sprint 3 profile schemas in v1.1.0; backend implementation remains a separate activity.
   x-revision-summary:
-    - Expanded Sprint 2 authentication to predefined Department Admin accounts.
-    - Generalized OTP-based password reset to STUDENT and ADMIN account types.
-    - Added password-reset OTP resend endpoint.
-    - Standardized authentication response DTOs and success status codes.
-    - Removed required logout request body.
-    - Defined non-enumerating password-reset start behavior.
+    - Retained the Sprint 2 authentication contract for Student and predefined Department Admin accounts.
+    - Added the Student Dashboard metrics endpoint and typed response.
+    - Expanded the Student Profile core DTO with editable contact/profile fields and immutable identity context.
+    - Replaced generic profile child DTOs with domain-specific contact-link, certificate, award, activity, and experience
+      schemas.
+    - Added CV inclusion flags, stable versions, timestamps, and typed paged collection items.
+    - Added profile-photo and certificate-evidence upload, replacement, removal, and upload-policy contracts.
+    - Standardized optimistic concurrency for Student Profile mutations through If-Match entity versions.
+    - Added payload-too-large and precondition-required problem responses for upload and concurrency flows.
+  x-implementation-status:
+    frontendContract: READY
+    backendImplementation: PENDING
 servers:
   - url: /api/v1
 security:
@@ -20,7 +28,10 @@ tags:
   - name: Student Verification and OTP
   - name: Password Reset
     description: Shared OTP-based password recovery for supported STUDENT and ADMIN accounts.
+  - name: Student Dashboard
+    description: Authenticated Student summary metrics sourced from persisted backend data.
   - name: Student Profile
+    description: Authenticated Student-owned profile, CV-supporting records, and profile file operations.
   - name: Declared Skills and Taxonomy
   - name: Project Portfolio
   - name: Academic Records
@@ -70,7 +81,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Authenticates an existing Student account only; no Admin approval,
+      description:
+        'Access: Public. Audit: Security. Authenticates an existing Student account only; no Admin approval,
         company login, or temporary-password workflow.'
       security: []
       requestBody:
@@ -114,7 +126,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Authenticates a predefined, enabled Department Admin only;
+      description:
+        'Access: Public. Audit: Security. Authenticates a predefined, enabled Department Admin only;
         no Admin self-registration or account creation is permitted.'
       security: []
       requestBody:
@@ -154,7 +167,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student/Admin. Audit: Security. No request body is required. The backend invalidates
+      description:
+        'Access: Student/Admin. Audit: Security. No request body is required. The backend invalidates
         server-side session or refresh-token state where supported; clients must clear local auth state.'
   /auth/me:
     get:
@@ -227,7 +241,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Full name is display data only; index number and university
+      description:
+        'Access: Public. Audit: Security. Full name is display data only; index number and university
         email are verification authority.'
       security: []
       requestBody:
@@ -322,7 +337,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Enforces expiry, resend cooldown, resend limits, and anti-abuse
+      description:
+        'Access: Public. Audit: Security. Enforces expiry, resend cooldown, resend limits, and anti-abuse
         controls. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -364,7 +380,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a verified onboarding context. Audit: Security. Creates the initial Student
+      description:
+        'Access: Public with a verified onboarding context. Audit: Security. Creates the initial Student
         password hash only; no temporary password is generated or returned.'
       security: []
       parameters:
@@ -406,7 +423,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public. Audit: Security. Supports STUDENT and predefined ADMIN accounts. For every syntactically
+      description:
+        'Access: Public. Audit: Security. Supports STUDENT and predefined ADMIN accounts. For every syntactically
         valid request, the API returns the same 202 status and safe response shape. The response must not confirm
         whether an eligible account exists. This endpoint never creates accounts, approves registrations, or issues
         temporary passwords.'
@@ -452,7 +470,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a valid reset context. Audit: Security. Enforces OTP expiry, verification-attempt
+      description:
+        'Access: Public with a valid reset context. Audit: Security. Enforces OTP expiry, verification-attempt
         limits, and rate limits. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -504,7 +523,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a valid reset context. Audit: Security. Enforces expiry, resend cooldown,
+      description:
+        'Access: Public with a valid reset context. Audit: Security. Enforces expiry, resend cooldown,
         resend limits, and anti-abuse controls. Raw OTP values are never returned or logged.'
       security: []
       parameters:
@@ -546,7 +566,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Public with a verified reset context. Audit: Security. Updates only the password hash,
+      description:
+        'Access: Public with a verified reset context. Audit: Security. Updates only the password hash,
         closes the reset context, and returns no password or temporary credential.'
       security: []
       parameters:
@@ -563,6 +584,45 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PasswordCreateRequest'
+  /me/dashboard/metrics:
+    get:
+      tags:
+        - Student Dashboard
+      summary: Retrieve persisted summary metrics for the authenticated Student dashboard.
+      operationId: getMeDashboardMetrics
+      description:
+        'Access: Student. Audit: No. Returns only the authenticated Student’s persisted project, declared-skill,
+        shortlist, and official GPA summary values. Counts are never calculated from frontend demo data. A null
+        officialCumulativeGpa means no committed GPA is available.'
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDashboardMetricsResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
   /me/profile:
     get:
       tags:
@@ -598,7 +658,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Only own profile data.'
+      description:
+        'Access: Student. Audit: No. Returns only the authenticated Student’s profile, immutable identity
+        values, read-only Student level/cohort context, current profile photo metadata, and entity version.'
     patch:
       tags:
         - Student Profile
@@ -627,19 +689,163 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: Yes. Index number and university email are immutable.'
+      description:
+        'Access: Student. Audit: Yes. Updates only editable own-profile fields. Index number, university
+        email, Student level, and cohort year are immutable and are not accepted in the request body. Successful
+        changes must update CV-source freshness metadata.'
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/StudentProfileUpdateRequest'
+      parameters:
+        - $ref: '#/components/parameters/IfMatchVersion'
+  /me/profile/upload-policy:
+    get:
+      tags:
+        - Student Profile
+      summary: Retrieve the active upload constraints for Student profile files.
+      operationId: getMeProfileUploadPolicy
+      description:
+        'Access: Student. Audit: No. Returns server-controlled MIME-type and maximum-size limits so the
+        frontend can validate and display accurate upload guidance without hardcoded limits.'
+      responses:
+        '200':
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileUploadPolicyResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+  /me/profile/photo:
+    put:
+      tags:
+        - Student Profile
+      summary: Upload or replace the authenticated Student profile photo.
+      operationId: putMeProfilePhoto
+      description:
+        'Access: Student. Audit: Yes. Replaces the current profile photo atomically after ownership,
+        MIME-type, size, and file-safety validation. Returns the updated Profile and incremented version.'
+      parameters:
+        - $ref: '#/components/parameters/IfMatchVersion'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Profile image that satisfies the current profilePhoto upload policy.
+      responses:
+        '200':
+          description: Profile photo updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfileResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+    delete:
+      tags:
+        - Student Profile
+      summary: Remove the authenticated Student profile photo.
+      operationId: deleteMeProfilePhoto
+      description:
+        'Access: Student. Audit: Yes. Removes only the authenticated Student’s current profile photo
+        and returns the updated Profile.'
+      parameters:
+        - $ref: '#/components/parameters/IfMatchVersion'
+      responses:
+        '200':
+          description: Profile photo removed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentProfileResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
   /me/profile/contact-links:
     get:
       tags:
@@ -675,7 +881,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Own records only.'
+      description:
+        'Access: Student. Audit: No. Own records only. Search applies to label and URL. Approved sort
+        fields: displayOrder, label, createdAt, updatedAt.'
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
@@ -688,7 +896,7 @@ paths:
       operationId: postMeProfileContactLinks
       responses:
         '201':
-          description: Successful response.
+          description: Resource created successfully.
           content:
             application/json:
               schema:
@@ -721,7 +929,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContactLinkRequest'
+              $ref: '#/components/schemas/ContactLinkCreateRequest'
   /me/profile/contact-links/{contactLinkId}:
     patch:
       tags:
@@ -751,6 +959,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -766,12 +976,13 @@ paths:
             type: string
             format: uuid
           description: contactLinkId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ContactLinkRequest'
+              $ref: '#/components/schemas/ContactLinkUpdateRequest'
     delete:
       tags:
         - Student Profile
@@ -779,7 +990,7 @@ paths:
       operationId: deleteMeProfileContactLinksByContactLinkId
       responses:
         '204':
-          description: No content.
+          description: Resource deleted successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -796,6 +1007,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -811,6 +1024,7 @@ paths:
             type: string
             format: uuid
           description: contactLinkId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
   /me/profile/certificates:
     get:
       tags:
@@ -846,7 +1060,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Own records only.'
+      description:
+        'Access: Student. Audit: No. Own records only. Search applies to title and issuer. Approved sort
+        fields: issueDate, title, createdAt, updatedAt.'
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
@@ -859,7 +1075,7 @@ paths:
       operationId: postMeProfileCertificates
       responses:
         '201':
-          description: Successful response.
+          description: Resource created successfully.
           content:
             application/json:
               schema:
@@ -892,7 +1108,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CertificateRequest'
+              $ref: '#/components/schemas/CertificateCreateRequest'
   /me/profile/certificates/{certificateId}:
     patch:
       tags:
@@ -922,6 +1138,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -937,12 +1155,13 @@ paths:
             type: string
             format: uuid
           description: certificateId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CertificateRequest'
+              $ref: '#/components/schemas/CertificateUpdateRequest'
     delete:
       tags:
         - Student Profile
@@ -950,7 +1169,7 @@ paths:
       operationId: deleteMeProfileCertificatesByCertificateId
       responses:
         '204':
-          description: No content.
+          description: Resource deleted successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -967,6 +1186,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -982,6 +1203,120 @@ paths:
             type: string
             format: uuid
           description: certificateId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
+  /me/profile/certificates/{certificateId}/evidence:
+    put:
+      tags:
+        - Student Profile
+      summary: Upload or replace evidence for an authenticated Student certificate.
+      operationId: putMeProfileCertificateEvidence
+      description:
+        'Access: Student. Audit: Yes. Associates one PDF, JPEG, or PNG evidence file with the owned certificate
+        after file and ownership validation. Returns the updated certificate and version.'
+      parameters:
+        - name: certificateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Owned certificate identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Certificate evidence file that satisfies the current certificateEvidence upload policy.
+      responses:
+        '200':
+          description: Certificate evidence updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '413':
+          $ref: '#/components/responses/Error413'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
+    delete:
+      tags:
+        - Student Profile
+      summary: Remove evidence from an authenticated Student certificate.
+      operationId: deleteMeProfileCertificateEvidence
+      description:
+        'Access: Student. Audit: Yes. Removes only the evidence associated with the owned certificate
+        and returns the updated certificate.'
+      parameters:
+        - name: certificateId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Owned certificate identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
+      responses:
+        '200':
+          description: Certificate evidence removed successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '400':
+          $ref: '#/components/responses/Error400'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/Error404'
+        '409':
+          $ref: '#/components/responses/Error409'
+        '412':
+          $ref: '#/components/responses/Error412'
+        '415':
+          $ref: '#/components/responses/Error415'
+        '422':
+          $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
+        '429':
+          $ref: '#/components/responses/Error429'
+        '500':
+          $ref: '#/components/responses/Error500'
+        '503':
+          $ref: '#/components/responses/Error503'
   /me/profile/awards:
     get:
       tags:
@@ -1017,7 +1352,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Own records only.'
+      description:
+        'Access: Student. Audit: No. Own records only. Search applies to title, issuer, and description.
+        Approved sort fields: awardDate, title, createdAt, updatedAt.'
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
@@ -1030,7 +1367,7 @@ paths:
       operationId: postMeProfileAwards
       responses:
         '201':
-          description: Successful response.
+          description: Resource created successfully.
           content:
             application/json:
               schema:
@@ -1063,7 +1400,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AwardRequest'
+              $ref: '#/components/schemas/AwardCreateRequest'
   /me/profile/awards/{awardId}:
     patch:
       tags:
@@ -1093,6 +1430,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1108,12 +1447,13 @@ paths:
             type: string
             format: uuid
           description: awardId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AwardRequest'
+              $ref: '#/components/schemas/AwardUpdateRequest'
     delete:
       tags:
         - Student Profile
@@ -1121,7 +1461,7 @@ paths:
       operationId: deleteMeProfileAwardsByAwardId
       responses:
         '204':
-          description: No content.
+          description: Resource deleted successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1138,6 +1478,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1153,6 +1495,7 @@ paths:
             type: string
             format: uuid
           description: awardId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
   /me/profile/activities:
     get:
       tags:
@@ -1188,7 +1531,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Own records only.'
+      description:
+        'Access: Student. Audit: No. Own records only. Search applies to activityName, roleTitle, and
+        description. Approved sort fields: startDate, activityName, createdAt, updatedAt.'
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
@@ -1201,7 +1546,7 @@ paths:
       operationId: postMeProfileActivities
       responses:
         '201':
-          description: Successful response.
+          description: Resource created successfully.
           content:
             application/json:
               schema:
@@ -1234,7 +1579,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivityRequest'
+              $ref: '#/components/schemas/ActivityCreateRequest'
   /me/profile/activities/{activityId}:
     patch:
       tags:
@@ -1264,6 +1609,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1279,12 +1626,13 @@ paths:
             type: string
             format: uuid
           description: activityId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivityRequest'
+              $ref: '#/components/schemas/ActivityUpdateRequest'
     delete:
       tags:
         - Student Profile
@@ -1292,7 +1640,7 @@ paths:
       operationId: deleteMeProfileActivitiesByActivityId
       responses:
         '204':
-          description: No content.
+          description: Resource deleted successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1309,6 +1657,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1324,6 +1674,7 @@ paths:
             type: string
             format: uuid
           description: activityId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
   /me/profile/experience:
     get:
       tags:
@@ -1359,7 +1710,9 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Student. Audit: No. Own records only.'
+      description:
+        'Access: Student. Audit: No. Own records only. Search applies to organization, positionTitle,
+        location, and description. Approved sort fields: startDate, organization, positionTitle, createdAt, updatedAt.'
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
@@ -1372,7 +1725,7 @@ paths:
       operationId: postMeProfileExperience
       responses:
         '201':
-          description: Successful response.
+          description: Resource created successfully.
           content:
             application/json:
               schema:
@@ -1405,7 +1758,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExperienceRequest'
+              $ref: '#/components/schemas/ExperienceCreateRequest'
   /me/profile/experience/{experienceId}:
     patch:
       tags:
@@ -1435,6 +1788,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1450,12 +1805,13 @@ paths:
             type: string
             format: uuid
           description: experienceId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExperienceRequest'
+              $ref: '#/components/schemas/ExperienceUpdateRequest'
     delete:
       tags:
         - Student Profile
@@ -1463,7 +1819,7 @@ paths:
       operationId: deleteMeProfileExperienceByExperienceId
       responses:
         '204':
-          description: No content.
+          description: Resource deleted successfully; no response body.
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -1480,6 +1836,8 @@ paths:
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/Error422'
+        '428':
+          $ref: '#/components/responses/Error428'
         '429':
           $ref: '#/components/responses/Error429'
         '500':
@@ -1495,6 +1853,7 @@ paths:
             type: string
             format: uuid
           description: experienceId identifier.
+        - $ref: '#/components/parameters/IfMatchVersion'
   /skill-taxonomy:
     get:
       tags:
@@ -2439,7 +2798,8 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are
+      description:
+        'Access: Admin. Audit: No. Metrics are live/persisted or computed; static wireframe values are
         non-authoritative.'
   /admin/academic-ledger/uploads:
     post:
@@ -4299,6 +4659,18 @@ components:
       schema:
         type: string
       description: Search term applied to approved searchable fields.
+    IfMatchVersion:
+      name: If-Match
+      in: header
+      required: true
+      schema:
+        type: string
+        pattern: ^"[0-9]+"$
+        examples:
+          - '"3"'
+      description:
+        Quoted entity version from the most recent response, for example `"3"`. The server returns 412
+        when the entity has changed.
   responses:
     Error400:
       description: Bad request.
@@ -4366,6 +4738,18 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+    Error413:
+      description: Payload too large.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Error428:
+      description: Precondition required.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
   schemas:
     AcademicLedgerCommitRequest:
       type: object
@@ -4422,41 +4806,64 @@ components:
           type: array
           items:
             type: object
-    ActivityRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        url:
-          type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
     ActivityResponse:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - activityName
+        - roleTitle
+        - startDate
+        - endDate
+        - description
+        - cvInclude
+        - version
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           format: uuid
-        title:
+          readOnly: true
+        activityName:
           type: string
-        description:
+          minLength: 1
+          maxLength: 200
+        roleTitle:
           type: string
-        url:
-          type: string
-          format: uri
+          minLength: 1
+          maxLength: 150
         startDate:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date
         endDate:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date
+          description: Optional end date; when both dates are present, it must not precede startDate.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
     AdminDashboardMetricsResponse:
       type: object
       properties:
@@ -4511,41 +4918,55 @@ components:
           minimum: 1
         user:
           $ref: '#/components/schemas/CurrentUserResponse'
-    AwardRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        url:
-          type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
     AwardResponse:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - issuer
+        - awardDate
+        - description
+        - cvInclude
+        - version
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           format: uuid
+          readOnly: true
         title:
           type: string
+          minLength: 1
+          maxLength: 200
+        issuer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        awardDate:
+          type: string
+          format: date
         description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        createdAt:
           type: string
-        url:
+          format: date-time
+          readOnly: true
+        updatedAt:
           type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
+          format: date-time
+          readOnly: true
     CandidateFilteringRunRequest:
       type: object
       required:
@@ -4594,41 +5015,62 @@ components:
         createdAt:
           type: string
           format: date-time
-    CertificateRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        url:
-          type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
     CertificateResponse:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - issuer
+        - issueDate
+        - credentialUrl
+        - cvInclude
+        - evidence
+        - version
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           format: uuid
+          readOnly: true
         title:
           type: string
-        description:
+          minLength: 1
+          maxLength: 200
+        issuer:
           type: string
-        url:
+          minLength: 1
+          maxLength: 200
+        issueDate:
           type: string
+          format: date
+        credentialUrl:
+          type:
+            - string
+            - 'null'
           format: uri
-        startDate:
+        cvInclude:
+          type: boolean
+          default: true
+        evidence:
+          anyOf:
+            - $ref: '#/components/schemas/FileAssetResponse'
+            - type: 'null'
+          readOnly: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        createdAt:
           type: string
-          format: date
-        endDate:
+          format: date-time
+          readOnly: true
+        updatedAt:
           type: string
-          format: date
+          format: date-time
+          readOnly: true
     CompanyRequest:
       type: object
       required:
@@ -4662,41 +5104,51 @@ components:
           type: string
         notes:
           type: string
-    ContactLinkRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        url:
-          type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
     ContactLinkResponse:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - label
+        - url
+        - displayOrder
+        - cvInclude
+        - version
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           format: uuid
-        title:
+          readOnly: true
+        label:
           type: string
-        description:
-          type: string
+          minLength: 1
+          maxLength: 60
+          description: Display label such as LinkedIn, GitHub, Portfolio, or Personal Website.
         url:
           type: string
           format: uri
-        startDate:
+        displayOrder:
+          type: integer
+          minimum: 0
+          default: 0
+        cvInclude:
+          type: boolean
+          default: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        createdAt:
           type: string
-          format: date
-        endDate:
+          format: date-time
+          readOnly: true
+        updatedAt:
           type: string
-          format: date
+          format: date-time
+          readOnly: true
     CurrentUserResponse:
       type: object
       additionalProperties: false
@@ -4830,41 +5282,72 @@ components:
             - BEGINNER
             - INTERMEDIATE
             - ADVANCED
-    ExperienceRequest:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        url:
-          type: string
-          format: uri
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
     ExperienceResponse:
       type: object
+      additionalProperties: false
+      required:
+        - id
+        - organization
+        - positionTitle
+        - location
+        - startDate
+        - endDate
+        - currentRole
+        - description
+        - cvInclude
+        - version
+        - createdAt
+        - updatedAt
       properties:
         id:
           type: string
           format: uuid
-        title:
+          readOnly: true
+        organization:
           type: string
-        description:
+          minLength: 1
+          maxLength: 200
+        positionTitle:
           type: string
-        url:
-          type: string
-          format: uri
+          minLength: 1
+          maxLength: 150
+        location:
+          type:
+            - string
+            - 'null'
         startDate:
           type: string
           format: date
         endDate:
-          type: string
+          type:
+            - string
+            - 'null'
           format: date
+          description: Null for a current role; otherwise it must not precede startDate.
+        currentRole:
+          type: boolean
+          default: false
+          description: True when the position is ongoing; endDate must then be null.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
     ExportCreateRequest:
       type: object
       properties:
@@ -4901,13 +5384,21 @@ components:
           format: date-time
     FieldError:
       type: object
+      additionalProperties: false
+      required:
+        - field
+        - code
+        - message
       properties:
         field:
           type: string
+          minLength: 1
         code:
           type: string
+          minLength: 1
         message:
           type: string
+          minLength: 1
     GpaSummaryResponse:
       type: object
       properties:
@@ -5120,11 +5611,15 @@ components:
           $ref: '#/components/schemas/PageMetadata'
     PagedActivityResponse:
       type: object
+      additionalProperties: false
+      required:
+        - items
+        - page
       properties:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/ActivityResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedAuditEventResponse:
@@ -5138,11 +5633,15 @@ components:
           $ref: '#/components/schemas/PageMetadata'
     PagedAwardResponse:
       type: object
+      additionalProperties: false
+      required:
+        - items
+        - page
       properties:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/AwardResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedCandidateFilteringCandidateResponse:
@@ -5156,11 +5655,15 @@ components:
           $ref: '#/components/schemas/PageMetadata'
     PagedCertificateResponse:
       type: object
+      additionalProperties: false
+      required:
+        - items
+        - page
       properties:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/CertificateResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedCompanyResponse:
@@ -5174,11 +5677,15 @@ components:
           $ref: '#/components/schemas/PageMetadata'
     PagedContactLinkResponse:
       type: object
+      additionalProperties: false
+      required:
+        - items
+        - page
       properties:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/ContactLinkResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedCvVersionResponse:
@@ -5201,11 +5708,15 @@ components:
           $ref: '#/components/schemas/PageMetadata'
     PagedExperienceResponse:
       type: object
+      additionalProperties: false
+      required:
+        - items
+        - page
       properties:
         items:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/ExperienceResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
     PagedIndividualSkillResponse:
@@ -5305,8 +5816,9 @@ components:
         resetId:
           type: string
           format: uuid
-          description: Opaque reset-flow identifier returned for every syntactically valid request. Its 
-            presence does not confirm that an eligible account exists.
+          description:
+            Opaque reset-flow identifier returned for every syntactically valid request. Its presence
+            does not confirm that an eligible account exists.
         message:
           type: string
           example: If the account is eligible, a One-Time Password has been sent.
@@ -5370,6 +5882,7 @@ components:
         details:
           type: object
           additionalProperties: true
+      additionalProperties: false
     ProjectRequest:
       type: object
       required:
@@ -5500,38 +6013,148 @@ components:
           writeOnly: true
     StudentProfileResponse:
       type: object
+      additionalProperties: false
+      required:
+        - studentId
+        - fullName
+        - indexNumber
+        - universityEmail
+        - degreeProgramme
+        - studentLevel
+        - cohortYear
+        - personalEmail
+        - headline
+        - summary
+        - phone
+        - location
+        - profilePhoto
+        - version
+        - updatedAt
+        - cvSourceUpdatedAt
       properties:
         studentId:
           type: string
           format: uuid
+          readOnly: true
         fullName:
           type: string
+          minLength: 1
+          maxLength: 150
+          description: Editable display/profile name; not an identity-matching key.
         indexNumber:
           type: string
+          minLength: 1
+          maxLength: 30
           readOnly: true
+          description: Immutable Student identity value.
         universityEmail:
           type: string
           format: email
+          maxLength: 254
           readOnly: true
+          description: Immutable university identity email.
+        degreeProgramme:
+          type: string
+          readOnly: true
+          description: Read-only degree programme label displayed in the Student Profile academic context.
+        studentLevel:
+          type: integer
+          enum:
+            - 3
+            - 4
+          readOnly: true
+        cohortYear:
+          type:
+            - integer
+            - 'null'
+          readOnly: true
+          description: Read-only batch/cohort year when available.
+        personalEmail:
+          type:
+            - string
+            - 'null'
+          format: email
+          maxLength: 254
+          description: Optional personal contact email; distinct from immutable universityEmail.
+        headline:
+          type:
+            - string
+            - 'null'
+          maxLength: 200
+          description: Optional professional headline or objective title.
         summary:
-          type: string
+          type:
+            - string
+            - 'null'
+          description: Optional professional profile summary or objective.
         phone:
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+          description: Optional Student contact phone number.
+        location:
+          type:
+            - string
+            - 'null'
+          maxLength: 150
+          description: Optional general city/state or location text.
+        profilePhoto:
+          anyOf:
+            - $ref: '#/components/schemas/FileAssetResponse'
+            - type: 'null'
+          readOnly: true
+        version:
+          type: integer
+          minimum: 0
+          readOnly: true
+          description: Optimistic-lock entity version used in If-Match.
+        updatedAt:
           type: string
-        profilePhotoUrl:
+          format: date-time
+          readOnly: true
+        cvSourceUpdatedAt:
           type: string
-          format: uri
+          format: date-time
+          readOnly: true
+          description: Latest CV-source freshness timestamp after profile-related changes.
     StudentProfileUpdateRequest:
       type: object
+      additionalProperties: false
+      minProperties: 1
       properties:
         fullName:
           type: string
+          minLength: 1
+          maxLength: 150
+        personalEmail:
+          type:
+            - string
+            - 'null'
+          format: email
+          maxLength: 254
+        headline:
+          type:
+            - string
+            - 'null'
+          maxLength: 200
         summary:
-          type: string
+          type:
+            - string
+            - 'null'
         phone:
-          type: string
-        profilePhotoFileId:
-          type: string
-          format: uuid
+          type:
+            - string
+            - 'null'
+          maxLength: 30
+        location:
+          type:
+            - string
+            - 'null'
+          maxLength: 150
+      description:
+        Partial update of editable profile fields only. Immutable identity and academic fields are rejected
+        as unknown properties.
     StudentVerificationResponse:
       type: object
       properties:
@@ -5705,6 +6328,440 @@ components:
         crossShortlistWarning:
           type: boolean
           description: Non-blocking warning that the Student appears in another relevant shortlist.
+    StudentDashboardMetricsResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - projectCount
+        - shortlistedInternshipCount
+        - declaredSkillCount
+        - officialCumulativeGpa
+        - lastUpdatedAt
+      properties:
+        projectCount:
+          type: integer
+          minimum: 0
+          description: Count of Student-owned portfolio project records.
+        shortlistedInternshipCount:
+          type: integer
+          minimum: 0
+          description: Count of internships for which the Student is present in an Admin-managed shortlist.
+        declaredSkillCount:
+          type: integer
+          minimum: 0
+          description: Count of the Student’s declared-skill records.
+        officialCumulativeGpa:
+          type:
+            - number
+            - 'null'
+          minimum: 0
+          maximum: 4
+          multipleOf: 0.01
+          description:
+            Official cumulative/Computer Science GPA derived from committed academic data, or null when
+            unavailable.
+        lastUpdatedAt:
+          type: string
+          format: date-time
+          description: Timestamp at which the returned summary was calculated.
+      examples:
+        - projectCount: 3
+          shortlistedInternshipCount: 1
+          declaredSkillCount: 8
+          officialCumulativeGpa: 3.42
+          lastUpdatedAt: '2026-07-15T04:30:00Z'
+    FileAssetResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - fileId
+        - fileName
+        - mimeType
+        - fileSizeBytes
+        - url
+        - createdAt
+      properties:
+        fileId:
+          type: string
+          format: uuid
+          readOnly: true
+        fileName:
+          type: string
+          maxLength: 255
+          readOnly: true
+        mimeType:
+          type: string
+          maxLength: 120
+          readOnly: true
+        fileSizeBytes:
+          type: integer
+          format: int64
+          minimum: 1
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          readOnly: true
+          description: Authorized file URL; may be time-limited.
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+    FileUploadConstraint:
+      type: object
+      additionalProperties: false
+      required:
+        - allowedMimeTypes
+        - allowedExtensions
+        - maxSizeBytes
+      properties:
+        allowedMimeTypes:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+        allowedExtensions:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+            pattern: ^\.[A-Za-z0-9]+$
+        maxSizeBytes:
+          type: integer
+          format: int64
+          minimum: 1
+    ProfileUploadPolicyResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - profilePhoto
+        - certificateEvidence
+      properties:
+        profilePhoto:
+          allOf:
+            - $ref: '#/components/schemas/FileUploadConstraint'
+          description: Current server-controlled profile-photo upload policy.
+        certificateEvidence:
+          allOf:
+            - $ref: '#/components/schemas/FileUploadConstraint'
+          description: Current server-controlled certificate-evidence upload policy.
+    ContactLinkCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+        - url
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 60
+          description: Display label such as LinkedIn, GitHub, Portfolio, or Personal Website.
+        url:
+          type: string
+          format: uri
+        displayOrder:
+          type: integer
+          minimum: 0
+          default: 0
+        cvInclude:
+          type: boolean
+          default: true
+    ContactLinkUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        label:
+          type: string
+          minLength: 1
+          maxLength: 60
+          description: Display label such as LinkedIn, GitHub, Portfolio, or Personal Website.
+        url:
+          type: string
+          format: uri
+        displayOrder:
+          type: integer
+          minimum: 0
+          default: 0
+        cvInclude:
+          type: boolean
+          default: true
+    CertificateCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - issuer
+        - issueDate
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issuer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issueDate:
+          type: string
+          format: date
+        credentialUrl:
+          type:
+            - string
+            - 'null'
+          format: uri
+        cvInclude:
+          type: boolean
+          default: true
+    CertificateUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issuer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issueDate:
+          type: string
+          format: date
+        credentialUrl:
+          type:
+            - string
+            - 'null'
+          format: uri
+        cvInclude:
+          type: boolean
+          default: true
+    AwardCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - issuer
+        - awardDate
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issuer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        awardDate:
+          type: string
+          format: date
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+    AwardUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        issuer:
+          type: string
+          minLength: 1
+          maxLength: 200
+        awardDate:
+          type: string
+          format: date
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+    ActivityCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - activityName
+        - roleTitle
+      properties:
+        activityName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        roleTitle:
+          type: string
+          minLength: 1
+          maxLength: 150
+        startDate:
+          type:
+            - string
+            - 'null'
+          format: date
+        endDate:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Optional end date; when both dates are present, it must not precede startDate.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+    ActivityUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        activityName:
+          type: string
+          minLength: 1
+          maxLength: 200
+        roleTitle:
+          type: string
+          minLength: 1
+          maxLength: 150
+        startDate:
+          type:
+            - string
+            - 'null'
+          format: date
+        endDate:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Optional end date; when both dates are present, it must not precede startDate.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+    ExperienceCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - organization
+        - positionTitle
+        - startDate
+        - currentRole
+      properties:
+        organization:
+          type: string
+          minLength: 1
+          maxLength: 200
+        positionTitle:
+          type: string
+          minLength: 1
+          maxLength: 150
+        location:
+          type:
+            - string
+            - 'null'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Null for a current role; otherwise it must not precede startDate.
+        currentRole:
+          type: boolean
+          default: false
+          description: True when the position is ongoing; endDate must then be null.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+      allOf:
+        - if:
+            properties:
+              currentRole:
+                const: true
+            required:
+              - currentRole
+          then:
+            properties:
+              endDate:
+                type: 'null'
+        - if:
+            properties:
+              currentRole:
+                const: false
+            required:
+              - currentRole
+          then:
+            required:
+              - endDate
+    ExperienceUpdateRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        organization:
+          type: string
+          minLength: 1
+          maxLength: 200
+        positionTitle:
+          type: string
+          minLength: 1
+          maxLength: 150
+        location:
+          type:
+            - string
+            - 'null'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type:
+            - string
+            - 'null'
+          format: date
+          description: Null for a current role; otherwise it must not precede startDate.
+        currentRole:
+          type: boolean
+          default: false
+          description: True when the position is ongoing; endDate must then be null.
+        description:
+          type:
+            - string
+            - 'null'
+        cvInclude:
+          type: boolean
+          default: true
+      allOf:
+        - if:
+            properties:
+              currentRole:
+                const: true
+            required:
+              - currentRole
+          then:
+            properties:
+              endDate:
+                type: 'null'
   examples:
     ValidationFailed:
       value:

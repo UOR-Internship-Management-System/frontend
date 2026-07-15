@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
+import { env } from './app/config/env'
 import './index.css'
 
 const rootElement = document.getElementById('root')
@@ -9,8 +10,16 @@ if (!rootElement) {
   throw new Error('Application root element was not found.')
 }
 
-createRoot(rootElement).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+async function enableDevelopmentMocks() {
+  if (!env.enableApiMocks || env.isProduction) return
+  const { worker } = await import('./mocks/browser')
+  await worker.start({ onUnhandledRequest: 'bypass' })
+}
+
+void enableDevelopmentMocks().then(() => {
+  createRoot(rootElement).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+})

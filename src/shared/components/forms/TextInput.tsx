@@ -1,7 +1,10 @@
-import type { InputHTMLAttributes } from 'react'
+import { forwardRef, type InputHTMLAttributes } from 'react'
 
 export type TextInputProps = InputHTMLAttributes<HTMLInputElement>
 
-export function TextInput({ className = '', ...props }: TextInputProps) {
-  return <input className={`input ${className}`.trim()} {...props} />
-}
+export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function TextInput(
+  { className = '', ...props },
+  ref,
+) {
+  return <input ref={ref} className={`input ${className}`.trim()} {...props} />
+})

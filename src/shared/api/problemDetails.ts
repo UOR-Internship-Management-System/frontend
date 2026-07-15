@@ -1,7 +1,16 @@
+export type FieldError = {
+  field: string
+  code?: string
+  message: string
+}
+
 export type ProblemDetails = {
-  type?: string
+  type: string
   title: string
   status: number
-  detail?: string
-  instance?: string
+  code: string
+  message: string
+  correlationId: string
+  fieldErrors?: FieldError[]
+  details?: Record<string, unknown>
 }
