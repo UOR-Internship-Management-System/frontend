@@ -5,7 +5,7 @@ import { createStudentProfileFixture } from '../../../mocks/fixtures/studentProf
 import { renderWithProviders } from '../../../test/renderWithProviders'
 import { mapStudentProfileResponse } from '../mappers/studentProfileMapper'
 import { StudentProfilePage } from '../pages/StudentProfilePage'
-import type { StudentProfileFormValues } from '../types/studentProfileTypes'
+import type { UpdateStudentProfileInput } from '../types/studentProfileTypes'
 
 const hookMocks = vi.hoisted(() => ({
   useStudentProfile: vi.fn(),
@@ -24,9 +24,10 @@ const profile = mapStudentProfileResponse(createStudentProfileFixture())
 
 function mockSuccessfulProfile() {
   const refetch = vi.fn().mockResolvedValue({ data: profile })
-  const mutateAsync = vi
-    .fn()
-    .mockImplementation(async (values: StudentProfileFormValues) => ({ ...profile, ...values }))
+  const mutateAsync = vi.fn().mockImplementation(async ({ values }: UpdateStudentProfileInput) => ({
+    ...profile,
+    ...values,
+  }))
   hookMocks.useStudentProfile.mockReturnValue({
     data: profile,
     error: null,
@@ -47,7 +48,7 @@ describe('StudentProfilePage', () => {
   it('renders editable core fields and immutable identity as labelled values', () => {
     mockSuccessfulProfile()
     hookMocks.useStudentProfile.mockReturnValue({
-      data: { ...profile, profilePhotoUrl: null },
+      data: { ...profile, profilePhoto: null },
       error: null,
       isPending: false,
       isError: false,
@@ -60,8 +61,13 @@ describe('StudentProfilePage', () => {
     expect(screen.getByText(profile.indexNumber)).toBeInTheDocument()
     expect(screen.getByText(profile.universityEmail)).toBeInTheDocument()
     expect(screen.getByLabelText('Full Name')).toBeEnabled()
+    expect(screen.getByLabelText('Personal Email')).toBeEnabled()
+    expect(screen.getByLabelText('Professional Headline')).toBeEnabled()
     expect(screen.getByLabelText('Professional Summary')).toBeEnabled()
     expect(screen.getByLabelText('Phone')).toBeEnabled()
+    expect(screen.getByLabelText('Location')).toBeEnabled()
+    expect(screen.getByText(profile.degreeProgramme)).toBeInTheDocument()
+    expect(screen.getByText(`Level ${profile.studentLevel}`)).toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'Index Number' })).not.toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'University Email' })).not.toBeInTheDocument()
     expect(screen.getByRole('img', { name: /profile placeholder/i })).toBeInTheDocument()
@@ -80,11 +86,12 @@ describe('StudentProfilePage', () => {
     await user.type(fullName, 'Committed Student')
     await user.click(screen.getByRole('button', { name: 'Save Profile' }))
 
-    expect(mutateAsync).toHaveBeenCalledWith({
-      fullName: 'Committed Student',
-      summary: profile.summary,
-      phone: profile.phone,
-    })
+    expect(mutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        values: expect.objectContaining({ fullName: 'Committed Student' }),
+        version: profile.version,
+      }),
+    )
     expect(await screen.findByText('Profile saved')).toBeInTheDocument()
   })
 

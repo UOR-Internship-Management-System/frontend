@@ -36,4 +36,48 @@ describe('httpClient protected-session handling', () => {
     expect(onExpired).toHaveBeenCalledOnce()
     unsubscribe()
   })
+
+  it('serializes JSON requests and preserves custom If-Match headers', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ ok: true }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await httpClient('/me/profile', {
+      method: 'PATCH',
+      body: { fullName: 'Student' },
+      headers: { 'If-Match': '"3"' },
+    })
+
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit
+    expect(request.body).toBe(JSON.stringify({ fullName: 'Student' }))
+    expect(new Headers(request.headers).get('Content-Type')).toBe('application/json')
+    expect(new Headers(request.headers).get('If-Match')).toBe('"3"')
+  })
+
+  it('sends FormData unchanged without a JSON content type', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(Response.json({ ok: true }))
+    vi.stubGlobal('fetch', fetchMock)
+    const body = new FormData()
+    body.set('file', new File(['photo'], 'photo.png', { type: 'image/png' }))
+
+    await httpClient('/me/profile/photo', { method: 'PUT', body })
+
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit
+    expect(request.body).toBe(body)
+    expect(new Headers(request.headers).has('Content-Type')).toBe(false)
+  })
+
+  it('returns undefined for 204 and a safe problem for non-JSON failures', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(new Response(null, { status: 204 })))
+    await expect(
+      httpClient<void>('/me/profile/photo', { method: 'DELETE' }),
+    ).resolves.toBeUndefined()
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValueOnce(new Response('Proxy failure', { status: 503 })),
+    )
+    await expect(httpClient('/me/profile')).rejects.toEqual(
+      expect.objectContaining({ status: 503, code: 'HTTP_503' }),
+    )
+  })
 })

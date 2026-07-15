@@ -14,8 +14,18 @@ const initialProfile = {
   fullName: 'E2E Student',
   indexNumber: 'SC/2022/12345',
   universityEmail: 'student@dcs.ruh.ac.lk',
+  degreeProgramme: 'BSc Honours in Computer Science',
+  studentLevel: 4,
+  cohortYear: 2022,
+  personalEmail: 'student@example.com',
+  headline: 'Computer Science undergraduate',
   summary: 'Computer Science undergraduate building reliable software.',
   phone: '+94 71 234 5678',
+  location: 'Matara, Sri Lanka',
+  profilePhoto: null,
+  version: 1,
+  updatedAt: '2026-07-01T08:00:00Z',
+  cvSourceUpdatedAt: '2026-07-01T08:00:00Z',
 }
 
 async function authenticateStudent(page: Page) {
@@ -31,17 +41,52 @@ async function authenticateStudent(page: Page) {
   })
 }
 
+async function mockProfileSupportingEndpoints(page: Page) {
+  await page.route('**/api/v1/me/profile/upload-policy', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        profilePhoto: {
+          allowedMimeTypes: ['image/png'],
+          allowedExtensions: ['.png'],
+          maxSizeBytes: 2_000_000,
+        },
+        certificateEvidence: {
+          allowedMimeTypes: ['application/pdf'],
+          allowedExtensions: ['.pdf'],
+          maxSizeBytes: 5_000_000,
+        },
+      }),
+    }),
+  )
+  await page.route(
+    /\/api\/v1\/me\/profile\/(contact-links|certificates|awards|activities|experience)(\?.*)?$/,
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: [],
+          page: { page: 0, size: 5, totalElements: 0, totalPages: 0, sort: 'updatedAt,desc' },
+        }),
+      }),
+  )
+}
+
 test('student updates only editable core Profile fields and retains server-confirmed data', async ({
   page,
 }) => {
   await authenticateStudent(page)
+  await mockProfileSupportingEndpoints(page)
   let savedProfile = { ...initialProfile }
   let submittedBody: Record<string, unknown> | null = null
 
   await page.route('**/api/v1/me/profile', async (route) => {
     if (route.request().method() === 'PATCH') {
+      expect(route.request().headers()['if-match']).toBe(`"${savedProfile.version}"`)
       submittedBody = route.request().postDataJSON() as Record<string, unknown>
-      savedProfile = { ...savedProfile, ...submittedBody }
+      savedProfile = { ...savedProfile, ...submittedBody, version: savedProfile.version + 1 }
     }
 
     await route.fulfill({
@@ -78,6 +123,7 @@ test('student updates only editable core Profile fields and retains server-confi
 
 test('student Profile navigation remains keyboard-safe at a mobile viewport', async ({ page }) => {
   await authenticateStudent(page)
+  await mockProfileSupportingEndpoints(page)
   await page.route('**/api/v1/me/profile', async (route) => {
     await route.fulfill({
       status: 200,
