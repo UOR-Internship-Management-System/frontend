@@ -246,6 +246,7 @@ textarea:focus-visible {
   height: 44px;
   min-height: 44px;
   padding: 0;
+  overflow: hidden;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
