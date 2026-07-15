@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const focusableSelector = [
@@ -31,15 +31,28 @@ export function Modal({
   const dialogRef = useRef<HTMLElement | null>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
+  const [isClosing, setIsClosing] = useState(false)
+
+  const handleClose = () => {
+    if (!onClose || closeDisabled || isClosing) return
+    setIsClosing(true)
+    setTimeout(() => {
+      onClose()
+    }, 200)
+  }
+
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement | null
     const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(focusableSelector)
-    window.setTimeout(() => (firstFocusable ?? dialogRef.current)?.focus(), 0)
+    window.setTimeout(
+      () => (firstFocusable ?? dialogRef.current)?.focus({ preventScroll: true }),
+      0,
+    )
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && onClose && !closeDisabled) {
         event.preventDefault()
-        onClose()
+        handleClose()
         return
       }
 
@@ -64,12 +77,20 @@ export function Modal({
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      previousFocusRef.current?.focus()
+      previousFocusRef.current?.focus({ preventScroll: true })
     }
-  }, [closeDisabled, onClose])
+  }, [closeDisabled, onClose, isClosing])
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [])
 
   return createPortal(
-    <div className="modal-backdrop app-modal-overlay active">
+    <div className={`modal-backdrop app-modal-overlay active ${isClosing ? 'closing' : ''}`}>
       <section
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
@@ -89,7 +110,7 @@ export function Modal({
               aria-label={`Close ${title}`}
               className="modal-close-button"
               disabled={closeDisabled}
-              onClick={onClose}
+              onClick={handleClose}
               type="button"
             >
               ×
