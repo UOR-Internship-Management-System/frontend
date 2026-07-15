@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useEffect, useId, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 const focusableSelector = [
   'a[href]',
@@ -67,7 +68,7 @@ export function Modal({
     }
   }, [closeDisabled, onClose])
 
-  return (
+  return createPortal(
     <div className="modal-backdrop app-modal-overlay active">
       <section
         aria-describedby={description ? descriptionId : undefined}
@@ -97,6 +98,7 @@ export function Modal({
         </header>
         <div className="modal-content">{children}</div>
       </section>
-    </div>
+    </div>,
+    document.body,
   )
 }
