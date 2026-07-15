@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 const focusableSelector = [
@@ -33,13 +33,13 @@ export function Modal({
 
   const [isClosing, setIsClosing] = useState(false)
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     if (!onClose || closeDisabled || isClosing) return
     setIsClosing(true)
     setTimeout(() => {
       onClose()
     }, 200)
-  }
+  }, [onClose, closeDisabled, isClosing])
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement | null
@@ -79,7 +79,7 @@ export function Modal({
       document.removeEventListener('keydown', handleKeyDown)
       previousFocusRef.current?.focus({ preventScroll: true })
     }
-  }, [closeDisabled, onClose, isClosing])
+  }, [closeDisabled, onClose, handleClose])
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
