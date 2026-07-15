@@ -130,6 +130,7 @@ export function StudentSidebar({
 
       <Button
         className="student-sidebar-logout"
+        data-tooltip="Log Out"
         data-student-logout
         icon={
           <span aria-hidden="true" className="material-symbols-outlined student-sidebar-icon">

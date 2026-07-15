@@ -707,10 +707,6 @@ textarea:focus-visible {
   gap: 24px;
 }
 
-.student-mobile-toolbar {
-  display: none;
-}
-
 .sidebar {
   align-self: start;
   position: sticky;
@@ -720,35 +716,390 @@ textarea:focus-visible {
   gap: 14px;
 }
 
-.student-sidebar-heading {
+/* Student protected shell */
+
+body.student-mobile-drawer-open {
+  overflow: hidden;
+}
+
+.student-shell {
+  --student-sidebar-expanded-width: 272px;
+  --student-sidebar-collapsed-width: 88px;
+  --student-sidebar-current-width: var(--student-sidebar-expanded-width);
+  min-width: 0;
+  min-height: 100dvh;
+  background: var(--color-page);
+}
+
+.student-shell-collapsed {
+  --student-sidebar-current-width: var(--student-sidebar-collapsed-width);
+}
+
+.student-shell-main {
+  min-width: 0;
+  min-height: 100dvh;
+  margin-inline-start: var(--student-sidebar-current-width);
+  transition: margin-inline-start 0.25s var(--motion-standard);
+}
+
+.student-workspace-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  width: min(1340px, calc(100% - 64px));
+  min-height: 76px;
+  margin: 0 auto;
+  padding: 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  background: color-mix(in srgb, var(--color-page) 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.student-workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.student-mobile-context,
+.student-mobile-menu {
+  display: none;
+}
+
+.student-shell-content {
+  width: min(1340px, calc(100% - 64px));
+  min-width: 0;
+  margin: 0 auto;
+  padding: 4px 0 48px;
+  outline: none;
+}
+
+.student-skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 45;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 800;
+  text-decoration: none;
+  transform: translateY(-180%);
+  transition: transform 0.18s var(--motion-standard);
+}
+
+.student-skip-link:focus {
+  transform: translateY(0);
+}
+
+/* Student fixed sidebar */
+
+.student-sidebar {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 30;
+  width: var(--student-sidebar-current-width);
+  height: 100dvh;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--color-card) 96%, var(--color-page));
+  border-inline-end: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text);
+  transition:
+    width 0.25s var(--motion-standard),
+    transform 0.25s var(--motion-standard),
+    background-color 0.25s var(--motion-standard);
+}
+
+.student-sidebar-header,
+.student-sidebar-brand,
+.student-sidebar-identity {
+  display: flex;
+  align-items: center;
+}
+
+.student-sidebar-header {
+  min-height: 48px;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.student-sidebar-brand {
+  min-width: 0;
+  gap: 12px;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.student-sidebar-brand-mark,
+.student-sidebar-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-weight: 900;
+}
+
+.student-sidebar-brand-mark {
+  width: 44px;
+  height: 44px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  box-shadow: var(--shadow-card);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.student-sidebar-icon-button {
+  flex: none;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-card-muted);
+  color: var(--color-primary-strong);
+  cursor: pointer;
+  transition:
+    background-color 0.18s var(--motion-standard),
+    color 0.18s var(--motion-standard),
+    transform 0.18s var(--motion-standard);
+}
+
+.student-sidebar-icon-button:hover {
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-card));
+}
+
+.student-sidebar-icon-button:active {
+  transform: scale(0.94);
+}
+
+.student-sidebar-mobile-close {
+  display: none;
+}
+
+.student-sidebar-identity {
+  min-height: 76px;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.student-sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+}
+
+.student-sidebar-identity-copy {
+  min-width: 0;
   display: grid;
   gap: 4px;
 }
 
-.student-sidebar-heading h2,
-.student-sidebar-heading p {
-  margin: 0;
-}
-
-.student-sidebar-eyebrow,
-.student-mobile-label {
+.student-sidebar-identity-copy span {
   color: var(--color-primary-strong);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.student-sidebar .nav-list {
+.student-sidebar-identity-copy strong {
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 0.94rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Student sidebar navigation */
+
+.student-sidebar-nav {
+  flex: 1;
+}
+
+.student-sidebar-list {
   display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.student-nav-link {
+.student-sidebar-item {
+  position: relative;
   width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    background-color 0.18s var(--motion-standard),
+    border-color 0.18s var(--motion-standard),
+    color 0.18s var(--motion-standard),
+    transform 0.18s var(--motion-standard);
 }
 
-.student-content {
-  min-width: 0;
+.student-sidebar-item:hover {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-card));
+  color: var(--color-primary-strong);
+}
+
+.student-sidebar-item:active {
+  transform: scale(0.98);
+}
+
+.student-sidebar-item-selected {
+  border-color: color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-weight: 900;
+}
+
+.student-sidebar-item-selected .student-sidebar-icon {
+  font-variation-settings: 'FILL' 1;
+}
+
+.student-sidebar-icon {
+  flex: none;
+  font-size: 24px;
+}
+
+.student-sidebar-collapsible-label {
+  max-width: 184px;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition:
+    max-width 0.2s var(--motion-standard),
+    opacity 0.14s var(--motion-standard),
+    transform 0.2s var(--motion-standard);
+}
+
+.button.student-sidebar-logout {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  box-shadow: none;
+}
+
+.student-sidebar-logout .button-content {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.student-sidebar-logout:hover:not(:disabled) {
+  color: var(--color-primary-strong);
+}
+
+/* Student collapsed rail */
+
+.student-shell-collapsed .student-sidebar {
+  padding-inline: 12px;
+}
+
+.student-shell-collapsed .student-sidebar-header {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.student-shell-collapsed .student-sidebar-brand {
+  justify-content: center;
+}
+
+.student-shell-collapsed .student-sidebar-identity {
+  justify-content: center;
+  padding-inline: 7px;
+}
+
+.student-shell-collapsed .student-sidebar-collapsible-label {
+  max-width: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-6px);
+}
+
+.student-shell-collapsed .student-sidebar-item,
+.student-shell-collapsed .button.student-sidebar-logout {
+  width: 56px;
+  min-width: 56px;
+  margin-inline: auto;
+  padding-inline: 0;
+  justify-content: center;
+}
+
+.student-shell-collapsed .student-sidebar-logout .button-content {
+  justify-content: center;
+}
+
+.student-shell-collapsed .student-sidebar-item::after,
+.student-shell-collapsed .student-sidebar-logout::after {
+  position: absolute;
+  top: calc(100% - 5px);
+  left: 50%;
+  z-index: 2;
+  max-width: 72px;
+  padding: 3px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-card);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  content: attr(data-tooltip);
+  font-size: 0.66rem;
+  font-weight: 800;
+  line-height: 1.2;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  transform: translate(-50%, -4px);
+  transition:
+    opacity 0.16s var(--motion-standard),
+    transform 0.16s var(--motion-standard);
+  white-space: nowrap;
+}
+
+.student-shell-collapsed .student-sidebar-item:hover::after,
+.student-shell-collapsed .student-sidebar-item:focus-visible::after,
+.student-shell-collapsed .student-sidebar-logout:hover::after,
+.student-shell-collapsed .student-sidebar-logout:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.student-sidebar-backdrop {
+  display: none;
 }
 
 .profile-page {
@@ -1652,47 +2003,6 @@ td {
     grid-template-columns: 1fr;
   }
 
-  .student-mobile-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 14px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-card);
-    box-shadow: var(--shadow-card);
-  }
-
-  .student-mobile-toolbar > div {
-    display: grid;
-    gap: 4px;
-    min-width: 0;
-  }
-
-  .student-mobile-toolbar strong {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .student-menu-button {
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-    padding: 0;
-    border-radius: 50%;
-  }
-
-  .student-sidebar {
-    display: none;
-    position: static;
-  }
-
-  .student-sidebar.student-sidebar-open {
-    display: grid;
-  }
-
   .page-header,
   .shell-bar {
     flex-direction: column;
@@ -1725,6 +2035,146 @@ td {
 
   .auth-skeleton-otp-grid {
     grid-template-columns: repeat(6, minmax(0, 42px));
+  }
+}
+
+@media (max-width: 899px) {
+  .student-shell {
+    --student-sidebar-current-width: 0px;
+  }
+
+  .student-shell-main {
+    margin-inline-start: 0;
+  }
+
+  .student-sidebar,
+  .student-shell-collapsed .student-sidebar {
+    width: min(320px, calc(100vw - 24px));
+    padding: 20px 16px;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-105%);
+    box-shadow: var(--shadow-modal);
+    transition:
+      transform 0.25s var(--motion-standard),
+      visibility 0s linear 0.25s;
+  }
+
+  .student-sidebar.student-sidebar-mobile-open {
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(0);
+    transition-delay: 0s;
+  }
+
+  .student-sidebar-toggle {
+    display: none;
+  }
+
+  .student-sidebar-mobile-close,
+  .student-mobile-menu {
+    display: inline-grid;
+  }
+
+  .student-sidebar-header,
+  .student-shell-collapsed .student-sidebar-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .student-sidebar-brand,
+  .student-shell-collapsed .student-sidebar-brand {
+    justify-content: flex-start;
+  }
+
+  .student-sidebar-identity,
+  .student-shell-collapsed .student-sidebar-identity {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+
+  .student-shell-collapsed .student-sidebar-collapsible-label {
+    max-width: 184px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .student-shell-collapsed .student-sidebar-item,
+  .student-shell-collapsed .button.student-sidebar-logout {
+    width: 100%;
+    padding-inline: 14px;
+    justify-content: flex-start;
+  }
+
+  .student-shell-collapsed .student-sidebar-logout .button-content {
+    justify-content: flex-start;
+  }
+
+  .student-shell-collapsed .student-sidebar-item::after,
+  .student-shell-collapsed .student-sidebar-logout::after {
+    display: none;
+  }
+
+  .student-sidebar-backdrop {
+    position: fixed;
+    z-index: 30;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgb(15 23 42 / 52%);
+    backdrop-filter: blur(2px);
+    animation: overlayFade 0.2s var(--motion-standard);
+  }
+
+  .student-workspace-toolbar {
+    width: calc(100% - 28px);
+    min-height: 68px;
+    margin: 14px;
+    padding: 10px 12px;
+    justify-content: space-between;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .student-mobile-context {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .student-mobile-context strong,
+  .student-mobile-context span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-mobile-context span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .student-workspace-actions {
+    flex: none;
+  }
+
+  .button.student-workspace-theme-toggle,
+  .student-mobile-menu,
+  .student-sidebar-mobile-close {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+    flex: none;
+  }
+
+  .student-shell-content {
+    width: 100%;
+    padding: 10px 14px 40px;
   }
 }
 
