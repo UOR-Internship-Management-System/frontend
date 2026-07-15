@@ -1204,6 +1204,136 @@ body.student-mobile-drawer-open {
   gap: 20px;
 }
 
+.profile-main-column,
+.profile-skeleton-main {
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.profile-form-grid,
+.profile-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.profile-photo-control,
+.profile-photo-actions {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.profile-photo-control .input {
+  max-width: 100%;
+}
+
+.profile-photo-actions {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.field-hint,
+.profile-refresh-status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+}
+
+.profile-policy-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.profile-policy-alert p,
+.profile-entry-card h3,
+.profile-entry-card p,
+.modal-header h2,
+.modal-header p,
+.empty-state-message p {
+  margin: 0;
+}
+
+.profile-collection,
+.profile-editor-form,
+.profile-section-skeleton {
+  display: grid;
+  gap: 18px;
+}
+
+.profile-entry-list {
+  display: grid;
+  gap: 14px;
+}
+
+.profile-entry-card {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.profile-entry-heading,
+.profile-entry-actions,
+.pagination-bar,
+.pagination-actions,
+.modal-header,
+.modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-entry-heading {
+  align-items: flex-start;
+}
+
+.profile-entry-heading > div,
+.profile-entry-details {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.profile-entry-details a,
+.profile-entry-heading p {
+  overflow-wrap: anywhere;
+}
+
+.profile-entry-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.profile-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+}
+
+.profile-checkbox input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+.pagination-bar {
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.pagination-summary {
+  margin: 0;
+  color: var(--color-muted);
+}
+
 .profile-section-heading {
   display: flex;
   align-items: flex-start;
@@ -1757,6 +1887,9 @@ p {
   border-radius: var(--radius-md);
   background: var(--color-card-muted);
   color: var(--color-muted);
+  display: grid;
+  justify-items: start;
+  gap: 10px;
 }
 
 .status-icon-success {
@@ -1805,6 +1938,45 @@ td {
   border-radius: var(--radius-modal);
   box-shadow: var(--shadow-modal);
   animation: modalIn 0.25s var(--motion-emphasized) both;
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  align-items: flex-start;
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-card);
+}
+
+.modal-header > div {
+  display: grid;
+  gap: 5px;
+}
+
+.modal-close-button {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-card-muted);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.modal-actions {
+  position: sticky;
+  bottom: -20px;
+  justify-content: flex-end;
+  padding: 16px 0 0;
+  background: var(--color-card);
 }
 
 .verification-modal-card {
@@ -2011,6 +2183,8 @@ td {
   }
 
   .form-skeleton-grid.two-column,
+  .profile-form-grid,
+  .profile-editor-grid,
   .profile-layout,
   .profile-skeleton-layout,
   .student-detail-skeleton-layout,
@@ -2020,6 +2194,14 @@ td {
   }
 
   .profile-section-heading {
+    flex-direction: column;
+  }
+
+  .profile-policy-alert,
+  .profile-entry-heading,
+  .pagination-bar,
+  .modal-actions {
+    align-items: stretch;
     flex-direction: column;
   }
 

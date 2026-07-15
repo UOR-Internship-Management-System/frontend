@@ -5,32 +5,40 @@ import type {
   StudentProfileUpdateRequest,
 } from '../types/studentProfileTypes'
 
+const nullableFields = ['personalEmail', 'headline', 'summary', 'phone', 'location'] as const
+
 export function mapStudentProfileResponse(dto: StudentProfileResponseDto): StudentProfile {
-  return {
-    studentId: dto.studentId ?? null,
-    fullName: dto.fullName ?? '',
-    indexNumber: dto.indexNumber ?? '',
-    universityEmail: dto.universityEmail ?? '',
-    summary: dto.summary ?? '',
-    phone: dto.phone ?? '',
-    profilePhotoUrl: dto.profilePhotoUrl ?? null,
-  }
+  return dto
 }
 
 export function mapStudentProfileToForm(profile: StudentProfile): StudentProfileFormValues {
   return {
     fullName: profile.fullName,
-    summary: profile.summary,
-    phone: profile.phone,
+    personalEmail: profile.personalEmail ?? '',
+    headline: profile.headline ?? '',
+    summary: profile.summary ?? '',
+    phone: profile.phone ?? '',
+    location: profile.location ?? '',
   }
 }
 
 export function mapStudentProfileUpdateRequest(
   values: StudentProfileFormValues,
+  baseline?: StudentProfileFormValues,
 ): StudentProfileUpdateRequest {
-  return {
-    fullName: values.fullName.trim(),
-    summary: values.summary.trim(),
-    phone: values.phone.trim(),
+  const request: StudentProfileUpdateRequest = {}
+  const fullName = values.fullName.trim()
+
+  if (!baseline || fullName !== baseline.fullName.trim()) {
+    request.fullName = fullName
   }
+
+  for (const field of nullableFields) {
+    const value = values[field].trim()
+    if (!baseline || value !== baseline[field].trim()) {
+      request[field] = value || null
+    }
+  }
+
+  return request
 }

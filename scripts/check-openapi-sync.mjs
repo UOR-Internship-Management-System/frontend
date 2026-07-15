@@ -24,7 +24,7 @@ if (!contract.trimStart().startsWith('openapi: 3.1.1')) {
   process.exit(1)
 }
 
-if (!/^info:\s*$[\s\S]*?^  version: 1\.2\.0\s*$/m.test(contract)) {
+if (!/^info:\s*$[\s\S]*?^ {2}version: 1\.2\.0\s*$/m.test(contract)) {
   console.error('OpenAPI info.version must be 1.2.0')
   process.exit(1)
 }
@@ -60,7 +60,9 @@ const requiredProfileSchemas = [
 
 for (const requiredFragment of [...requiredProfilePaths, ...requiredProfileSchemas]) {
   if (!contract.includes(requiredFragment)) {
-    console.error(`OpenAPI contract is missing required Sprint 3 Profile contract: ${requiredFragment}`)
+    console.error(
+      `OpenAPI contract is missing required Sprint 3 Profile contract: ${requiredFragment}`,
+    )
     process.exit(1)
   }
 }

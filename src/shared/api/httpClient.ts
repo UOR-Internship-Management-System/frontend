@@ -9,6 +9,10 @@ export type HttpRequestOptions = {
   headers?: HeadersInit
 }
 
+function isFormData(value: unknown): value is FormData {
+  return typeof FormData !== 'undefined' && value instanceof FormData
+}
+
 export async function httpClient<TResponse>(path: string, options: HttpRequestOptions = {}) {
   const token = authTokenStorage.getToken()
   const headers = new Headers(options.headers)
@@ -17,8 +21,13 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
 
   let body: BodyInit | undefined
   if (options.body !== undefined) {
-    headers.set('Content-Type', 'application/json')
-    body = JSON.stringify(options.body)
+    if (isFormData(options.body)) {
+      headers.delete('Content-Type')
+      body = options.body
+    } else {
+      headers.set('Content-Type', 'application/json')
+      body = JSON.stringify(options.body)
+    }
   }
 
   if (token) {
@@ -47,16 +56,25 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
 }
 
 async function safeReadError(response: Response) {
+  const contentType = response.headers.get('Content-Type') ?? ''
+  if (!contentType.toLowerCase().includes('json')) {
+    return fallbackProblem(response)
+  }
+
   try {
     return await response.json()
   } catch {
-    return {
-      type: 'about:blank',
-      title: 'Request failed',
-      status: response.status,
-      code: `HTTP_${response.status}`,
-      message: 'The request could not be completed.',
-      correlationId: response.headers.get(apiConfig.requestIdHeader) ?? 'unavailable',
-    }
+    return fallbackProblem(response)
+  }
+}
+
+function fallbackProblem(response: Response) {
+  return {
+    type: 'about:blank',
+    title: 'Request failed',
+    status: response.status,
+    code: `HTTP_${response.status}`,
+    message: 'The request could not be completed.',
+    correlationId: response.headers.get(apiConfig.requestIdHeader) ?? 'unavailable',
   }
 }
