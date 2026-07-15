@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useOutlet } from 'react-router-dom'
 import { routePaths } from '../config/routePaths'
 import { Button } from '../../shared/components/ui/Button'
 import { useAuth } from '../../shared/hooks/useAuth'
@@ -12,6 +12,7 @@ const links = [
 export function StudentLayout() {
   const auth = useAuth()
   const location = useLocation()
+  const outlet = useOutlet()
   const [isNavigationOpen, setIsNavigationOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null)
@@ -93,7 +94,9 @@ export function StudentLayout() {
         </Button>
       </aside>
       <div className="content-stack student-content" id="student-content">
-        <Outlet />
+        <div className="page-transition" key={location.pathname}>
+          {outlet}
+        </div>
       </div>
     </section>
   )

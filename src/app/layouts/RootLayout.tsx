@@ -17,16 +17,24 @@ const standaloneRoutes = new Set<string>([
   routePaths.adminCreatePassword,
 ])
 
+const studentWorkspaceRoutes = new Set<string>([
+  routePaths.studentDashboard,
+  routePaths.studentProfile,
+])
+
 export function RootLayout() {
   const location = useLocation()
   const outlet = useOutlet()
   const isStandalone = standaloneRoutes.has(location.pathname)
+  const isStudentWorkspace = studentWorkspaceRoutes.has(location.pathname)
 
   return (
-    <div className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''}`.trim()}>
+    <div
+      className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''} ${isStudentWorkspace ? 'app-shell-student-workspace' : ''}`.trim()}
+    >
       {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
 
-      {!isStandalone ? (
+      {!isStandalone && !isStudentWorkspace ? (
         <header className="app-header">
           <div className="shell-bar">
             <Link className="brand-mark" to={routePaths.home}>
@@ -38,10 +46,20 @@ export function RootLayout() {
         </header>
       ) : null}
 
-      <main className={isStandalone ? 'app-main app-main-standalone' : 'app-main'}>
-        <div className="page-transition" key={location.pathname}>
-          {outlet}
-        </div>
+      <main
+        className={
+          isStandalone
+            ? 'app-main app-main-standalone'
+            : `app-main ${isStudentWorkspace ? 'app-main-student-workspace' : ''}`.trim()
+        }
+      >
+        {isStudentWorkspace ? (
+          outlet
+        ) : (
+          <div className="page-transition" key={location.pathname}>
+            {outlet}
+          </div>
+        )}
       </main>
 
       {!isStandalone ? (

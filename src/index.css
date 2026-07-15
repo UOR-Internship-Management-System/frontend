@@ -137,6 +137,13 @@ textarea:focus-visible {
   flex: 1;
 }
 
+.app-main-student-workspace {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
 .app-header,
 .app-footer {
   border-bottom: 1px solid var(--color-border);
