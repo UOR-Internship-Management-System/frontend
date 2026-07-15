@@ -17,6 +17,7 @@ import type {
   StudentProfileResponseDto,
   StudentProfileUpdateRequest,
 } from '../../features/student-profile/types/studentProfileTypes'
+import { studentDashboardFixture } from '../fixtures/studentDashboard.fixture'
 import { createStudentProfileFixture } from '../fixtures/studentProfile.fixture'
 
 const apiBase = '/api/v1'
@@ -378,6 +379,7 @@ const experienceHandlers = collectionHandlers<
 })
 
 export const studentHandlers = [
+  http.get(`${apiBase}/me/dashboard/metrics`, () => HttpResponse.json(studentDashboardFixture)),
   http.get(`${apiBase}/me/profile`, () => HttpResponse.json(state.profile)),
   http.patch(`${apiBase}/me/profile`, async ({ request }) => {
     const failure = versionFailure(request, state.profile.version)

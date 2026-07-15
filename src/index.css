@@ -1379,6 +1379,134 @@ body.student-mobile-drawer-open {
   font-size: 0.88rem;
 }
 
+/* Student dashboard */
+
+.student-dashboard-page {
+  min-width: 0;
+}
+
+.student-dashboard-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      circle at top right,
+      color-mix(in srgb, var(--color-primary) 22%, transparent),
+      transparent 44%
+    ),
+    var(--color-card);
+}
+
+.student-dashboard-welcome > div {
+  min-width: 0;
+}
+
+.student-dashboard-welcome h2,
+.student-dashboard-welcome p,
+.student-dashboard-summary-header h2,
+.student-dashboard-summary-header p,
+.student-metric-card p {
+  margin: 0;
+}
+
+.student-dashboard-kicker,
+.student-metric-card-label {
+  color: var(--color-primary-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.student-dashboard-welcome h2 {
+  margin-top: 6px;
+}
+
+.student-dashboard-welcome h2 + p {
+  max-width: 760px;
+  margin-top: 8px;
+}
+
+.student-dashboard-hero-icon {
+  flex: none;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-primary) 16%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-size: 2.2rem;
+}
+
+.student-dashboard-summary {
+  display: grid;
+  gap: 16px;
+}
+
+.student-dashboard-summary-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.student-dashboard-updated-at {
+  flex: none;
+  font-size: 0.88rem;
+}
+
+.student-dashboard-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.student-metric-card {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  transition:
+    transform 0.2s var(--motion-standard),
+    box-shadow 0.2s var(--motion-standard);
+}
+
+.student-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.student-metric-card-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-card));
+  color: var(--color-primary-strong);
+  font-size: 1.55rem;
+}
+
+.student-metric-card-content {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.student-metric-card-value {
+  color: var(--color-text);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.05;
+}
+
+.student-metric-card-description {
+  overflow-wrap: anywhere;
+}
+
 .content-stack {
   display: grid;
   gap: 20px;
@@ -2210,6 +2338,22 @@ td {
 
   .auth-layout,
   .workspace-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .student-dashboard-welcome,
+  .student-dashboard-summary-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .student-dashboard-hero-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+  }
+
+  .student-dashboard-metrics-grid {
     grid-template-columns: 1fr;
   }
 

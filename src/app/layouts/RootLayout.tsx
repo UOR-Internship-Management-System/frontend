@@ -20,6 +20,10 @@ const standaloneRoutes = new Set<string>([
 const studentWorkspaceRoutes = new Set<string>([
   routePaths.studentDashboard,
   routePaths.studentProfile,
+  routePaths.studentSkills,
+  routePaths.studentProjects,
+  routePaths.studentCvBuilder,
+  routePaths.studentAcademicRecords,
 ])
 
 export function RootLayout() {
