@@ -61,14 +61,6 @@ export function RootLayout() {
           </div>
         )}
       </main>
-
-      {!isStandalone ? (
-        <footer className="app-footer">
-          <div className="shell-bar">
-            <p>CV Management and Candidate Filtering System.</p>
-          </div>
-        </footer>
-      ) : null}
     </div>
   )
 }
