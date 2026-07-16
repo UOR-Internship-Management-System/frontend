@@ -2553,6 +2553,134 @@ td {
   }
 }
 
+/* Sprint 4: Student project overlays. Keep selectors feature-scoped. */
+.s4-projects-form,
+.s4-projects-details {
+  display: grid;
+  gap: 18px;
+}
+
+.s4-projects-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.s4-projects-form textarea {
+  resize: vertical;
+}
+
+.s4-projects-form-alert p {
+  margin: 0;
+}
+
+.s4-projects-skills-fieldset {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.s4-projects-skills-fieldset legend {
+  padding: 0 6px;
+  font-weight: 800;
+}
+
+.s4-projects-skill-picker,
+.s4-projects-links,
+.s4-projects-skill-chips,
+.s4-projects-cv-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.s4-projects-skill-picker .select {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
+.s4-projects-skill-chips {
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.s4-projects-skill-chips .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.s4-projects-skill-chips button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.s4-projects-no-skills {
+  color: var(--color-text-muted);
+}
+
+.s4-projects-cv-option {
+  align-items: flex-start;
+  font-weight: 700;
+}
+
+.s4-projects-cv-option input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--primary);
+}
+
+.s4-projects-details dl {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.s4-projects-details dl > div {
+  display: grid;
+  gap: 4px;
+}
+
+.s4-projects-details dt,
+.s4-projects-details h3 {
+  font-weight: 800;
+}
+
+.s4-projects-details dd,
+.s4-projects-details h3 {
+  margin: 0;
+}
+
+.s4-projects-links {
+  flex-wrap: wrap;
+}
+
+.s4-projects-links a {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+@media (max-width: 680px) {
+  .s4-projects-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .s4-projects-skill-picker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
 /* Sprint 4: Student declared skills. Keep selectors feature-scoped. */
 .s4-skills-page {
   min-width: 0;
