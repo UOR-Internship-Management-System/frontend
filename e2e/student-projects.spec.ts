@@ -94,6 +94,7 @@ async function mockProjectsApi(
   options: { staleUpdate?: boolean; unavailableList?: boolean } = {},
 ) {
   let projects = [{ ...initialProject, skills: [...initialProject.skills] }]
+  let staleResponseSent = false
 
   await page.route('**/api/v1/skill-taxonomy/skills**', (route) =>
     route.fulfill({
@@ -212,7 +213,14 @@ async function mockProjectsApi(
           ? { description: 'Draft that survives a stale response.' }
           : { includeInCv: false },
       )
-      if (options.staleUpdate) {
+      if (options.staleUpdate && !staleResponseSent) {
+        staleResponseSent = true
+        projects[index] = {
+          ...current,
+          title: 'Server-renamed internship portfolio',
+          version: current.version + 1,
+          updatedAt: '2026-07-16T10:15:00Z',
+        }
         return route.fulfill({
           status: 412,
           contentType: 'application/json',
@@ -263,7 +271,7 @@ test('Student completes the protected project portfolio workflow', async ({ page
   await page.getByLabel('Description').fill('Created through the protected Projects route.')
   await page.getByLabel('Repository URL').fill('https://github.com/example/browser-portfolio')
   await page.getByLabel('Start date').fill('2026-02-01')
-  await page.getByLabel('Taxonomy skill').selectOption(taxonomySkills[0]!.skillId)
+  await page.getByLabel('Taxonomy skill', { exact: true }).selectOption(taxonomySkills[0]!.skillId)
   await page.getByRole('button', { name: 'Add skill' }).click()
   await page.getByRole('button', { name: 'Create project' }).click()
   await expect(page.getByText('Project created')).toBeVisible()
@@ -297,7 +305,9 @@ test('Student completes the protected project portfolio workflow', async ({ page
   await expect(row).toHaveCount(0)
 })
 
-test('Project edit preserves the draft after a stale response', async ({ page }) => {
+test('Project edit retries without overwriting a concurrent server field change', async ({
+  page,
+}) => {
   await authenticateStudent(page)
   await mockProjectsApi(page, { staleUpdate: true })
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
@@ -313,7 +323,14 @@ test('Project edit preserves the draft after a stale response', async ({ page })
 
   await expect(page.getByText('Review the latest project')).toBeVisible()
   await expect(page.getByLabel('Description')).toHaveValue('Draft that survives a stale response.')
+  await expect(page.getByLabel('Project title')).toHaveValue('Server-renamed internship portfolio')
   await expect(page.getByRole('dialog', { name: 'Edit project' })).toBeVisible()
+  await page.getByRole('button', { name: 'Save project' }).click()
+
+  await expect(page.getByText('Project updated')).toBeVisible()
+  await expect(
+    page.getByRole('row', { name: /Server-renamed internship portfolio/ }),
+  ).toContainText('Draft that survives a stale response.')
 })
 
 test('Projects reports a recoverable service failure', async ({ page }) => {

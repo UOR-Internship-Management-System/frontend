@@ -59,6 +59,111 @@ describe('ProjectForm and project dialogs', () => {
     )
   })
 
+  it('searches and paginates the server taxonomy while preserving selected skills', async () => {
+    const user = userEvent.setup()
+    const lateSkill = {
+      skillId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaa0010',
+      name: 'Web Performance',
+      description: 'Browser performance engineering.',
+    }
+    const firstPageSkills = Array.from({ length: 10 }, (_, index) => ({
+      skillId: `aaaaaaaa-aaaa-4aaa-8aaa-${String(index).padStart(12, '0')}`,
+      name: `Skill ${String(index + 1).padStart(2, '0')}`,
+      description: null,
+    }))
+    server.use(
+      http.get('/api/v1/skill-taxonomy/skills', ({ request }) => {
+        const url = new URL(request.url)
+        const page = Number(url.searchParams.get('page') ?? 0)
+        const search = url.searchParams.get('search') ?? ''
+        const items =
+          search === 'performance' ? [lateSkill] : page === 0 ? firstPageSkills : [lateSkill]
+        return HttpResponse.json({
+          items,
+          page: {
+            page,
+            size: 10,
+            totalElements: search ? 1 : 11,
+            totalPages: search ? 1 : 2,
+            sort: 'name,asc',
+          },
+        })
+      }),
+    )
+    const view = renderWithProviders(
+      <ProjectForm mode="create" onCancel={vi.fn()} onSubmit={vi.fn()} />,
+    )
+
+    const pagination = await view.findByRole('navigation', {
+      name: 'Project taxonomy skills pagination',
+    })
+    await user.click(within(pagination).getByRole('button', { name: 'Next' }))
+    const taxonomy = view.getByLabelText('Taxonomy skill')
+    await waitFor(() =>
+      expect(within(taxonomy).getByRole('option', { name: lateSkill.name })).toBeVisible(),
+    )
+    await user.selectOptions(taxonomy, lateSkill.skillId)
+    await user.click(view.getByRole('button', { name: 'Add skill' }))
+
+    expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent(lateSkill.name)
+    await user.type(
+      view.getByRole('searchbox', { name: 'Search project taxonomy skills' }),
+      'performance',
+    )
+    await waitFor(() =>
+      expect(
+        view.queryByRole('navigation', { name: 'Project taxonomy skills pagination' }),
+      ).toBeNull(),
+    )
+    expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent(lateSkill.name)
+  })
+
+  it('merges refreshed server fields into a stale draft without replacing dirty fields', async () => {
+    const user = userEvent.setup()
+    const original = getStudentProjectsFixture()[0]!
+    const refreshed = {
+      ...original,
+      title: 'Server-renamed portfolio',
+      version: original.version + 1,
+    }
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+
+    function Harness() {
+      const [project, setProject] = useState(original)
+      return (
+        <>
+          <button onClick={() => setProject(refreshed)} type="button">
+            Refresh server project
+          </button>
+          <ProjectForm
+            initialSkills={project.skills}
+            initialValues={mapStudentProjectToForm(project)}
+            mode="edit"
+            onCancel={vi.fn()}
+            onSubmit={onSubmit}
+          />
+        </>
+      )
+    }
+
+    const view = renderWithProviders(<Harness />)
+    await user.clear(view.getByLabelText('Description'))
+    await user.type(view.getByLabelText('Description'), 'Student-owned draft change')
+    await user.click(view.getByRole('button', { name: 'Refresh server project' }))
+
+    await waitFor(() =>
+      expect(view.getByLabelText('Project title')).toHaveValue('Server-renamed portfolio'),
+    )
+    expect(view.getByLabelText('Description')).toHaveValue('Student-owned draft change')
+    await user.click(view.getByRole('button', { name: 'Save project' }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Server-renamed portfolio',
+        description: 'Student-owned draft change',
+      }),
+    )
+  })
+
   it('keeps nullable clears and the complete edit draft after a stale response', async () => {
     const user = userEvent.setup()
     const project = getStudentProjectsFixture()[0]!

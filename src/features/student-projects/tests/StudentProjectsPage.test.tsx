@@ -113,22 +113,52 @@ describe('StudentProjectsPage', () => {
     expect(view.getByText('Reference: projects-page-503')).toBeInTheDocument()
   })
 
-  it('refreshes a stale version without losing the intended edit draft', async () => {
+  it('retries a stale edit without overwriting a concurrent server field change', async () => {
     const user = userEvent.setup()
+    const patchBodies: unknown[] = []
+    let patchAttempt = 0
     server.use(
-      http.patch('/api/v1/me/projects/:projectId', () =>
-        HttpResponse.json(
-          {
-            type: 'about:blank',
-            title: 'Precondition failed',
-            status: 412,
-            code: 'STALE_VERSION',
-            message: 'Changed.',
-            correlationId: 'projects-page-412',
-          },
-          { status: 412 },
-        ),
-      ),
+      http.patch('/api/v1/me/projects/:projectId', async ({ request }) => {
+        const body = (await request.json()) as Partial<StudentProject>
+        patchBodies.push(body)
+        const projects = getStudentProjectsFixture()
+        const current = projects[0]!
+        patchAttempt += 1
+
+        if (patchAttempt === 1) {
+          setStudentProjectsFixture([
+            {
+              ...current,
+              title: 'Server-renamed accessible portfolio',
+              version: current.version + 1,
+              updatedAt: '2026-07-16T10:30:00Z',
+            },
+            ...projects.slice(1),
+          ])
+          return HttpResponse.json(
+            {
+              type: 'about:blank',
+              title: 'Precondition failed',
+              status: 412,
+              code: 'STALE_VERSION',
+              message: 'Changed.',
+              correlationId: 'projects-page-412',
+            },
+            { status: 412 },
+          )
+        }
+
+        const latestProjects = getStudentProjectsFixture()
+        const latest = latestProjects[0]!
+        const updated = {
+          ...latest,
+          ...body,
+          version: latest.version + 1,
+          updatedAt: '2026-07-16T10:45:00Z',
+        }
+        setStudentProjectsFixture([updated, ...latestProjects.slice(1)])
+        return HttpResponse.json(updated)
+      }),
     )
     const view = renderWithProviders(<StudentProjectsPage />)
     const row = await view.findByRole('row', { name: /Accessible Internship Portal/ })
@@ -141,8 +171,23 @@ describe('StudentProjectsPage', () => {
 
     expect(await view.findByText('Review the latest project')).toBeInTheDocument()
     expect(view.getByLabelText('Description')).toHaveValue('Keep this exact intended draft.')
+    await waitFor(() =>
+      expect(view.getByLabelText('Project title')).toHaveValue(
+        'Server-renamed accessible portfolio',
+      ),
+    )
     expect(view.getByRole('dialog', { name: 'Edit project' })).toBeInTheDocument()
     expect(view.getByRole('button', { name: 'Save project' })).toBeEnabled()
+    await user.click(view.getByRole('button', { name: 'Save project' }))
+
+    expect(await view.findByText('Project updated')).toBeInTheDocument()
+    expect(patchBodies).toEqual([
+      { description: 'Keep this exact intended draft.' },
+      { description: 'Keep this exact intended draft.' },
+    ])
+    expect(
+      await view.findByRole('row', { name: /Server-renamed accessible portfolio/ }),
+    ).toHaveTextContent('Keep this exact intended draft.')
   })
 
   it('clamps to the previous page when deleting the only final-page project', async () => {

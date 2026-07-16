@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
@@ -43,6 +43,10 @@ export function StudentProjectsPage() {
     search: debouncedSearch || undefined,
   })
   const selected = useProject(overlay && overlay !== 'create' ? selectedProjectId : null)
+  const selectedFormValues = useMemo(
+    () => (selected.data ? mapStudentProjectToForm(selected.data) : null),
+    [selected.data],
+  )
   const createMutation = useCreateProject()
   const updateMutation = useUpdateProject()
   const deleteMutation = useDeleteProject()
@@ -234,10 +238,10 @@ export function StudentProjectsPage() {
           project={selected.data}
         />
       ) : null}
-      {overlay === 'edit' && selected.data ? (
+      {overlay === 'edit' && selected.data && selectedFormValues ? (
         <ProjectForm
           initialSkills={selected.data.skills}
-          initialValues={mapStudentProjectToForm(selected.data)}
+          initialValues={selectedFormValues}
           mode="edit"
           onCancel={() => setOverlay('details')}
           onSubmit={updateProject}
