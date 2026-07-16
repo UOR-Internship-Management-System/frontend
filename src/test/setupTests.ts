@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { server } from '../mocks/server'
 import { resetStudentProfileMock } from '../mocks/handlers/studentHandlers'
+import { resetStudentSkillsMock } from '../mocks/fixtures/skills.fixture'
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })
@@ -21,5 +22,6 @@ beforeAll(() => {
 afterEach(() => {
   server.resetHandlers()
   resetStudentProfileMock()
+  resetStudentSkillsMock()
 })
 afterAll(() => server.close())
