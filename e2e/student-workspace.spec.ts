@@ -117,6 +117,7 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
 })
 
 const responsiveViewports = [
+  { width: 1440, height: 900, mobile: false },
   { width: 900, height: 800, mobile: false },
   { width: 768, height: 900, mobile: true },
   { width: 390, height: 844, mobile: true },

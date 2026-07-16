@@ -151,7 +151,7 @@ describe('ProjectForm and project dialogs', () => {
     expect(view.getByRole('dialog', { name: 'Add project' })).toBeInTheDocument()
     await user.keyboard('{Escape}')
     await waitFor(() => expect(view.queryByRole('dialog')).not.toBeInTheDocument())
-    expect(launcher).toHaveFocus()
+    await waitFor(() => expect(launcher).toHaveFocus())
   })
 
   it('renders read-only details with safe external-link attributes and action entry points', async () => {
