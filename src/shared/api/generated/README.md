@@ -1,5 +1,5 @@
 # Generated API Metadata
 
-The canonical frontend contract is OpenAPI 3.1.1 at `docs/api/CV_Management_API_OpenAPI_v1.2.0.yaml`.
+The canonical frontend contract is OpenAPI 3.1.1 at `docs/api/CV_Management_API_OpenAPI_v1.3.0.yaml`.
 
-`npm run openapi:generate` produces deterministic contract metadata stubs. It does not generate a complete endpoint SDK; feature-owned API modules remain responsible for typed transport and runtime validation.
+Run `npm run openapi:generate` to regenerate deterministic contract metadata and the selected Sprint 4 transport types in this directory. Do not edit generated TypeScript files manually. Feature-owned API modules and Zod schemas remain the runtime integration boundary.
