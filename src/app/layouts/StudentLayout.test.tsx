@@ -60,6 +60,7 @@ function renderStudentLayout(initialPath = routePaths.studentProfile) {
               <Route path={routePaths.studentDashboard} element={<h1>Dashboard</h1>} />
               <Route path={routePaths.studentProfile} element={<h1>Profile</h1>} />
               <Route path={routePaths.studentSkills} element={<h1>Skills</h1>} />
+              <Route path={routePaths.studentProjects} element={<h1>Projects</h1>} />
             </Route>
           </Routes>
         </MemoryRouter>
@@ -76,7 +77,7 @@ describe('StudentLayout', () => {
     vi.unstubAllGlobals()
   })
 
-  it('shows the approved Dashboard, Profile, and Skills destinations', () => {
+  it('shows the four approved Sprint 4 Student destinations', () => {
     renderStudentLayout()
 
     expect(screen.getAllByText('Test Student')).toHaveLength(2)
@@ -84,14 +85,16 @@ describe('StudentLayout', () => {
     expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('aria-current', 'page')
     expect(
       within(screen.getByRole('navigation', { name: 'Student navigation' })).getAllByRole('link'),
-    ).toHaveLength(3)
+    ).toHaveLength(4)
     expect(screen.getByRole('link', { name: 'Skills' })).toHaveAttribute(
       'href',
       routePaths.studentSkills,
     )
-    expect(
-      screen.queryByRole('link', { name: /projects|cv builder|academic/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Projects' })).toHaveAttribute(
+      'href',
+      routePaths.studentProjects,
+    )
+    expect(screen.queryByRole('link', { name: /cv builder|academic/i })).not.toBeInTheDocument()
   })
 
   it('supports focus-safe mobile navigation and logout', async () => {

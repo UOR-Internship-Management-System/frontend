@@ -22,4 +22,9 @@ export const studentNavigation: readonly StudentNavigationItem[] = [
     route: routePaths.studentSkills,
     icon: 'psychology',
   },
+  {
+    label: 'Projects',
+    route: routePaths.studentProjects,
+    icon: 'folder_copy',
+  },
 ]

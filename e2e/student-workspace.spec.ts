@@ -18,6 +18,21 @@ const studentProfile = {
   phone: '+94 71 234 5678',
 }
 
+const workspaceProject = {
+  projectId: '660e8400-e29b-41d4-a716-446655440001',
+  title: 'Responsive Portfolio',
+  description: 'Workspace overflow verification project.',
+  repositoryUrl: null,
+  demoUrl: null,
+  startDate: '2026-01-10',
+  endDate: null,
+  skills: [],
+  includeInCv: true,
+  version: 0,
+  createdAt: '2026-07-16T08:00:00Z',
+  updatedAt: '2026-07-16T08:00:00Z',
+}
+
 async function authenticateStudent(page: Page) {
   await page.addInitScript(() => {
     window.sessionStorage.setItem('cv-management.foundation-token', 'student-workspace-token')
@@ -49,6 +64,22 @@ async function authenticateStudent(page: Page) {
       body: JSON.stringify(studentProfile),
     }),
   )
+  await page.route('**/api/v1/me/projects**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        items: [workspaceProject],
+        page: {
+          page: 0,
+          size: 5,
+          totalElements: 1,
+          totalPages: 1,
+          sort: 'updatedAt,desc',
+        },
+      }),
+    }),
+  )
 }
 
 test('desktop student rail remains fixed and collapsed across nested routes', async ({ page }) => {
@@ -63,7 +94,7 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   await expect(page.locator('.app-footer')).toHaveCount(0)
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
-  ).toHaveCount(2)
+  ).toHaveCount(4)
 
   const expandedWidth = await sidebar.evaluate((element) => element.getBoundingClientRect().width)
   expect(expandedWidth).toBeGreaterThan(250)
@@ -96,7 +127,8 @@ for (const viewport of responsiveViewports) {
   test(`student workspace is overflow-safe at ${viewport.width}px`, async ({ page }) => {
     await authenticateStudent(page)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
-    await page.goto('/student/profile', { waitUntil: 'domcontentloaded' })
+    await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
 
     const menuButton = page.getByRole('button', { name: 'Open student navigation' })
     const collapseButton = page.getByRole('button', { name: 'Collapse student sidebar' })
@@ -107,6 +139,13 @@ for (const viewport of responsiveViewports) {
       await menuButton.click()
       await expect(page.getByRole('dialog', { name: 'Student workspace' })).toBeVisible()
       await expect(page.getByRole('link', { name: 'Dashboard' })).toBeFocused()
+      await expect(
+        page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
+      ).toHaveCount(4)
+      await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
       await expect(page.locator('body')).toHaveClass(/student-mobile-drawer-open/)
 
       await page
@@ -121,6 +160,10 @@ for (const viewport of responsiveViewports) {
     } else {
       await expect(menuButton).toBeHidden()
       await expect(collapseButton).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
     }
 
     expect(

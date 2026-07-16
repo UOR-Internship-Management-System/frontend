@@ -27,6 +27,7 @@ import {
   StudentDashboardPage,
   StudentProfilePage,
   StudentSkillsPage,
+  StudentProjectsPage,
   StudentLoginPage,
   StudentResetOtpPage,
   StudentResetPasswordPage,
@@ -39,6 +40,7 @@ import {
   StudentDashboardSkeleton,
   StudentProfileSkeleton,
   StudentSkillsSkeleton,
+  StudentProjectsSkeleton,
   AdminDashboardSkeleton,
   FormSkeleton,
 } from '../../shared/skeletons'
@@ -202,6 +204,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.studentSkills,
             element: withSuspense(<StudentSkillsPage />, <StudentSkillsSkeleton />),
+          },
+          {
+            path: routePaths.studentProjects,
+            element: withSuspense(<StudentProjectsPage />, <StudentProjectsSkeleton />),
           },
         ],
       },
