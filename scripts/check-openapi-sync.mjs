@@ -93,6 +93,8 @@ const generatedExpectations = new Map([
       'ApiDeclaredSkillUpdateRequest',
       'ApiProjectCreateRequest',
       'ApiProjectUpdateRequest',
+      'page: ApiPageMetadata',
+      'sort: string',
     ],
   ],
   [
