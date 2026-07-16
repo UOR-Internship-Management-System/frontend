@@ -21,7 +21,11 @@ if (missing.length > 0) {
 
 const contractBuffer = fs.readFileSync(path.join(root, contractPath))
 const contract = contractBuffer.toString('utf8')
-const actualHash = crypto.createHash('sha256').update(contractBuffer).digest('hex')
+// Git may materialize text files with CRLF on Windows. The approved checksum
+// represents the canonical LF contract content, so normalize line endings
+// without ignoring any semantic OpenAPI changes.
+const canonicalContract = contract.replace(/\r\n?/g, '\n')
+const actualHash = crypto.createHash('sha256').update(canonicalContract, 'utf8').digest('hex')
 
 if (actualHash !== expectedContractSha256) {
   console.error(
