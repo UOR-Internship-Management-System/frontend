@@ -46,8 +46,20 @@ function safeFallback(
       : 'This account cannot access the requested area.'
   }
 
-  if (status === 409 || status === 412) {
+  if (status === 409) {
+    return 'This request conflicts with existing information. Review the latest data and try again.'
+  }
+
+  if (status === 412) {
     return 'This information changed since it was loaded. Reload the latest version and try again.'
+  }
+
+  if (status === 428) {
+    return 'The latest version is required before this change can be saved. Reload and try again.'
+  }
+
+  if (status === 415) {
+    return 'The submitted content format is not supported.'
   }
 
   if (status === 429) {

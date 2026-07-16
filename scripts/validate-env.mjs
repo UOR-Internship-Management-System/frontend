@@ -38,4 +38,4 @@ if (errors.length > 0) {
   process.exit(1)
 }
 
-console.log('Environment configuration is valid for Sprint 1.')
+console.log('Environment configuration is valid for the current frontend implementation.')

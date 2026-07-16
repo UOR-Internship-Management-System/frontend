@@ -32,11 +32,11 @@ function renderSidebar(overrides: Partial<StudentSidebarProps> = {}) {
 }
 
 describe('StudentSidebar', () => {
-  it('renders only approved Sprint 3 destinations and identifies the active route', () => {
+  it('renders the approved Sprint 4 Skills and Projects destinations', () => {
     renderSidebar()
     const navigation = screen.getByRole('navigation', { name: 'Student navigation' })
 
-    expect(within(navigation).getAllByRole('link')).toHaveLength(2)
+    expect(within(navigation).getAllByRole('link')).toHaveLength(4)
     expect(within(navigation).getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
       'href',
       routePaths.studentDashboard,
@@ -45,7 +45,15 @@ describe('StudentSidebar', () => {
       'aria-current',
       'page',
     )
-    expect(within(navigation).queryByText(/skills|projects|cv builder|academic/i)).toBeNull()
+    expect(within(navigation).getByRole('link', { name: 'Skills' })).toHaveAttribute(
+      'href',
+      routePaths.studentSkills,
+    )
+    expect(within(navigation).getByRole('link', { name: 'Projects' })).toHaveAttribute(
+      'href',
+      routePaths.studentProjects,
+    )
+    expect(within(navigation).queryByText(/cv builder|academic/i)).toBeNull()
   })
 
   it('keeps icon controls accessible in the collapsed rail', async () => {

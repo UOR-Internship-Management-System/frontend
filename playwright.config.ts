@@ -7,6 +7,7 @@ const e2eBaseUrl = `http://${e2eHost}:${e2ePort}`
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
+  workers: 4,
   reporter: 'list',
 
   use: {

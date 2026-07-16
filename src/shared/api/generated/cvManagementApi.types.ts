@@ -27,11 +27,10 @@ export type ApiPageMetadata = {
   size: number
   totalElements: number
   totalPages: number
-  first: boolean
-  last: boolean
+  sort: string
 }
 
-export type ApiPagedResponse<T> = ApiPageMetadata & { items: T[] }
+export type ApiPagedResponse<T> = { items: T[]; page: ApiPageMetadata }
 
 export type ApiCompetencyLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
 
