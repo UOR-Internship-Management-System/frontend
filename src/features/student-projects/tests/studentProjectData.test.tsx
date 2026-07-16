@@ -9,6 +9,7 @@ import { server } from '../../../mocks/server'
 import { studentProjectsApi } from '../api/studentProjectsApi'
 import { useCreateProject } from '../hooks/useProjectMutations'
 import { studentProjectKeys } from '../hooks/studentProjectKeys'
+import { studentDashboardKeys } from '../../student-dashboard/hooks/studentDashboardKeys'
 import {
   mapStudentProjectCreateRequest,
   mapStudentProjectToForm,
@@ -211,6 +212,10 @@ describe('Student Project data', () => {
 
     await result.current.mutateAsync(mapStudentProjectCreateRequest(projectForm))
     expect(invalidation).toHaveBeenCalledWith({ queryKey: studentProjectKeys.all })
+    expect(invalidation).toHaveBeenCalledWith({
+      queryKey: studentDashboardKeys.metrics(),
+      refetchType: 'active',
+    })
     queryClient.clear()
   })
 })

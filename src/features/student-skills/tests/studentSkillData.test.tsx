@@ -1,11 +1,17 @@
+import type { ReactNode } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { renderHook } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { server } from '../../../mocks/server'
 import { categoryIds, clusterIds, skillIds } from '../../../mocks/fixtures/skills.fixture'
 import { formatIfMatchVersion } from '../../../shared/api/formatIfMatchVersion'
 import { deduplicateCanonicalSkills } from '../mappers/skillMapper'
 import { individualSkillSchema, pagedIndividualSkillsSchema } from '../schemas/studentSkillSchemas'
 import { studentSkillsApi } from '../api/studentSkillsApi'
+import { useCreateDeclaredSkill } from '../hooks/useDeclaredSkillMutations'
+import { studentSkillKeys } from '../hooks/studentSkillKeys'
+import { studentDashboardKeys } from '../../student-dashboard/hooks/studentDashboardKeys'
 
 describe('Student Skills taxonomy data', () => {
   it('strictly validates taxonomy identities and page metadata', () => {
@@ -179,5 +185,28 @@ describe('Student Skills taxonomy data', () => {
     await expect(
       studentSkillsApi.deleteDeclaredSkill(current.declaredSkillId, current.version),
     ).resolves.toBeUndefined()
+  })
+
+  it('invalidates declared-skill and dashboard metrics after a successful mutation', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const invalidation = vi.spyOn(queryClient, 'invalidateQueries')
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
+    const { result } = renderHook(() => useCreateDeclaredSkill(), { wrapper })
+
+    await result.current.mutateAsync({
+      skillId: skillIds.typescript,
+      competencyLevel: 'ADVANCED',
+    })
+    expect(invalidation).toHaveBeenCalledWith({
+      queryKey: studentSkillKeys.declared(),
+      refetchType: 'active',
+    })
+    expect(invalidation).toHaveBeenCalledWith({
+      queryKey: studentDashboardKeys.metrics(),
+      refetchType: 'active',
+    })
+    queryClient.clear()
   })
 })

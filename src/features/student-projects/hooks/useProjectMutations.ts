@@ -5,11 +5,19 @@ import type {
   StudentProjectCreateRequest,
   UpdateStudentProjectInput,
 } from '../types/studentProjectTypes'
+import { studentDashboardKeys } from '../../student-dashboard/hooks/studentDashboardKeys'
 import { studentProjectKeys } from './studentProjectKeys'
 
 function useProjectInvalidation() {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: studentProjectKeys.all })
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: studentProjectKeys.all }),
+      queryClient.invalidateQueries({
+        queryKey: studentDashboardKeys.metrics(),
+        refetchType: 'active',
+      }),
+    ])
 }
 
 export function useCreateProject() {

@@ -4,6 +4,7 @@ import type {
   DeclaredSkillCreateRequest,
   DeclaredSkillUpdateRequest,
 } from '../types/studentSkillTypes'
+import { studentDashboardKeys } from '../../student-dashboard/hooks/studentDashboardKeys'
 import { studentSkillKeys } from './studentSkillKeys'
 
 export type UpdateDeclaredSkillInput = {
@@ -17,10 +18,16 @@ export type DeleteDeclaredSkillInput = { declaredSkillId: string; version: numbe
 function useDeclaredSkillInvalidation() {
   const queryClient = useQueryClient()
   return () =>
-    queryClient.invalidateQueries({
-      queryKey: studentSkillKeys.declared(),
-      refetchType: 'active',
-    })
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: studentSkillKeys.declared(),
+        refetchType: 'active',
+      }),
+      queryClient.invalidateQueries({
+        queryKey: studentDashboardKeys.metrics(),
+        refetchType: 'active',
+      }),
+    ])
 }
 
 export function useCreateDeclaredSkill() {
