@@ -281,3 +281,19 @@ test('anonymous Skills access redirects to Student login', async ({ page }) => {
   await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/student\/login$/)
 })
+
+test('Skills mobile cards remain dark-mode and overflow safe at 320px', async ({ page }) => {
+  await authenticateStudent(page)
+  await mockSkillsApi(page)
+  await page.setViewportSize({ width: 320, height: 700 })
+  await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
+
+  await page.getByRole('button', { name: /switch to dark mode/i }).click()
+
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await expect(page.locator('.s4-skills-mobile-list')).toBeVisible()
+  await expect(page.locator('.s4-skills-table-wrap')).toBeHidden()
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBeTruthy()
+})

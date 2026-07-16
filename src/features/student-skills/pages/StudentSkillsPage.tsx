@@ -197,8 +197,8 @@ export function StudentSkillsPage() {
             }}
             value={sort}
           >
-            <option value="skillName,asc">Skill name Aâ€“Z</option>
-            <option value="skillName,desc">Skill name Zâ€“A</option>
+            <option value="skillName,asc">Skill name A–Z</option>
+            <option value="skillName,desc">Skill name Z–A</option>
             <option value="competencyLevel,asc">Competency</option>
             <option value="updatedAt,desc">Recently updated</option>
           </SortSelect>
@@ -217,7 +217,7 @@ export function StudentSkillsPage() {
           <EmptyState
             message={
               search
-                ? `No declared skills match â€œ${search}â€.`
+                ? `No declared skills match “${search}”.`
                 : 'Select an available taxonomy skill above to create your first declaration.'
             }
             title={search ? 'No matching declared skills' : 'No declared skills yet'}

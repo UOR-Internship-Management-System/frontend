@@ -2629,6 +2629,19 @@ td {
   margin: 5px 0;
 }
 
+.s4-projects-table strong,
+.s4-projects-mobile-card h3,
+.s4-projects-mobile-card p,
+.s4-projects-details dd,
+.s4-projects-links a,
+.s4-projects-skill-chips .chip,
+.s4-skills-result strong,
+.s4-skills-result small,
+.s4-skills-mobile-card h3,
+.s4-skills-mobile-card p {
+  overflow-wrap: anywhere;
+}
+
 .s4-projects-table a {
   color: var(--primary);
   font-weight: 700;
@@ -2728,6 +2741,10 @@ td {
 }
 
 .s4-projects-skill-chips button {
+  min-width: 28px;
+  min-height: 28px;
+  display: inline-grid;
+  place-items: center;
   border: 0;
   padding: 0;
   background: transparent;
@@ -2803,6 +2820,12 @@ td {
 
   .s4-projects-skill-picker {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .s4-projects-card-heading,
+  .s4-projects-section-heading {
+    align-items: flex-start;
     flex-direction: column;
   }
 }

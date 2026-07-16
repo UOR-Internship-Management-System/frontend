@@ -36,7 +36,7 @@ describe('StudentProjectsPage', () => {
     expect(await view.findByRole('row', { name: /Accessible Internship Portal/ })).toBeVisible()
   })
 
-  it('creates, views, edits, and deletes Student-owned portfolio projects', async () => {
+  it('creates, views, and edits Student-owned portfolio projects', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentProjectsPage />)
     await view.findByRole('row', { name: /Accessible Internship Portal/ })
@@ -64,8 +64,12 @@ describe('StudentProjectsPage', () => {
     expect(
       await view.findByRole('row', { name: /Revised accessible portfolio evidence/ }),
     ).toBeVisible()
+  })
 
-    const academicRow = view.getByRole('row', { name: /Academic Record Visualizer/ })
+  it('deletes a Student-owned portfolio project from its latest details', async () => {
+    const user = userEvent.setup()
+    const view = renderWithProviders(<StudentProjectsPage />)
+    const academicRow = await view.findByRole('row', { name: /Academic Record Visualizer/ })
     await user.click(within(academicRow).getByRole('button', { name: /View details/ }))
     await view.findByRole('dialog', { name: 'Academic Record Visualizer' })
     await user.click(view.getByRole('button', { name: 'Delete project' }))

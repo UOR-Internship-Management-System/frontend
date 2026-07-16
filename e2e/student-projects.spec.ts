@@ -332,3 +332,27 @@ test('anonymous Projects access redirects to Student login', async ({ page }) =>
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
   await expect(page).toHaveURL(/\/student\/login$/)
 })
+
+test('Project form honors focus, reduced motion, dark mode, and 320px bounds', async ({ page }) => {
+  await authenticateStudent(page)
+  await mockProjectsApi(page)
+  await page.setViewportSize({ width: 320, height: 700 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
+
+  await page.getByRole('button', { name: /switch to dark mode/i }).click()
+  await page.getByRole('button', { name: 'Add project' }).click()
+
+  const dialog = page.getByRole('dialog', { name: 'Add project' })
+  const closeButton = dialog.getByRole('button', { name: 'Close Add project' })
+  await expect(closeButton).toBeFocused()
+  await expect(page.locator('html')).toHaveClass(/dark/)
+  await expect(dialog).toHaveCSS('animation-name', 'none')
+  const bounds = await dialog.boundingBox()
+  expect(bounds).not.toBeNull()
+  expect(bounds!.x).toBeGreaterThanOrEqual(0)
+  expect(bounds!.width).toBeLessThanOrEqual(320)
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBeTruthy()
+})
