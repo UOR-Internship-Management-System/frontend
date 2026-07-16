@@ -68,6 +68,16 @@ export const StudentProfilePage = lazy(() =>
     default: module.StudentProfilePage,
   })),
 )
+export const StudentSkillsPage = lazy(() =>
+  import('../../features/student-skills/pages/StudentSkillsPage').then((module) => ({
+    default: module.StudentSkillsPage,
+  })),
+)
+export const StudentProjectsPage = lazy(() =>
+  import('../../features/student-projects/pages/StudentProjectsPage').then((module) => ({
+    default: module.StudentProjectsPage,
+  })),
+)
 export const AdminDashboardPage = lazy(() =>
   import('../../features/admin-dashboard/pages/AdminDashboardPage').then((module) => ({
     default: module.AdminDashboardPage,

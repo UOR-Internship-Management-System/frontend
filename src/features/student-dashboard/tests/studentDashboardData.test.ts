@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ZodError } from 'zod'
-import { studentDashboardFixture } from '../../../mocks/fixtures/studentDashboard.fixture'
+import { getStudentDashboardFixture } from '../../../mocks/fixtures/studentDashboard.fixture'
 import { httpClient } from '../../../shared/api/httpClient'
 import { studentDashboardApi } from '../api/studentDashboardApi'
 import { shouldRetryStudentDashboardQuery } from '../hooks/useStudentDashboard'
@@ -9,6 +9,8 @@ import { studentDashboardMetricsSchema } from '../schemas/studentDashboardSchema
 vi.mock('../../../shared/api/httpClient', () => ({
   httpClient: vi.fn(),
 }))
+
+const studentDashboardFixture = getStudentDashboardFixture()
 
 describe('Student Dashboard data contract', () => {
   it('accepts the OpenAPI-aligned dashboard response', () => {

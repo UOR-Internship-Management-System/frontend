@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 const forbiddenVisibleText = [
   ['temporary', 'password'].join(' '),
@@ -7,12 +7,107 @@ const forbiddenVisibleText = [
   ['AI', 'scoring'].join(' '),
   ['AI', 'ranking'].join(' '),
   ['match', 'percentage'].join(' '),
+  ['verified', 'skill'].join(' '),
+  ['project', 'approval'].join(' '),
+  ['project', 'verification'].join(' '),
 ]
+
+const studentUser = {
+  userId: 'removed-scope-e2e',
+  accountId: 'removed-scope-account-e2e',
+  email: 'student@dcs.ruh.ac.lk',
+  displayName: 'Scope Student',
+  roles: ['STUDENT'],
+  primaryRole: 'STUDENT',
+}
+
+function emptyPage(requestUrl: string, fallbackSort: string) {
+  const url = new URL(requestUrl)
+  const page = Number(url.searchParams.get('page') ?? 0)
+  const size = Number(url.searchParams.get('size') ?? 20)
+  return {
+    items: [],
+    page: {
+      page,
+      size,
+      totalElements: 0,
+      totalPages: 0,
+      sort: url.searchParams.get('sort') ?? fallbackSort,
+    },
+  }
+}
+
+async function mockProtectedStudentScope(page: Page) {
+  await page.addInitScript(() => {
+    window.sessionStorage.setItem('cv-management.foundation-token', 'scope-guard-token')
+  })
+  await page.route('**/api/v1/auth/me', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(studentUser),
+    }),
+  )
+  await page.route('**/api/v1/skill-taxonomy/**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(emptyPage(route.request().url(), 'name,asc')),
+    }),
+  )
+  await page.route('**/api/v1/me/declared-skills**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(emptyPage(route.request().url(), 'skillName,asc')),
+    }),
+  )
+  await page.route('**/api/v1/me/projects**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(emptyPage(route.request().url(), 'updatedAt,desc')),
+    }),
+  )
+}
+
+async function expectNoForbiddenVisibleText(page: Page) {
+  for (const text of forbiddenVisibleText) {
+    await expect(page.getByText(text, { exact: false })).toHaveCount(0)
+  }
+}
 
 test('active app shell does not expose removed-scope visible text', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
 
-  for (const text of forbiddenVisibleText) {
-    await expect(page.getByText(text, { exact: false })).toHaveCount(0)
+  await expectNoForbiddenVisibleText(page)
+})
+
+test('Sprint 4 Student pages omit removed terminology and unsupported project fields', async ({
+  page,
+}) => {
+  await mockProtectedStudentScope(page)
+
+  await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('heading', { level: 1, name: 'Declared Skills' })).toBeVisible()
+  await expectNoForbiddenVisibleText(page)
+
+  await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
+  await page.getByRole('button', { name: 'Add project' }).first().click()
+
+  const dialog = page.getByRole('dialog', { name: 'Add project' })
+  await expect(dialog).toBeVisible()
+  await expectNoForbiddenVisibleText(page)
+
+  const unsupportedFieldLabels = [
+    ['approval', 'status'].join(' '),
+    ['verification', 'status'].join(' '),
+    ['project', 'score'].join(' '),
+    ['supervisor', 'name'].join(' '),
+    ['estimated', 'GPA'].join(' '),
+  ]
+  for (const label of unsupportedFieldLabels) {
+    await expect(dialog.getByLabel(label, { exact: false })).toHaveCount(0)
   }
 })
