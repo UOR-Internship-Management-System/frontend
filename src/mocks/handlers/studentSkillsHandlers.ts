@@ -1,4 +1,8 @@
 import { http, HttpResponse } from 'msw'
+import {
+  declaredSkillCreateSchema,
+  declaredSkillUpdateSchema,
+} from '../../features/student-skills/schemas/studentSkillSchemas'
 import type {
   IndividualSkill,
   SkillCategory,
@@ -6,12 +10,56 @@ import type {
 import {
   categoryClusterIds,
   categorySkillIds,
+  getDeclaredSkillsFixture,
   individualSkillsFixture,
+  nextDeclaredSkillId,
+  setDeclaredSkillsFixture,
   skillCategoriesFixture,
   skillClustersFixture,
 } from '../fixtures/skills.fixture'
 
 const apiBase = '/api/v1'
+const inaccessibleDeclaredSkillId = '99999999-9999-4999-8999-999999999999'
+
+function problem(
+  status: number,
+  code: string,
+  message: string,
+  fieldErrors?: Array<{ field: string; code: string; message: string }>,
+) {
+  return {
+    type: `https://uor-cv-system/errors/${code.toLowerCase().replaceAll('_', '-')}`,
+    title:
+      status === 422
+        ? 'Validation failed'
+        : status === 412
+          ? 'Precondition failed'
+          : status === 428
+            ? 'Precondition required'
+            : 'Request failed',
+    status,
+    code,
+    message,
+    correlationId: `mock-skill-${status}`,
+    ...(fieldErrors ? { fieldErrors } : {}),
+  }
+}
+
+function versionFailure(request: Request, version: number) {
+  const ifMatch = request.headers.get('If-Match')
+  if (!ifMatch) {
+    return HttpResponse.json(
+      problem(428, 'PRECONDITION_REQUIRED', 'A quoted If-Match version is required.'),
+      { status: 428 },
+    )
+  }
+  if (ifMatch !== `"${version}"`) {
+    return HttpResponse.json(problem(412, 'STALE_VERSION', 'The declaration changed.'), {
+      status: 412,
+    })
+  }
+  return null
+}
 
 function page<T>(request: Request, values: T[], defaultSort: string, label: (value: T) => string) {
   const url = new URL(request.url)
@@ -92,5 +140,114 @@ export const studentSkillsHandlers = [
         (item) => item.name,
       ),
     )
+  }),
+  http.get(`${apiBase}/me/declared-skills`, ({ request }) =>
+    HttpResponse.json(
+      page(request, [...getDeclaredSkillsFixture()], 'skillName,asc', (item) => item.skillName),
+    ),
+  ),
+  http.post(`${apiBase}/me/declared-skills`, async ({ request }) => {
+    const parsed = declaredSkillCreateSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return HttpResponse.json(
+        problem(422, 'VALIDATION_FAILED', 'Select a valid taxonomy skill and competency level.'),
+        { status: 422 },
+      )
+    }
+
+    const skill = individualSkillsFixture.find((item) => item.skillId === parsed.data.skillId)
+    if (!skill) {
+      return HttpResponse.json(
+        problem(422, 'INVALID_TAXONOMY_SKILL', 'The selected taxonomy skill is unavailable.', [
+          {
+            field: 'skillId',
+            code: 'INVALID_TAXONOMY_SKILL',
+            message: 'Select an available skill.',
+          },
+        ]),
+        { status: 422 },
+      )
+    }
+    if (getDeclaredSkillsFixture().some((item) => item.skillId === skill.skillId)) {
+      return HttpResponse.json(
+        problem(409, 'DUPLICATE_DECLARED_SKILL', 'This skill is already declared.'),
+        { status: 409 },
+      )
+    }
+
+    const now = new Date().toISOString()
+    const created = {
+      declaredSkillId: nextDeclaredSkillId(),
+      skillId: skill.skillId,
+      skillName: skill.name,
+      competencyLevel: parsed.data.competencyLevel,
+      version: 0,
+      createdAt: now,
+      updatedAt: now,
+    }
+    setDeclaredSkillsFixture([...getDeclaredSkillsFixture(), created])
+    return HttpResponse.json(created, { status: 201 })
+  }),
+  http.patch(`${apiBase}/me/declared-skills/:declaredSkillId`, async ({ params, request }) => {
+    if (params.declaredSkillId === inaccessibleDeclaredSkillId) {
+      return HttpResponse.json(
+        problem(403, 'FORBIDDEN', 'The declaration is not owned by this Student.'),
+        { status: 403 },
+      )
+    }
+    const index = getDeclaredSkillsFixture().findIndex(
+      (item) => item.declaredSkillId === params.declaredSkillId,
+    )
+    if (index < 0) {
+      return HttpResponse.json(problem(404, 'NOT_FOUND', 'The declaration no longer exists.'), {
+        status: 404,
+      })
+    }
+    const previous = getDeclaredSkillsFixture()[index]!
+    const failure = versionFailure(request, previous.version)
+    if (failure) return failure
+    const parsed = declaredSkillUpdateSchema.safeParse(await request.json())
+    if (!parsed.success) {
+      return HttpResponse.json(
+        problem(422, 'VALIDATION_FAILED', 'Select a valid competency level.', [
+          { field: 'competencyLevel', code: 'INVALID_LEVEL', message: 'Select a valid level.' },
+        ]),
+        { status: 422 },
+      )
+    }
+    const updated = {
+      ...previous,
+      competencyLevel: parsed.data.competencyLevel,
+      version: previous.version + 1,
+      updatedAt: new Date().toISOString(),
+    }
+    const items = [...getDeclaredSkillsFixture()]
+    items[index] = updated
+    setDeclaredSkillsFixture(items)
+    return HttpResponse.json(updated)
+  }),
+  http.delete(`${apiBase}/me/declared-skills/:declaredSkillId`, ({ params, request }) => {
+    if (params.declaredSkillId === inaccessibleDeclaredSkillId) {
+      return HttpResponse.json(
+        problem(403, 'FORBIDDEN', 'The declaration is not owned by this Student.'),
+        { status: 403 },
+      )
+    }
+    const declaration = getDeclaredSkillsFixture().find(
+      (item) => item.declaredSkillId === params.declaredSkillId,
+    )
+    if (!declaration) {
+      return HttpResponse.json(problem(404, 'NOT_FOUND', 'The declaration no longer exists.'), {
+        status: 404,
+      })
+    }
+    const failure = versionFailure(request, declaration.version)
+    if (failure) return failure
+    setDeclaredSkillsFixture(
+      getDeclaredSkillsFixture().filter(
+        (item) => item.declaredSkillId !== declaration.declaredSkillId,
+      ),
+    )
+    return new HttpResponse(null, { status: 204 })
   }),
 ]

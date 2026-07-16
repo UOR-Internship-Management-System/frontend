@@ -1,4 +1,5 @@
 import type {
+  DeclaredSkill,
   IndividualSkill,
   SkillCategory,
   SkillCluster,
@@ -78,6 +79,34 @@ export const categorySkillIds: Record<string, string[]> = {
   [categoryIds.dataScience]: [skillIds.python],
 }
 
+const initialDeclaredSkills: DeclaredSkill[] = [
+  {
+    declaredSkillId: '77777777-7777-4777-8777-777777777777',
+    skillId: skillIds.react,
+    skillName: 'React',
+    competencyLevel: 'INTERMEDIATE',
+    version: 1,
+    createdAt: '2026-07-16T08:30:00Z',
+    updatedAt: '2026-07-16T08:30:00Z',
+  },
+]
+
+let declaredSkills = initialDeclaredSkills.map((item) => ({ ...item }))
+let declaredSkillSequence = 800
+
+export function getDeclaredSkillsFixture() {
+  return declaredSkills
+}
+
+export function setDeclaredSkillsFixture(items: DeclaredSkill[]) {
+  declaredSkills = items
+}
+
+export function nextDeclaredSkillId() {
+  return `88888888-8888-4888-8888-${String(declaredSkillSequence++).padStart(12, '0')}`
+}
+
 export function resetStudentSkillsMock() {
-  // Taxonomy fixtures are immutable. Declared-skill state is added and reset in T04.
+  declaredSkills = initialDeclaredSkills.map((item) => ({ ...item }))
+  declaredSkillSequence = 800
 }

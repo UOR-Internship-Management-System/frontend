@@ -10,4 +10,6 @@ export const studentSkillKeys = {
     [...studentSkillKeys.taxonomy(), 'categories', query] as const,
   skills: (query: TaxonomyQuery) => [...studentSkillKeys.taxonomy(), 'skills', query] as const,
   declared: () => [...studentSkillKeys.all, 'declared'] as const,
+  declaredPage: (query: { page: number; size: number; sort?: string; search?: string }) =>
+    [...studentSkillKeys.declared(), query] as const,
 }
