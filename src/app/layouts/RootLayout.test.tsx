@@ -16,6 +16,8 @@ function PersistentStudentShell({ onMount }: { onMount: () => void }) {
     <section aria-label="Persistent student shell">
       <Link to={routePaths.studentDashboard}>Dashboard</Link>
       <Link to={routePaths.studentProfile}>Profile</Link>
+      <Link to={routePaths.studentSkills}>Skills</Link>
+      <Link to={routePaths.studentProjects}>Projects</Link>
       <Outlet />
     </section>
   )
@@ -30,7 +32,10 @@ function renderRoot(initialPath: string, onStudentShellMount = vi.fn()) {
             <Route element={<PersistentStudentShell onMount={onStudentShellMount} />}>
               <Route path={routePaths.studentDashboard} element={<h1>Dashboard page</h1>} />
               <Route path={routePaths.studentProfile} element={<h1>Profile page</h1>} />
+              <Route path={routePaths.studentSkills} element={<h1>Skills page</h1>} />
+              <Route path={routePaths.studentProjects} element={<h1>Projects page</h1>} />
             </Route>
+
             <Route path={routePaths.adminDashboard} element={<h1>Admin page</h1>} />
             <Route path={routePaths.studentLogin} element={<h1>Student login page</h1>} />
           </Route>
@@ -53,6 +58,24 @@ describe('RootLayout', () => {
     await user.click(screen.getByRole('link', { name: 'Dashboard' }))
 
     expect(await screen.findByRole('heading', { name: 'Dashboard page' })).toBeInTheDocument()
+    expect(onStudentShellMount).toHaveBeenCalledOnce()
+  })
+
+  it('keeps Skills and Projects inside the persistent Student workspace shell', async () => {
+    const user = userEvent.setup()
+    const onStudentShellMount = vi.fn()
+    const { container } = renderRoot(routePaths.studentSkills, onStudentShellMount)
+
+    expect(container.querySelector('.app-header')).not.toBeInTheDocument()
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-student-workspace')
+    expect(screen.getByRole('heading', { name: 'Skills page' })).toBeInTheDocument()
+    expect(onStudentShellMount).toHaveBeenCalledOnce()
+
+    await user.click(screen.getByRole('link', { name: 'Projects' }))
+
+    expect(await screen.findByRole('heading', { name: 'Projects page' })).toBeInTheDocument()
+    expect(container.querySelector('.app-header')).not.toBeInTheDocument()
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-student-workspace')
     expect(onStudentShellMount).toHaveBeenCalledOnce()
   })
 

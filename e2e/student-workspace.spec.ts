@@ -29,6 +29,19 @@ async function authenticateStudent(page: Page) {
       body: JSON.stringify(studentUser),
     }),
   )
+  await page.route('**/api/v1/me/dashboard/metrics', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        projectCount: 3,
+        shortlistedInternshipCount: 1,
+        declaredSkillCount: 8,
+        officialCumulativeGpa: 3.42,
+        lastUpdatedAt: '2026-07-15T04:30:00Z',
+      }),
+    }),
+  )
   await page.route('**/api/v1/me/profile', (route) =>
     route.fulfill({
       status: 200,
