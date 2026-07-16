@@ -1,8 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createQueryClient } from '../../../app/config/queryClient'
 import { routes } from '../../../app/router/routes'
 import { httpClient } from '../../../shared/api/httpClient'
+import { queryKeys } from '../../../shared/api/queryKeys'
 import { AuthProvider } from '../../../shared/auth/AuthProvider'
 import { authStorage } from '../../../shared/auth/authStorage'
 import { useAuth } from '../../../shared/auth/useAuth'
@@ -83,24 +86,30 @@ describe('Sprint 2 auth API contract', () => {
 
   it('sends logout without a request body', async () => {
     const user = userEvent.setup()
+    const queryClient = createQueryClient()
+    const profileKey = [...queryKeys.protected, 'student-profile'] as const
     mockedHttpClient.mockResolvedValue(undefined)
+    queryClient.setQueryData(profileKey, { fullName: 'Test Student' })
 
     render(
-      <AuthProvider>
-        <LogoutButton />
-      </AuthProvider>,
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <LogoutButton />
+        </AuthProvider>
+      </QueryClientProvider>,
     )
 
     authStorage.setToken('student-token')
     await user.click(screen.getByRole('button', { name: /log out/i }))
 
     expect(mockedHttpClient).toHaveBeenCalledWith('/auth/logout', { method: 'POST' })
+    await waitFor(() => expect(queryClient.getQueryData(profileKey)).toBeUndefined())
   })
 
-  it('does not register later-sprint routes in the Sprint 2 production router', () => {
+  it('registers Profile while keeping later Student and Admin routes inactive', () => {
+    expect(collectRoutePaths(routes)).toContain('/student/profile')
     expect(collectRoutePaths(routes)).not.toEqual(
       expect.arrayContaining([
-        '/student/profile',
         '/student/skills',
         '/student/projects',
         '/student/cv-builder',

@@ -1,21 +1,32 @@
 import type { PropsWithChildren } from 'react'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { httpClient } from '../api/httpClient'
+import { queryKeys } from '../api/queryKeys'
 import { authStorage } from './authStorage'
 import type { AuthContextValue, AuthState, AuthTokenResponse } from './authTypes'
 import { mapCurrentUser } from './currentUserMapper'
+import { sessionEvents } from './sessionEvents'
 
 export const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: PropsWithChildren) {
+  const queryClient = useQueryClient()
   const [state, setState] = useState<AuthState>({
     status: authStorage.getToken() ? 'loading' : 'anonymous',
     currentUser: null,
   })
 
+  const clearSession = useCallback(async () => {
+    await queryClient.cancelQueries({ queryKey: queryKeys.protected })
+    queryClient.removeQueries({ queryKey: queryKeys.protected })
+    authStorage.clearToken()
+    setState({ status: 'anonymous', currentUser: null })
+  }, [queryClient])
+
   const refreshCurrentUser = useCallback(async () => {
     if (!authStorage.getToken()) {
-      setState({ status: 'anonymous', currentUser: null })
+      await clearSession()
       return null
     }
 
@@ -25,17 +36,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setState({ status: 'authenticated', currentUser })
       return currentUser
     } catch {
-      authStorage.clearToken()
-      setState({ status: 'anonymous', currentUser: null })
+      await clearSession()
       return null
     }
-  }, [])
+  }, [clearSession])
 
   useEffect(() => {
     if (authStorage.getToken()) {
       void refreshCurrentUser()
     }
   }, [refreshCurrentUser])
+
+  useEffect(() => sessionEvents.subscribe(() => void clearSession()), [clearSession])
 
   const signInWithToken = useCallback(
     async (tokenResponse: AuthTokenResponse) => {
@@ -63,10 +75,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
         await httpClient<void>('/auth/logout', { method: 'POST' })
       }
     } finally {
-      authStorage.clearToken()
-      setState({ status: 'anonymous', currentUser: null })
+      await clearSession()
     }
-  }, [])
+  }, [clearSession])
 
   const value = useMemo<AuthContextValue>(() => {
     const roles = state.currentUser?.roles ?? []

@@ -53,6 +53,20 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
     })
   })
 
+  await page.route('**/api/v1/me/dashboard/metrics', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        projectCount: 3,
+        shortlistedInternshipCount: 1,
+        declaredSkillCount: 8,
+        officialCumulativeGpa: 3.42,
+        lastUpdatedAt: '2026-07-15T04:30:00Z',
+      }),
+    })
+  })
+
   await page.goto('/student/sign-up', { waitUntil: 'domcontentloaded' })
   await page.getByLabel('Full Name').fill('E2E Student')
   await page.getByLabel('Index Number').fill('SC-2020-001')

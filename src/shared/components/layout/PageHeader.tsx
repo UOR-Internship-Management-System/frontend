@@ -5,13 +5,19 @@ export type PageHeaderProps = {
   title: string
   description: string
   actions?: ReactNode
+  eyebrow?: string
 }
 
-export function PageHeader({ actions, description, title }: PageHeaderProps) {
+export function PageHeader({
+  actions,
+  description,
+  eyebrow = 'Sprint 1 foundation shell',
+  title,
+}: PageHeaderProps) {
   return (
     <header className="page-header">
       <div>
-        <Chip>Sprint 1 foundation shell</Chip>
+        <Chip>{eyebrow}</Chip>
         <h1>{title}</h1>
         <p>{description}</p>
       </div>

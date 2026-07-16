@@ -1,11 +1,16 @@
 import { apiConfig } from './apiConfig'
 import { authTokenStorage } from './authTokenStorage'
+import { sessionEvents } from '../auth/sessionEvents'
 
 export type HttpRequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
   signal?: AbortSignal
   headers?: HeadersInit
+}
+
+function isFormData(value: unknown): value is FormData {
+  return typeof FormData !== 'undefined' && value instanceof FormData
 }
 
 export async function httpClient<TResponse>(path: string, options: HttpRequestOptions = {}) {
@@ -16,8 +21,13 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
 
   let body: BodyInit | undefined
   if (options.body !== undefined) {
-    headers.set('Content-Type', 'application/json')
-    body = JSON.stringify(options.body)
+    if (isFormData(options.body)) {
+      headers.delete('Content-Type')
+      body = options.body
+    } else {
+      headers.set('Content-Type', 'application/json')
+      body = JSON.stringify(options.body)
+    }
   }
 
   if (token) {
@@ -32,6 +42,9 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
   })
 
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      sessionEvents.notifyExpired()
+    }
     throw await safeReadError(response)
   }
 
@@ -43,9 +56,25 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
 }
 
 async function safeReadError(response: Response) {
+  const contentType = response.headers.get('Content-Type') ?? ''
+  if (!contentType.toLowerCase().includes('json')) {
+    return fallbackProblem(response)
+  }
+
   try {
     return await response.json()
   } catch {
-    return { title: 'Request failed', status: response.status }
+    return fallbackProblem(response)
+  }
+}
+
+function fallbackProblem(response: Response) {
+  return {
+    type: 'about:blank',
+    title: 'Request failed',
+    status: response.status,
+    code: `HTTP_${response.status}`,
+    message: 'The request could not be completed.',
+    correlationId: response.headers.get(apiConfig.requestIdHeader) ?? 'unavailable',
   }
 }

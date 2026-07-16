@@ -1,5 +1,7 @@
-import type { InputHTMLAttributes } from 'react'
+import { forwardRef, type InputHTMLAttributes } from 'react'
 
-export function FileUploadField(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className="input" type="file" {...props} />
-}
+export const FileUploadField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  function FileUploadField(props, ref) {
+    return <input ref={ref} className="input" type="file" {...props} />
+  },
+)
