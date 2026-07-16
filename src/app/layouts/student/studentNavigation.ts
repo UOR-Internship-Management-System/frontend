@@ -17,4 +17,9 @@ export const studentNavigation: readonly StudentNavigationItem[] = [
     route: routePaths.studentProfile,
     icon: 'person',
   },
+  {
+    label: 'Skills',
+    route: routePaths.studentSkills,
+    icon: 'psychology',
+  },
 ]
