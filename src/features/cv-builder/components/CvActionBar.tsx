@@ -27,9 +27,7 @@ export function CvActionBar({
     ? 'Generate Preview'
     : configurationDirty
       ? 'Update Preview'
-      : expired
-        ? 'Regenerate Preview'
-        : 'Regenerate Preview'
+      : 'Regenerate Preview'
 
   return (
     <section aria-label="CV actions" className="s5-cv-action-bar">

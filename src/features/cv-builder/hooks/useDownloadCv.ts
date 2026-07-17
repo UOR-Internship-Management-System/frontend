@@ -17,12 +17,18 @@ export function useDownloadCv() {
       activeController.current?.abort()
       const controller = new AbortController()
       activeController.current = controller
-      const file =
-        target.kind === 'latest'
-          ? await cvBuilderApi.downloadLatest(controller.signal)
-          : await cvBuilderApi.downloadVersion(target.cvVersionId, controller.signal)
-      saveBlobAsFile(file.blob, file.filename)
-      return file
+      try {
+        const file =
+          target.kind === 'latest'
+            ? await cvBuilderApi.downloadLatest(controller.signal)
+            : await cvBuilderApi.downloadVersion(target.cvVersionId, controller.signal)
+        saveBlobAsFile(file.blob, file.filename)
+        return file
+      } finally {
+        if (activeController.current === controller) {
+          activeController.current = null
+        }
+      }
     },
     retry: false,
     onSuccess: (file) => {
@@ -37,9 +43,6 @@ export function useDownloadCv() {
             ? 'The PDF is temporarily unavailable. Please try the download again.'
             : mapped.message
       notify({ tone: 'error', title: 'PDF download failed', message })
-    },
-    onSettled: () => {
-      activeController.current = null
     },
   })
 

@@ -4,14 +4,14 @@
 
 Sprint 5 frontend implementation is feature-complete on branch `feature/sprint-5-cv-builder-academic-view`, based on Sprint 4 commit `a2089cf`. The protected Student workspace now contains six destinations, including the functional `/student/cv-builder` and `/student/academic-records` routes.
 
-Release acceptance remains incomplete in this environment because the configured Playwright Chromium executable is absent. All required browser specifications are implemented and statically discoverable, but they must run successfully in an approved browser-enabled environment before the release gate can be closed.
+Local release validation is complete with the repository-configured Playwright Chromium executable. All 38 browser specifications pass in a complete serial run, and the 10 directly affected Academic Records and Student workspace scenarios pass with the default four-worker configuration. Pull request merge approval remains subject to the protected GitHub CI and review gates.
 
 ## Contract Authority
 
 The canonical transport source is OpenAPI v1.4.0 at `docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml`. Its verified SHA-256 checksum is:
 
 ```text
-e96b9182d48a527bb45d454b333ecdb3cb468f3585ace3545a38370a48860feb
+e96b7cb2efbe84295753ff03924b747f90196ada4726d7eebd39fd64a3e83282
 ```
 
 The matching changelog, validation report, and generated-client notes are synchronized in both supported documentation locations. Generated TypeScript client metadata is deterministic, and the scope checker recognizes only the Sprint 5 endpoints authorized by the contract.
@@ -56,28 +56,29 @@ The canonical YAML intentionally retains checksum-significant whitespace, so `.g
 11. `feat(routing): activate Sprint 5 Student routes`
 12. `test(e2e): cover Sprint 5 Student workflows`
 13. `docs(sprint-5): finalize frontend implementation handoff`
+14. `fix(sprint-5): resolve PR review and validation findings`
 
 ## Final Validation Record
 
 Validation date: 2026-07-17, Asia/Colombo.
 
-| Check                                  | Result                   | Evidence                                                                                             |
-| -------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------- |
-| Clean install and environment          | PASS                     | 396 packages installed, 0 vulnerabilities; environment configuration valid                           |
-| OpenAPI generation and synchronization | PASS                     | Generated client/types unchanged; v1.4.0 sync check passed                                           |
-| Formatting, lint, and types            | PASS                     | Prettier, ESLint, and TypeScript project checks passed                                               |
-| Unit/component/integration tests       | PASS                     | 33 files and 181 tests passed                                                                        |
-| Coverage                               | PASS                     | 68.14% statements/lines, 79.67% branches, 68.78% functions; configured command passed                |
-| Production build                       | PASS                     | 548 modules transformed and the Vite production bundle emitted                                       |
-| Removed-scope guardrail                | PASS                     | Source scanner reported no violations                                                                |
-| Playwright static discovery            | PASS                     | 38 tests in 14 files discovered                                                                      |
-| Playwright execution                   | UNAVAILABLE              | Chromium headless shell revision 1228 is not installed                                               |
-| Git whitespace and commit sequence     | PASS before final commit | Diff check clean; 12 implementation commits are ordered and this handoff is the required 13th commit |
+| Check                                  | Result                   | Evidence                                                                                          |
+| -------------------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------- |
+| Clean install and environment          | PASS                     | 396 packages installed, 0 vulnerabilities; environment configuration valid                        |
+| OpenAPI generation and synchronization | PASS                     | Generated client/types unchanged; v1.4.0 sync check passed                                        |
+| Formatting, lint, and types            | PASS                     | Prettier, ESLint, and TypeScript project checks passed                                            |
+| Unit/component/integration tests       | PASS                     | 33 files and 182 tests passed                                                                     |
+| Coverage                               | PASS                     | 68.18% statements/lines, 79.87% branches, 68.86% functions; configured command passed             |
+| Production build                       | PASS                     | 548 modules transformed and the Vite production bundle emitted                                    |
+| Removed-scope guardrail                | PASS                     | Source scanner reported no violations                                                             |
+| Playwright static discovery            | PASS                     | 38 tests in 14 files discovered                                                                   |
+| Playwright execution                   | PASS                     | 38/38 passed in a complete serial run; affected 10/10 passed with the default four-worker setup   |
+| Git whitespace and commit sequence     | PASS before final commit | Diff check clean; 13 original commits remain ordered and the review correction is the 14th commit |
 
-## Release Blocker
+## Pull Request Gate
 
-Install the repository-configured Playwright Chromium revision in an approved environment and run `npm run e2e`. Do not treat static discovery as an E2E pass. The missing browser is an environment limitation, not evidence that the 38 scenarios passed or failed application behavior.
+The local browser, unit, coverage, build, contract, and removed-scope gates pass. GitHub CI must rerun against the corrective commit before PR #20 is approved or merged.
 
 ## Final Verdict
 
-SPRINT 5 FRONTEND IMPLEMENTATION INCOMPLETE
+SPRINT 5 FRONTEND IMPLEMENTATION COMPLETE — PR MERGE PENDING CI AND REVIEW

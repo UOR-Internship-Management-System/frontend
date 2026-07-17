@@ -125,7 +125,7 @@ test('Student reviews official GPA and read-only records with search, sort, and 
 
   await expect(page.getByRole('heading', { level: 1, name: 'Academic Records' })).toBeVisible()
   await expect(page.getByText('3.75')).toBeVisible()
-  await expect(page.getByText('Official')).toBeVisible()
+  await expect(page.getByText('Official', { exact: true })).toBeVisible()
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)

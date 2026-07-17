@@ -33,6 +33,19 @@ const workspaceProject = {
   updatedAt: '2026-07-16T08:00:00Z',
 }
 
+const profileUploadPolicy = {
+  profilePhoto: {
+    allowedMimeTypes: ['image/jpeg', 'image/png'],
+    allowedExtensions: ['.jpg', '.jpeg', '.png'],
+    maxSizeBytes: 2_000_000,
+  },
+  certificateEvidence: {
+    allowedMimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    allowedExtensions: ['.pdf', '.jpg', '.jpeg', '.png'],
+    maxSizeBytes: 5_000_000,
+  },
+}
+
 async function authenticateStudent(page: Page) {
   await page.addInitScript(() => {
     window.sessionStorage.setItem('cv-management.foundation-token', 'student-workspace-token')
@@ -62,6 +75,13 @@ async function authenticateStudent(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(studentProfile),
+    }),
+  )
+  await page.route('**/api/v1/me/profile/upload-policy', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(profileUploadPolicy),
     }),
   )
   await page.route('**/api/v1/me/projects**', (route) =>

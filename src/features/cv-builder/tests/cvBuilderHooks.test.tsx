@@ -121,7 +121,44 @@ describe('CV Builder hooks', () => {
     })
     expect(save).toHaveBeenCalledWith(blob, 'student-cv.pdf')
   })
+
+  it('keeps the newest download abortable when an earlier request settles', async () => {
+    let latestSignal: AbortSignal | undefined
+    let versionSignal: AbortSignal | undefined
+    vi.spyOn(cvBuilderApi, 'downloadLatest').mockImplementation((signal) => {
+      latestSignal = signal
+      return rejectWhenAborted(signal)
+    })
+    vi.spyOn(cvBuilderApi, 'downloadVersion').mockImplementation((_id, signal) => {
+      versionSignal = signal
+      return rejectWhenAborted(signal)
+    })
+    const { wrapper } = createWrapper()
+    const { result, unmount } = renderHook(() => useDownloadCv(), { wrapper })
+
+    act(() => result.current.mutate({ kind: 'latest' }))
+    await waitFor(() => expect(latestSignal).toBeDefined())
+
+    act(() => result.current.mutate({ kind: 'version', cvVersionId: versionId }))
+    await waitFor(() => expect(latestSignal?.aborted).toBe(true))
+    await waitFor(() => expect(versionSignal).toBeDefined())
+    await act(async () => void (await Promise.resolve()))
+
+    unmount()
+    expect(versionSignal?.aborted).toBe(true)
+  })
 })
+
+function rejectWhenAborted(signal?: AbortSignal): ReturnType<typeof cvBuilderApi.downloadLatest> {
+  return new Promise((_resolve, reject) => {
+    const rejectAbort = () => reject(new DOMException('The operation was aborted.', 'AbortError'))
+    if (signal?.aborted) {
+      rejectAbort()
+      return
+    }
+    signal?.addEventListener('abort', rejectAbort, { once: true })
+  })
+}
 
 function createWrapper() {
   const queryClient = new QueryClient({
