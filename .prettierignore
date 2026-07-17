@@ -4,5 +4,6 @@ coverage
 playwright-report
 test-results
 docs/Project Documentations
-docs/api/CV_Management_API_OpenAPI_v1.3.0.yaml
+docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml
+docs/api/CV_Management_API_OpenAPI_v1.4.0_VALIDATION_REPORT.md
 public/mockServiceWorker.js
