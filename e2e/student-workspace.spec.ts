@@ -94,7 +94,7 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   await expect(page.locator('.app-footer')).toHaveCount(0)
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
-  ).toHaveCount(4)
+  ).toHaveCount(6)
 
   const expandedWidth = await sidebar.evaluate((element) => element.getBoundingClientRect().width)
   expect(expandedWidth).toBeGreaterThan(250)
@@ -142,7 +142,7 @@ for (const viewport of responsiveViewports) {
       await expect(page.getByRole('link', { name: 'Dashboard' })).toBeFocused()
       await expect(
         page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
-      ).toHaveCount(4)
+      ).toHaveCount(6)
       await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute(
         'aria-current',
         'page',

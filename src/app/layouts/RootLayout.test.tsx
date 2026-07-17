@@ -18,6 +18,8 @@ function PersistentStudentShell({ onMount }: { onMount: () => void }) {
       <Link to={routePaths.studentProfile}>Profile</Link>
       <Link to={routePaths.studentSkills}>Skills</Link>
       <Link to={routePaths.studentProjects}>Projects</Link>
+      <Link to={routePaths.studentCvBuilder}>CV Builder</Link>
+      <Link to={routePaths.studentAcademicRecords}>Academic Records</Link>
       <Outlet />
     </section>
   )
@@ -34,6 +36,11 @@ function renderRoot(initialPath: string, onStudentShellMount = vi.fn()) {
               <Route path={routePaths.studentProfile} element={<h1>Profile page</h1>} />
               <Route path={routePaths.studentSkills} element={<h1>Skills page</h1>} />
               <Route path={routePaths.studentProjects} element={<h1>Projects page</h1>} />
+              <Route path={routePaths.studentCvBuilder} element={<h1>CV Builder page</h1>} />
+              <Route
+                path={routePaths.studentAcademicRecords}
+                element={<h1>Academic Records page</h1>}
+              />
             </Route>
 
             <Route path={routePaths.adminDashboard} element={<h1>Admin page</h1>} />
@@ -77,6 +84,23 @@ describe('RootLayout', () => {
     expect(container.querySelector('.app-header')).not.toBeInTheDocument()
     expect(container.querySelector('.app-main')).toHaveClass('app-main-student-workspace')
     expect(onStudentShellMount).toHaveBeenCalledOnce()
+  })
+
+  it('keeps both Sprint 5 pages inside the same persistent Student workspace shell', async () => {
+    const user = userEvent.setup()
+    const onStudentShellMount = vi.fn()
+    const { container } = renderRoot(routePaths.studentCvBuilder, onStudentShellMount)
+
+    expect(screen.getByRole('heading', { name: 'CV Builder page' })).toBeInTheDocument()
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-student-workspace')
+
+    await user.click(screen.getByRole('link', { name: 'Academic Records' }))
+
+    expect(
+      await screen.findByRole('heading', { name: 'Academic Records page' }),
+    ).toBeInTheDocument()
+    expect(onStudentShellMount).toHaveBeenCalledOnce()
+    expect(container.querySelector('.app-header')).not.toBeInTheDocument()
   })
 
   it('preserves the existing global header for the Admin workspace without a footer', () => {

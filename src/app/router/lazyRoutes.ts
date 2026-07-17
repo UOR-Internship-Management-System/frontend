@@ -78,6 +78,16 @@ export const StudentProjectsPage = lazy(() =>
     default: module.StudentProjectsPage,
   })),
 )
+export const CvBuilderPage = lazy(() =>
+  import('../../features/cv-builder/pages/CvBuilderPage').then((module) => ({
+    default: module.CvBuilderPage,
+  })),
+)
+export const AcademicRecordsPage = lazy(() =>
+  import('../../features/academic-records/pages/AcademicRecordsPage').then((module) => ({
+    default: module.AcademicRecordsPage,
+  })),
+)
 export const AdminDashboardPage = lazy(() =>
   import('../../features/admin-dashboard/pages/AdminDashboardPage').then((module) => ({
     default: module.AdminDashboardPage,
