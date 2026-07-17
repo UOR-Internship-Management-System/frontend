@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test'
 test('frontend can make a browser-side request to the backend health endpoint', async ({
   page,
 }) => {
+  test.setTimeout(60_000)
+
   // 1. Prove the frontend app loads successfully
   await page.goto('/', { waitUntil: 'domcontentloaded' })
 

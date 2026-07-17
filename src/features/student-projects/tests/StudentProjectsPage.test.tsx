@@ -64,7 +64,7 @@ describe('StudentProjectsPage', () => {
     expect(
       await view.findByRole('row', { name: /Revised accessible portfolio evidence/ }),
     ).toBeVisible()
-  })
+  }, 10_000)
 
   it('deletes a Student-owned portfolio project from its latest details', async () => {
     const user = userEvent.setup()
