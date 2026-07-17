@@ -1,0 +1,14 @@
+.s5-cv-preview-paper {
+  print-color-adjust: exact;
+}
+
+@media print {
+  .s5-cv-preview-paper {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .s5-cv-preview-frame {
+    min-height: 100vh;
+  }
+}
