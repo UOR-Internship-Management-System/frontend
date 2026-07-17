@@ -142,10 +142,9 @@ function pathBlock(pathName) {
 
 const saveRequest = schemaBlock('CvVersionCreateRequest')
 const saveProperties =
-  saveRequest.match(
-    /^      properties:\s*$([\s\S]*?)(?=^      [a-zA-Z]|^    [A-Za-z0-9]+:)/m,
-  )?.[1] ?? ''
-const savePropertyNames = [...saveProperties.matchAll(/^        ([A-Za-z0-9]+):\s*$/gm)].map(
+  saveRequest.match(/^ {6}properties:\s*$([\s\S]*?)(?=^ {6}[a-zA-Z]|^ {4}[A-Za-z0-9]+:)/m)?.[1] ??
+  ''
+const savePropertyNames = [...saveProperties.matchAll(/^ {8}([A-Za-z0-9]+):\s*$/gm)].map(
   (match) => match[1],
 )
 if (savePropertyNames.length !== 1 || savePropertyNames[0] !== 'previewId') {
@@ -154,7 +153,7 @@ if (savePropertyNames.length !== 1 || savePropertyNames[0] !== 'previewId') {
 }
 
 const previewRequest = schemaBlock('CvPreviewRequest')
-if (/^        notes:\s*$/m.test(previewRequest) || /^        notes:\s*$/m.test(saveRequest)) {
+if (/^ {8}notes:\s*$/m.test(previewRequest) || /^ {8}notes:\s*$/m.test(saveRequest)) {
   console.error('OpenAPI Sprint 5 preview/save requests must not contain notes')
   process.exit(1)
 }
