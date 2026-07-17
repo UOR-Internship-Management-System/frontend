@@ -95,6 +95,14 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)
+  await expect(page.getByRole('link', { name: 'CV Builder' })).toHaveAttribute(
+    'href',
+    '/student/cv-builder',
+  )
+  await expect(page.getByRole('link', { name: 'Academic Records' })).toHaveAttribute(
+    'href',
+    '/student/academic-records',
+  )
 
   const expandedWidth = await sidebar.evaluate((element) => element.getBoundingClientRect().width)
   expect(expandedWidth).toBeGreaterThan(250)
