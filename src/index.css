@@ -1438,6 +1438,96 @@ body.admin-mobile-drawer-open {
   padding-top: 12px;
 }
 
+.registered-students-toolbar,
+.registered-students-controls,
+.registered-students-toolbar-heading {
+  display: grid;
+  gap: 18px;
+}
+
+.registered-students-toolbar-heading {
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.registered-students-toolbar-heading h2,
+.registered-students-toolbar-heading p,
+.registered-students-updating {
+  margin: 0;
+}
+
+.registered-students-controls {
+  align-items: end;
+  grid-template-columns: minmax(260px, 1fr) minmax(210px, 0.45fr) auto;
+}
+
+.registered-students-controls label,
+.registered-students-levels,
+.pagination-size-control {
+  display: grid;
+  gap: 8px;
+}
+
+.registered-students-levels {
+  border: 0;
+  grid-template-columns: repeat(2, auto);
+  margin: 0;
+  padding: 0;
+}
+
+.registered-students-levels legend {
+  grid-column: 1 / -1;
+}
+
+.filter-button {
+  min-height: 44px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--color-card);
+  color: var(--text-dark);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 16px;
+}
+
+.filter-button-selected {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 14%, var(--color-card));
+  color: var(--color-primary-strong);
+}
+
+.registered-students-updating {
+  min-height: 1.4em;
+  color: var(--text-muted);
+}
+
+.registered-student-secondary {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.registered-students-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.roster-action-link {
+  display: inline-flex;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pagination-size-control {
+  align-items: center;
+  grid-template-columns: auto 84px;
+}
+
 @media (max-width: 1199px) and (min-width: 900px) {
   .admin-metrics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2472,6 +2562,12 @@ td {
   }
 
   .admin-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registered-students-toolbar-heading,
+  .registered-students-controls {
+    align-items: stretch;
     grid-template-columns: 1fr;
   }
   .student-shell {

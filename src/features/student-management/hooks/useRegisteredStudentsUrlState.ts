@@ -56,10 +56,11 @@ export function useRegisteredStudentsUrlState() {
   useEffect(() => setSearchInput(query.search), [query.search])
   useEffect(() => {
     const nextSearch = debouncedSearch.trim().slice(0, 120)
+    if (searchInput.trim().slice(0, 120) !== nextSearch) return
     if (nextSearch !== query.search) {
       setQuery({ ...query, page: 0, search: nextSearch }, { replace: true })
     }
-  }, [debouncedSearch, query, setQuery])
+  }, [debouncedSearch, query, searchInput, setQuery])
 
   const updateQuery = useCallback(
     (patch: Partial<RegisteredStudentsQuery>) => {

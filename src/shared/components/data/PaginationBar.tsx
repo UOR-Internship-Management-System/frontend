@@ -7,12 +7,16 @@ export type PaginationBarProps = {
   size?: number
   onPageChange?: (page: number) => void
   label?: string
+  pageSizeOptions?: readonly number[]
+  onPageSizeChange?: (size: number) => void
 }
 
 export function PaginationBar({
   label = 'Pagination',
   onPageChange,
+  onPageSizeChange,
   page,
+  pageSizeOptions,
   size,
   totalElements,
   totalPages,
@@ -29,8 +33,27 @@ export function PaginationBar({
           ? `${start}–${end} of ${totalElements}`
           : null}
         {totalElements !== undefined && size !== undefined ? ' · ' : null}
-        Page {displayPage} of {totalPages}
+        <span aria-current="page">
+          Page {displayPage} of {totalPages}
+        </span>
       </p>
+      {onPageSizeChange && pageSizeOptions && size ? (
+        <label className="pagination-size-control">
+          <span>Rows per page</span>
+          <select
+            aria-label="Rows per page"
+            className="select"
+            onChange={(event) => onPageSizeChange(Number(event.target.value))}
+            value={size}
+          >
+            {pageSizeOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {onPageChange ? (
         <div className="pagination-actions">
           <Button disabled={page <= 0} onClick={() => onPageChange(page - 1)} variant="secondary">
