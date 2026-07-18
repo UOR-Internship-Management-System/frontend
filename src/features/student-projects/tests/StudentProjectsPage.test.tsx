@@ -113,6 +113,17 @@ describe('StudentProjectsPage', () => {
     expect(view.getByText('Reference: projects-page-503')).toBeInTheDocument()
   })
 
+  it('keeps repository controls available in a single empty state', async () => {
+    setStudentProjectsFixture([])
+    const view = renderWithProviders(<StudentProjectsPage />)
+
+    expect(await view.findByText('No projects yet')).toBeVisible()
+    expect(view.getByRole('searchbox', { name: 'Search projects' })).toBeVisible()
+    expect(view.getByLabelText('Sort projects')).toBeVisible()
+    expect(view.queryByRole('table')).not.toBeInTheDocument()
+    expect(view.queryByRole('navigation', { name: 'Projects pagination' })).not.toBeInTheDocument()
+  })
+
   it('retries a stale edit without overwriting a concurrent server field change', async () => {
     const user = userEvent.setup()
     const patchBodies: unknown[] = []

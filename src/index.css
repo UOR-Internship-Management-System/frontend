@@ -2717,6 +2717,7 @@ td {
 .s4-projects-skill-picker,
 .s4-projects-links,
 .s4-projects-skill-chips,
+.s4-projects-ongoing-option,
 .s4-projects-cv-option {
   display: flex;
   align-items: center;
@@ -2758,11 +2759,13 @@ td {
   color: var(--color-text-muted);
 }
 
+.s4-projects-ongoing-option,
 .s4-projects-cv-option {
   align-items: flex-start;
   font-weight: 700;
 }
 
+.s4-projects-ongoing-option input,
 .s4-projects-cv-option input {
   width: 18px;
   height: 18px;

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
@@ -175,22 +174,10 @@ export function StudentProjectsPage() {
             title="Projects unavailable"
           />
         ) : null}
-        {!projects.isPending && !mappedError && projects.data?.items.length === 0 ? (
-          <EmptyState
-            action={
-              search ? undefined : <Button onClick={() => setOverlay('create')}>Add project</Button>
-            }
-            message={
-              search
-                ? `No projects match “${search}”.`
-                : 'Add portfolio evidence and link canonical taxonomy skills.'
-            }
-            title={search ? 'No matching projects' : 'No projects yet'}
-          />
-        ) : null}
         {!projects.isPending && !mappedError && projects.data ? (
           <ProjectRepository
             items={projects.data.items}
+            onAdd={() => setOverlay('create')}
             onPageChange={setPage}
             onSearchChange={(value) => {
               setSearch(value)

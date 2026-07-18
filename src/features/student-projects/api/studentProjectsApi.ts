@@ -1,4 +1,3 @@
-import { createSprintOneDeferredApi } from '../../../shared/api/sprintOneDeferredApi'
 import { formatIfMatchVersion } from '../../../shared/api/formatIfMatchVersion'
 import { httpClient } from '../../../shared/api/httpClient'
 import { buildQueryString } from '../../../shared/utils/buildQueryString'
@@ -67,4 +66,3 @@ export const studentProjectsApi = {
     })
   },
 }
-export const apiBoundary = createSprintOneDeferredApi('Feature')

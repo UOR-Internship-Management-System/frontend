@@ -106,6 +106,9 @@ export function ProjectForm({
   }))
   const [fieldErrors, setFieldErrors] = useState<ProjectFormErrors>({})
   const [formError, setFormError] = useState<string>()
+  const [isOngoing, setIsOngoing] = useState(() =>
+    Boolean(initialValues.startDate && !initialValues.endDate),
+  )
   const [selectedSkillId, setSelectedSkillId] = useState('')
   const [taxonomySearch, setTaxonomySearch] = useState('')
   const [taxonomyPage, setTaxonomyPage] = useState(0)
@@ -155,6 +158,9 @@ export function ProjectForm({
     dirtyFieldsRef.current = nextDirtyFields
     setValues(merged)
     setDirtyFields(nextDirtyFields)
+    if (!dirtyFieldsRef.current.has('endDate')) {
+      setIsOngoing(Boolean(initialValues.startDate && !initialValues.endDate))
+    }
   }, [initialValues, mode])
 
   const update = <Field extends ProjectFormField>(
@@ -338,7 +344,7 @@ export function ProjectForm({
             <TextInput
               aria-describedby={describedBy('endDate')}
               aria-invalid={Boolean(fieldErrors.endDate)}
-              disabled={isPending}
+              disabled={isPending || isOngoing}
               id="project-end-date"
               min={values.startDate || undefined}
               onChange={(event) => update('endDate', event.target.value)}
@@ -348,6 +354,20 @@ export function ProjectForm({
             />
           </FormField>
         </div>
+
+        <label className="s4-projects-ongoing-option">
+          <input
+            checked={isOngoing}
+            disabled={isPending}
+            onChange={(event) => {
+              const checked = event.target.checked
+              setIsOngoing(checked)
+              if (checked && values.endDate) update('endDate', '')
+            }}
+            type="checkbox"
+          />
+          <span>This project is ongoing</span>
+        </label>
 
         <fieldset className="s4-projects-skills-fieldset" disabled={isPending}>
           <legend>Project skills</legend>
