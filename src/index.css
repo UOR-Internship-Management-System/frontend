@@ -3038,6 +3038,36 @@ td {
   padding-left: 20px;
 }
 
+.ledger-commit-control,
+.ledger-commit-dialog-content {
+  display: grid;
+  gap: 16px;
+}
+
+.ledger-commit-control > .button {
+  justify-self: start;
+}
+
+.ledger-commit-result {
+  padding: 16px;
+  border: 1px solid var(--success);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--success) 10%, var(--color-card));
+}
+
+.ledger-commit-result p,
+.ledger-validation-summary p {
+  margin-bottom: 0;
+}
+
+.ledger-commit-dialog-content .ledger-stat-grid {
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
+}
+
+.ledger-dialog-actions {
+  justify-content: flex-end;
+}
+
 .ledger-validation-success {
   border: 1px solid var(--success);
   background: color-mix(in srgb, var(--success) 10%, var(--color-card));

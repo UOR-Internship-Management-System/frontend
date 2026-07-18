@@ -9,6 +9,7 @@ import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
 import { LedgerReviewSection } from '../components/LedgerReviewSection'
+import { LedgerCommitControl } from '../components/LedgerCommitControl'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
 import { useLedgerUploadDetail, useLedgerUploads, useUploadLedger } from '../hooks/useLedgerUpload'
 
@@ -57,6 +58,7 @@ export function AcademicLedgerPage() {
           uploadId={state.uploadId}
         />
       ) : null}
+      {selected.data ? <LedgerCommitControl detail={selected.data} /> : null}
       <section aria-labelledby="recent-ledger-batches-title" className="section-card">
         <div className="ledger-section-heading">
           <div>
