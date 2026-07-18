@@ -20,6 +20,14 @@ describe('AcademicRecordsPage', () => {
     expect(view.getByText('Official')).toBeVisible()
     expect(await view.findByText('Distributed Systems')).toBeVisible()
     expect(view.getByText(/12 records from official server metadata/i)).toBeVisible()
+    const table = view.getByRole('table')
+    expect(within(table).getByRole('columnheader', { name: 'Course code' })).toBeVisible()
+    expect(within(table).getByRole('columnheader', { name: 'Course title' })).toBeVisible()
+    const distributedSystemsRow = within(table).getByRole('row', { name: /Distributed Systems/ })
+    expect(within(distributedSystemsRow).getByRole('cell', { name: 'CS4010' })).toBeVisible()
+    expect(
+      within(distributedSystemsRow).getByRole('cell', { name: 'Distributed Systems' }),
+    ).toBeVisible()
   })
 
   it('treats NOT_AVAILABLE as a successful official GPA state', async () => {

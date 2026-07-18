@@ -3006,7 +3006,7 @@ body.dark-mode .s5-records-page {
 
 .s5-records-table {
   width: 100%;
-  min-width: 1040px;
+  min-width: 1160px;
   border-collapse: collapse;
   background: var(--color-card);
   font-size: 0.91rem;
@@ -3038,17 +3038,11 @@ body.dark-mode .s5-records-page {
 }
 
 .s5-records-table td:first-child {
-  min-width: 220px;
+  min-width: 120px;
 }
 
-.s5-records-table td:first-child strong,
-.s5-records-table td:first-child span {
-  display: block;
-}
-
-.s5-records-table td:first-child span {
-  margin-top: 4px;
-  color: var(--color-muted);
+.s5-records-table td:nth-child(2) {
+  min-width: 240px;
 }
 
 .s5-records-grade {

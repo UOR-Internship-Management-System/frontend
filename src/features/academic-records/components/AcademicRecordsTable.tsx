@@ -10,7 +10,8 @@ export function AcademicRecordsTable({ records }: { records: AcademicRecordView[
         </caption>
         <thead>
           <tr>
-            <th scope="col">Course</th>
+            <th scope="col">Course code</th>
+            <th scope="col">Course title</th>
             <th scope="col">Academic period</th>
             <th scope="col">Credits</th>
             <th scope="col">Grade</th>
@@ -23,10 +24,8 @@ export function AcademicRecordsTable({ records }: { records: AcademicRecordView[
         <tbody>
           {records.map((record) => (
             <tr key={record.academicRecordId}>
-              <td>
-                <strong>{record.courseCode}</strong>
-                <span>{record.courseTitle}</span>
-              </td>
+              <td>{record.courseCode}</td>
+              <td>{record.courseTitle}</td>
               <td>{record.periodLabel}</td>
               <td>{record.creditsLabel}</td>
               <td>
