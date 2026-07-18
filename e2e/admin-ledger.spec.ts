@@ -176,6 +176,8 @@ test('Admin inspects official Student records without edit controls on a narrow 
   await mockAdminSprint6Api(page)
   await page.setViewportSize({ width: 320, height: 700 })
   await page.goto('/admin/academic-ledger', { waitUntil: 'domcontentloaded' })
+  await page.locator('.admin-shell').getByRole('button', { name: 'Switch to dark mode' }).click()
+  await expect(page.locator('html')).toHaveClass(/dark/)
   const inspection = page.getByRole('table', {
     name: 'Students available for official academic record inspection',
   })
