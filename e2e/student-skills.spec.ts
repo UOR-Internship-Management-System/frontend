@@ -261,12 +261,20 @@ test('Student completes the declared-skill workflow through protected navigation
   await page.getByLabel('Competency Level').selectOption('ADVANCED')
   await page.getByRole('button', { name: 'Add declared skill' }).click()
   await expect(page.getByText('Skill added')).toBeVisible()
+  await page
+    .locator('.toast', { hasText: 'Skill added' })
+    .getByRole('button', { name: 'Dismiss' })
+    .click()
   await expect(page.getByRole('row', { name: /TypeScript/ })).toBeVisible()
 
   const reactRow = page.getByRole('row', { name: /React/ })
   await reactRow.getByLabel('Competency for React').selectOption('ADVANCED')
   await reactRow.getByRole('button', { name: 'Update' }).click()
   await expect(page.getByText('Competency updated')).toBeVisible()
+  await page
+    .locator('.toast', { hasText: 'Competency updated' })
+    .getByRole('button', { name: 'Dismiss' })
+    .click()
 
   await reactRow.getByRole('button', { name: 'Remove React' }).click()
   await page
