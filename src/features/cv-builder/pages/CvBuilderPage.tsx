@@ -5,6 +5,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { WorkspaceSkeleton } from '../../../shared/skeletons/WorkspaceSkeleton'
 import { CvActionBar } from '../components/CvActionBar'
 import { CvConfigurationPanel } from '../components/CvConfigurationPanel'
+import type { CvSelectionItem } from '../components/CvRecordSelectionGroup'
 import { CvPreviewPanel } from '../components/CvPreviewPanel'
 import { CvSourceFreshnessNotice } from '../components/CvSourceFreshnessNotice'
 import { useCvFreshness } from '../hooks/useCvFreshness'
@@ -20,30 +21,82 @@ import { useCvProjectOptions } from '../hooks/useCvProjectOptions'
 import { useDownloadCv } from '../hooks/useDownloadCv'
 import { useSaveCv } from '../hooks/useSaveCvVersion'
 import {
-  defaultCvOptionalSections,
+  cvSelectionKeys,
+  emptyCvRecordSelections,
   mapCvFreshness,
   mapCvPreviewRequest,
-  type CvOptionalSections,
+  type CvRecordSelections,
 } from '../mappers/cvMapper'
 import type { CvPreview } from '../types/cvBuilderTypes'
 
+type SelectionSources = Record<keyof CvRecordSelections, CvSelectionItem[] | undefined>
+
 export function CvBuilderPage() {
-  const [optionalSections, setOptionalSections] = useState<CvOptionalSections>(() => ({
-    ...defaultCvOptionalSections,
-  }))
-  const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([])
+  const [selections, setSelections] = useState<CvRecordSelections>(() =>
+    cloneSelections(emptyCvRecordSelections),
+  )
   const [configurationDirty, setConfigurationDirty] = useState(false)
+  const [selectionWarning, setSelectionWarning] = useState<string | null>(null)
   const [preview, setPreview] = useState<CvPreview | null>(null)
   const [previewExpired, setPreviewExpired] = useState(false)
-  const initializedProjects = useRef(false)
-  const initializedSavedConfiguration = useRef(false)
+  const initializedConfiguration = useRef(false)
   const freshness = useCvFreshness()
-  const currentCv = useCurrentCv(freshness.data?.status !== 'NOT_SAVED' && freshness.isSuccess)
+  const currentCvEnabled = freshness.isSuccess && freshness.data.status !== 'NOT_SAVED'
+  const currentCv = useCurrentCv(currentCvEnabled)
   const experienceSources = useCvExperienceSources()
   const certificateSources = useCvCertificateSources()
   const awardSources = useCvAwardSources()
   const activitySources = useCvActivitySources()
   const projectOptions = useCvProjectOptions()
+  const projectItems = useMemo<CvSelectionItem[] | undefined>(
+    () =>
+      projectOptions.data?.map((project) => ({
+        id: project.projectId,
+        label: project.title,
+        defaultSelected: project.includeInCv,
+      })),
+    [projectOptions.data],
+  )
+  const sources: SelectionSources = useMemo(
+    () => ({
+      includedExperienceIds: experienceSources.data,
+      includedProjectIds: projectItems,
+      includedCertificateIds: certificateSources.data,
+      includedAwardIds: awardSources.data,
+      includedActivityIds: activitySources.data,
+    }),
+    [
+      activitySources.data,
+      awardSources.data,
+      certificateSources.data,
+      experienceSources.data,
+      projectItems,
+    ],
+  )
+  const sourceQueries = [
+    experienceSources,
+    projectOptions,
+    certificateSources,
+    awardSources,
+    activitySources,
+  ]
+  const allSourcesLoaded = cvSelectionKeys.every((key) => sources[key] !== undefined)
+  const sourceHasError = sourceQueries.some((query) => query.error !== null)
+  const savedConfigurationReady = !currentCvEnabled || currentCv.isSuccess
+  const configurationReady =
+    freshness.isSuccess && allSourcesLoaded && !sourceHasError && savedConfigurationReady
+  const sourceIdentity = cvSelectionKeys
+    .map(
+      (key) =>
+        `${key}:${
+          sources[key]
+            ?.map((item) => item.id)
+            .sort()
+            .join(',') ?? 'loading'
+        }`,
+    )
+    .join('|')
+
   const previewMutation = useCvPreview({
     onSuccess: (confirmedPreview) => {
       setPreview(confirmedPreview)
@@ -55,23 +108,36 @@ export function CvBuilderPage() {
   const downloadMutation = useDownloadCv()
 
   useEffect(() => {
-    if (initializedProjects.current || !projectOptions.data) return
-    initializedProjects.current = true
-    setSelectedProjectIds(
-      projectOptions.data
-        .filter((project) => project.includeInCv)
-        .map((project) => project.projectId),
-    )
-  }, [projectOptions.data])
+    if (initializedConfiguration.current || !configurationReady) return
+    initializedConfiguration.current = true
 
-  useEffect(() => {
-    if (initializedSavedConfiguration.current || !currentCv.data || configurationDirty || preview) {
+    if (currentCv.data) {
+      const reconciled = reconcileSelections(currentCv.data.configuration, sources)
+      setSelections(reconciled.selections)
+      if (reconciled.removedCount > 0) {
+        setConfigurationDirty(true)
+        setSelectionWarning(
+          `${reconciled.removedCount} previously selected record${reconciled.removedCount === 1 ? ' is' : 's are'} no longer available. Generate a new preview before saving.`,
+        )
+      }
       return
     }
-    initializedSavedConfiguration.current = true
-    setOptionalSections(currentCv.data.configuration.optionalSections)
-    setSelectedProjectIds(currentCv.data.configuration.includedProjectIds)
-  }, [configurationDirty, currentCv.data, preview])
+
+    setSelections(defaultSelections(sources))
+  }, [configurationReady, currentCv.data, sources])
+
+  useEffect(() => {
+    if (!initializedConfiguration.current || !allSourcesLoaded) return
+    setSelections((current) => {
+      const reconciled = reconcileSelections(current, sources)
+      if (reconciled.removedCount === 0) return current
+      setConfigurationDirty(true)
+      setSelectionWarning(
+        `${reconciled.removedCount} selected record${reconciled.removedCount === 1 ? ' was' : 's were'} removed because the source data is no longer available.`,
+      )
+      return reconciled.selections
+    })
+  }, [allSourcesLoaded, sourceIdentity, sources])
 
   useEffect(() => {
     if (!preview) return undefined
@@ -92,7 +158,7 @@ export function CvBuilderPage() {
     [freshness.data],
   )
   const freshnessError = freshness.error ? mapApiError(freshness.error, 'protected') : null
-  const projectError = projectOptions.error ? mapApiError(projectOptions.error, 'protected') : null
+  const currentCvError = currentCv.error ? mapApiError(currentCv.error, 'protected') : null
   const previewError = previewMutation.error
     ? mapApiError(previewMutation.error, 'protected')
     : null
@@ -100,24 +166,24 @@ export function CvBuilderPage() {
     currentCv.data !== undefined ||
     (freshness.data?.status !== undefined && freshness.data.status !== 'NOT_SAVED')
 
-  const markConfigurationChanged = () => setConfigurationDirty(true)
-
-  const toggleOptionalSection = (section: keyof CvOptionalSections) => {
-    setOptionalSections((current) => ({ ...current, [section]: !current[section] }))
-    markConfigurationChanged()
-  }
-
-  const toggleProject = (projectId: string) => {
-    setSelectedProjectIds((current) =>
-      current.includes(projectId)
-        ? current.filter((item) => item !== projectId)
-        : [...current, projectId],
-    )
-    markConfigurationChanged()
+  const toggleRecord = (selection: keyof CvRecordSelections, recordId: string) => {
+    setSelections((current) => {
+      const selected = current[selection]
+      if (!selected.includes(recordId) && selected.length >= 100) return current
+      return {
+        ...current,
+        [selection]: selected.includes(recordId)
+          ? selected.filter((id) => id !== recordId)
+          : [...selected, recordId],
+      }
+    })
+    setSelectionWarning(null)
+    setConfigurationDirty(true)
   }
 
   const generatePreview = () => {
-    previewMutation.mutate(mapCvPreviewRequest(optionalSections, selectedProjectIds))
+    if (!configurationReady) return
+    previewMutation.mutate(mapCvPreviewRequest(selections))
   }
 
   const savePreview = () => {
@@ -138,14 +204,14 @@ export function CvBuilderPage() {
     )
   }
 
-  if (freshness.isPending && projectOptions.isPending) {
+  if (freshness.isPending && sourceQueries.every((query) => query.isPending)) {
     return <WorkspaceSkeleton variant="cv-builder" />
   }
 
   return (
     <main className="content-stack s5-cv-builder-page">
       <PageHeader
-        description="Configure structured source data, confirm a generated preview, and save your active CV."
+        description="Select individual source records, confirm a generated preview, and save your active CV."
         eyebrow="Student workspace · Sprint 5"
         title="CV Builder"
       />
@@ -159,20 +225,28 @@ export function CvBuilderPage() {
           title="CV freshness unavailable"
         />
       ) : null}
+      {currentCvError ? (
+        <ErrorState
+          correlationId={currentCvError.correlationId}
+          message={currentCvError.message}
+          onAction={() => void currentCv.refetch()}
+          title="Saved CV configuration unavailable"
+        />
+      ) : null}
+      {selectionWarning ? (
+        <p className="s5-cv-selection-warning" role="alert">
+          {selectionWarning}
+        </p>
+      ) : null}
 
       <CvConfigurationPanel
         activitySources={mapSourceQuery(activitySources)}
         awardSources={mapSourceQuery(awardSources)}
         certificateSources={mapSourceQuery(certificateSources)}
         experienceSources={mapSourceQuery(experienceSources)}
-        onRetryProjects={() => void projectOptions.refetch()}
-        onToggleProject={toggleProject}
-        onToggleOptionalSection={toggleOptionalSection}
-        optionalSections={optionalSections}
-        projects={projectOptions.data}
-        projectsError={projectError}
-        projectsLoading={projectOptions.isPending}
-        selectedProjectIds={selectedProjectIds}
+        onToggleRecord={toggleRecord}
+        projectSources={mapSourceQuery(projectOptions, projectItems)}
+        selections={selections}
       />
 
       <CvPreviewPanel
@@ -186,6 +260,7 @@ export function CvBuilderPage() {
 
       <CvActionBar
         configurationDirty={configurationDirty}
+        configurationReady={configurationReady}
         downloadPending={downloadMutation.pendingTargetKey === 'current'}
         expired={previewExpired}
         hasPreview={preview !== null}
@@ -200,16 +275,49 @@ export function CvBuilderPage() {
   )
 }
 
-function mapSourceQuery<T extends { id: string; label: string; cvInclude: boolean }>(query: {
-  data?: T[]
-  isPending: boolean
-  error: Error | null
-  refetch: () => unknown
-}) {
+function mapSourceQuery<
+  TQuery extends { isPending: boolean; error: unknown; refetch: () => unknown },
+>(query: TQuery, items?: CvSelectionItem[]) {
+  const queryItems = 'data' in query ? (query.data as CvSelectionItem[] | undefined) : undefined
   return {
-    items: query.data,
+    items: items ?? queryItems,
     isPending: query.isPending,
     error: query.error ? mapApiError(query.error, 'protected') : null,
     onRetry: () => void query.refetch(),
   }
+}
+
+function defaultSelections(sources: SelectionSources): CvRecordSelections {
+  return Object.fromEntries(
+    cvSelectionKeys.map((key) => [
+      key,
+      (sources[key] ?? [])
+        .filter((item) => item.defaultSelected)
+        .map((item) => item.id)
+        .slice(0, 100)
+        .sort(),
+    ]),
+  ) as CvRecordSelections
+}
+
+function reconcileSelections(
+  selections: CvRecordSelections,
+  sources: SelectionSources,
+): { selections: CvRecordSelections; removedCount: number } {
+  let removedCount = 0
+  const reconciled = Object.fromEntries(
+    cvSelectionKeys.map((key) => {
+      const accessible = new Set((sources[key] ?? []).map((item) => item.id))
+      const retained = selections[key].filter((id) => accessible.has(id)).sort()
+      removedCount += selections[key].length - retained.length
+      return [key, retained]
+    }),
+  ) as CvRecordSelections
+  return { selections: reconciled, removedCount }
+}
+
+function cloneSelections(selections: CvRecordSelections): CvRecordSelections {
+  return Object.fromEntries(
+    cvSelectionKeys.map((key) => [key, [...selections[key]]]),
+  ) as CvRecordSelections
 }

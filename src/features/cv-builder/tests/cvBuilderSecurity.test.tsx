@@ -17,14 +17,11 @@ const preview = cvPreviewSchema.parse({
     message: 'No saved CV exists.',
   },
   configuration: {
-    optionalSections: {
-      experience: true,
-      projects: true,
-      certificates: true,
-      awards: true,
-      activities: true,
-    },
+    includedExperienceIds: [],
     includedProjectIds: [],
+    includedCertificateIds: [],
+    includedAwardIds: [],
+    includedActivityIds: [],
   },
   generatedAt: '2026-07-21T08:00:00Z',
   expiresAt: '2026-07-21T08:15:00Z',

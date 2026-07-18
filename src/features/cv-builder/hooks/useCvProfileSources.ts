@@ -22,7 +22,7 @@ const sourceSort = 'updatedAt,desc'
 export type CvProfileSourceItem = {
   id: string
   label: string
-  cvInclude: boolean
+  defaultSelected: boolean
 }
 
 type CollectionList<TItem> = (
@@ -59,26 +59,26 @@ export const useCvExperienceSources = () =>
   useCvProfileSource<Experience>('experience', experienceApi.list, (item) => ({
     id: item.id,
     label: `${item.positionTitle} at ${item.organization}`,
-    cvInclude: item.cvInclude,
+    defaultSelected: item.cvInclude,
   }))
 
 export const useCvCertificateSources = () =>
   useCvProfileSource<Certificate>('certificates', certificatesApi.list, (item) => ({
     id: item.id,
     label: `${item.title} — ${item.issuer}`,
-    cvInclude: item.cvInclude,
+    defaultSelected: item.cvInclude,
   }))
 
 export const useCvAwardSources = () =>
   useCvProfileSource<Award>('awards', awardsApi.list, (item) => ({
     id: item.id,
     label: `${item.title} — ${item.issuer}`,
-    cvInclude: item.cvInclude,
+    defaultSelected: item.cvInclude,
   }))
 
 export const useCvActivitySources = () =>
   useCvProfileSource<Activity>('activities', activitiesApi.list, (item) => ({
     id: item.id,
     label: `${item.activityName} — ${item.roleTitle}`,
-    cvInclude: item.cvInclude,
+    defaultSelected: item.cvInclude,
   }))

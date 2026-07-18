@@ -2,6 +2,7 @@ import { Button } from '../../../shared/components/ui/Button'
 
 export function CvActionBar({
   configurationDirty,
+  configurationReady,
   downloadPending,
   expired,
   hasPreview,
@@ -13,6 +14,7 @@ export function CvActionBar({
   onSave,
 }: {
   configurationDirty: boolean
+  configurationReady: boolean
   expired: boolean
   hasPreview: boolean
   hasSavedCv: boolean
@@ -31,7 +33,7 @@ export function CvActionBar({
 
   return (
     <section aria-label="CV actions" className="s5-cv-action-bar">
-      <Button isLoading={previewPending} onClick={onGenerate}>
+      <Button disabled={!configurationReady} isLoading={previewPending} onClick={onGenerate}>
         {generateLabel}
       </Button>
       <Button

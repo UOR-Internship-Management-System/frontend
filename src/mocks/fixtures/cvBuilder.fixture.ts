@@ -54,14 +54,11 @@ export const savedCv = cvSchema.parse({
   downloadUrl: '/me/cv/download',
   freshnessStatus: 'CURRENT',
   configuration: {
-    optionalSections: {
-      experience: true,
-      projects: true,
-      certificates: true,
-      awards: true,
-      activities: true,
-    },
-    includedProjectIds: [],
+    includedExperienceIds: ['50000000-0000-4000-8000-000000000001'],
+    includedProjectIds: ['660e8400-e29b-41d4-a716-446655440001'],
+    includedCertificateIds: ['20000000-0000-4000-8000-000000000001'],
+    includedAwardIds: ['30000000-0000-4000-8000-000000000001'],
+    includedActivityIds: ['40000000-0000-4000-8000-000000000001'],
   },
   pdfFile: {
     fileName: 'student-cv.pdf',

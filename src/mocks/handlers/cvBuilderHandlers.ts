@@ -35,7 +35,7 @@ export const cvBuilderHandlers = [
     const parsed = cvPreviewRequestSchema.safeParse(await request.json())
     if (!parsed.success || state.previewFailure === 'validation') {
       return HttpResponse.json(
-        problem(422, 'INVALID_CV_CONFIGURATION', 'Review the selected CV sections and projects.'),
+        problem(422, 'INVALID_CV_CONFIGURATION', 'Review the selected CV records.'),
         { status: 422 },
       )
     }

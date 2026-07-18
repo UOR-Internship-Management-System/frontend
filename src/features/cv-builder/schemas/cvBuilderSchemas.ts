@@ -18,16 +18,8 @@ export const cvSourceAreaSchema = z.enum([
 ])
 const uuidSchema = z.string().uuid()
 const dateTimeSchema = z.string().datetime({ offset: true })
-const uniqueUuidListSchema = z.array(uuidSchema).superRefine(requireUnique('Project IDs'))
-const optionalSectionsSchema = z
-  .object({
-    experience: z.boolean(),
-    projects: z.boolean(),
-    certificates: z.boolean(),
-    awards: z.boolean(),
-    activities: z.boolean(),
-  })
-  .strict()
+const selectedRecordIdsSchema = (label: string) =>
+  z.array(uuidSchema).max(100).superRefine(requireUnique(label))
 
 export const cvFreshnessSchema: z.ZodType<ApiCvFreshnessResponse> = z
   .object({
@@ -76,19 +68,13 @@ export const cvFreshnessSchema: z.ZodType<ApiCvFreshnessResponse> = z
 
 export const cvPreviewRequestSchema: z.ZodType<ApiCvPreviewRequest> = z
   .object({
-    optionalSections: optionalSectionsSchema,
-    includedProjectIds: uniqueUuidListSchema,
+    includedExperienceIds: selectedRecordIdsSchema('Experience IDs'),
+    includedProjectIds: selectedRecordIdsSchema('Project IDs'),
+    includedCertificateIds: selectedRecordIdsSchema('Certificate IDs'),
+    includedAwardIds: selectedRecordIdsSchema('Award IDs'),
+    includedActivityIds: selectedRecordIdsSchema('Activity IDs'),
   })
   .strict()
-  .superRefine((value, context) => {
-    if (!value.optionalSections.projects && value.includedProjectIds.length > 0) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['includedProjectIds'],
-        message: 'Project IDs must be empty when Projects is excluded.',
-      })
-    }
-  })
 
 export const cvPreviewConfigurationSchema: z.ZodType<ApiCvPreviewConfigurationResponse> =
   cvPreviewRequestSchema

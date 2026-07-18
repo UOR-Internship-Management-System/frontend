@@ -59,7 +59,7 @@ export function CvPreviewPanel({
       ) : null}
       {!preview && !isPending && !error ? (
         <EmptyState
-          message="Choose your sections and projects, then generate an explicit preview."
+          message="Choose the records to include, then generate an explicit preview."
           title="No preview generated"
         />
       ) : null}

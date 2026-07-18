@@ -11,7 +11,7 @@ import { useCvPreview } from '../hooks/useCvPreview'
 import { useDownloadCv } from '../hooks/useDownloadCv'
 import { useSaveCv } from '../hooks/useSaveCvVersion'
 import { cvFreshnessSchema, cvPreviewSchema, cvSchema } from '../schemas/cvBuilderSchemas'
-import { defaultCvOptionalSections } from '../mappers/cvMapper'
+import { emptyCvRecordSelections } from '../mappers/cvMapper'
 
 const previewId = '70000000-0000-4000-8000-000000000001'
 const cvId = '50000000-0000-4000-8000-000000000004'
@@ -27,7 +27,7 @@ const preview = cvPreviewSchema.parse({
   previewId,
   htmlPreview: '<article>Preview</article>',
   freshness,
-  configuration: { optionalSections: defaultCvOptionalSections, includedProjectIds: [] },
+  configuration: emptyCvRecordSelections,
   generatedAt: '2026-07-21T08:00:00Z',
   expiresAt: '2026-07-21T08:15:00Z',
 })

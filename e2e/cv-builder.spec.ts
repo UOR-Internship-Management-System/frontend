@@ -3,6 +3,8 @@ import { expect, test, type Page, type Route } from '@playwright/test'
 const previewId = '70000000-0000-4000-8000-000000000001'
 const versionId = '50000000-0000-4000-8000-000000000004'
 const projectId = '660e8400-e29b-41d4-a716-446655440001'
+const experienceId = '50000000-0000-4000-8000-000000000001'
+const certificateId = '20000000-0000-4000-8000-000000000001'
 
 const studentUser = {
   userId: 'cv-builder-e2e',
@@ -50,11 +52,12 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
   let previewCount = 0
   let saveCount = 0
   let savedCv: Record<string, unknown> | null = null
+  let latestConfiguration: Record<string, string[]> | null = null
 
   const profileSources = {
     experience: [
       {
-        id: '50000000-0000-4000-8000-000000000001',
+        id: experienceId,
         organization: 'Example Software',
         positionTitle: 'Software Engineering Intern',
         location: 'Colombo',
@@ -67,7 +70,7 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
     ],
     certificates: [
       {
-        id: '20000000-0000-4000-8000-000000000001',
+        id: certificateId,
         title: 'AWS Cloud Foundations',
         issuer: 'Amazon Web Services',
         issueDate: '2026-02-15',
@@ -137,12 +140,28 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
   )
   await page.route('**/api/v1/me/cv/preview', async (route) => {
     previewCount += 1
-    const body = route.request().postDataJSON() as {
-      optionalSections: { projects: boolean }
+    const body = route.request().postDataJSON() as Record<string, string[]> & {
+      includedExperienceIds: string[]
       includedProjectIds: string[]
+      includedCertificateIds: string[]
+      includedAwardIds: string[]
+      includedActivityIds: string[]
     }
-    expect(body.optionalSections.projects).toBe(true)
+    expect(Object.keys(body).sort()).toEqual(
+      [
+        'includedExperienceIds',
+        'includedProjectIds',
+        'includedCertificateIds',
+        'includedAwardIds',
+        'includedActivityIds',
+      ].sort(),
+    )
+    expect(body.includedExperienceIds).toEqual([experienceId])
     expect(body.includedProjectIds).toEqual([projectId])
+    expect(body.includedCertificateIds).toEqual(previewCount === 1 ? [certificateId] : [])
+    expect(body.includedAwardIds).toEqual([])
+    expect(body.includedActivityIds).toEqual([])
+    latestConfiguration = body
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -189,16 +208,7 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
       savedAt: '2026-07-21T08:02:00Z',
       downloadUrl: '/me/cv/download',
       freshnessStatus: 'CURRENT',
-      configuration: {
-        optionalSections: {
-          experience: true,
-          projects: true,
-          certificates: true,
-          awards: false,
-          activities: true,
-        },
-        includedProjectIds: [projectId],
-      },
+      configuration: latestConfiguration,
       pdfFile: {
         fileName: 'student-cv.pdf',
         mediaType: 'application/pdf',
@@ -249,7 +259,7 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save CV' })).toBeEnabled()
 
-  await page.getByRole('checkbox', { name: 'Awards and Honors' }).click()
+  await page.getByRole('checkbox', { name: /AWS Cloud Foundations/ }).click()
   await expect(page.getByText(/controls changed after this preview/i)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save CV' })).toBeDisabled()
   await page.getByRole('button', { name: 'Update Preview' }).click()

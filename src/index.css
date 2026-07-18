@@ -3154,40 +3154,44 @@ body.dark-mode .s5-records-page {
   background: var(--color-card-muted);
 }
 
-.s5-cv-source-fieldset,
-.s5-cv-project-fieldset {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
+.s5-cv-source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
 }
 
-.s5-cv-source-fieldset legend,
-.s5-cv-project-fieldset legend {
+.s5-cv-source-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.s5-cv-source-fieldset legend {
+  padding: 0 6px;
   margin-bottom: 12px;
   font-weight: 700;
 }
 
-.s5-cv-source-list,
-.s5-cv-project-options {
+.s5-cv-record-options {
   display: grid;
   gap: 10px;
   margin: 0;
   padding: 0;
-  list-style: none;
 }
 
-.s5-cv-source-list li,
-.s5-cv-project-options label {
+.s5-cv-record-options label {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
   min-height: 54px;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-card-muted);
+  background: var(--color-card);
+  cursor: pointer;
 }
 
 .s5-cv-source-fieldset > a {
@@ -3196,35 +3200,25 @@ body.dark-mode .s5-records-page {
   font-weight: 700;
 }
 
-.s5-cv-project-options label > span,
-.s5-cv-project-options label {
+.s5-cv-record-options label > span {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-.s5-cv-project-options label {
-  cursor: pointer;
-}
-
-.s5-cv-project-options input,
-.s5-cv-source-fieldset legend input,
-.s5-cv-project-fieldset legend input {
+.s5-cv-record-options input {
+  flex: 0 0 auto;
   width: 20px;
   height: 20px;
-  margin-right: 10px;
   accent-color: var(--primary);
 }
 
-.s5-cv-source-fieldset legend label,
-.s5-cv-project-fieldset legend label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.s5-cv-project-options label > span {
-  display: inline-grid;
-  gap: 2px;
-  vertical-align: middle;
+.s5-cv-selection-warning {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, #b26a00 45%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, #f6a800 14%, var(--color-card));
+  color: var(--color-text);
 }
 
 .s5-inline-guidance,

@@ -27,15 +27,17 @@ describe('CvBuilderPage', () => {
     expect(view.queryByText('Saved CV Versions')).not.toBeInTheDocument()
   })
 
-  it('shows all five section toggles and read-only source summaries', async () => {
+  it('shows item-level checkboxes in five fixed groups without master toggles', async () => {
     const view = renderWithProviders(<CvBuilderPage />)
     const experience = await view.findByRole('group', { name: 'Work Experience' })
-    expect(within(experience).getByRole('checkbox', { name: 'Work Experience' })).toBeChecked()
-    expect(experience).toHaveTextContent('Software Engineering Intern at Example Software')
-    expect(view.getByRole('checkbox', { name: 'Projects' })).toBeChecked()
-    expect(view.getByRole('checkbox', { name: 'Certificates' })).toBeChecked()
-    expect(view.getByRole('checkbox', { name: 'Awards and Honors' })).toBeChecked()
-    expect(view.getByRole('checkbox', { name: 'Extracurricular Activities' })).toBeChecked()
+    expect(
+      within(experience).getByRole('checkbox', { name: /Software Engineering Intern/ }),
+    ).toBeChecked()
+    expect(within(experience).queryByRole('checkbox', { name: 'Work Experience' })).toBeNull()
+    expect(view.getByRole('checkbox', { name: 'Accessible Internship Portal' })).toBeChecked()
+    expect(view.getByRole('checkbox', { name: /AWS Cloud Foundations/ })).toBeChecked()
+    expect(view.getByRole('checkbox', { name: /Faculty Coding Challenge Winner/ })).toBeChecked()
+    expect(view.getByRole('checkbox', { name: /Computer Science Students Society/ })).toBeChecked()
   })
 
   it('keeps other controls usable when one Profile source group fails', async () => {
@@ -51,7 +53,7 @@ describe('CvBuilderPage', () => {
     expect(
       await view.findByRole('heading', { name: 'Work Experience unavailable' }, { timeout: 5_000 }),
     ).toBeVisible()
-    expect(view.getByRole('button', { name: 'Generate Preview' })).toBeEnabled()
+    expect(view.getByRole('button', { name: 'Generate Preview' })).toBeDisabled()
   })
 
   it('renders current and outdated freshness states', async () => {
@@ -73,7 +75,7 @@ describe('CvBuilderPage', () => {
     expect(await view.findByTitle('Generated CV visual preview')).toBeVisible()
     expect(view.getByRole('button', { name: 'Save CV' })).toBeEnabled()
 
-    await user.click(view.getByRole('checkbox', { name: 'Awards and Honors' }))
+    await user.click(view.getByRole('checkbox', { name: /Faculty Coding Challenge Winner/ }))
     expect(view.getByRole('button', { name: 'Update Preview' })).toBeVisible()
     expect(view.getByRole('button', { name: 'Save CV' })).toBeDisabled()
     await user.click(view.getByRole('button', { name: 'Update Preview' }))
@@ -93,12 +95,12 @@ describe('CvBuilderPage', () => {
     setCvExpireNextSave(true)
     await user.click(view.getByRole('button', { name: 'Save CV' }))
     expect(await view.findByText('This preview has expired.')).toBeVisible()
-    expect(view.getByRole('checkbox', { name: 'Projects' })).toBeChecked()
+    expect(view.getByRole('checkbox', { name: 'Accessible Internship Portal' })).toBeChecked()
     expect(view.getByRole('button', { name: 'Save CV' })).toBeDisabled()
   })
 
   it.each([
-    ['validation' as const, 'Review the selected CV sections and projects.'],
+    ['validation' as const, 'Review the selected CV records.'],
     ['generation' as const, 'The service is temporarily unavailable. Please try again.'],
   ])('shows a safe retryable %s preview error', async (failure, message) => {
     setCvPreviewFailure(failure)

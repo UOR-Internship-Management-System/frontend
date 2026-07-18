@@ -8,15 +8,19 @@ import type {
   CvView,
 } from '../types/cvBuilderTypes'
 
-export type CvOptionalSections = CvPreviewRequest['optionalSections']
+export type CvRecordSelections = CvPreviewRequest
 
-export const defaultCvOptionalSections: CvOptionalSections = {
-  experience: true,
-  projects: true,
-  certificates: true,
-  awards: true,
-  activities: true,
+export const emptyCvRecordSelections: CvRecordSelections = {
+  includedExperienceIds: [],
+  includedProjectIds: [],
+  includedCertificateIds: [],
+  includedAwardIds: [],
+  includedActivityIds: [],
 }
+
+export const cvSelectionKeys = Object.freeze(
+  Object.keys(emptyCvRecordSelections) as (keyof CvRecordSelections)[],
+)
 
 export const cvSourceAreaLabels: Record<CvSourceArea, string> = {
   PROFILE: 'Profile and CV details',
@@ -25,14 +29,10 @@ export const cvSourceAreaLabels: Record<CvSourceArea, string> = {
   ACADEMIC_RECORDS: 'Academic records',
 }
 
-export function mapCvPreviewRequest(
-  optionalSections: CvOptionalSections,
-  selectedProjectIds: readonly string[],
-): CvPreviewRequest {
-  return cvPreviewRequestSchema.parse({
-    optionalSections,
-    includedProjectIds: optionalSections.projects ? [...selectedProjectIds] : [],
-  })
+export function mapCvPreviewRequest(selections: CvRecordSelections): CvPreviewRequest {
+  return cvPreviewRequestSchema.parse(
+    Object.fromEntries(cvSelectionKeys.map((key) => [key, [...new Set(selections[key])].sort()])),
+  )
 }
 
 export function mapCvFreshness(value: CvFreshness): CvFreshnessView {

@@ -9,7 +9,7 @@ import {
   cvSchema,
 } from '../schemas/cvBuilderSchemas'
 import {
-  defaultCvOptionalSections,
+  emptyCvRecordSelections,
   mapCv,
   mapCvFreshness,
   mapCvPreviewRequest,
@@ -18,6 +18,10 @@ import {
 const previewId = '70000000-0000-4000-8000-000000000001'
 const cvId = '50000000-0000-4000-8000-000000000004'
 const projectId = '60000000-0000-4000-8000-000000000001'
+const experienceId = '50000000-0000-4000-8000-000000000001'
+const certificateId = '20000000-0000-4000-8000-000000000001'
+const awardId = '30000000-0000-4000-8000-000000000001'
+const activityId = '40000000-0000-4000-8000-000000000001'
 
 const freshness = {
   status: 'OUTDATED' as const,
@@ -29,8 +33,11 @@ const freshness = {
 }
 
 const configuration = {
-  optionalSections: defaultCvOptionalSections,
+  includedExperienceIds: [experienceId],
   includedProjectIds: [projectId],
+  includedCertificateIds: [certificateId],
+  includedAwardIds: [awardId],
+  includedActivityIds: [activityId],
 }
 
 const preview = {
@@ -62,25 +69,26 @@ const cv = {
 describe('CV Builder transport validation', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  it('accepts the fixed-order toggle contract and public preview without LaTeX', () => {
+  it('accepts the fixed-order record-selection contract and public preview without LaTeX', () => {
     expect(cvPreviewSchema.parse(preview)).toEqual(preview)
-    expect(Object.keys(defaultCvOptionalSections)).toEqual([
-      'experience',
-      'projects',
-      'certificates',
-      'awards',
-      'activities',
+    expect(Object.keys(emptyCvRecordSelections)).toEqual([
+      'includedExperienceIds',
+      'includedProjectIds',
+      'includedCertificateIds',
+      'includedAwardIds',
+      'includedActivityIds',
     ])
     expect(preview).not.toHaveProperty('latexSource')
   })
 
-  it('rejects project IDs while Projects is disabled and unknown save fields', () => {
+  it('rejects duplicate record IDs and unknown fields', () => {
     expect(() =>
       cvPreviewRequestSchema.parse({
-        optionalSections: { ...defaultCvOptionalSections, projects: false },
-        includedProjectIds: [projectId],
+        ...configuration,
+        includedProjectIds: [projectId, projectId],
       }),
     ).toThrow()
+    expect(() => cvPreviewRequestSchema.parse({ ...configuration, optionalSections: {} })).toThrow()
     expect(() => cvSaveRequestSchema.parse({ previewId, notes: 'not allowed' })).toThrow()
     expect(() => cvSchema.parse({ ...cv, downloadUrl: 'javascript:alert(1)' })).toThrow()
   })
@@ -99,12 +107,15 @@ describe('CV Builder transport validation', () => {
     expect(() => cvFreshnessSchema.parse({ ...freshness, changedAreas: [] })).toThrow()
   })
 
-  it('maps configuration, freshness, active CV labels, and excludes project IDs with the toggle', () => {
+  it('maps sorted record selections, freshness, and active CV labels', () => {
     expect(
-      mapCvPreviewRequest({ ...defaultCvOptionalSections, projects: false }, [projectId]),
+      mapCvPreviewRequest({
+        ...configuration,
+        includedProjectIds: ['60000000-0000-4000-8000-000000000002', projectId],
+      }),
     ).toEqual({
-      optionalSections: { ...defaultCvOptionalSections, projects: false },
-      includedProjectIds: [],
+      ...configuration,
+      includedProjectIds: [projectId, '60000000-0000-4000-8000-000000000002'],
     })
     expect(mapCvFreshness(cvFreshnessSchema.parse(freshness))).toMatchObject({
       title: 'Your saved CV needs an update',
