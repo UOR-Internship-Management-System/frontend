@@ -25,7 +25,7 @@ Backend branch: `codex/cv-builder-record-level-inclusion-fix`
 - Saving replaces the Student's one active CV under optimistic locking; it does not create a visible version history.
 - Admin access remains limited to reading metadata and downloading the latest saved PDF.
 - Profile, Projects, and Academic source fingerprints are evaluated independently for freshness without changing the saved PDF.
-- No order controls, LaTeX source output, saved-version history, CV review, approval, rejection, or correction workflow is present.
+- No order controls, LaTeX source output, saved-version history, CV evaluation, approval, rejection, or correction workflow is present.
 
 ## Contract evidence
 
