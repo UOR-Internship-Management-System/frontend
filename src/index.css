@@ -1383,6 +1383,67 @@ body.admin-mobile-drawer-open {
 
 /* Student dashboard */
 
+.admin-dashboard-summary {
+  display: grid;
+  gap: 20px;
+}
+
+.admin-dashboard-summary-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.admin-dashboard-summary-header h2,
+.admin-dashboard-summary-header p,
+.admin-metric-card p {
+  margin: 0;
+}
+
+.admin-dashboard-freshness {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.admin-metric-card {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+
+.admin-metric-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-metric-value {
+  color: var(--text-dark);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  line-height: 1;
+}
+
+.admin-metric-description {
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding-top: 12px;
+}
+
+@media (max-width: 1199px) and (min-width: 900px) {
+  .admin-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .student-dashboard-page {
   min-width: 0;
 }
@@ -2405,6 +2466,14 @@ td {
 }
 
 @media (max-width: 899px) {
+  .admin-dashboard-summary-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-metrics-grid {
+    grid-template-columns: 1fr;
+  }
   .student-shell {
     --student-sidebar-current-width: 0px;
   }
