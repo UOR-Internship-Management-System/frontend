@@ -13,6 +13,9 @@ const allowed = [
   'docs/api/CV_Management_API_OpenAPI_v1.4.1.yaml',
   'docs/api/CV_Management_API_OpenAPI_v1.4.1_CHANGELOG.md',
   'docs/api/CV_Management_API_OpenAPI_v1.4.1_VALIDATION_REPORT.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml',
+  'docs/api/CV_Management_API_OpenAPI_v1.5.0_CHANGELOG.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.5.0_VALIDATION_REPORT.md',
   'docs/Project Documentations',
   'docs/Sprint plans',
 ]
