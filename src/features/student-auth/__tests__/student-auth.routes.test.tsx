@@ -19,7 +19,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     ).toBeInTheDocument()
   })
 
-  it('exposes the six approved Sprint 5 student destinations', () => {
+  it('exposes the approved Sprint 5 Student and Sprint 6 Admin destinations', () => {
     renderWithProviders(
       <MemoryRouter initialEntries={[routePaths.studentDashboard]}>
         <Routes>
@@ -49,7 +49,10 @@ describe('Sprint 2 frontend gateway and route guards', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.queryByRole('link', { name: /academic ledger/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /academic ledger/i })).toHaveAttribute(
+      'href',
+      routePaths.adminAcademicLedger,
+    )
     expect(screen.queryByRole('link', { name: /candidate filtering/i })).not.toBeInTheDocument()
   })
 
