@@ -3015,6 +3015,44 @@ td {
   display: flex;
 }
 
+.ledger-review-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.ledger-validation-summary,
+.ledger-validation-success {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+}
+
+.ledger-validation-summary {
+  border: 1px solid var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-card));
+}
+
+.ledger-validation-summary ul,
+.ledger-row-errors {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.ledger-validation-success {
+  border: 1px solid var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--color-card));
+}
+
+.staged-ledger-table {
+  min-width: 1120px;
+}
+
+.ledger-row-errors {
+  max-width: 320px;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}
+
 .ledger-upload-panel {
   align-items: start;
   justify-content: space-between;

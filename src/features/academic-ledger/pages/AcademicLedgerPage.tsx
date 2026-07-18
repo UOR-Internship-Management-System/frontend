@@ -8,11 +8,13 @@ import { TableSkeleton } from '../../../shared/skeletons'
 import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
+import { LedgerReviewSection } from '../components/LedgerReviewSection'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
 import { useLedgerUploadDetail, useLedgerUploads, useUploadLedger } from '../hooks/useLedgerUpload'
 
 export function AcademicLedgerPage() {
-  const { state, selectUpload, updateUploads } = useAcademicLedgerUrlState()
+  const { state, rowSearchInput, selectUpload, setRowSearchInput, updateRows, updateUploads } =
+    useAcademicLedgerUrlState()
   const uploads = useLedgerUploads(state.uploads)
   const selected = useLedgerUploadDetail(state.uploadId)
   const upload = useUploadLedger()
@@ -44,6 +46,15 @@ export function AcademicLedgerPage() {
           title="Unable to load selected batch"
           message={mapApiError(selected.error, 'protected').message}
           onAction={() => void selected.refetch()}
+        />
+      ) : null}
+      {state.uploadId && selected.data && selected.data.uploadStatus !== 'PROCESSING_FAILED' ? (
+        <LedgerReviewSection
+          onQueryChange={updateRows}
+          onSearchChange={setRowSearchInput}
+          query={state.rows}
+          searchInput={rowSearchInput}
+          uploadId={state.uploadId}
         />
       ) : null}
       <section aria-labelledby="recent-ledger-batches-title" className="section-card">
