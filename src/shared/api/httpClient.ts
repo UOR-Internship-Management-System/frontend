@@ -9,11 +9,25 @@ export type HttpRequestOptions = {
   headers?: HeadersInit
 }
 
+export type HttpResponseResult<TResponse> = {
+  data: TResponse
+  status: number
+  headers: Headers
+}
+
 function isFormData(value: unknown): value is FormData {
   return typeof FormData !== 'undefined' && value instanceof FormData
 }
 
 export async function httpClient<TResponse>(path: string, options: HttpRequestOptions = {}) {
+  const result = await httpClientWithResponse<TResponse>(path, options)
+  return result.data
+}
+
+export async function httpClientWithResponse<TResponse>(
+  path: string,
+  options: HttpRequestOptions = {},
+): Promise<HttpResponseResult<TResponse>> {
   const token = authTokenStorage.getToken()
   const headers = new Headers(options.headers)
   headers.set('Accept', 'application/json')
@@ -49,10 +63,14 @@ export async function httpClient<TResponse>(path: string, options: HttpRequestOp
   }
 
   if (response.status === 204) {
-    return undefined as TResponse
+    return { data: undefined as TResponse, status: response.status, headers: response.headers }
   }
 
-  return (await response.json()) as TResponse
+  return {
+    data: (await response.json()) as TResponse,
+    status: response.status,
+    headers: response.headers,
+  }
 }
 
 async function safeReadError(response: Response) {
