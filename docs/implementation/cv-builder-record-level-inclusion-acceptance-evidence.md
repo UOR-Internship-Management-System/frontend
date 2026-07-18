@@ -36,23 +36,23 @@ Backend branch: `codex/cv-builder-record-level-inclusion-fix`
 
 ## Frontend verification
 
-| Check | Result |
-| --- | --- |
-| `npm.cmd run typecheck` | Passed |
-| `npm.cmd run lint` | Passed |
-| `npm.cmd run build` | Passed; 551 modules transformed |
-| `npm.cmd run test` | Passed; 34 files, 190 tests |
-| `npm.cmd run e2e -- e2e/cv-builder.spec.ts` | Passed; 3 Chromium flows |
+| Check                                       | Result                          |
+| ------------------------------------------- | ------------------------------- |
+| `npm.cmd run typecheck`                     | Passed                          |
+| `npm.cmd run lint`                          | Passed                          |
+| `npm.cmd run build`                         | Passed; 551 modules transformed |
+| `npm.cmd run test`                          | Passed; 34 files, 190 tests     |
+| `npm.cmd run e2e -- e2e/cv-builder.spec.ts` | Passed; 3 Chromium flows        |
 
 The browser flows cover the Student route guard, generate/update/save/download, exact five-array request bodies, item-level deselection, preview expiry, and configuration preservation.
 
 ## Backend verification
 
-| Check | Result |
-| --- | --- |
-| `mvnw.cmd -DskipTests compile` | Passed; 377 sources compiled |
-| Focused CV tests | Passed; 12 tests |
-| `mvnw.cmd test` | Passed; 41 tests, 0 failures, 0 errors, 0 skipped |
+| Check                                         | Result                                             |
+| --------------------------------------------- | -------------------------------------------------- |
+| `mvnw.cmd -DskipTests compile`                | Passed; 377 sources compiled                       |
+| Focused CV tests                              | Passed; 12 tests                                   |
+| `mvnw.cmd test`                               | Passed; 41 tests, 0 failures, 0 errors, 0 skipped  |
 | PostgreSQL 16 Flyway Testcontainers migration | Passed; 12 migrations applied from an empty schema |
 
 The first live migration run identified `current_role` as a PostgreSQL keyword conflict. The unreleased V010 source migration and repository mapping were corrected to `is_current_role`; the full migration chain then passed twice, including in the final full backend suite.
