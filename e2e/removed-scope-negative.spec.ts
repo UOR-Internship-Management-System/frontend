@@ -78,8 +78,8 @@ async function mockProtectedStudentScope(page: Page) {
       body: JSON.stringify({
         status: 'NOT_SAVED',
         changedAreas: [],
-        latestSavedCvVersionId: null,
-        latestSavedAt: null,
+        cvId: null,
+        savedAt: null,
         evaluatedAt: '2026-07-21T08:00:00Z',
         message: 'No saved CV exists.',
       }),

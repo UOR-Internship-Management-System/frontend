@@ -2,8 +2,8 @@
 export type ApiContractMetadata = {
   title: 'CV Management API'
   openapi: '3.1.1'
-  version: '1.4.0'
-  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml'
+  version: '1.4.1'
+  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.4.1.yaml'
 }
 
 export type ApiProblemFieldError = {
@@ -107,15 +107,13 @@ export type ApiCvFreshnessStatus = 'NOT_SAVED' | 'CURRENT' | 'OUTDATED'
 
 export type ApiCvSourceArea = 'PROFILE' | 'DECLARED_SKILLS' | 'PROJECTS' | 'ACADEMIC_RECORDS'
 
-export type ApiCvSectionType =
-  | 'PROFESSIONAL_SUMMARY'
-  | 'SKILLS'
-  | 'EXPERIENCE'
-  | 'PROJECTS'
-  | 'CERTIFICATES'
-  | 'AWARDS'
-  | 'ACTIVITIES'
-  | 'ACADEMIC_SUMMARY'
+export type ApiCvRecordSelections = {
+  includedExperienceIds: string[]
+  includedProjectIds: string[]
+  includedCertificateIds: string[]
+  includedAwardIds: string[]
+  includedActivityIds: string[]
+}
 
 export type ApiAcademicRecordResponse = {
   academicRecordId: string
@@ -149,30 +147,26 @@ export type ApiGpaSummaryResponse = {
 export type ApiCvFreshnessResponse = {
   status: ApiCvFreshnessStatus
   changedAreas: ApiCvSourceArea[]
-  latestSavedCvVersionId: string | null
-  latestSavedAt: string | null
+  cvId: string | null
+  savedAt: string | null
   evaluatedAt: string
   message: string
 }
 
-export type ApiCvPreviewRequest = {
-  sectionOrder: ApiCvSectionType[]
-  includedProjectIds: string[]
-}
+export type ApiCvPreviewRequest = ApiCvRecordSelections
 
 export type ApiCvPreviewConfigurationResponse = ApiCvPreviewRequest
 
 export type ApiCvPreviewResponse = {
   previewId: string
   htmlPreview: string
-  latexSource: string
   freshness: ApiCvFreshnessResponse
   configuration: ApiCvPreviewConfigurationResponse
   generatedAt: string
   expiresAt: string
 }
 
-export type ApiCvVersionCreateRequest = {
+export type ApiCvSaveRequest = {
   previewId: string
 }
 
@@ -183,19 +177,16 @@ export type ApiGeneratedFileMetadataResponse = {
   generatedAt: string
 }
 
-export type ApiCvVersionResponse = {
-  cvVersionId: string
-  versionNumber: number
-  versionLabel: string
-  latest: boolean
+export type ApiCvResponse = {
+  cvId: string
+  revision: number
   createdAt: string
   generatedAt: string
   savedAt: string
   downloadUrl: string
   freshnessStatus: Exclude<ApiCvFreshnessStatus, 'NOT_SAVED'>
+  configuration: ApiCvPreviewConfigurationResponse
   pdfFile: ApiGeneratedFileMetadataResponse
 }
 
 export type ApiPagedAcademicRecordResponse = ApiPagedResponse<ApiAcademicRecordResponse>
-
-export type ApiPagedCvVersionResponse = ApiPagedResponse<ApiCvVersionResponse>

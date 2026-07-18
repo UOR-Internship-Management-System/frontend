@@ -13,7 +13,13 @@ import {
 } from '../api/studentProfileEntriesApi'
 import { studentProfileApi } from '../api/studentProfileApi'
 import { studentProfilePhotoApi } from '../api/studentProfilePhotoApi'
-import { activityFormSchema, experienceFormSchema } from '../schemas/profileEntrySchemas'
+import {
+  activityFormSchema,
+  awardFormSchema,
+  certificateFormSchema,
+  certificateSchema,
+  experienceFormSchema,
+} from '../schemas/profileEntrySchemas'
 import type { ProfileCollectionQuery } from '../types/profileEntryTypes'
 
 const firstPage: ProfileCollectionQuery = { page: 0, size: 5, sort: 'updatedAt,desc', search: '' }
@@ -205,6 +211,68 @@ describe('Student Profile v1.2.0 supporting APIs', () => {
         startDate: '2026-01-01',
         endDate: '',
         currentRole: true,
+        description: '',
+        cvInclude: true,
+      }).success,
+    ).toBe(true)
+  })
+
+  it('accepts leap days and rejects impossible calendar dates at form boundaries', () => {
+    const certificate = {
+      title: 'Calendar Validation',
+      issuer: 'DCS',
+      credentialUrl: '',
+      cvInclude: true,
+    }
+    const award = {
+      title: 'Calendar Validation',
+      issuer: 'DCS',
+      description: '',
+      cvInclude: true,
+    }
+
+    expect(
+      certificateFormSchema.safeParse({ ...certificate, issueDate: '2024-02-29' }).success,
+    ).toBe(true)
+    for (const issueDate of [
+      '2025-02-29',
+      '2026-00-10',
+      '2026-13-10',
+      '2026-04-31',
+      '2026-01-00',
+      '2026-01-32',
+      '2026-1-02',
+      '2026-01-02T00:00:00Z',
+    ]) {
+      expect(certificateFormSchema.safeParse({ ...certificate, issueDate }).success).toBe(false)
+    }
+    expect(awardFormSchema.safeParse({ ...award, awardDate: '2026-02-30' }).success).toBe(false)
+  })
+
+  it('rejects impossible dates in API responses while preserving nullable activity dates', () => {
+    const validCertificate = {
+      id: '11111111-1111-4111-8111-111111111111',
+      title: 'Certificate',
+      issuer: 'DCS',
+      issueDate: '2024-02-29',
+      credentialUrl: null,
+      evidence: null,
+      cvInclude: true,
+      version: 1,
+      createdAt: '2026-07-01T08:00:00Z',
+      updatedAt: '2026-07-01T08:00:00Z',
+    }
+
+    expect(certificateSchema.safeParse(validCertificate).success).toBe(true)
+    expect(
+      certificateSchema.safeParse({ ...validCertificate, issueDate: '2025-02-29' }).success,
+    ).toBe(false)
+    expect(
+      activityFormSchema.safeParse({
+        activityName: 'Club',
+        roleTitle: 'Member',
+        startDate: '',
+        endDate: '',
         description: '',
         cvInclude: true,
       }).success,

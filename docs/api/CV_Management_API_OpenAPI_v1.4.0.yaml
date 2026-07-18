@@ -2,27 +2,24 @@ openapi: 3.1.1
 info:
   title: CV Management and Deterministic Internship Candidate Filtering API
   version: 1.4.0
-  description: REST/JSON API contract for the locked Version 1 scope. Version 1.4.0 finalizes the Sprint 5 frontend 
-    transport contract for the Student CV Builder, ATS-compliant CV preview/versioning/PDF download, and Student 
-    read-only official academic records and Computer Science GPA while preserving every valid Sprint 1–4 path, operation
-    ID, schema convention, RBAC boundary, and optimistic-concurrency rule. Backend implementation remains a separate 
-    pending activity.
+  description: REST/JSON API contract for the locked Version 1 scope. Version 1.4.0 defines the fixed-order Student CV
+    Builder, one active saved CV per Student, ATS-compliant PDF output, official academic records, RBAC boundaries, and
+    optimistic-concurrency rules.
   x-revision-summary:
     - Preserved every valid Sprint 1–4 path and operation ID from OpenAPI v1.3.0.
     - Finalized strict typed Student academic-record and official Computer Science GPA response contracts.
     - Defined successful empty academic-record and GPA-unavailable states without treating them as missing resources.
-    - Added controlled CV section, source-area, freshness-status, and GPA-availability enums.
-    - Added the first-time NOT_SAVED CV freshness state and typed latest-version metadata.
-    - Finalized backend-generated sanitized HTML preview plus LaTeX source output for the two-panel CV Builder.
-    - Linked Save Current CV Version atomically to the exact preview by requiring a server-issued previewId.
-    - Removed unsupported free-form notes and arbitrary section/source strings from Sprint 5 requests and responses.
-    - Finalized strict CV-version metadata and typed paged CV-version responses.
-    - Restricted Student single-CV downloads to application/pdf and documented safe Content-Disposition filenames.
+    - Added strict source-area, freshness-status, GPA-availability, and five-toggle CV configuration contracts.
+    - Added the first-time NOT_SAVED CV freshness state and active-CV metadata.
+    - Finalized backend-generated sanitized HTML preview without exposing internal generator source.
+    - Linked active CV create/replacement atomically to the exact preview with conditional request headers.
+    - Removed client-controlled section ordering, saved-version history, and version-specific downloads.
+    - Restricted Student and Admin CV downloads to application/pdf with safe attachment filenames.
     - Narrowed Sprint 5 operation responses to method-appropriate Problem Details outcomes.
     - Added Sprint 5 success, empty-state, validation, expiry, generation-failure, and file-unavailable examples.
   x-implementation-status:
     frontendContract: READY
-    backendImplementation: PENDING
+    backendImplementation: ACTIVE
 servers:
   - url: /api/v1
 security:
@@ -39,7 +36,7 @@ tags:
   - name: Declared Skills and Taxonomy
   - name: Project Portfolio
   - name: Academic Records
-  - name: CV Generation and Versioning
+  - name: CV Generation and Active CV
   - name: Admin Dashboard
   - name: Academic Ledger
   - name: Registered Students
@@ -2708,7 +2705,7 @@ paths:
   /me/cv/source-freshness:
     get:
       tags:
-        - CV Generation and Versioning
+        - CV Generation and Active CV
       summary: Check whether saved CV source data is current.
       operationId: getMeCvSourceFreshness
       responses:
@@ -2724,17 +2721,17 @@ paths:
                   value: &id003
                     status: NOT_SAVED
                     changedAreas: []
-                    latestSavedCvVersionId:
-                    latestSavedAt:
+                    cvId:
+                    savedAt:
                     evaluatedAt: '2026-07-21T08:00:00Z'
-                    message: No saved CV version exists yet.
+                    message: No saved CV exists yet.
                 currentCv:
                   summary: Latest saved CV is current
                   value: &id004
                     status: CURRENT
                     changedAreas: []
-                    latestSavedCvVersionId: 50000000-0000-4000-8000-000000000001
-                    latestSavedAt: '2026-07-21T07:30:00Z'
+                    cvId: 50000000-0000-4000-8000-000000000001
+                    savedAt: '2026-07-21T07:30:00Z'
                     evaluatedAt: '2026-07-21T08:00:00Z'
                     message: The latest saved CV matches current source data.
                 outdatedAfterProfile:
@@ -2743,8 +2740,8 @@ paths:
                     status: OUTDATED
                     changedAreas:
                       - PROFILE
-                    latestSavedCvVersionId: 50000000-0000-4000-8000-000000000001
-                    latestSavedAt: '2026-07-21T07:30:00Z'
+                    cvId: 50000000-0000-4000-8000-000000000001
+                    savedAt: '2026-07-21T07:30:00Z'
                     evaluatedAt: '2026-07-21T08:00:00Z'
                     message: Profile data changed after the latest CV was saved.
                 outdatedAfterSkillsProjects:
@@ -2754,8 +2751,8 @@ paths:
                     changedAreas:
                       - DECLARED_SKILLS
                       - PROJECTS
-                    latestSavedCvVersionId: 50000000-0000-4000-8000-000000000001
-                    latestSavedAt: '2026-07-21T07:30:00Z'
+                    cvId: 50000000-0000-4000-8000-000000000001
+                    savedAt: '2026-07-21T07:30:00Z'
                     evaluatedAt: '2026-07-21T08:00:00Z'
                     message: Declared skills or projects changed after the latest CV was saved.
         '401':
@@ -2769,345 +2766,157 @@ paths:
         '503':
           $ref: '#/components/responses/CvGenerationFailed503'
       description: 'Access: Student. Audit: No. Owner-scoped notice comparing current approved CV source areas with the latest
-        saved version. NOT_SAVED is a successful first-time state. This operation creates no submission, review, or approval
+        saved CV. NOT_SAVED is a successful first-time state. This operation creates no submission, review, or approval
         state.'
       security:
         - bearerAuth: []
   /me/cv/preview:
     post:
       tags:
-        - CV Generation and Versioning
-      summary: Generate a backend-controlled ATS-compliant CV preview.
+        - CV Generation and Active CV
+      summary: Generate a backend-controlled ATS-compliant CV preview in the fixed default order.
       operationId: postMeCvPreview
-      responses:
-        '200':
-          description: Generated sanitized HTML and LaTeX preview.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CvPreviewResponse'
-              examples:
-                previewGenerated:
-                  summary: Preview generated
-                  value: &id009
-                    previewId: 70000000-0000-4000-8000-000000000001
-                    htmlPreview: <article class="ats-cv"><h1>Sample Student</h1><section><h2>Skills</h2><p>React, 
-                      TypeScript</p></section></article>
-                    latexSource: \documentclass[11pt]{article}\n\begin{document}\nSample Student\n\section*{Skills} 
-                      React, TypeScript\n\end{document}
-                    freshness:
-                      status: OUTDATED
-                      changedAreas:
-                        - PROFILE
-                        - PROJECTS
-                      latestSavedCvVersionId: 50000000-0000-4000-8000-000000000001
-                      latestSavedAt: '2026-07-21T07:30:00Z'
-                      evaluatedAt: '2026-07-21T08:00:00Z'
-                      message: Profile or project data changed after the latest CV was saved.
-                    configuration:
-                      sectionOrder:
-                        - PROFESSIONAL_SUMMARY
-                        - SKILLS
-                        - PROJECTS
-                        - ACADEMIC_SUMMARY
-                      includedProjectIds:
-                        - 60000000-0000-4000-8000-000000000001
-                    generatedAt: '2026-07-21T08:00:00Z'
-                    expiresAt: '2026-07-21T08:15:00Z'
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '415':
-          $ref: '#/components/responses/Error415'
-        '422':
-          $ref: '#/components/responses/InvalidCvConfiguration422'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
-        '503':
-          $ref: '#/components/responses/CvGenerationFailed503'
-      description: 'Access: Student. Audit: Yes. Generates an immutable backend-controlled ATS preview from structured owner-scoped
-        data. Project ownership and semantic section rules are enforced by the backend. No Admin review submission is created.'
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/CvPreviewRequest'
-            examples:
-              fullPreview:
-                summary: Full approved preview configuration
-                value: &id007
-                  sectionOrder:
-                    - PROFESSIONAL_SUMMARY
-                    - SKILLS
-                    - EXPERIENCE
-                    - PROJECTS
-                    - CERTIFICATES
-                    - AWARDS
-                    - ACTIVITIES
-                    - ACADEMIC_SUMMARY
-                  includedProjectIds:
-                    - 60000000-0000-4000-8000-000000000001
-                    - 60000000-0000-4000-8000-000000000002
-              minimalPreview:
-                summary: Minimal valid preview configuration
-                value: &id008
-                  sectionOrder:
-                    - PROFESSIONAL_SUMMARY
-                    - SKILLS
-                  includedProjectIds: []
-      security:
-        - bearerAuth: []
-  /me/cv/versions:
-    post:
-      tags:
-        - CV Generation and Versioning
-      summary: Save current CV version as latest saved CV.
-      operationId: postMeCvVersions
       responses:
-        '201':
-          description: Current preview saved as an immutable CV version.
+        '200':
+          description: Generated sanitized HTML preview.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CvVersionResponse'
-              examples:
-                cvVersionSaved:
-                  summary: CV version saved
-                  value: &id001
-                    cvVersionId: 50000000-0000-4000-8000-000000000004
-                    versionNumber: 4
-                    versionLabel: Version 4
-                    latest: true
-                    createdAt: '2026-07-21T08:02:00Z'
-                    generatedAt: '2026-07-21T08:01:30Z'
-                    savedAt: '2026-07-21T08:02:00Z'
-                    downloadUrl: /me/cv/versions/50000000-0000-4000-8000-000000000004/download
-                    freshnessStatus: CURRENT
-                    pdfFile:
-                      fileName: cv-version-4.pdf
-                      mediaType: application/pdf
-                      fileSizeBytes: 184320
-                      generatedAt: '2026-07-21T08:01:30Z'
+                $ref: '#/components/schemas/CvPreviewResponse'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
           $ref: '#/components/responses/Error401'
         '403':
           $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '409':
-          $ref: '#/components/responses/CvPreviewExpired409'
         '415':
           $ref: '#/components/responses/Error415'
         '422':
           $ref: '#/components/responses/InvalidCvConfiguration422'
         '429':
           $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/CvGenerationFailed503'
-      description: 'Access: Student. Audit: Yes. Implements Save Current CV Version by saving the exact immutable preview
-        represented by previewId. The transaction updates the latest marker, generated PDF metadata, and freshness atomically.
-        It does not create submission, shortlist, review, approval, rejection, correction, or comment state.'
+      description: 'Access: Student. Audit: Yes. Generates an expiring owner-scoped preview. The backend applies the fixed approved section order and validates every included project ID. No internal generator source or governance state is exposed.'
+      security:
+        - bearerAuth: []
+  /me/cv:
+    get:
+      tags:
+        - CV Generation and Active CV
+      summary: Retrieve the authenticated Student's active saved CV metadata.
+      operationId: getMeCv
+      responses:
+        '200':
+          description: Active saved CV metadata.
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+              description: Quoted current revision used for conditional replacement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvResponse'
+        '401':
+          $ref: '#/components/responses/Error401'
+        '403':
+          $ref: '#/components/responses/Error403'
+        '404':
+          $ref: '#/components/responses/NoSavedCv404'
+      description: 'Access: Student. Audit: No. Returns only the authenticated Student owner’s single active CV.'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - CV Generation and Active CV
+      summary: Create or replace the authenticated Student's active CV from a confirmed preview.
+      operationId: putMeCv
+      parameters:
+        - name: If-Match
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Required for replacement and must contain the quoted current revision.
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+            enum: ['*']
+          description: Required with value * for first creation.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CvVersionCreateRequest'
-            examples:
-              saveCurrentPreview:
-                summary: Save exact current preview
-                value: &id010
-                  previewId: 70000000-0000-4000-8000-000000000001
-      security:
-        - bearerAuth: []
-    get:
-      tags:
-        - CV Generation and Versioning
-      summary: List own saved CV versions.
-      operationId: getMeCvVersions
+              $ref: '#/components/schemas/CvSaveRequest'
       responses:
         '200':
-          description: Saved CV-version history.
+          description: Existing active CV replaced atomically.
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PagedCvVersionResponse'
-              examples:
-                versionsAvailable:
-                  summary: Saved CV versions
-                  value: &id015
-                    items:
-                      - *id001
-                    page:
-                      page: 0
-                      size: 20
-                      totalElements: 1
-                      totalPages: 1
-                      sort: savedAt,desc
-                noSavedVersions:
-                  summary: No saved CV versions
-                  value: &id016
-                    items: []
-                    page:
-                      page: 0
-                      size: 20
-                      totalElements: 0
-                      totalPages: 0
-                      sort: savedAt,desc
-        '400':
-          $ref: '#/components/responses/Error400'
+                $ref: '#/components/schemas/CvResponse'
+        '201':
+          description: First active CV created.
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CvResponse'
         '401':
           $ref: '#/components/responses/Error401'
         '403':
           $ref: '#/components/responses/Error403'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
-        '503':
-          $ref: '#/components/responses/CvGenerationFailed503'
-      description: 'Access: Student. Audit: No. Lists only the authenticated Student’s immutable saved versions. Supported
-        sort properties are versionNumber, generatedAt, savedAt, and latest. An empty history returns 200 with items: [].'
-      parameters:
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/Size'
-        - $ref: '#/components/parameters/Sort'
+        '409':
+          $ref: '#/components/responses/CvPreviewExpired409'
+        '412':
+          $ref: '#/components/responses/StaleCv412'
+        '422':
+          $ref: '#/components/responses/InvalidCvConfiguration422'
+        '428':
+          $ref: '#/components/responses/CvPreconditionRequired428'
+      description: 'Access: Student. Audit: Yes. Saves the exact unexpired preview. The first save requires If-None-Match: *; replacement requires If-Match. The unique owner row, PDF reference, source fingerprint, and revision are replaced atomically.'
       security:
         - bearerAuth: []
-  /me/cv/versions/{cvVersionId}:
+  /me/cv/download:
     get:
       tags:
-        - CV Generation and Versioning
-      summary: Retrieve own CV version metadata.
-      operationId: getMeCvVersionsByCvVersionId
-      responses:
-        '200':
-          description: Saved CV-version metadata.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CvVersionResponse'
-              examples:
-                versionDetail:
-                  summary: Saved CV-version detail
-                  value: *id001
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
-        '503':
-          $ref: '#/components/responses/CvGenerationFailed503'
-      description: 'Access: Student. Audit: No. Returns only a version owned by the authenticated Student. Unknown and inaccessible
-        identifiers use the resource-concealment 404 behavior. No mutable review workflow status is exposed.'
-      parameters:
-        - name: cvVersionId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: cvVersionId identifier.
-      security:
-        - bearerAuth: []
-  /me/cv/versions/{cvVersionId}/download:
-    get:
-      tags:
-        - CV Generation and Versioning
-      summary: Download own saved CV version PDF.
-      operationId: getMeCvVersionsByCvVersionIdDownload
+        - CV Generation and Active CV
+      summary: Download the authenticated Student's active saved CV PDF.
+      operationId: getMeCvDownload
       responses:
         '200':
           description: ATS-compliant PDF attachment.
           headers:
             Content-Disposition:
-              description: Attachment filename sanitized by the server; path separators and raw user filenames are 
-                forbidden.
               required: true
               schema:
                 type: string
                 pattern: ^attachment; filename="[A-Za-z0-9._-]+\.pdf"$
-              example: attachment; filename="cv-version-4.pdf"
-            Content-Length:
-              description: Generated PDF size in bytes when known.
-              schema:
-                type: integer
-                format: int64
-                minimum: 1
-              example: 184320
-          content:
-            application/pdf:
-              schema:
-                type: string
-                format: binary
-        '400':
-          $ref: '#/components/responses/Error400'
-        '401':
-          $ref: '#/components/responses/Error401'
-        '403':
-          $ref: '#/components/responses/Error403'
-        '404':
-          $ref: '#/components/responses/Error404'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
-        '503':
-          $ref: '#/components/responses/CvFileUnavailable503'
-      description: 'Access: Student. Audit: Yes. Downloads only an owned saved CV as application/pdf. Download does not create
-        a new version, change freshness, or create any review state.'
-      parameters:
-        - name: cvVersionId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: cvVersionId identifier.
-      security:
-        - bearerAuth: []
-  /me/cv/latest/download:
-    get:
-      tags:
-        - CV Generation and Versioning
-      summary: Download own latest saved CV PDF.
-      operationId: getMeCvLatestDownload
-      responses:
-        '200':
-          description: ATS-compliant PDF attachment.
-          headers:
-            Content-Disposition:
-              description: Attachment filename sanitized by the server; path separators and raw user filenames are 
-                forbidden.
+            Cache-Control:
               required: true
               schema:
                 type: string
-                pattern: ^attachment; filename="[A-Za-z0-9._-]+\.pdf"$
-              example: attachment; filename="latest-cv.pdf"
-            Content-Length:
-              description: Generated PDF size in bytes when known.
-              schema:
-                type: integer
-                format: int64
-                minimum: 1
-              example: 184320
+                enum: [no-store]
           content:
             application/pdf:
               schema:
@@ -3119,14 +2928,9 @@ paths:
           $ref: '#/components/responses/Error403'
         '404':
           $ref: '#/components/responses/NoSavedCv404'
-        '429':
-          $ref: '#/components/responses/Error429'
-        '500':
-          $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/CvFileUnavailable503'
-      description: 'Access: Student. Audit: Yes. Downloads the authenticated Student’s latest saved CV as application/pdf.
-        No latest saved version returns CV_NOT_SAVED. Download does not change freshness or workflow state.'
+      description: 'Access: Student. Audit: Yes. Downloads only the owner’s current saved PDF and never creates another CV record.'
       security:
         - bearerAuth: []
   /admin/dashboard/metrics:
@@ -3667,7 +3471,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CvVersionResponse'
+                $ref: '#/components/schemas/CvResponse'
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -3690,7 +3494,7 @@ paths:
           $ref: '#/components/responses/Error500'
         '503':
           $ref: '#/components/responses/Error503'
-      description: 'Access: Admin. Audit: No. No CV review queue.'
+      description: 'Access: Admin. Audit: No. Read-only active saved-CV metadata.'
       parameters:
         - name: studentId
           in: path
@@ -3706,18 +3510,21 @@ paths:
       summary: Download latest saved Student CV PDF.
       operationId: getAdminStudentsByStudentIdLatestCvDownload
       responses:
-        '200': &id002
-          description: Binary file download.
+        '200':
+          description: Active saved CV PDF attachment.
+          headers:
+            Content-Disposition:
+              required: true
+              schema:
+                type: string
+                pattern: ^attachment; filename="[A-Za-z0-9._-]+\.pdf"$
+            Cache-Control:
+              required: true
+              schema:
+                type: string
+                enum: [no-store]
           content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
             application/pdf:
-              schema:
-                type: string
-                format: binary
-            application/zip:
               schema:
                 type: string
                 format: binary
@@ -4839,7 +4646,17 @@ paths:
       summary: Download generated shortlist export file.
       operationId: getAdminExportsByExportJobIdDownload
       responses:
-        '200': *id002
+        '200':
+          description: Generated export file attachment.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -4928,7 +4745,13 @@ paths:
       summary: Download generated bulk CV archive.
       operationId: getAdminExportsByExportJobIdBulkCvsDownload
       responses:
-        '200': *id002
+        '200':
+          description: Generated bulk CV archive attachment.
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
         '400':
           $ref: '#/components/responses/Error400'
         '401':
@@ -5255,10 +5078,36 @@ components:
                 title: CV preview expired
                 status: 409
                 code: CV_PREVIEW_EXPIRED
-                message: Generate a new preview before saving the CV version.
+                message: Generate a new preview before saving the CV.
                 correlationId: req-20260721-0409
                 details:
                   previewId: 70000000-0000-4000-8000-000000000001
+    StaleCv412:
+      description: The active CV revision changed before this replacement request.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: https://uor-cv-system/errors/stale-version
+            title: Precondition failed
+            status: 412
+            code: STALE_VERSION
+            message: The saved CV changed in another request.
+            correlationId: req-20260718-0412
+    CvPreconditionRequired428:
+      description: The required first-create or replacement conditional header is missing.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          example:
+            type: https://uor-cv-system/errors/precondition-required
+            title: Precondition required
+            status: 428
+            code: PRECONDITION_REQUIRED
+            message: A current conditional request header is required.
+            correlationId: req-20260718-0428
     CvGenerationFailed503:
       description: The backend-controlled LaTeX/PDF generation service could not complete the requested operation.
       content:
@@ -5277,7 +5126,7 @@ components:
                 correlationId: req-20260721-0503
                 details: {}
     NoSavedCv404:
-      description: No latest saved CV exists for the authenticated Student.
+      description: No active saved CV exists for the authenticated Student.
       content:
         application/problem+json:
           schema:
@@ -5290,7 +5139,7 @@ components:
                 title: No saved CV is available
                 status: 404
                 code: CV_NOT_SAVED
-                message: Save a current CV version before downloading the latest CV.
+                message: Save the CV before downloading it.
                 correlationId: req-20260721-0404
                 details: {}
     CvFileUnavailable503:
@@ -5474,7 +5323,7 @@ components:
         profile:
           $ref: '#/components/schemas/StudentProfileResponse'
         latestCv:
-          $ref: '#/components/schemas/CvVersionResponse'
+          $ref: '#/components/schemas/CvResponse'
     AuthTokenResponse:
       type: object
       additionalProperties: false
@@ -5760,8 +5609,8 @@ components:
       required:
         - status
         - changedAreas
-        - latestSavedCvVersionId
-        - latestSavedAt
+        - cvId
+        - savedAt
         - evaluatedAt
         - message
       properties:
@@ -5773,14 +5622,14 @@ components:
           items:
             $ref: '#/components/schemas/CvSourceArea'
           description: Changed source areas. Empty for NOT_SAVED and CURRENT; non-empty for OUTDATED.
-        latestSavedCvVersionId:
+        cvId:
           type:
             - string
             - 'null'
           format: uuid
           readOnly: true
-          description: Latest saved CV version identifier, or null when status is NOT_SAVED.
-        latestSavedAt:
+          description: Active saved CV identifier, or null when status is NOT_SAVED.
+        savedAt:
           type:
             - string
             - 'null'
@@ -5806,38 +5655,25 @@ components:
       type: object
       additionalProperties: false
       required:
-        - sectionOrder
+        - optionalSections
         - includedProjectIds
       properties:
-        sectionOrder:
-          type: array
-          minItems: 1
-          maxItems: 8
-          uniqueItems: true
-          items:
-            $ref: '#/components/schemas/CvSectionType'
-          description: Ordered optional sections. The identity/contact header is always included. Omitted section values
-            are excluded rather than appended automatically.
+        optionalSections:
+          $ref: '#/components/schemas/CvOptionalSections'
         includedProjectIds:
           type: array
           uniqueItems: true
           items:
             type: string
             format: uuid
-          description: Student-owned project IDs to include. IDs not owned by the authenticated Student are rejected. An
-            empty array includes no project entries.
-      description: Approved Student-controlled CV configuration. It cannot contain free-form HTML, raw LaTeX, owner IDs,
-        review fields, or unsupported notes.
-      examples:
-        - *id007
-        - *id008
+          description: Owner-scoped project IDs. Must be empty when optionalSections.projects is false.
+      description: Student-controlled inclusion flags only. The backend applies the fixed default structural order.
     CvPreviewResponse:
       type: object
       additionalProperties: false
       required:
         - previewId
         - htmlPreview
-        - latexSource
         - freshness
         - configuration
         - generatedAt
@@ -5847,19 +5683,11 @@ components:
           type: string
           format: uuid
           readOnly: true
-          description: Server-issued identifier for this immutable preview snapshot.
         htmlPreview:
           type: string
           minLength: 1
           readOnly: true
-          description: Backend-generated sanitized HTML fragment for the ATS preview. It contains no script elements, 
-            event-handler attributes, unsafe URLs, embedded credentials, or untrusted Student-supplied HTML. The 
-            frontend must still render it only through the approved sanitizing boundary.
-        latexSource:
-          type: string
-          minLength: 1
-          readOnly: true
-          description: Backend-generated UTF-8 LaTeX source shown in the CV Builder output panel.
+          description: Backend-generated sanitized HTML fragment rendered only through the approved frontend sanitizing boundary.
         freshness:
           $ref: '#/components/schemas/CvFreshnessResponse'
         configuration:
@@ -5868,17 +5696,12 @@ components:
           type: string
           format: date-time
           readOnly: true
-          description: Preview-generation timestamp.
         expiresAt:
           type: string
           format: date-time
           readOnly: true
-          description: Server-controlled expiry of previewId. Saving after this timestamp returns CV_PREVIEW_EXPIRED.
-      description: Immutable backend-controlled CV preview. POST /me/cv/versions accepts previewId so the saved version 
-        is exactly the preview confirmed by the Student; clients never send HTML or LaTeX back to the server.
-      examples:
-        - *id009
-    CvVersionCreateRequest:
+      description: Expiring preview snapshot. Generated LaTeX remains internal and is never exposed by this API.
+    CvSaveRequest:
       type: object
       additionalProperties: false
       required:
@@ -5887,79 +5710,54 @@ components:
         previewId:
           type: string
           format: uuid
-          description: Unexpired server-issued preview identifier. The backend saves the immutable HTML/LaTeX/PDF 
-            content and configuration represented by this preview; clients do not resubmit generated content.
-      description: Request for the self-service Save Current CV Version action. It creates no review or submission 
-        state.
-      examples:
-        - *id010
-    CvVersionResponse:
+      description: Saves the exact unexpired owner-scoped preview as the Student's single active CV.
+    CvResponse:
       type: object
       additionalProperties: false
       required:
-        - cvVersionId
-        - versionNumber
-        - versionLabel
-        - latest
+        - cvId
+        - revision
         - createdAt
         - generatedAt
         - savedAt
         - downloadUrl
         - freshnessStatus
+        - configuration
         - pdfFile
       properties:
-        cvVersionId:
+        cvId:
           type: string
           format: uuid
           readOnly: true
-        versionNumber:
+        revision:
           type: integer
           minimum: 1
           readOnly: true
-          description: Student-specific monotonically increasing saved-version number.
-        versionLabel:
-          type: string
-          minLength: 1
-          readOnly: true
-          description: Human-readable label such as Version 4.
-        latest:
-          type: boolean
-          readOnly: true
-          description: True only for the Student’s current latest saved CV.
         createdAt:
           type: string
           format: date-time
           readOnly: true
-          description: Creation timestamp retained for backward compatibility.
         generatedAt:
           type: string
           format: date-time
           readOnly: true
-          description: Timestamp at which the immutable CV output was generated.
         savedAt:
           type: string
           format: date-time
           readOnly: true
-          description: Timestamp at which Save Current CV Version completed.
         downloadUrl:
           type: string
-          format: uri-reference
+          pattern: ^/me/cv/download$
           readOnly: true
-          description: Authorized API-relative PDF download path.
         freshnessStatus:
           type: string
-          enum:
-            - CURRENT
-            - OUTDATED
+          enum: [CURRENT, OUTDATED]
           readOnly: true
-          description: Freshness of this saved version relative to current source data. A saved version can never be 
-            NOT_SAVED.
+        configuration:
+          $ref: '#/components/schemas/CvPreviewConfigurationResponse'
         pdfFile:
           $ref: '#/components/schemas/GeneratedFileMetadataResponse'
-      description: Immutable saved CV version metadata. Saving a new version transactionally clears the previous latest 
-        flag, sets the new latest flag, persists generated-file metadata, and resets freshness without deleting history.
-      examples:
-        - *id001
+      description: The Student's single active saved CV. Revision is an optimistic-concurrency token, not a history number.
     DeclaredSkillCreateRequest:
       type: object
       additionalProperties: false
@@ -6500,23 +6298,6 @@ components:
             $ref: '#/components/schemas/ContactLinkResponse'
         page:
           $ref: '#/components/schemas/PageMetadata'
-    PagedCvVersionResponse:
-      type: object
-      additionalProperties: false
-      required:
-        - items
-        - page
-      properties:
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/CvVersionResponse'
-        page:
-          $ref: '#/components/schemas/PageMetadata'
-      description: Typed page of the authenticated Student’s immutable saved CV versions.
-      examples:
-        - *id015
-        - *id016
     PagedDeclaredSkillResponse:
       type: object
       additionalProperties: false
@@ -7821,9 +7602,9 @@ components:
         - NOT_AVAILABLE
     CvFreshnessStatus:
       type: string
-      description: Freshness of the latest saved CV relative to current structured source data. NOT_SAVED means no saved
-        CV version exists; CURRENT means the latest saved version matches current source data; OUTDATED means one or 
-        more approved source areas changed after the latest save.
+      description: Freshness of the active saved CV relative to current structured source data. NOT_SAVED means no saved
+        CV exists; CURRENT means the saved CV matches current source data; OUTDATED means one or more approved source
+        areas changed after the latest save.
       enum:
         - NOT_SAVED
         - CURRENT
@@ -7836,19 +7617,6 @@ components:
         - DECLARED_SKILLS
         - PROJECTS
         - ACADEMIC_RECORDS
-    CvSectionType:
-      type: string
-      description: Optional ordered CV content section. The identity/contact header is always rendered and is not part 
-        of sectionOrder. A section omitted from sectionOrder is excluded from the generated preview.
-      enum:
-        - PROFESSIONAL_SUMMARY
-        - SKILLS
-        - EXPERIENCE
-        - PROJECTS
-        - CERTIFICATES
-        - AWARDS
-        - ACTIVITIES
-        - ACADEMIC_SUMMARY
     AcademicRecordResponse:
       type: object
       additionalProperties: false
@@ -7963,25 +7731,33 @@ components:
       type: object
       additionalProperties: false
       required:
-        - sectionOrder
+        - optionalSections
         - includedProjectIds
       properties:
-        sectionOrder:
-          type: array
-          minItems: 1
-          maxItems: 8
-          uniqueItems: true
-          items:
-            $ref: '#/components/schemas/CvSectionType'
-          description: Exact ordered optional sections applied to the preview.
+        optionalSections:
+          $ref: '#/components/schemas/CvOptionalSections'
         includedProjectIds:
           type: array
           uniqueItems: true
           items:
             type: string
             format: uuid
-          description: Exact Student-owned projects applied to the preview. Empty means no project entries.
-      description: Immutable configuration snapshot applied to a generated CV preview.
+      description: Immutable inclusion snapshot applied using the backend's fixed default section order.
+    CvOptionalSections:
+      type: object
+      additionalProperties: false
+      required: [experience, projects, certificates, awards, activities]
+      properties:
+        experience:
+          type: boolean
+        projects:
+          type: boolean
+        certificates:
+          type: boolean
+        awards:
+          type: boolean
+        activities:
+          type: boolean
     GeneratedFileMetadataResponse:
       type: object
       additionalProperties: false

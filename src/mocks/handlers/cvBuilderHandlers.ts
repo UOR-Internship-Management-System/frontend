@@ -3,15 +3,14 @@ import {
   cvFreshnessSchema,
   cvPreviewRequestSchema,
   cvPreviewSchema,
-  cvVersionCreateRequestSchema,
-  cvVersionSchema,
-  pagedCvVersionsSchema,
+  cvSaveRequestSchema,
+  cvSchema,
 } from '../../features/cv-builder/schemas/cvBuilderSchemas'
 import {
   cvFixtureIds,
   getCvFixtureState,
+  storeCv,
   storeCvPreview,
-  storeCvVersion,
 } from '../fixtures/cvBuilder.fixture'
 
 const apiBase = '/api/v1'
@@ -36,7 +35,7 @@ export const cvBuilderHandlers = [
     const parsed = cvPreviewRequestSchema.safeParse(await request.json())
     if (!parsed.success || state.previewFailure === 'validation') {
       return HttpResponse.json(
-        problem(422, 'INVALID_CV_CONFIGURATION', 'Review the selected CV sections and projects.'),
+        problem(422, 'INVALID_CV_CONFIGURATION', 'Review the selected CV records.'),
         { status: 422 },
       )
     }
@@ -48,24 +47,29 @@ export const cvBuilderHandlers = [
     }
 
     const now = new Date()
-    const preview = storeCvPreview(
-      cvPreviewSchema.parse({
-        previewId: cvFixtureIds.preview,
-        htmlPreview:
-          '<article class="ats-cv"><h1>Sample Student</h1><section><h2>Skills</h2><p>React, TypeScript</p></section></article>',
-        latexSource:
-          '\\documentclass[11pt]{article}\n\\begin{document}\nSample Student\n\\section*{Skills} React, TypeScript\n\\end{document}',
-        freshness: state.freshness,
-        configuration: parsed.data,
-        generatedAt: now.toISOString(),
-        expiresAt: new Date(now.getTime() + 15 * 60_000).toISOString(),
-      }),
+    return HttpResponse.json(
+      storeCvPreview(
+        cvPreviewSchema.parse({
+          previewId: cvFixtureIds.preview,
+          htmlPreview:
+            '<article class="ats-cv"><h1>Sample Student</h1><section><h2>Skills</h2><p>React, TypeScript</p></section></article>',
+          freshness: state.freshness,
+          configuration: parsed.data,
+          generatedAt: now.toISOString(),
+          expiresAt: new Date(now.getTime() + 15 * 60_000).toISOString(),
+        }),
+      ),
     )
-    return HttpResponse.json(preview)
   }),
-  http.post(`${apiBase}/me/cv/versions`, async ({ request }) => {
+  http.get(`${apiBase}/me/cv`, () => {
+    const cv = getCvFixtureState().cv
+    return cv
+      ? HttpResponse.json(cvSchema.parse(cv), { headers: { ETag: `"${cv.revision}"` } })
+      : HttpResponse.json(problem(404, 'CV_NOT_SAVED', 'No saved CV exists.'), { status: 404 })
+  }),
+  http.put(`${apiBase}/me/cv`, async ({ request }) => {
     const state = getCvFixtureState()
-    const parsed = cvVersionCreateRequestSchema.safeParse(await request.json())
+    const parsed = cvSaveRequestSchema.safeParse(await request.json())
     if (!parsed.success) {
       return HttpResponse.json(
         problem(422, 'INVALID_CV_CONFIGURATION', 'Use a valid preview ID.'),
@@ -84,71 +88,34 @@ export const cvBuilderHandlers = [
     }
 
     const now = new Date().toISOString()
-    const versionNumber = state.versions.length + 1
-    const version = storeCvVersion(
-      cvVersionSchema.parse({
-        cvVersionId: cvFixtureIds.version,
-        versionNumber,
-        versionLabel: `Version ${versionNumber}`,
-        latest: true,
-        createdAt: now,
+    const revision = (state.cv?.revision ?? 0) + 1
+    const cv = storeCv(
+      cvSchema.parse({
+        cvId: state.cv?.cvId ?? cvFixtureIds.cv,
+        revision,
+        createdAt: state.cv?.createdAt ?? now,
         generatedAt: preview.generatedAt,
         savedAt: now,
-        downloadUrl: `/me/cv/versions/${cvFixtureIds.version}/download`,
+        downloadUrl: '/me/cv/download',
         freshnessStatus: 'CURRENT',
+        configuration: preview.configuration,
         pdfFile: {
-          fileName: `cv-version-${versionNumber}.pdf`,
+          fileName: 'student-cv.pdf',
           mediaType: 'application/pdf',
           fileSizeBytes: 184_320,
           generatedAt: preview.generatedAt,
         },
       }),
     )
-    return HttpResponse.json(version, { status: 201 })
+    return HttpResponse.json(cv, {
+      status: revision === 1 ? 201 : 200,
+      headers: { ETag: `"${revision}"` },
+    })
   }),
-  http.get(`${apiBase}/me/cv/versions`, ({ request }) => {
-    const state = getCvFixtureState()
-    const url = new URL(request.url)
-    const page = Math.max(0, Number(url.searchParams.get('page') ?? 0))
-    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('size') ?? 20)))
-    const sort = url.searchParams.get('sort') ?? 'savedAt,desc'
-    const values = [...state.versions].sort((left, right) =>
-      right.savedAt.localeCompare(left.savedAt),
-    )
-    return HttpResponse.json(
-      pagedCvVersionsSchema.parse({
-        items: values.slice(page * size, page * size + size),
-        page: {
-          page,
-          size,
-          totalElements: values.length,
-          totalPages: Math.ceil(values.length / size),
-          sort,
-        },
-      }),
-    )
-  }),
-  http.get(`${apiBase}/me/cv/versions/:cvVersionId`, ({ params }) => {
-    const version = getCvFixtureState().versions.find(
-      (item) => item.cvVersionId === String(params.cvVersionId),
-    )
-    return version
-      ? HttpResponse.json(cvVersionSchema.parse(version))
-      : HttpResponse.json(problem(404, 'CV_NOT_FOUND', 'The CV version was not found.'), {
-          status: 404,
-        })
-  }),
-  http.get(`${apiBase}/me/cv/versions/:cvVersionId/download`, ({ params }) => {
-    const version = getCvFixtureState().versions.find(
-      (item) => item.cvVersionId === String(params.cvVersionId),
-    )
-    return version ? pdfResponse(version.pdfFile.fileName) : downloadProblem('not-saved')
-  }),
-  http.get(`${apiBase}/me/cv/latest/download`, () => {
+  http.get(`${apiBase}/me/cv/download`, () => {
     const state = getCvFixtureState()
     if (state.downloadFailure) return downloadProblem(state.downloadFailure)
-    const latest = state.versions.find((version) => version.latest)
-    return latest ? pdfResponse(latest.pdfFile.fileName) : downloadProblem('not-saved')
+    return state.cv ? pdfResponse(state.cv.pdfFile.fileName) : downloadProblem('not-saved')
   }),
 ]
 

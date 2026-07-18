@@ -3,6 +3,7 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import type { CvPreview } from '../types/cvBuilderTypes'
+import { sanitizeCvHtml } from '../utils/sanitizeCvHtml'
 
 export function CvPreviewPanel({
   dirty,
@@ -58,7 +59,7 @@ export function CvPreviewPanel({
       ) : null}
       {!preview && !isPending && !error ? (
         <EmptyState
-          message="Choose your sections and projects, then generate an explicit preview."
+          message="Choose the records to include, then generate an explicit preview."
           title="No preview generated"
         />
       ) : null}
@@ -79,5 +80,6 @@ export function CvPreviewPanel({
 }
 
 export function buildPreviewDocument(htmlPreview: string) {
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none';"><meta name="referrer" content="no-referrer"><style>html{background:#fff;color:#191919;font:14px/1.5 Arial,sans-serif}body{margin:0;padding:32px}article{max-width:760px;margin:auto}h1{font-size:28px;margin:0 0 8px}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #bbb;padding-bottom:4px}p,ul{margin:6px 0}a{color:inherit;text-decoration:none}</style></head><body>${htmlPreview}</body></html>`
+  const sanitizedPreview = sanitizeCvHtml(htmlPreview)
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none';"><meta name="referrer" content="no-referrer"><style>html{background:#fff;color:#191919;font:14px/1.5 Arial,sans-serif}body{margin:0;padding:32px}article{max-width:760px;margin:auto}h1{font-size:28px;margin:0 0 8px}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #bbb;padding-bottom:4px}p,ul{margin:6px 0}a{color:inherit;text-decoration:none}</style></head><body>${sanitizedPreview}</body></html>`
 }

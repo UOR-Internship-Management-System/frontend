@@ -1,145 +1,82 @@
-import { Button } from '../../../shared/components/ui/Button'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
-import type { StudentProject } from '../../student-projects/types/studentProjectTypes'
-import { cvSectionLabels, defaultCvSectionOrder } from '../mappers/cvMapper'
-import type { CvSection } from '../types/cvBuilderTypes'
+import type { CvRecordSelections } from '../mappers/cvMapper'
+import { CvRecordSelectionGroup, type CvSelectionGroupState } from './CvRecordSelectionGroup'
 
 export type CvConfigurationPanelProps = {
-  sectionOrder: CvSection[]
-  selectedProjectIds: string[]
-  projects?: StudentProject[]
-  projectsLoading: boolean
-  projectsError?: { message: string; correlationId?: string } | null
-  onMoveSection: (section: CvSection, direction: -1 | 1) => void
-  onToggleSection: (section: CvSection) => void
-  onToggleProject: (projectId: string) => void
-  onRetryProjects: () => void
+  selections: CvRecordSelections
+  experienceSources: CvSelectionGroupState
+  projectSources: CvSelectionGroupState
+  certificateSources: CvSelectionGroupState
+  awardSources: CvSelectionGroupState
+  activitySources: CvSelectionGroupState
+  onToggleRecord: (selection: keyof CvRecordSelections, recordId: string) => void
 }
 
 export function CvConfigurationPanel({
-  onMoveSection,
-  onRetryProjects,
-  onToggleProject,
-  onToggleSection,
-  projects,
-  projectsError,
-  projectsLoading,
-  sectionOrder,
-  selectedProjectIds,
+  activitySources,
+  awardSources,
+  certificateSources,
+  experienceSources,
+  onToggleRecord,
+  projectSources,
+  selections,
 }: CvConfigurationPanelProps) {
-  const projectsEnabled = sectionOrder.includes('PROJECTS')
-  const orderedSections = [
-    ...sectionOrder,
-    ...defaultCvSectionOrder.filter((section) => !sectionOrder.includes(section)),
-  ]
-
   return (
     <SectionCard aria-labelledby="cv-configuration-title" className="s5-cv-configuration">
       <div className="s5-section-heading">
         <div>
-          <h2 id="cv-configuration-title">CV configuration</h2>
-          <p>Choose and order optional content before generating a server-confirmed preview.</p>
+          <h2 id="cv-configuration-title">CV component inclusion</h2>
+          <p>Select the individual records to include before generating a preview.</p>
         </div>
       </div>
 
       <div className="s5-cv-identity-note">
         <strong>Identity and contact details are always included.</strong>
-        <span>They are generated from your profile and are not part of the section order.</span>
+        <span>The CV always uses the approved default section order.</span>
       </div>
 
-      <fieldset className="s5-cv-section-fieldset">
-        <legend>Included sections and order</legend>
-        <ol className="s5-cv-section-list">
-          {orderedSections.map((section) => {
-            const enabled = sectionOrder.includes(section)
-            const enabledIndex = sectionOrder.indexOf(section)
-            return (
-              <li className={enabled ? '' : 'is-disabled'} key={section}>
-                <label>
-                  <input
-                    checked={enabled}
-                    disabled={enabled && sectionOrder.length === 1}
-                    onChange={() => onToggleSection(section)}
-                    type="checkbox"
-                  />
-                  <span>{cvSectionLabels[section]}</span>
-                </label>
-                {enabled ? (
-                  <span className="s5-cv-order-actions">
-                    <Button
-                      aria-label={`Move ${cvSectionLabels[section]} up`}
-                      disabled={enabledIndex === 0}
-                      onClick={() => onMoveSection(section, -1)}
-                      variant="secondary"
-                    >
-                      <span aria-hidden="true" className="material-symbols-outlined">
-                        arrow_upward
-                      </span>
-                    </Button>
-                    <Button
-                      aria-label={`Move ${cvSectionLabels[section]} down`}
-                      disabled={enabledIndex === sectionOrder.length - 1}
-                      onClick={() => onMoveSection(section, 1)}
-                      variant="secondary"
-                    >
-                      <span aria-hidden="true" className="material-symbols-outlined">
-                        arrow_downward
-                      </span>
-                    </Button>
-                  </span>
-                ) : null}
-              </li>
-            )
-          })}
-        </ol>
-      </fieldset>
-
-      <fieldset className="s5-cv-project-fieldset">
-        <legend>Projects to include</legend>
-        {!projectsEnabled ? (
-          <p className="s5-inline-guidance">
-            Project selections are retained locally, but no project IDs are sent while Projects is
-            excluded.
-          </p>
-        ) : null}
-        {projectsLoading ? (
-          <div aria-label="Loading CV project options" role="status">
-            <SkeletonBlock lines={4} />
-          </div>
-        ) : null}
-        {projectsError ? (
-          <ErrorState
-            correlationId={projectsError.correlationId}
-            message={projectsError.message}
-            onAction={onRetryProjects}
-            title="Project options unavailable"
-          />
-        ) : null}
-        {!projectsLoading && !projectsError && projects?.length === 0 ? (
-          <p className="s5-inline-guidance">No portfolio projects are available yet.</p>
-        ) : null}
-        {!projectsLoading && !projectsError && projects?.length ? (
-          <div className="s5-cv-project-options">
-            {projects.map((project) => (
-              <label key={project.projectId}>
-                <input
-                  checked={selectedProjectIds.includes(project.projectId)}
-                  onChange={() => onToggleProject(project.projectId)}
-                  type="checkbox"
-                />
-                <span>
-                  <strong>{project.title}</strong>
-                  <small>
-                    {project.includeInCv ? 'Included by project preference' : 'Optional'}
-                  </small>
-                </span>
-              </label>
-            ))}
-          </div>
-        ) : null}
-      </fieldset>
+      <div className="s5-cv-source-grid">
+        <CvRecordSelectionGroup
+          manageHref="/student/profile"
+          manageLabel="Work Experience in Profile"
+          onToggle={(id) => onToggleRecord('includedExperienceIds', id)}
+          selectedIds={selections.includedExperienceIds}
+          title="Work Experience"
+          {...experienceSources}
+        />
+        <CvRecordSelectionGroup
+          manageHref="/student/projects"
+          manageLabel="Projects"
+          onToggle={(id) => onToggleRecord('includedProjectIds', id)}
+          selectedIds={selections.includedProjectIds}
+          title="Projects"
+          {...projectSources}
+        />
+        <CvRecordSelectionGroup
+          manageHref="/student/profile"
+          manageLabel="Certificates in Profile"
+          onToggle={(id) => onToggleRecord('includedCertificateIds', id)}
+          selectedIds={selections.includedCertificateIds}
+          title="Certificates"
+          {...certificateSources}
+        />
+        <CvRecordSelectionGroup
+          manageHref="/student/profile"
+          manageLabel="Awards and Honors in Profile"
+          onToggle={(id) => onToggleRecord('includedAwardIds', id)}
+          selectedIds={selections.includedAwardIds}
+          title="Awards and Honors"
+          {...awardSources}
+        />
+        <CvRecordSelectionGroup
+          manageHref="/student/profile"
+          manageLabel="Extracurricular Activities in Profile"
+          onToggle={(id) => onToggleRecord('includedActivityIds', id)}
+          selectedIds={selections.includedActivityIds}
+          title="Extracurricular Activities"
+          {...activitySources}
+        />
+      </div>
     </SectionCard>
   )
 }

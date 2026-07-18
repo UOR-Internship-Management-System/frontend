@@ -25,6 +25,18 @@ export type SkillCluster = {
 
 export type SkillTaxonomy = { clusters: SkillCluster[] }
 
+export type SkillTaxonomyPath = {
+  clusterId: string
+  clusterName: string
+  categoryId: string
+  categoryName: string
+}
+
+export type SkillTaxonomyIndex = {
+  skillsById: ReadonlyMap<string, IndividualSkill>
+  pathsBySkillId: ReadonlyMap<string, SkillTaxonomyPath[]>
+}
+
 export type TaxonomyQuery = PagedQuery & {
   clusterId?: string
   categoryId?: string

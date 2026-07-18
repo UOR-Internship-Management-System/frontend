@@ -6,44 +6,42 @@ import { NotificationProvider } from '../../../app/providers/NotificationProvide
 import * as downloadBlob from '../../../shared/utils/downloadBlob'
 import { cvBuilderApi } from '../api/cvBuilderApi'
 import { cvBuilderKeys } from '../hooks/cvBuilderKeys'
-import { useCvFreshness } from '../hooks/useCvFreshness'
+import { useCurrentCv } from '../hooks/useCurrentCv'
 import { useCvPreview } from '../hooks/useCvPreview'
-import { useCvVersions } from '../hooks/useCvVersions'
 import { useDownloadCv } from '../hooks/useDownloadCv'
-import { useSaveCvVersion } from '../hooks/useSaveCvVersion'
-import { cvFreshnessSchema, cvPreviewSchema, cvVersionSchema } from '../schemas/cvBuilderSchemas'
+import { useSaveCv } from '../hooks/useSaveCvVersion'
+import { cvFreshnessSchema, cvPreviewSchema, cvSchema } from '../schemas/cvBuilderSchemas'
+import { emptyCvRecordSelections } from '../mappers/cvMapper'
 
 const previewId = '70000000-0000-4000-8000-000000000001'
-const versionId = '50000000-0000-4000-8000-000000000004'
+const cvId = '50000000-0000-4000-8000-000000000004'
 const freshness = cvFreshnessSchema.parse({
   status: 'NOT_SAVED',
   changedAreas: [],
-  latestSavedCvVersionId: null,
-  latestSavedAt: null,
+  cvId: null,
+  savedAt: null,
   evaluatedAt: '2026-07-21T08:00:00Z',
   message: 'No saved CV exists.',
 })
 const preview = cvPreviewSchema.parse({
   previewId,
   htmlPreview: '<article>Preview</article>',
-  latexSource: '\\documentclass{article}',
   freshness,
-  configuration: { sectionOrder: ['SKILLS'], includedProjectIds: [] },
+  configuration: emptyCvRecordSelections,
   generatedAt: '2026-07-21T08:00:00Z',
   expiresAt: '2026-07-21T08:15:00Z',
 })
-const version = cvVersionSchema.parse({
-  cvVersionId: versionId,
-  versionNumber: 4,
-  versionLabel: 'Version 4',
-  latest: true,
+const cv = cvSchema.parse({
+  cvId,
+  revision: 1,
   createdAt: '2026-07-21T08:02:00Z',
   generatedAt: '2026-07-21T08:01:30Z',
   savedAt: '2026-07-21T08:02:00Z',
-  downloadUrl: `/me/cv/versions/${versionId}/download`,
+  downloadUrl: '/me/cv/download',
   freshnessStatus: 'CURRENT',
+  configuration: preview.configuration,
   pdfFile: {
-    fileName: 'cv-version-4.pdf',
+    fileName: 'student-cv.pdf',
     mediaType: 'application/pdf',
     fileSizeBytes: 184_320,
     generatedAt: '2026-07-21T08:01:30Z',
@@ -53,59 +51,44 @@ const version = cvVersionSchema.parse({
 describe('CV Builder hooks', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('loads freshness and always uses the feature-owned key', async () => {
-    vi.spyOn(cvBuilderApi, 'getFreshness').mockResolvedValue(freshness)
-    const { queryClient, wrapper } = createWrapper()
-    const { result } = renderHook(() => useCvFreshness(), { wrapper })
-
+  it('does not request the active CV until a saved CV is known', async () => {
+    const getCurrent = vi.spyOn(cvBuilderApi, 'getCurrent').mockResolvedValue(cv)
+    const { wrapper } = createWrapper()
+    const { result, rerender } = renderHook(({ enabled }) => useCurrentCv(enabled), {
+      initialProps: { enabled: false },
+      wrapper,
+    })
+    expect(result.current.fetchStatus).toBe('idle')
+    expect(getCurrent).not.toHaveBeenCalled()
+    rerender({ enabled: true })
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(queryClient.getQueryData(cvBuilderKeys.freshness())).toEqual(freshness)
+    expect(result.current.data?.revision).toBe(1)
   })
 
-  it('keeps preview POST user-triggered and never retries a failed generation', async () => {
-    const createPreview = vi
-      .spyOn(cvBuilderApi, 'createPreview')
-      .mockRejectedValue({ status: 503, title: 'Unavailable', code: 'CV_GENERATION_FAILED' })
+  it('keeps preview generation user-triggered and non-retrying', async () => {
+    const createPreview = vi.spyOn(cvBuilderApi, 'createPreview').mockResolvedValue(preview)
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useCvPreview(), { wrapper })
     expect(createPreview).not.toHaveBeenCalled()
-
-    await act(async () => {
-      await expect(result.current.mutateAsync(preview.configuration)).rejects.toBeTruthy()
-    })
+    await act(async () => void (await result.current.mutateAsync(preview.configuration)))
     expect(createPreview).toHaveBeenCalledOnce()
   })
 
-  it('invalidates freshness and all version lists after save without optimistic data', async () => {
-    vi.spyOn(cvBuilderApi, 'saveVersion').mockResolvedValue(version)
+  it('stores the active CV and invalidates freshness after save', async () => {
+    vi.spyOn(cvBuilderApi, 'saveCurrent').mockResolvedValue(cv)
     const { queryClient, wrapper } = createWrapper()
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries')
-    const { result } = renderHook(() => useSaveCvVersion(), { wrapper })
+    const { result } = renderHook(() => useSaveCv(), { wrapper })
 
-    await act(async () => {
-      await result.current.mutateAsync(previewId)
-    })
+    await act(async () => void (await result.current.mutateAsync({ previewId, revision: null })))
 
+    expect(queryClient.getQueryData(cvBuilderKeys.current())).toEqual(cv)
     expect(invalidate).toHaveBeenCalledWith({ queryKey: cvBuilderKeys.freshness() })
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: cvBuilderKeys.versions() })
-  })
-
-  it('maps version pages and retains contract query input', async () => {
-    const query = { page: 0, size: 20, sort: 'savedAt,desc' }
-    vi.spyOn(cvBuilderApi, 'listVersions').mockResolvedValue({
-      items: [version],
-      page: { page: 0, size: 20, totalElements: 1, totalPages: 1, sort: query.sort },
-    })
-    const { wrapper } = createWrapper()
-    const { result } = renderHook(() => useCvVersions(query), { wrapper })
-
-    await waitFor(() => expect(result.current.isSuccess).toBe(true))
-    expect(result.current.data?.items[0]?.fileSizeLabel).toBe('180.0 KB')
   })
 
   it('downloads only after a user mutation and delegates blob saving once', async () => {
     const blob = new Blob(['pdf'], { type: 'application/pdf' })
-    const downloadLatest = vi.spyOn(cvBuilderApi, 'downloadLatest').mockResolvedValue({
+    const downloadCurrent = vi.spyOn(cvBuilderApi, 'downloadCurrent').mockResolvedValue({
       blob,
       filename: 'student-cv.pdf',
       contentType: 'application/pdf',
@@ -114,51 +97,11 @@ describe('CV Builder hooks', () => {
     const save = vi.spyOn(downloadBlob, 'saveBlobAsFile').mockImplementation(() => undefined)
     const { wrapper } = createWrapper()
     const { result } = renderHook(() => useDownloadCv(), { wrapper })
-    expect(downloadLatest).not.toHaveBeenCalled()
-
-    await act(async () => {
-      await result.current.mutateAsync({ kind: 'latest' })
-    })
+    expect(downloadCurrent).not.toHaveBeenCalled()
+    await act(async () => void (await result.current.mutateAsync({ kind: 'current' })))
     expect(save).toHaveBeenCalledWith(blob, 'student-cv.pdf')
   })
-
-  it('keeps the newest download abortable when an earlier request settles', async () => {
-    let latestSignal: AbortSignal | undefined
-    let versionSignal: AbortSignal | undefined
-    vi.spyOn(cvBuilderApi, 'downloadLatest').mockImplementation((signal) => {
-      latestSignal = signal
-      return rejectWhenAborted(signal)
-    })
-    vi.spyOn(cvBuilderApi, 'downloadVersion').mockImplementation((_id, signal) => {
-      versionSignal = signal
-      return rejectWhenAborted(signal)
-    })
-    const { wrapper } = createWrapper()
-    const { result, unmount } = renderHook(() => useDownloadCv(), { wrapper })
-
-    act(() => result.current.mutate({ kind: 'latest' }))
-    await waitFor(() => expect(latestSignal).toBeDefined())
-
-    act(() => result.current.mutate({ kind: 'version', cvVersionId: versionId }))
-    await waitFor(() => expect(latestSignal?.aborted).toBe(true))
-    await waitFor(() => expect(versionSignal).toBeDefined())
-    await act(async () => void (await Promise.resolve()))
-
-    unmount()
-    expect(versionSignal?.aborted).toBe(true)
-  })
 })
-
-function rejectWhenAborted(signal?: AbortSignal): ReturnType<typeof cvBuilderApi.downloadLatest> {
-  return new Promise((_resolve, reject) => {
-    const rejectAbort = () => reject(new DOMException('The operation was aborted.', 'AbortError'))
-    if (signal?.aborted) {
-      rejectAbort()
-      return
-    }
-    signal?.addEventListener('abort', rejectAbort, { once: true })
-  })
-}
 
 function createWrapper() {
   const queryClient = new QueryClient({

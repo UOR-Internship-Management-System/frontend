@@ -4,12 +4,10 @@ import type {
   ApiCvPreviewConfigurationResponse,
   ApiCvPreviewRequest,
   ApiCvPreviewResponse,
-  ApiCvVersionCreateRequest,
-  ApiCvVersionResponse,
+  ApiCvSaveRequest,
+  ApiCvResponse,
   ApiGeneratedFileMetadataResponse,
-  ApiPagedCvVersionResponse,
 } from '../../../shared/api/generated/cvManagementApi.types'
-import { createPagedResponseSchema } from '../../../shared/validation/paginationSchemas'
 
 export const cvFreshnessStatusSchema = z.enum(['NOT_SAVED', 'CURRENT', 'OUTDATED'])
 export const cvSourceAreaSchema = z.enum([
@@ -18,44 +16,25 @@ export const cvSourceAreaSchema = z.enum([
   'PROJECTS',
   'ACADEMIC_RECORDS',
 ])
-export const cvSectionTypeSchema = z.enum([
-  'PROFESSIONAL_SUMMARY',
-  'SKILLS',
-  'EXPERIENCE',
-  'PROJECTS',
-  'CERTIFICATES',
-  'AWARDS',
-  'ACTIVITIES',
-  'ACADEMIC_SUMMARY',
-])
-
 const uuidSchema = z.string().uuid()
 const dateTimeSchema = z.string().datetime({ offset: true })
-const uniqueUuidListSchema = z.array(uuidSchema).superRefine(requireUnique('Project IDs'))
-const sectionOrderSchema = z
-  .array(cvSectionTypeSchema)
-  .min(1)
-  .max(8)
-  .superRefine(requireUnique('CV sections'))
+const selectedRecordIdsSchema = (label: string) =>
+  z.array(uuidSchema).max(100).superRefine(requireUnique(label))
 
 export const cvFreshnessSchema: z.ZodType<ApiCvFreshnessResponse> = z
   .object({
     status: cvFreshnessStatusSchema,
     changedAreas: z.array(cvSourceAreaSchema).superRefine(requireUnique('Changed source areas')),
-    latestSavedCvVersionId: uuidSchema.nullable(),
-    latestSavedAt: dateTimeSchema.nullable(),
+    cvId: uuidSchema.nullable(),
+    savedAt: dateTimeSchema.nullable(),
     evaluatedAt: dateTimeSchema,
     message: z.string().min(1),
   })
   .strict()
   .superRefine((value, context) => {
-    const hasSavedVersion = value.latestSavedCvVersionId !== null && value.latestSavedAt !== null
+    const hasSavedCv = value.cvId !== null && value.savedAt !== null
     if (value.status === 'NOT_SAVED') {
-      if (
-        hasSavedVersion ||
-        value.latestSavedCvVersionId !== null ||
-        value.latestSavedAt !== null
-      ) {
+      if (hasSavedCv || value.cvId !== null || value.savedAt !== null) {
         context.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'NOT_SAVED cannot reference a saved CV.',
@@ -70,7 +49,7 @@ export const cvFreshnessSchema: z.ZodType<ApiCvFreshnessResponse> = z
       return
     }
 
-    if (!hasSavedVersion) {
+    if (!hasSavedCv) {
       context.addIssue({ code: z.ZodIssueCode.custom, message: 'Saved CV metadata is required.' })
     }
     if (value.status === 'CURRENT' && value.changedAreas.length > 0) {
@@ -89,8 +68,11 @@ export const cvFreshnessSchema: z.ZodType<ApiCvFreshnessResponse> = z
 
 export const cvPreviewRequestSchema: z.ZodType<ApiCvPreviewRequest> = z
   .object({
-    sectionOrder: sectionOrderSchema,
-    includedProjectIds: uniqueUuidListSchema,
+    includedExperienceIds: selectedRecordIdsSchema('Experience IDs'),
+    includedProjectIds: selectedRecordIdsSchema('Project IDs'),
+    includedCertificateIds: selectedRecordIdsSchema('Certificate IDs'),
+    includedAwardIds: selectedRecordIdsSchema('Award IDs'),
+    includedActivityIds: selectedRecordIdsSchema('Activity IDs'),
   })
   .strict()
 
@@ -101,7 +83,6 @@ export const cvPreviewSchema: z.ZodType<ApiCvPreviewResponse> = z
   .object({
     previewId: uuidSchema,
     htmlPreview: z.string().min(1),
-    latexSource: z.string().min(1),
     freshness: cvFreshnessSchema,
     configuration: cvPreviewConfigurationSchema,
     generatedAt: dateTimeSchema,
@@ -109,7 +90,7 @@ export const cvPreviewSchema: z.ZodType<ApiCvPreviewResponse> = z
   })
   .strict()
 
-export const cvVersionCreateRequestSchema: z.ZodType<ApiCvVersionCreateRequest> = z
+export const cvSaveRequestSchema: z.ZodType<ApiCvSaveRequest> = z
   .object({ previewId: uuidSchema })
   .strict()
 
@@ -138,23 +119,19 @@ const apiRelativeDownloadUrlSchema = z
     'Use a safe API-relative download URL.',
   )
 
-export const cvVersionSchema: z.ZodType<ApiCvVersionResponse> = z
+export const cvSchema: z.ZodType<ApiCvResponse> = z
   .object({
-    cvVersionId: uuidSchema,
-    versionNumber: z.number().int().min(1),
-    versionLabel: z.string().min(1),
-    latest: z.boolean(),
+    cvId: uuidSchema,
+    revision: z.number().int().min(1),
     createdAt: dateTimeSchema,
     generatedAt: dateTimeSchema,
     savedAt: dateTimeSchema,
     downloadUrl: apiRelativeDownloadUrlSchema,
     freshnessStatus: z.enum(['CURRENT', 'OUTDATED']),
+    configuration: cvPreviewConfigurationSchema,
     pdfFile: generatedPdfFileSchema,
   })
   .strict()
-
-export const pagedCvVersionsSchema: z.ZodType<ApiPagedCvVersionResponse> =
-  createPagedResponseSchema(cvVersionSchema)
 
 function requireUnique(label: string) {
   return (values: readonly string[], context: z.RefinementCtx) => {
