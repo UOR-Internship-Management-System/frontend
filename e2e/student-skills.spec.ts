@@ -95,6 +95,34 @@ async function mockSkillsApi(
 ) {
   let declarations = [{ ...initialDeclaration }]
 
+  await page.route(/\/api\/v1\/skill-taxonomy$/, (route) => {
+    if (options.unavailableTaxonomy) {
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          type: 'about:blank',
+          title: 'Unavailable',
+          status: 503,
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Taxonomy unavailable.',
+          correlationId: 'e2e-tree-503',
+        }),
+      })
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        clusters: [
+          {
+            ...clusters[0],
+            categories: [{ ...categories[0], skills }],
+          },
+        ],
+      }),
+    })
+  })
   await page.route('**/api/v1/skill-taxonomy/clusters**', (route) =>
     route.fulfill({
       status: 200,

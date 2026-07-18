@@ -51,6 +51,58 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
   let saveCount = 0
   let versions: Record<string, unknown>[] = []
 
+  const profileSources = {
+    experience: [
+      {
+        id: '50000000-0000-4000-8000-000000000001',
+        organization: 'Example Software',
+        positionTitle: 'Software Engineering Intern',
+        location: 'Colombo',
+        startDate: '2025-06-01',
+        endDate: '2025-09-30',
+        currentRole: false,
+        description: null,
+        cvInclude: true,
+      },
+    ],
+    certificates: [
+      {
+        id: '20000000-0000-4000-8000-000000000001',
+        title: 'AWS Cloud Foundations',
+        issuer: 'Amazon Web Services',
+        issueDate: '2026-02-15',
+        credentialUrl: null,
+        evidence: null,
+        cvInclude: true,
+      },
+    ],
+    awards: [],
+    activities: [],
+  }
+  for (const [path, records] of Object.entries(profileSources)) {
+    await page.route(`**/api/v1/me/profile/${path}**`, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          items: records.map((record) => ({
+            ...record,
+            version: 1,
+            createdAt: '2026-07-21T08:00:00Z',
+            updatedAt: '2026-07-21T08:00:00Z',
+          })),
+          page: {
+            page: 0,
+            size: 100,
+            totalElements: records.length,
+            totalPages: records.length ? 1 : 0,
+            sort: 'updatedAt,desc',
+          },
+        }),
+      }),
+    )
+  }
+
   await page.route('**/api/v1/me/projects**', (route) =>
     route.fulfill({
       status: 200,
@@ -185,6 +237,11 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)
+  await expect(page.getByText('Software Engineering Intern at Example Software')).toBeVisible()
+  await expect(page.getByText('AWS Cloud Foundations — Amazon Web Services')).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'Manage Work Experience in Profile' }),
+  ).toHaveAttribute('href', '/student/profile')
   await page.getByRole('button', { name: 'Generate Preview' }).click()
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
