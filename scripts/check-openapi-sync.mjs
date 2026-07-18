@@ -4,7 +4,7 @@ import path from 'node:path'
 
 const root = process.cwd()
 const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml'
-const expectedContractSha256 = 'e96b7cb2efbe84295753ff03924b747f90196ada4726d7eebd39fd64a3e83282'
+const expectedContractSha256 = '3f10985012f1cc6c69e3a69d221cc1e104cb877472461992943f6252452e1da6'
 const requiredFiles = [
   contractPath,
   'docs/api/CV_Management_API_OpenAPI_v1.4.0_CHANGELOG.md',
@@ -59,10 +59,8 @@ const requiredPaths = [
   '/me/academic-records/gpa:',
   '/me/cv/source-freshness:',
   '/me/cv/preview:',
-  '/me/cv/versions:',
-  '/me/cv/versions/{cvVersionId}:',
-  '/me/cv/versions/{cvVersionId}/download:',
-  '/me/cv/latest/download:',
+  '/me/cv:',
+  '/me/cv/download:',
 ]
 
 const requiredSchemas = [
@@ -85,7 +83,7 @@ const requiredSchemas = [
   'GpaAvailabilityStatus:',
   'CvFreshnessStatus:',
   'CvSourceArea:',
-  'CvSectionType:',
+  'CvOptionalSections:',
   'AcademicRecordResponse:',
   'AcademicRecordSourceResponse:',
   'GpaSummaryResponse:',
@@ -93,11 +91,10 @@ const requiredSchemas = [
   'CvPreviewRequest:',
   'CvPreviewConfigurationResponse:',
   'CvPreviewResponse:',
-  'CvVersionCreateRequest:',
+  'CvSaveRequest:',
   'GeneratedFileMetadataResponse:',
-  'CvVersionResponse:',
+  'CvResponse:',
   'PagedAcademicRecordResponse:',
-  'PagedCvVersionResponse:',
 ]
 
 for (const fragment of [...requiredPaths, ...requiredSchemas]) {
@@ -107,9 +104,28 @@ for (const fragment of [...requiredPaths, ...requiredSchemas]) {
   }
 }
 
-for (const obsoleteSchema of ['DeclaredSkillRequest:', 'ProjectRequest:']) {
+for (const obsoleteSchema of [
+  'DeclaredSkillRequest:',
+  'ProjectRequest:',
+  'CvVersionCreateRequest:',
+  'CvVersionResponse:',
+  'PagedCvVersionResponse:',
+  'CvSectionType:',
+]) {
   if (contract.includes(obsoleteSchema)) {
     console.error(`OpenAPI contract still contains obsolete Sprint 4 schema: ${obsoleteSchema}`)
+    process.exit(1)
+  }
+}
+
+for (const obsoleteFragment of [
+  '/me/cv/versions',
+  '/me/cv/latest/download',
+  'sectionOrder:',
+  'latexSource:',
+]) {
+  if (contract.includes(obsoleteFragment)) {
+    console.error(`OpenAPI contract still contains removed CV fragment: ${obsoleteFragment}`)
     process.exit(1)
   }
 }
@@ -140,7 +156,7 @@ function pathBlock(pathName) {
   return match[1]
 }
 
-const saveRequest = schemaBlock('CvVersionCreateRequest')
+const saveRequest = schemaBlock('CvSaveRequest')
 const saveProperties =
   saveRequest.match(/^ {6}properties:\s*$([\s\S]*?)(?=^ {6}[a-zA-Z]|^ {4}[A-Za-z0-9]+:)/m)?.[1] ??
   ''
@@ -162,20 +178,15 @@ if (!schemaBlock('CvFreshnessStatus').includes('- NOT_SAVED')) {
   console.error('CvFreshnessStatus must include NOT_SAVED')
   process.exit(1)
 }
-if (!schemaBlock('CvPreviewResponse').includes('latexSource:')) {
-  console.error('CvPreviewResponse must include latexSource')
+if (schemaBlock('CvPreviewResponse').includes('latexSource:')) {
+  console.error('CvPreviewResponse must not expose latexSource')
   process.exit(1)
 }
 if (!schemaBlock('PagedAcademicRecordResponse').includes('AcademicRecordResponse')) {
   console.error('PagedAcademicRecordResponse items must be typed')
   process.exit(1)
 }
-if (!schemaBlock('PagedCvVersionResponse').includes('CvVersionResponse')) {
-  console.error('PagedCvVersionResponse items must be typed')
-  process.exit(1)
-}
-
-for (const downloadPath of ['/me/cv/versions/{cvVersionId}/download', '/me/cv/latest/download']) {
+for (const downloadPath of ['/me/cv/download']) {
   const block = pathBlock(downloadPath)
   if (!block.includes('application/pdf:') || !block.includes('Content-Disposition:')) {
     console.error(`${downloadPath} must document PDF success and Content-Disposition`)
@@ -201,7 +212,7 @@ const generatedExpectations = new Map([
       'ApiGpaAvailabilityStatus',
       'ApiCvFreshnessStatus',
       'ApiCvSourceArea',
-      'ApiCvSectionType',
+      'ApiCvOptionalSections',
       'ApiAcademicRecordResponse',
       'ApiAcademicRecordSourceResponse',
       'ApiGpaSummaryResponse',
@@ -209,11 +220,10 @@ const generatedExpectations = new Map([
       'ApiCvPreviewRequest',
       'ApiCvPreviewConfigurationResponse',
       'ApiCvPreviewResponse',
-      'ApiCvVersionCreateRequest',
+      'ApiCvSaveRequest',
       'ApiGeneratedFileMetadataResponse',
-      'ApiCvVersionResponse',
+      'ApiCvResponse',
       'ApiPagedAcademicRecordResponse',
-      'ApiPagedCvVersionResponse',
     ],
   ],
   [

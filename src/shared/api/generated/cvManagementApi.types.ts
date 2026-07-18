@@ -107,15 +107,13 @@ export type ApiCvFreshnessStatus = 'NOT_SAVED' | 'CURRENT' | 'OUTDATED'
 
 export type ApiCvSourceArea = 'PROFILE' | 'DECLARED_SKILLS' | 'PROJECTS' | 'ACADEMIC_RECORDS'
 
-export type ApiCvSectionType =
-  | 'PROFESSIONAL_SUMMARY'
-  | 'SKILLS'
-  | 'EXPERIENCE'
-  | 'PROJECTS'
-  | 'CERTIFICATES'
-  | 'AWARDS'
-  | 'ACTIVITIES'
-  | 'ACADEMIC_SUMMARY'
+export type ApiCvOptionalSections = {
+  experience: boolean
+  projects: boolean
+  certificates: boolean
+  awards: boolean
+  activities: boolean
+}
 
 export type ApiAcademicRecordResponse = {
   academicRecordId: string
@@ -149,14 +147,14 @@ export type ApiGpaSummaryResponse = {
 export type ApiCvFreshnessResponse = {
   status: ApiCvFreshnessStatus
   changedAreas: ApiCvSourceArea[]
-  latestSavedCvVersionId: string | null
-  latestSavedAt: string | null
+  cvId: string | null
+  savedAt: string | null
   evaluatedAt: string
   message: string
 }
 
 export type ApiCvPreviewRequest = {
-  sectionOrder: ApiCvSectionType[]
+  optionalSections: ApiCvOptionalSections
   includedProjectIds: string[]
 }
 
@@ -165,14 +163,13 @@ export type ApiCvPreviewConfigurationResponse = ApiCvPreviewRequest
 export type ApiCvPreviewResponse = {
   previewId: string
   htmlPreview: string
-  latexSource: string
   freshness: ApiCvFreshnessResponse
   configuration: ApiCvPreviewConfigurationResponse
   generatedAt: string
   expiresAt: string
 }
 
-export type ApiCvVersionCreateRequest = {
+export type ApiCvSaveRequest = {
   previewId: string
 }
 
@@ -183,19 +180,16 @@ export type ApiGeneratedFileMetadataResponse = {
   generatedAt: string
 }
 
-export type ApiCvVersionResponse = {
-  cvVersionId: string
-  versionNumber: number
-  versionLabel: string
-  latest: boolean
+export type ApiCvResponse = {
+  cvId: string
+  revision: number
   createdAt: string
   generatedAt: string
   savedAt: string
   downloadUrl: string
   freshnessStatus: Exclude<ApiCvFreshnessStatus, 'NOT_SAVED'>
+  configuration: ApiCvPreviewConfigurationResponse
   pdfFile: ApiGeneratedFileMetadataResponse
 }
 
 export type ApiPagedAcademicRecordResponse = ApiPagedResponse<ApiAcademicRecordResponse>
-
-export type ApiPagedCvVersionResponse = ApiPagedResponse<ApiCvVersionResponse>
