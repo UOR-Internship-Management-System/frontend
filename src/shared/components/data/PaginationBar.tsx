@@ -17,7 +17,9 @@ export function PaginationBar({
   totalElements,
   totalPages,
 }: PaginationBarProps) {
-  const displayPage = totalPages === 0 ? 0 : page + 1
+  if (totalPages <= 0) return null
+
+  const displayPage = page + 1
   const start = totalElements && size ? page * size + 1 : 0
   const end = totalElements && size ? Math.min((page + 1) * size, totalElements) : 0
   return (
@@ -35,7 +37,7 @@ export function PaginationBar({
             Previous
           </Button>
           <Button
-            disabled={totalPages === 0 || page >= totalPages - 1}
+            disabled={page >= totalPages - 1}
             onClick={() => onPageChange(page + 1)}
             variant="secondary"
           >
