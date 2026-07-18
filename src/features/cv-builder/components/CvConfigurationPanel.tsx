@@ -1,14 +1,12 @@
-import { Button } from '../../../shared/components/ui/Button'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import type { StudentProject } from '../../student-projects/types/studentProjectTypes'
-import { cvSectionLabels, defaultCvSectionOrder } from '../mappers/cvMapper'
-import type { CvSection } from '../types/cvBuilderTypes'
+import type { CvOptionalSections } from '../mappers/cvMapper'
 import { CvProfileSourceGroup, type CvProfileSourceGroupState } from './CvProfileSourceGroup'
 
 export type CvConfigurationPanelProps = {
-  sectionOrder: CvSection[]
+  optionalSections: CvOptionalSections
   selectedProjectIds: string[]
   projects?: StudentProject[]
   projectsLoading: boolean
@@ -17,8 +15,7 @@ export type CvConfigurationPanelProps = {
   certificateSources: CvProfileSourceGroupState
   awardSources: CvProfileSourceGroupState
   activitySources: CvProfileSourceGroupState
-  onMoveSection: (section: CvSection, direction: -1 | 1) => void
-  onToggleSection: (section: CvSection) => void
+  onToggleOptionalSection: (section: keyof CvOptionalSections) => void
   onToggleProject: (projectId: string) => void
   onRetryProjects: () => void
 }
@@ -28,92 +25,50 @@ export function CvConfigurationPanel({
   awardSources,
   certificateSources,
   experienceSources,
-  onMoveSection,
   onRetryProjects,
   onToggleProject,
-  onToggleSection,
+  onToggleOptionalSection,
+  optionalSections,
   projects,
   projectsError,
   projectsLoading,
-  sectionOrder,
   selectedProjectIds,
 }: CvConfigurationPanelProps) {
-  const projectsEnabled = sectionOrder.includes('PROJECTS')
-  const orderedSections = [
-    ...sectionOrder,
-    ...defaultCvSectionOrder.filter((section) => !sectionOrder.includes(section)),
-  ]
+  const projectsEnabled = optionalSections.projects
 
   return (
     <SectionCard aria-labelledby="cv-configuration-title" className="s5-cv-configuration">
       <div className="s5-section-heading">
         <div>
           <h2 id="cv-configuration-title">CV configuration</h2>
-          <p>Choose and order optional content before generating a server-confirmed preview.</p>
+          <p>Choose optional content before generating a server-confirmed preview.</p>
         </div>
       </div>
 
       <div className="s5-cv-identity-note">
         <strong>Identity and contact details are always included.</strong>
-        <span>They are generated from your profile and are not part of the section order.</span>
+        <span>The CV always uses the approved default section order.</span>
       </div>
 
-      <fieldset className="s5-cv-section-fieldset">
-        <legend>Included sections and order</legend>
-        <ol className="s5-cv-section-list">
-          {orderedSections.map((section) => {
-            const enabled = sectionOrder.includes(section)
-            const enabledIndex = sectionOrder.indexOf(section)
-            return (
-              <li className={enabled ? '' : 'is-disabled'} key={section}>
-                <label>
-                  <input
-                    checked={enabled}
-                    disabled={enabled && sectionOrder.length === 1}
-                    onChange={() => onToggleSection(section)}
-                    type="checkbox"
-                  />
-                  <span>{cvSectionLabels[section]}</span>
-                </label>
-                {enabled ? (
-                  <span className="s5-cv-order-actions">
-                    <Button
-                      aria-label={`Move ${cvSectionLabels[section]} up`}
-                      disabled={enabledIndex === 0}
-                      onClick={() => onMoveSection(section, -1)}
-                      variant="secondary"
-                    >
-                      <span aria-hidden="true" className="material-symbols-outlined">
-                        arrow_upward
-                      </span>
-                    </Button>
-                    <Button
-                      aria-label={`Move ${cvSectionLabels[section]} down`}
-                      disabled={enabledIndex === sectionOrder.length - 1}
-                      onClick={() => onMoveSection(section, 1)}
-                      variant="secondary"
-                    >
-                      <span aria-hidden="true" className="material-symbols-outlined">
-                        arrow_downward
-                      </span>
-                    </Button>
-                  </span>
-                ) : null}
-              </li>
-            )
-          })}
-        </ol>
-      </fieldset>
-
       <CvProfileSourceGroup
-        enabled={sectionOrder.includes('EXPERIENCE')}
+        enabled={optionalSections.experience}
         manageLabel="Work Experience"
+        onToggle={() => onToggleOptionalSection('experience')}
         title="Work Experience"
         {...experienceSources}
       />
 
       <fieldset className="s5-cv-project-fieldset">
-        <legend>Projects to include</legend>
+        <legend>
+          <label>
+            <input
+              checked={projectsEnabled}
+              onChange={() => onToggleOptionalSection('projects')}
+              type="checkbox"
+            />
+            <span>Projects</span>
+          </label>
+        </legend>
         {!projectsEnabled ? (
           <p className="s5-inline-guidance">
             Project selections are retained locally, but no project IDs are sent while Projects is
@@ -142,6 +97,7 @@ export function CvConfigurationPanel({
               <label key={project.projectId}>
                 <input
                   checked={selectedProjectIds.includes(project.projectId)}
+                  disabled={!projectsEnabled}
                   onChange={() => onToggleProject(project.projectId)}
                   type="checkbox"
                 />
@@ -158,20 +114,23 @@ export function CvConfigurationPanel({
       </fieldset>
 
       <CvProfileSourceGroup
-        enabled={sectionOrder.includes('CERTIFICATES')}
+        enabled={optionalSections.certificates}
         manageLabel="Certificates"
+        onToggle={() => onToggleOptionalSection('certificates')}
         title="Certificates"
         {...certificateSources}
       />
       <CvProfileSourceGroup
-        enabled={sectionOrder.includes('AWARDS')}
+        enabled={optionalSections.awards}
         manageLabel="Awards and Honors"
+        onToggle={() => onToggleOptionalSection('awards')}
         title="Awards and Honors"
         {...awardSources}
       />
       <CvProfileSourceGroup
-        enabled={sectionOrder.includes('ACTIVITIES')}
+        enabled={optionalSections.activities}
         manageLabel="Extracurricular Activities"
+        onToggle={() => onToggleOptionalSection('activities')}
         title="Extracurricular Activities"
         {...activitySources}
       />

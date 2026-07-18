@@ -5,23 +5,23 @@ export function CvActionBar({
   downloadPending,
   expired,
   hasPreview,
-  hasSavedVersion,
+  hasSavedCv,
   previewPending,
   savePending,
-  onDownloadLatest,
+  onDownload,
   onGenerate,
   onSave,
 }: {
   configurationDirty: boolean
   expired: boolean
   hasPreview: boolean
-  hasSavedVersion: boolean
+  hasSavedCv: boolean
   previewPending: boolean
   savePending: boolean
   downloadPending: boolean
   onGenerate: () => void
   onSave: () => void
-  onDownloadLatest: () => void
+  onDownload: () => void
 }) {
   const generateLabel = !hasPreview
     ? 'Generate Preview'
@@ -40,18 +40,18 @@ export function CvActionBar({
         onClick={onSave}
         variant="secondary"
       >
-        Save Current CV Version
+        {hasSavedCv ? 'Update Saved CV' : 'Save CV'}
       </Button>
       <Button
-        disabled={!hasSavedVersion}
+        disabled={!hasSavedCv}
         isLoading={downloadPending}
-        onClick={onDownloadLatest}
+        onClick={onDownload}
         variant="secondary"
       >
-        Download Latest PDF
+        Download Saved PDF
       </Button>
       <span aria-live="polite" className="visually-hidden">
-        {savePending ? 'Saving current CV version' : null}
+        {savePending ? 'Saving active CV' : null}
         {downloadPending ? 'Downloading CV PDF' : null}
       </span>
     </section>

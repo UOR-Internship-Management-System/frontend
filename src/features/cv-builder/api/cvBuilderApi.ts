@@ -1,18 +1,13 @@
-import { z } from 'zod'
 import { httpDownloadClient } from '../../../shared/api/httpDownloadClient'
 import { httpClient } from '../../../shared/api/httpClient'
-import { buildQueryString } from '../../../shared/utils/buildQueryString'
 import {
   cvFreshnessSchema,
   cvPreviewRequestSchema,
   cvPreviewSchema,
-  cvVersionCreateRequestSchema,
-  cvVersionSchema,
-  pagedCvVersionsSchema,
+  cvSaveRequestSchema,
+  cvSchema,
 } from '../schemas/cvBuilderSchemas'
-import type { CvPreviewRequest, CvVersionQuery } from '../types/cvBuilderTypes'
-
-const uuidSchema = z.string().uuid()
+import type { CvPreviewRequest } from '../types/cvBuilderTypes'
 
 export const cvBuilderApi = {
   async getFreshness(signal?: AbortSignal) {
@@ -30,40 +25,23 @@ export const cvBuilderApi = {
     return cvPreviewSchema.parse(response)
   },
 
-  async saveVersion(previewId: string, signal?: AbortSignal) {
-    const request = cvVersionCreateRequestSchema.parse({ previewId })
-    const response = await httpClient<unknown>('/me/cv/versions', {
-      method: 'POST',
+  async getCurrent(signal?: AbortSignal) {
+    const response = await httpClient<unknown>('/me/cv', { signal })
+    return cvSchema.parse(response)
+  },
+
+  async saveCurrent(previewId: string, revision: number | null, signal?: AbortSignal) {
+    const request = cvSaveRequestSchema.parse({ previewId })
+    const response = await httpClient<unknown>('/me/cv', {
+      method: 'PUT',
       body: request,
+      headers: revision === null ? { 'If-None-Match': '*' } : { 'If-Match': `"${revision}"` },
       signal,
     })
-    return cvVersionSchema.parse(response)
+    return cvSchema.parse(response)
   },
 
-  async listVersions(query: CvVersionQuery, signal?: AbortSignal) {
-    const response = await httpClient<unknown>(
-      `/me/cv/versions${buildQueryString({
-        page: query.page,
-        size: query.size,
-        sort: query.sort,
-      })}`,
-      { signal },
-    )
-    return pagedCvVersionsSchema.parse(response)
-  },
-
-  async getVersion(cvVersionId: string, signal?: AbortSignal) {
-    const id = uuidSchema.parse(cvVersionId)
-    const response = await httpClient<unknown>(`/me/cv/versions/${id}`, { signal })
-    return cvVersionSchema.parse(response)
-  },
-
-  async downloadVersion(cvVersionId: string, signal?: AbortSignal) {
-    const id = uuidSchema.parse(cvVersionId)
-    return httpDownloadClient(`/me/cv/versions/${id}/download`, { signal })
-  },
-
-  async downloadLatest(signal?: AbortSignal) {
-    return httpDownloadClient('/me/cv/latest/download', { signal })
+  async downloadCurrent(signal?: AbortSignal) {
+    return httpDownloadClient('/me/cv/download', { signal })
   },
 }

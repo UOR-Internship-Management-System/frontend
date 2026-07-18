@@ -17,6 +17,7 @@ export function CvProfileSourceGroup({
   items,
   manageLabel,
   onRetry,
+  onToggle,
   title,
 }: {
   title: string
@@ -26,10 +27,16 @@ export function CvProfileSourceGroup({
   isPending: boolean
   error?: { message: string; correlationId?: string } | null
   onRetry: () => void
+  onToggle: () => void
 }) {
   return (
     <fieldset className="s5-cv-source-fieldset">
-      <legend>{title}</legend>
+      <legend>
+        <label>
+          <input checked={enabled} onChange={onToggle} type="checkbox" />
+          <span>{title}</span>
+        </label>
+      </legend>
       {!enabled ? (
         <p className="s5-inline-guidance">
           This section is excluded, even if records below are marked for CV inclusion.

@@ -16,8 +16,8 @@ const studentUser = {
 const notSavedFreshness = {
   status: 'NOT_SAVED',
   changedAreas: [],
-  latestSavedCvVersionId: null,
-  latestSavedAt: null,
+  cvId: null,
+  savedAt: null,
   evaluatedAt: '2026-07-21T08:00:00Z',
   message: 'No saved CV version exists yet.',
 }
@@ -49,7 +49,7 @@ function problem(status: number, code: string, message: string) {
 async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}) {
   let previewCount = 0
   let saveCount = 0
-  let versions: Record<string, unknown>[] = []
+  let savedCv: Record<string, unknown> | null = null
 
   const profileSources = {
     experience: [
@@ -138,10 +138,10 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
   await page.route('**/api/v1/me/cv/preview', async (route) => {
     previewCount += 1
     const body = route.request().postDataJSON() as {
-      sectionOrder: string[]
+      optionalSections: { projects: boolean }
       includedProjectIds: string[]
     }
-    expect(body.sectionOrder).toContain('SKILLS')
+    expect(body.optionalSections.projects).toBe(true)
     expect(body.includedProjectIds).toEqual([projectId])
     return route.fulfill({
       status: 200,
@@ -149,7 +149,6 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
       body: JSON.stringify({
         previewId,
         htmlPreview: `<article><h1>CV Builder Student</h1><p>Preview ${previewCount}</p></article>`,
-        latexSource: `\\documentclass{article}\nPreview ${previewCount}`,
         freshness: notSavedFreshness,
         configuration: body,
         generatedAt: '2026-07-21T08:01:00Z',
@@ -157,23 +156,20 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
       }),
     })
   })
-  await page.route('**/api/v1/me/cv/versions**', async (route) => {
+  await page.route('**/api/v1/me/cv', async (route) => {
     const request = route.request()
     if (request.method() === 'GET') {
-      return route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          items: versions,
-          page: {
-            page: 0,
-            size: 5,
-            totalElements: versions.length,
-            totalPages: versions.length ? 1 : 0,
-            sort: 'savedAt,desc',
-          },
-        }),
-      })
+      return savedCv
+        ? route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify(savedCv),
+          })
+        : route.fulfill({
+            status: 404,
+            contentType: 'application/json',
+            body: problem(404, 'CV_NOT_SAVED', 'No saved CV exists.'),
+          })
     }
 
     saveCount += 1
@@ -185,28 +181,36 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
         body: problem(409, 'CV_PREVIEW_EXPIRED', 'The preview expired.'),
       })
     }
-    const version = {
-      cvVersionId: versionId,
-      versionNumber: 1,
-      versionLabel: 'Version 1',
-      latest: true,
+    const cv = {
+      cvId: versionId,
+      revision: 1,
       createdAt: '2026-07-21T08:02:00Z',
       generatedAt: '2026-07-21T08:01:00Z',
       savedAt: '2026-07-21T08:02:00Z',
-      downloadUrl: `/me/cv/versions/${versionId}/download`,
+      downloadUrl: '/me/cv/download',
       freshnessStatus: 'CURRENT',
+      configuration: {
+        optionalSections: {
+          experience: true,
+          projects: true,
+          certificates: true,
+          awards: false,
+          activities: true,
+        },
+        includedProjectIds: [projectId],
+      },
       pdfFile: {
-        fileName: 'cv-version-1.pdf',
+        fileName: 'student-cv.pdf',
         mediaType: 'application/pdf',
         fileSizeBytes: 8,
         generatedAt: '2026-07-21T08:01:00Z',
       },
     }
-    versions = [version]
+    savedCv = cv
     return route.fulfill({
       status: 201,
       contentType: 'application/json',
-      body: JSON.stringify(version),
+      body: JSON.stringify(cv),
     })
   })
   const fulfillPdf = (route: Route) =>
@@ -214,13 +218,12 @@ async function mockCvApi(page: Page, options: { expireFirstSave?: boolean } = {}
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="cv-version-1.pdf"',
+        'Content-Disposition': 'attachment; filename="student-cv.pdf"',
         'Content-Length': '8',
       },
       body: '%PDF-1.4',
     })
-  await page.route('**/api/v1/me/cv/latest/download', fulfillPdf)
-  await page.route('**/api/v1/me/cv/versions/*/download', fulfillPdf)
+  await page.route('**/api/v1/me/cv/download', fulfillPdf)
 }
 
 test('CV Builder remains protected by the Student route guard', async ({ page }) => {
@@ -244,17 +247,17 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   ).toHaveAttribute('href', '/student/profile')
   await page.getByRole('button', { name: 'Generate Preview' }).click()
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Save CV' })).toBeEnabled()
 
-  await page.getByRole('checkbox', { name: 'Awards' }).click()
+  await page.getByRole('checkbox', { name: 'Awards and Honors' }).click()
   await expect(page.getByText(/controls changed after this preview/i)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Save CV' })).toBeDisabled()
   await page.getByRole('button', { name: 'Update Preview' }).click()
-  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Save CV' })).toBeEnabled()
 
-  await page.getByRole('button', { name: 'Save Current CV Version' }).click()
-  await expect(page.getByText('Version 1')).toBeVisible()
-  await page.getByRole('button', { name: 'Download Latest PDF' }).click()
+  await page.getByRole('button', { name: 'Save CV' }).click()
+  await expect(page.getByRole('button', { name: 'Update Saved CV' })).toBeVisible()
+  await page.getByRole('button', { name: 'Download Saved PDF' }).click()
   await expect(page.getByText('PDF download started')).toBeVisible()
   await expect(page.getByText(/Admin Review/i)).toHaveCount(0)
 })
@@ -266,10 +269,10 @@ test('an expired preview preserves configuration and requires regeneration', asy
 
   await page.getByRole('button', { name: 'Generate Preview' }).click()
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
-  await page.getByRole('button', { name: 'Save Current CV Version' }).click()
+  await page.getByRole('button', { name: 'Save CV' }).click()
 
   await expect(page.getByText('This preview has expired.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Regenerate Preview' })).toBeEnabled()
   await expect(page.getByRole('checkbox', { name: /Accessible Portfolio/ })).toBeChecked()
-  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Save CV' })).toBeDisabled()
 })

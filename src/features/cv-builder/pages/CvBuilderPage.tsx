@@ -7,9 +7,8 @@ import { CvActionBar } from '../components/CvActionBar'
 import { CvConfigurationPanel } from '../components/CvConfigurationPanel'
 import { CvPreviewPanel } from '../components/CvPreviewPanel'
 import { CvSourceFreshnessNotice } from '../components/CvSourceFreshnessNotice'
-import { CvVersionList } from '../components/CvVersionList'
-import { LatexOutputPanel } from '../components/LatexOutputPanel'
 import { useCvFreshness } from '../hooks/useCvFreshness'
+import { useCurrentCv } from '../hooks/useCurrentCv'
 import {
   useCvActivitySources,
   useCvAwardSources,
@@ -18,29 +17,33 @@ import {
 } from '../hooks/useCvProfileSources'
 import { useCvPreview } from '../hooks/useCvPreview'
 import { useCvProjectOptions } from '../hooks/useCvProjectOptions'
-import { useCvVersions } from '../hooks/useCvVersions'
 import { useDownloadCv } from '../hooks/useDownloadCv'
-import { useSaveCvVersion } from '../hooks/useSaveCvVersion'
-import { defaultCvSectionOrder, mapCvFreshness, mapCvPreviewRequest } from '../mappers/cvMapper'
-import type { CvPreview, CvSection } from '../types/cvBuilderTypes'
-
-const versionPageSize = 5
+import { useSaveCv } from '../hooks/useSaveCvVersion'
+import {
+  defaultCvOptionalSections,
+  mapCvFreshness,
+  mapCvPreviewRequest,
+  type CvOptionalSections,
+} from '../mappers/cvMapper'
+import type { CvPreview } from '../types/cvBuilderTypes'
 
 export function CvBuilderPage() {
-  const [sectionOrder, setSectionOrder] = useState<CvSection[]>(() => [...defaultCvSectionOrder])
+  const [optionalSections, setOptionalSections] = useState<CvOptionalSections>(() => ({
+    ...defaultCvOptionalSections,
+  }))
   const [selectedProjectIds, setSelectedProjectIds] = useState<string[]>([])
   const [configurationDirty, setConfigurationDirty] = useState(false)
   const [preview, setPreview] = useState<CvPreview | null>(null)
   const [previewExpired, setPreviewExpired] = useState(false)
-  const [versionPage, setVersionPage] = useState(0)
   const initializedProjects = useRef(false)
+  const initializedSavedConfiguration = useRef(false)
   const freshness = useCvFreshness()
+  const currentCv = useCurrentCv(freshness.data?.status !== 'NOT_SAVED' && freshness.isSuccess)
   const experienceSources = useCvExperienceSources()
   const certificateSources = useCvCertificateSources()
   const awardSources = useCvAwardSources()
   const activitySources = useCvActivitySources()
   const projectOptions = useCvProjectOptions()
-  const versions = useCvVersions({ page: versionPage, size: versionPageSize, sort: 'savedAt,desc' })
   const previewMutation = useCvPreview({
     onSuccess: (confirmedPreview) => {
       setPreview(confirmedPreview)
@@ -48,7 +51,7 @@ export function CvBuilderPage() {
       setPreviewExpired(Date.parse(confirmedPreview.expiresAt) <= Date.now())
     },
   })
-  const saveMutation = useSaveCvVersion()
+  const saveMutation = useSaveCv()
   const downloadMutation = useDownloadCv()
 
   useEffect(() => {
@@ -60,6 +63,15 @@ export function CvBuilderPage() {
         .map((project) => project.projectId),
     )
   }, [projectOptions.data])
+
+  useEffect(() => {
+    if (initializedSavedConfiguration.current || !currentCv.data || configurationDirty || preview) {
+      return
+    }
+    initializedSavedConfiguration.current = true
+    setOptionalSections(currentCv.data.configuration.optionalSections)
+    setSelectedProjectIds(currentCv.data.configuration.includedProjectIds)
+  }, [configurationDirty, currentCv.data, preview])
 
   useEffect(() => {
     if (!preview) return undefined
@@ -84,31 +96,14 @@ export function CvBuilderPage() {
   const previewError = previewMutation.error
     ? mapApiError(previewMutation.error, 'protected')
     : null
-  const versionsError = versions.error ? mapApiError(versions.error, 'protected') : null
-  const hasSavedVersion = (versions.data?.page.totalElements ?? 0) > 0
+  const hasSavedCv =
+    currentCv.data !== undefined ||
+    (freshness.data?.status !== undefined && freshness.data.status !== 'NOT_SAVED')
 
   const markConfigurationChanged = () => setConfigurationDirty(true)
 
-  const toggleSection = (section: CvSection) => {
-    setSectionOrder((current) =>
-      current.includes(section)
-        ? current.length === 1
-          ? current
-          : current.filter((item) => item !== section)
-        : [...current, section],
-    )
-    markConfigurationChanged()
-  }
-
-  const moveSection = (section: CvSection, direction: -1 | 1) => {
-    setSectionOrder((current) => {
-      const from = current.indexOf(section)
-      const to = from + direction
-      if (from < 0 || to < 0 || to >= current.length) return current
-      const next = [...current]
-      ;[next[from], next[to]] = [next[to], next[from]]
-      return next
-    })
+  const toggleOptionalSection = (section: keyof CvOptionalSections) => {
+    setOptionalSections((current) => ({ ...current, [section]: !current[section] }))
     markConfigurationChanged()
   }
 
@@ -122,7 +117,7 @@ export function CvBuilderPage() {
   }
 
   const generatePreview = () => {
-    previewMutation.mutate(mapCvPreviewRequest(sectionOrder, selectedProjectIds))
+    previewMutation.mutate(mapCvPreviewRequest(optionalSections, selectedProjectIds))
   }
 
   const savePreview = () => {
@@ -131,13 +126,16 @@ export function CvBuilderPage() {
       setPreviewExpired(true)
       return
     }
-    saveMutation.mutate(preview.previewId, {
-      onError: (error) => {
-        if (mapApiError(error, 'protected').code === 'CV_PREVIEW_EXPIRED') {
-          setPreviewExpired(true)
-        }
+    saveMutation.mutate(
+      { previewId: preview.previewId, revision: currentCv.data?.revision ?? null },
+      {
+        onError: (error) => {
+          if (mapApiError(error, 'protected').code === 'CV_PREVIEW_EXPIRED') {
+            setPreviewExpired(true)
+          }
+        },
       },
-    })
+    )
   }
 
   if (freshness.isPending && projectOptions.isPending) {
@@ -147,7 +145,7 @@ export function CvBuilderPage() {
   return (
     <main className="content-stack s5-cv-builder-page">
       <PageHeader
-        description="Configure structured source data, confirm a generated preview, and save an immutable PDF version."
+        description="Configure structured source data, confirm a generated preview, and save your active CV."
         eyebrow="Student workspace · Sprint 5"
         title="CV Builder"
       />
@@ -167,50 +165,36 @@ export function CvBuilderPage() {
         awardSources={mapSourceQuery(awardSources)}
         certificateSources={mapSourceQuery(certificateSources)}
         experienceSources={mapSourceQuery(experienceSources)}
-        onMoveSection={moveSection}
         onRetryProjects={() => void projectOptions.refetch()}
         onToggleProject={toggleProject}
-        onToggleSection={toggleSection}
+        onToggleOptionalSection={toggleOptionalSection}
+        optionalSections={optionalSections}
         projects={projectOptions.data}
         projectsError={projectError}
         projectsLoading={projectOptions.isPending}
-        sectionOrder={sectionOrder}
         selectedProjectIds={selectedProjectIds}
       />
 
-      <div className="s5-cv-workspace">
-        <CvPreviewPanel
-          dirty={configurationDirty}
-          error={previewError}
-          expired={previewExpired}
-          isPending={previewMutation.isPending}
-          onRetry={generatePreview}
-          preview={preview}
-        />
-        <LatexOutputPanel latexSource={preview?.latexSource} />
-      </div>
+      <CvPreviewPanel
+        dirty={configurationDirty}
+        error={previewError}
+        expired={previewExpired}
+        isPending={previewMutation.isPending}
+        onRetry={generatePreview}
+        preview={preview}
+      />
 
       <CvActionBar
         configurationDirty={configurationDirty}
-        downloadPending={downloadMutation.pendingTargetKey === 'latest'}
+        downloadPending={downloadMutation.pendingTargetKey === 'current'}
         expired={previewExpired}
         hasPreview={preview !== null}
-        hasSavedVersion={hasSavedVersion}
-        onDownloadLatest={() => downloadMutation.mutate({ kind: 'latest' })}
+        hasSavedCv={hasSavedCv}
+        onDownload={() => downloadMutation.mutate({ kind: 'current' })}
         onGenerate={generatePreview}
         onSave={savePreview}
         previewPending={previewMutation.isPending}
         savePending={saveMutation.isPending}
-      />
-
-      <CvVersionList
-        data={versions.data}
-        error={versionsError}
-        isPending={versions.isPending}
-        onDownload={(cvVersionId) => downloadMutation.mutate({ kind: 'version', cvVersionId })}
-        onPageChange={setVersionPage}
-        onRetry={() => void versions.refetch()}
-        pendingTargetKey={downloadMutation.pendingTargetKey}
       />
     </main>
   )

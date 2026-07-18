@@ -1,17 +1,13 @@
-import type {
-  CvFreshness,
-  CvPreview,
-  CvVersion,
-} from '../../features/cv-builder/types/cvBuilderTypes'
+import type { Cv, CvFreshness, CvPreview } from '../../features/cv-builder/types/cvBuilderTypes'
 import {
   cvFreshnessSchema,
   cvPreviewSchema,
-  cvVersionSchema,
+  cvSchema,
 } from '../../features/cv-builder/schemas/cvBuilderSchemas'
 
 export const cvFixtureIds = {
   preview: '70000000-0000-4000-8000-000000000001',
-  version: '50000000-0000-4000-8000-000000000004',
+  cv: '50000000-0000-4000-8000-000000000004',
 } as const
 
 export type CvPreviewFailure = 'validation' | 'generation' | null
@@ -20,51 +16,55 @@ export type CvDownloadFailure = 'not-saved' | 'unavailable' | 'unauthorized' | n
 const notSavedFreshness = cvFreshnessSchema.parse({
   status: 'NOT_SAVED',
   changedAreas: [],
-  latestSavedCvVersionId: null,
-  latestSavedAt: null,
+  cvId: null,
+  savedAt: null,
   evaluatedAt: '2026-07-21T08:00:00Z',
-  message: 'No saved CV version exists yet.',
+  message: 'No saved CV exists yet.',
 })
 
 export const currentFreshness = cvFreshnessSchema.parse({
   status: 'CURRENT',
   changedAreas: [],
-  latestSavedCvVersionId: cvFixtureIds.version,
-  latestSavedAt: '2026-07-21T08:02:00Z',
+  cvId: cvFixtureIds.cv,
+  savedAt: '2026-07-21T08:02:00Z',
   evaluatedAt: '2026-07-21T08:03:00Z',
-  message: 'The latest saved CV matches current source data.',
+  message: 'The saved CV matches current source data.',
 })
 
 export const outdatedProfileFreshness = cvFreshnessSchema.parse({
+  ...currentFreshness,
   status: 'OUTDATED',
   changedAreas: ['PROFILE'],
-  latestSavedCvVersionId: cvFixtureIds.version,
-  latestSavedAt: '2026-07-21T08:02:00Z',
-  evaluatedAt: '2026-07-21T09:00:00Z',
-  message: 'Profile data changed after the latest CV was saved.',
+  message: 'Profile data changed after the CV was saved.',
 })
 
 export const outdatedSkillsProjectsFreshness = cvFreshnessSchema.parse({
+  ...currentFreshness,
   status: 'OUTDATED',
   changedAreas: ['DECLARED_SKILLS', 'PROJECTS'],
-  latestSavedCvVersionId: cvFixtureIds.version,
-  latestSavedAt: '2026-07-21T08:02:00Z',
-  evaluatedAt: '2026-07-21T09:00:00Z',
-  message: 'Declared skills or projects changed after the latest CV was saved.',
+  message: 'Declared skills or projects changed after the CV was saved.',
 })
 
-export const savedCvVersion = cvVersionSchema.parse({
-  cvVersionId: cvFixtureIds.version,
-  versionNumber: 4,
-  versionLabel: 'Version 4',
-  latest: true,
+export const savedCv = cvSchema.parse({
+  cvId: cvFixtureIds.cv,
+  revision: 1,
   createdAt: '2026-07-21T08:02:00Z',
   generatedAt: '2026-07-21T08:01:30Z',
   savedAt: '2026-07-21T08:02:00Z',
-  downloadUrl: `/me/cv/versions/${cvFixtureIds.version}/download`,
+  downloadUrl: '/me/cv/download',
   freshnessStatus: 'CURRENT',
+  configuration: {
+    optionalSections: {
+      experience: true,
+      projects: true,
+      certificates: true,
+      awards: true,
+      activities: true,
+    },
+    includedProjectIds: [],
+  },
   pdfFile: {
-    fileName: 'cv-version-4.pdf',
+    fileName: 'student-cv.pdf',
     mediaType: 'application/pdf',
     fileSizeBytes: 184_320,
     generatedAt: '2026-07-21T08:01:30Z',
@@ -74,7 +74,7 @@ export const savedCvVersion = cvVersionSchema.parse({
 type CvFixtureState = {
   freshness: CvFreshness
   previews: CvPreview[]
-  versions: CvVersion[]
+  cv: Cv | null
   previewFailure: CvPreviewFailure
   downloadFailure: CvDownloadFailure
   expireNextSave: boolean
@@ -83,7 +83,7 @@ type CvFixtureState = {
 const initialState: CvFixtureState = {
   freshness: notSavedFreshness,
   previews: [],
-  versions: [],
+  cv: null,
   previewFailure: null,
   downloadFailure: null,
   expireNextSave: false,
@@ -99,8 +99,9 @@ export function setCvFreshnessFixture(freshness: CvFreshness) {
   state.freshness = cvFreshnessSchema.parse(freshness)
 }
 
-export function setCvVersionsFixture(versions: CvVersion[]) {
-  state.versions = versions.map((version) => cvVersionSchema.parse(version))
+export function setCvFixture(cv: Cv | null) {
+  state.cv = cv === null ? null : cvSchema.parse(cv)
+  if (state.cv) state.freshness = currentFreshness
 }
 
 export function setCvPreviewFailure(failure: CvPreviewFailure) {
@@ -121,16 +122,16 @@ export function storeCvPreview(preview: CvPreview) {
   return parsed
 }
 
-export function storeCvVersion(version: CvVersion) {
-  const parsed = cvVersionSchema.parse(version)
-  state.versions = [parsed, ...state.versions.map((item) => ({ ...item, latest: false }))]
+export function storeCv(cv: Cv) {
+  const parsed = cvSchema.parse(cv)
+  state.cv = parsed
   state.freshness = cvFreshnessSchema.parse({
     status: 'CURRENT',
     changedAreas: [],
-    latestSavedCvVersionId: parsed.cvVersionId,
-    latestSavedAt: parsed.savedAt,
+    cvId: parsed.cvId,
+    savedAt: parsed.savedAt,
     evaluatedAt: parsed.savedAt,
-    message: 'The latest saved CV matches current source data.',
+    message: 'The saved CV matches current source data.',
   })
   return parsed
 }

@@ -14,14 +14,12 @@ export function useDownloadCv() {
 
   const mutation = useMutation({
     mutationFn: async (target: CvDownloadTarget) => {
+      void target
       activeController.current?.abort()
       const controller = new AbortController()
       activeController.current = controller
       try {
-        const file =
-          target.kind === 'latest'
-            ? await cvBuilderApi.downloadLatest(controller.signal)
-            : await cvBuilderApi.downloadVersion(target.cvVersionId, controller.signal)
+        const file = await cvBuilderApi.downloadCurrent(controller.signal)
         saveBlobAsFile(file.blob, file.filename)
         return file
       } finally {
@@ -38,7 +36,7 @@ export function useDownloadCv() {
       const mapped = mapApiError(error, 'protected')
       const message =
         mapped.code === 'CV_NOT_SAVED'
-          ? 'Save a CV version before downloading the latest PDF.'
+          ? 'Save your CV before downloading the PDF.'
           : mapped.code === 'CV_FILE_UNAVAILABLE'
             ? 'The PDF is temporarily unavailable. Please try the download again.'
             : mapped.message
@@ -54,5 +52,5 @@ export function useDownloadCv() {
 
 function targetKey(target: CvDownloadTarget | undefined) {
   if (!target) return null
-  return target.kind === 'latest' ? 'latest' : target.cvVersionId
+  return target.kind
 }

@@ -4,23 +4,22 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { cvBuilderApi } from '../api/cvBuilderApi'
 import { cvBuilderKeys } from './cvBuilderKeys'
 
-export function useSaveCvVersion() {
+export function useSaveCv() {
   const queryClient = useQueryClient()
   const { notify } = useNotifications()
 
   return useMutation({
-    mutationFn: (previewId: string) => cvBuilderApi.saveVersion(previewId),
+    mutationFn: ({ previewId, revision }: { previewId: string; revision: number | null }) =>
+      cvBuilderApi.saveCurrent(previewId, revision),
     retry: false,
-    onSuccess: async (version) => {
+    onSuccess: async (cv) => {
+      queryClient.setQueryData(cvBuilderKeys.current(), cv)
       notify({
         tone: 'success',
-        title: 'CV version saved',
-        message: `${version.versionLabel} is now your latest saved CV.`,
+        title: cv.revision === 1 ? 'CV saved' : 'CV updated',
+        message: 'Your active CV is ready to download and available to administrators.',
       })
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: cvBuilderKeys.freshness() }),
-        queryClient.invalidateQueries({ queryKey: cvBuilderKeys.versions() }),
-      ])
+      await queryClient.invalidateQueries({ queryKey: cvBuilderKeys.freshness() })
     },
     onError: (error) => {
       const mapped = mapApiError(error, 'protected')
@@ -30,7 +29,9 @@ export function useSaveCvVersion() {
         message:
           mapped.code === 'CV_PREVIEW_EXPIRED'
             ? 'Regenerate the preview, review it, and save again.'
-            : mapped.message,
+            : mapped.code === 'STALE_VERSION'
+              ? 'Your saved CV changed in another session. Refresh and generate a new preview.'
+              : mapped.message,
       })
     },
   })

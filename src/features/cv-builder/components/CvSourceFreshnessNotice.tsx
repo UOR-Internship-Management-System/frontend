@@ -22,9 +22,7 @@ export function CvSourceFreshnessNotice({ freshness }: { freshness: CvFreshnessV
             Changed areas: <strong>{freshness.changedAreaLabels.join(', ')}</strong>
           </p>
         ) : null}
-        {freshness.latestSavedAtLabel ? (
-          <small>Last saved {freshness.latestSavedAtLabel}</small>
-        ) : null}
+        {freshness.savedAtLabel ? <small>Last saved {freshness.savedAtLabel}</small> : null}
       </div>
     </section>
   )
