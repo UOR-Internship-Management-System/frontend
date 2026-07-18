@@ -3000,6 +3000,182 @@ td {
   }
 }
 
+/* Sprint 6 Academic Ledger */
+.academic-ledger-page {
+  max-width: 1500px;
+}
+
+.ledger-upload-panel,
+.ledger-status-card,
+.ledger-section-heading,
+.ledger-toolbar,
+.ledger-status-badges,
+.ledger-upload-controls,
+.ledger-secondary {
+  display: flex;
+}
+
+.ledger-upload-panel {
+  align-items: start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.ledger-upload-panel > div {
+  flex: 1 1 0;
+}
+
+.ledger-upload-controls {
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+}
+
+.ledger-upload-controls label,
+.ledger-toolbar label {
+  display: grid;
+  gap: 7px;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.ledger-selected-file {
+  margin: 0;
+  font-weight: 700;
+}
+
+.section-kicker {
+  margin: 0 0 6px;
+  color: var(--primary);
+  font-size: var(--font-size-sm);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ledger-status-card {
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.ledger-status-card > div:first-child {
+  flex: 1 1 440px;
+}
+
+.ledger-status-badges {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ledger-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  flex-basis: 100%;
+  gap: 12px;
+  margin: 0;
+}
+
+.ledger-stat-grid > div {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.ledger-stat-grid dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.ledger-stat-grid dd {
+  margin: 4px 0 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.ledger-section-heading {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ledger-section-heading h2,
+.ledger-section-heading p {
+  margin-top: 0;
+}
+
+.ledger-toolbar {
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ledger-toolbar label {
+  flex: 1 1 230px;
+}
+
+.ledger-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.ledger-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.ledger-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.ledger-table th,
+.ledger-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.ledger-table th {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.ledger-table tr.is-selected td {
+  background: color-mix(in srgb, var(--primary) 8%, var(--color-card));
+}
+
+.ledger-secondary {
+  flex-direction: column;
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 760px) {
+  .ledger-upload-panel {
+    flex-direction: column;
+  }
+
+  .ledger-upload-controls {
+    width: 100%;
+    max-width: none;
+  }
+
+  .ledger-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Sprint 5: Student Academic Records */
 .s5-records-page {
   --s5-records-accent: #4058c7;

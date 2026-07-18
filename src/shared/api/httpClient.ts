@@ -16,7 +16,10 @@ export type HttpResponseResult<TResponse> = {
 }
 
 function isFormData(value: unknown): value is FormData {
-  return typeof FormData !== 'undefined' && value instanceof FormData
+  return (
+    typeof FormData !== 'undefined' &&
+    (value instanceof FormData || Object.prototype.toString.call(value) === '[object FormData]')
+  )
 }
 
 export async function httpClient<TResponse>(path: string, options: HttpRequestOptions = {}) {
