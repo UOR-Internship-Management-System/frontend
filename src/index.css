@@ -720,7 +720,8 @@ textarea:focus-visible {
 
 /* Student protected shell */
 
-body.student-mobile-drawer-open {
+body.student-mobile-drawer-open,
+body.admin-mobile-drawer-open {
   overflow: hidden;
 }
 
