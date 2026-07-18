@@ -1,3 +1,9 @@
-import { createSprintOneDeferredApi } from '../../../shared/api/sprintOneDeferredApi'
+import { httpClient } from '../../../shared/api/httpClient'
+import { adminDashboardMetricsSchema } from '../schemas/adminDashboardSchemas'
 
-export const apiBoundary = createSprintOneDeferredApi('Feature')
+export const adminDashboardApi = {
+  async getMetrics(signal?: AbortSignal) {
+    const response = await httpClient<unknown>('/admin/dashboard/metrics', { signal })
+    return adminDashboardMetricsSchema.parse(response)
+  },
+}
