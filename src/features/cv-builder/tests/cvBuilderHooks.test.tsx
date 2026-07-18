@@ -3,10 +3,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { NotificationProvider } from '../../../app/providers/NotificationProvider'
+import { experienceApi } from '../../student-profile/api/studentProfileEntriesApi'
+import type { Experience } from '../../student-profile/types/profileEntryTypes'
 import * as downloadBlob from '../../../shared/utils/downloadBlob'
 import { cvBuilderApi } from '../api/cvBuilderApi'
 import { cvBuilderKeys } from '../hooks/cvBuilderKeys'
 import { useCvFreshness } from '../hooks/useCvFreshness'
+import { useCvExperienceSources } from '../hooks/useCvProfileSources'
 import { useCvPreview } from '../hooks/useCvPreview'
 import { useCvVersions } from '../hooks/useCvVersions'
 import { useDownloadCv } from '../hooks/useDownloadCv'
@@ -60,6 +63,31 @@ describe('CV Builder hooks', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(queryClient.getQueryData(cvBuilderKeys.freshness())).toEqual(freshness)
+  })
+
+  it('loads Profile source summaries by bounded pages instead of per record', async () => {
+    const list = vi.spyOn(experienceApi, 'list').mockImplementation(async (query) => ({
+      items: [experienceForPage(query.page)],
+      page: {
+        page: query.page,
+        size: query.size,
+        totalElements: 3,
+        totalPages: 3,
+        sort: query.sort,
+      },
+    }))
+    const { wrapper } = createWrapper()
+    const { result } = renderHook(() => useCvExperienceSources(), { wrapper })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(list).toHaveBeenCalledTimes(3)
+    expect(list.mock.calls.map(([query]) => query.page).sort()).toEqual([0, 1, 2])
+    expect(list.mock.calls.every(([query]) => query.size === 100)).toBe(true)
+    expect(result.current.data?.map((item) => item.label)).toEqual([
+      'Role 0 at Organization 0',
+      'Role 1 at Organization 1',
+      'Role 2 at Organization 2',
+    ])
   })
 
   it('keeps preview POST user-triggered and never retries a failed generation', async () => {
@@ -148,6 +176,23 @@ describe('CV Builder hooks', () => {
     expect(versionSignal?.aborted).toBe(true)
   })
 })
+
+function experienceForPage(page: number): Experience {
+  return {
+    id: `50000000-0000-4000-8000-${String(page).padStart(12, '0')}`,
+    organization: `Organization ${page}`,
+    positionTitle: `Role ${page}`,
+    location: null,
+    startDate: '2025-01-01',
+    endDate: null,
+    currentRole: true,
+    description: null,
+    cvInclude: page !== 2,
+    version: 1,
+    createdAt: '2026-07-21T08:00:00Z',
+    updatedAt: '2026-07-21T08:00:00Z',
+  }
+}
 
 function rejectWhenAborted(signal?: AbortSignal): ReturnType<typeof cvBuilderApi.downloadLatest> {
   return new Promise((_resolve, reject) => {

@@ -5,6 +5,7 @@ import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock
 import type { StudentProject } from '../../student-projects/types/studentProjectTypes'
 import { cvSectionLabels, defaultCvSectionOrder } from '../mappers/cvMapper'
 import type { CvSection } from '../types/cvBuilderTypes'
+import { CvProfileSourceGroup, type CvProfileSourceGroupState } from './CvProfileSourceGroup'
 
 export type CvConfigurationPanelProps = {
   sectionOrder: CvSection[]
@@ -12,6 +13,10 @@ export type CvConfigurationPanelProps = {
   projects?: StudentProject[]
   projectsLoading: boolean
   projectsError?: { message: string; correlationId?: string } | null
+  experienceSources: CvProfileSourceGroupState
+  certificateSources: CvProfileSourceGroupState
+  awardSources: CvProfileSourceGroupState
+  activitySources: CvProfileSourceGroupState
   onMoveSection: (section: CvSection, direction: -1 | 1) => void
   onToggleSection: (section: CvSection) => void
   onToggleProject: (projectId: string) => void
@@ -19,6 +24,10 @@ export type CvConfigurationPanelProps = {
 }
 
 export function CvConfigurationPanel({
+  activitySources,
+  awardSources,
+  certificateSources,
+  experienceSources,
   onMoveSection,
   onRetryProjects,
   onToggleProject,
@@ -96,6 +105,13 @@ export function CvConfigurationPanel({
         </ol>
       </fieldset>
 
+      <CvProfileSourceGroup
+        enabled={sectionOrder.includes('EXPERIENCE')}
+        manageLabel="Work Experience"
+        title="Work Experience"
+        {...experienceSources}
+      />
+
       <fieldset className="s5-cv-project-fieldset">
         <legend>Projects to include</legend>
         {!projectsEnabled ? (
@@ -140,6 +156,25 @@ export function CvConfigurationPanel({
           </div>
         ) : null}
       </fieldset>
+
+      <CvProfileSourceGroup
+        enabled={sectionOrder.includes('CERTIFICATES')}
+        manageLabel="Certificates"
+        title="Certificates"
+        {...certificateSources}
+      />
+      <CvProfileSourceGroup
+        enabled={sectionOrder.includes('AWARDS')}
+        manageLabel="Awards and Honors"
+        title="Awards and Honors"
+        {...awardSources}
+      />
+      <CvProfileSourceGroup
+        enabled={sectionOrder.includes('ACTIVITIES')}
+        manageLabel="Extracurricular Activities"
+        title="Extracurricular Activities"
+        {...activitySources}
+      />
     </SectionCard>
   )
 }

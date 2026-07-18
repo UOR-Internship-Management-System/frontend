@@ -10,6 +10,12 @@ import { CvSourceFreshnessNotice } from '../components/CvSourceFreshnessNotice'
 import { CvVersionList } from '../components/CvVersionList'
 import { LatexOutputPanel } from '../components/LatexOutputPanel'
 import { useCvFreshness } from '../hooks/useCvFreshness'
+import {
+  useCvActivitySources,
+  useCvAwardSources,
+  useCvCertificateSources,
+  useCvExperienceSources,
+} from '../hooks/useCvProfileSources'
 import { useCvPreview } from '../hooks/useCvPreview'
 import { useCvProjectOptions } from '../hooks/useCvProjectOptions'
 import { useCvVersions } from '../hooks/useCvVersions'
@@ -29,6 +35,10 @@ export function CvBuilderPage() {
   const [versionPage, setVersionPage] = useState(0)
   const initializedProjects = useRef(false)
   const freshness = useCvFreshness()
+  const experienceSources = useCvExperienceSources()
+  const certificateSources = useCvCertificateSources()
+  const awardSources = useCvAwardSources()
+  const activitySources = useCvActivitySources()
   const projectOptions = useCvProjectOptions()
   const versions = useCvVersions({ page: versionPage, size: versionPageSize, sort: 'savedAt,desc' })
   const previewMutation = useCvPreview({
@@ -153,6 +163,10 @@ export function CvBuilderPage() {
       ) : null}
 
       <CvConfigurationPanel
+        activitySources={mapSourceQuery(activitySources)}
+        awardSources={mapSourceQuery(awardSources)}
+        certificateSources={mapSourceQuery(certificateSources)}
+        experienceSources={mapSourceQuery(experienceSources)}
         onMoveSection={moveSection}
         onRetryProjects={() => void projectOptions.refetch()}
         onToggleProject={toggleProject}
@@ -200,4 +214,18 @@ export function CvBuilderPage() {
       />
     </main>
   )
+}
+
+function mapSourceQuery<T extends { id: string; label: string; cvInclude: boolean }>(query: {
+  data?: T[]
+  isPending: boolean
+  error: Error | null
+  refetch: () => unknown
+}) {
+  return {
+    items: query.data,
+    isPending: query.isPending,
+    error: query.error ? mapApiError(query.error, 'protected') : null,
+    onRetry: () => void query.refetch(),
+  }
 }

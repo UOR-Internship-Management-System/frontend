@@ -1,4 +1,6 @@
 import userEvent from '@testing-library/user-event'
+import { within } from '@testing-library/react'
+import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
 import {
   currentFreshness,
@@ -12,6 +14,7 @@ import {
   setCvVersionsFixture,
 } from '../../../mocks/fixtures/cvBuilder.fixture'
 import { renderWithProviders } from '../../../test/renderWithProviders'
+import { server } from '../../../mocks/server'
 import { CvBuilderPage } from '../pages/CvBuilderPage'
 
 describe('CvBuilderPage', () => {
@@ -23,6 +26,49 @@ describe('CvBuilderPage', () => {
     expect(view.getByRole('button', { name: 'Generate Preview' })).toBeEnabled()
     expect(view.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
     expect(view.getByText('No saved versions')).toBeVisible()
+    expect(view.queryByRole('navigation', { name: 'Saved CV version pages' })).toBeNull()
+  })
+
+  it('shows all five source groups with read-only Profile inclusion summaries', async () => {
+    const view = renderWithProviders(<CvBuilderPage />)
+
+    const experience = await view.findByRole('group', { name: 'Work Experience' })
+    expect(experience).toHaveTextContent('Software Engineering Intern at Example Software')
+    expect(within(experience).getByText('Included in CV')).toBeVisible()
+    expect(
+      within(experience).getByRole('link', { name: 'Manage Work Experience in Profile' }),
+    ).toHaveAttribute('href', '/student/profile')
+
+    expect(view.getByRole('group', { name: 'Projects to include' })).toBeVisible()
+    expect(await view.findByText('AWS Cloud Foundations — Amazon Web Services')).toBeVisible()
+    expect(view.getByText('Faculty Coding Challenge Winner — University of Ruhuna')).toBeVisible()
+    expect(view.getByText('Computer Science Students Society — Committee Member')).toBeVisible()
+    expect(view.getAllByRole('link', { name: /Manage .* in Profile/ })).toHaveLength(4)
+  })
+
+  it('keeps other CV controls usable when one Profile source group fails', async () => {
+    server.use(
+      http.get('/api/v1/me/profile/experience', () =>
+        HttpResponse.json(
+          {
+            type: 'about:blank',
+            title: 'Unavailable',
+            status: 503,
+            code: 'SERVICE_UNAVAILABLE',
+            message: 'Experience is temporarily unavailable.',
+            correlationId: 'cv-experience-503',
+          },
+          { status: 503 },
+        ),
+      ),
+    )
+    const view = renderWithProviders(<CvBuilderPage />)
+
+    expect(
+      await view.findByRole('heading', { name: 'Work Experience unavailable' }, { timeout: 3_000 }),
+    ).toBeVisible()
+    expect(await view.findByText('AWS Cloud Foundations — Amazon Web Services')).toBeVisible()
+    expect(view.getByRole('button', { name: 'Generate Preview' })).toBeEnabled()
   })
 
   it('renders CURRENT and both typed OUTDATED source-area presentations', async () => {
