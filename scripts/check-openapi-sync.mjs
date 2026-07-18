@@ -3,12 +3,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const root = process.cwd()
-const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml'
-const expectedContractSha256 = '3f10985012f1cc6c69e3a69d221cc1e104cb877472461992943f6252452e1da6'
+const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.4.1.yaml'
+const expectedContractSha256 = '4e8f7d0b864430b6d61c0a5e64d43574059b6a50be059a6b240b64133caece9e'
 const requiredFiles = [
   contractPath,
-  'docs/api/CV_Management_API_OpenAPI_v1.4.0_CHANGELOG.md',
-  'docs/api/CV_Management_API_OpenAPI_v1.4.0_VALIDATION_REPORT.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.4.1_CHANGELOG.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.4.1_VALIDATION_REPORT.md',
   'docs/api/generated-client-notes.md',
   'src/shared/api/generated/README.md',
   'src/shared/api/generated/cvManagementApi.client.ts',
@@ -31,7 +31,7 @@ const actualHash = crypto.createHash('sha256').update(canonicalContract, 'utf8')
 
 if (actualHash !== expectedContractSha256) {
   console.error(
-    `OpenAPI v1.4.0 checksum mismatch: expected ${expectedContractSha256}, received ${actualHash}`,
+    `OpenAPI v1.4.1 checksum mismatch: expected ${expectedContractSha256}, received ${actualHash}`,
   )
   process.exit(1)
 }
@@ -41,8 +41,8 @@ if (!contract.trimStart().startsWith('openapi: 3.1.1')) {
   process.exit(1)
 }
 
-if (!/^info:\s*$[\s\S]*?^ {2}version: 1\.4\.0\s*$/m.test(contract)) {
-  console.error('OpenAPI info.version must be 1.4.0')
+if (!/^info:\s*$[\s\S]*?^ {2}version: 1\.4\.1\s*$/m.test(contract)) {
+  console.error('OpenAPI info.version must be 1.4.1')
   process.exit(1)
 }
 
@@ -83,7 +83,7 @@ const requiredSchemas = [
   'GpaAvailabilityStatus:',
   'CvFreshnessStatus:',
   'CvSourceArea:',
-  'CvOptionalSections:',
+  'CvSelectedRecordIds:',
   'AcademicRecordResponse:',
   'AcademicRecordSourceResponse:',
   'GpaSummaryResponse:',
@@ -111,6 +111,7 @@ for (const obsoleteSchema of [
   'CvVersionResponse:',
   'PagedCvVersionResponse:',
   'CvSectionType:',
+  'CvOptionalSections:',
 ]) {
   if (contract.includes(obsoleteSchema)) {
     console.error(`OpenAPI contract still contains obsolete Sprint 4 schema: ${obsoleteSchema}`)
@@ -122,6 +123,7 @@ for (const obsoleteFragment of [
   '/me/cv/versions',
   '/me/cv/latest/download',
   'sectionOrder:',
+  'optionalSections:',
   'latexSource:',
 ]) {
   if (contract.includes(obsoleteFragment)) {
@@ -164,11 +166,39 @@ const savePropertyNames = [...saveProperties.matchAll(/^ {8}([A-Za-z0-9]+):\s*$/
   (match) => match[1],
 )
 if (savePropertyNames.length !== 1 || savePropertyNames[0] !== 'previewId') {
-  console.error('CvVersionCreateRequest must contain only previewId')
+  console.error('CvSaveRequest must contain only previewId')
   process.exit(1)
 }
 
 const previewRequest = schemaBlock('CvPreviewRequest')
+const previewProperties =
+  previewRequest.match(
+    /^ {6}properties:\s*$([\s\S]*?)(?=^ {6}[a-zA-Z]|^ {4}[A-Za-z0-9]+:)/m,
+  )?.[1] ?? ''
+const previewPropertyNames = [...previewProperties.matchAll(/^ {8}([A-Za-z0-9]+):\s*$/gm)].map(
+  (match) => match[1],
+)
+const expectedPreviewProperties = [
+  'includedExperienceIds',
+  'includedProjectIds',
+  'includedCertificateIds',
+  'includedAwardIds',
+  'includedActivityIds',
+]
+if (
+  previewPropertyNames.length !== expectedPreviewProperties.length ||
+  expectedPreviewProperties.some((property) => !previewPropertyNames.includes(property))
+) {
+  console.error('CvPreviewRequest must contain exactly the five record-level selection arrays')
+  process.exit(1)
+}
+const selectedIds = schemaBlock('CvSelectedRecordIds')
+for (const fragment of ['type: array', 'maxItems: 100', 'uniqueItems: true', 'format: uuid']) {
+  if (!selectedIds.includes(fragment)) {
+    console.error(`CvSelectedRecordIds is missing: ${fragment}`)
+    process.exit(1)
+  }
+}
 if (/^ {8}notes:\s*$/m.test(previewRequest) || /^ {8}notes:\s*$/m.test(saveRequest)) {
   console.error('OpenAPI Sprint 5 preview/save requests must not contain notes')
   process.exit(1)
@@ -202,7 +232,7 @@ const generatedExpectations = new Map([
   [
     'src/shared/api/generated/cvManagementApi.types.ts',
     [
-      "version: '1.4.0'",
+      "version: '1.4.1'",
       'ApiDeclaredSkillCreateRequest',
       'ApiDeclaredSkillUpdateRequest',
       'ApiProjectCreateRequest',
@@ -212,7 +242,7 @@ const generatedExpectations = new Map([
       'ApiGpaAvailabilityStatus',
       'ApiCvFreshnessStatus',
       'ApiCvSourceArea',
-      'ApiCvOptionalSections',
+      'ApiCvRecordSelections',
       'ApiAcademicRecordResponse',
       'ApiAcademicRecordSourceResponse',
       'ApiGpaSummaryResponse',
@@ -228,7 +258,7 @@ const generatedExpectations = new Map([
   ],
   [
     'src/shared/api/generated/cvManagementApi.client.ts',
-    ["version: '1.4.0'", `contractPath: '${contractPath}'`],
+    ["version: '1.4.1'", `contractPath: '${contractPath}'`],
   ],
 ])
 
@@ -242,4 +272,4 @@ for (const [file, expectedFragments] of generatedExpectations) {
   }
 }
 
-console.log('OpenAPI v1.4.0 contract and deterministic metadata are synchronized.')
+console.log('OpenAPI v1.4.1 contract and deterministic metadata are synchronized.')

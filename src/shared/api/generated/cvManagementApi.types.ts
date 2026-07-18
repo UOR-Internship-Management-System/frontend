@@ -2,8 +2,8 @@
 export type ApiContractMetadata = {
   title: 'CV Management API'
   openapi: '3.1.1'
-  version: '1.4.0'
-  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml'
+  version: '1.4.1'
+  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.4.1.yaml'
 }
 
 export type ApiProblemFieldError = {
@@ -107,12 +107,12 @@ export type ApiCvFreshnessStatus = 'NOT_SAVED' | 'CURRENT' | 'OUTDATED'
 
 export type ApiCvSourceArea = 'PROFILE' | 'DECLARED_SKILLS' | 'PROJECTS' | 'ACADEMIC_RECORDS'
 
-export type ApiCvOptionalSections = {
-  experience: boolean
-  projects: boolean
-  certificates: boolean
-  awards: boolean
-  activities: boolean
+export type ApiCvRecordSelections = {
+  includedExperienceIds: string[]
+  includedProjectIds: string[]
+  includedCertificateIds: string[]
+  includedAwardIds: string[]
+  includedActivityIds: string[]
 }
 
 export type ApiAcademicRecordResponse = {
@@ -153,10 +153,7 @@ export type ApiCvFreshnessResponse = {
   message: string
 }
 
-export type ApiCvPreviewRequest = {
-  optionalSections: ApiCvOptionalSections
-  includedProjectIds: string[]
-}
+export type ApiCvPreviewRequest = ApiCvRecordSelections
 
 export type ApiCvPreviewConfigurationResponse = ApiCvPreviewRequest
 
