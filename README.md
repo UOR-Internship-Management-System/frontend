@@ -2,11 +2,13 @@
 
 React, TypeScript, and Vite frontend for the CV Management and Deterministic Internship Candidate Filtering System.
 
-## Sprint 4 Status
+## Sprint 5 Status
 
-The frontend implements the approved Student workflows delivered through Sprint 4: authentication and onboarding, Dashboard metrics, Student-owned Profile editing, declared-skill management from the developer-managed taxonomy, and Student-owned project portfolio management.
+The frontend implements the approved Student workflows delivered through Sprint 5: authentication and onboarding, Dashboard metrics, Student-owned Profile editing, declared-skill management, Student-owned projects, the CV Builder, and read-only Academic Records with the official Computer Science GPA.
 
-Sprint 4 uses the OpenAPI v1.3.0 contract for strict request/response validation, pagination, optimistic concurrency, safe errors, and Dashboard metric refresh after successful mutations. Features assigned to later sprints remain unregistered.
+Sprint 5 adopts OpenAPI v1.4.0. The CV Builder supports server-confirmed previews, immutable saved versions, freshness states, preview-expiration recovery, and authenticated PDF downloads. Academic Records supports the official `AVAILABLE` and `NOT_AVAILABLE` GPA states plus contract-authorized search, sorting, and pagination over committed read-only records.
+
+All non-browser release checks pass. The 38 Playwright scenarios are implemented and discoverable, but execution is currently blocked because the configured Chromium executable is not installed in the validation environment. Run `npx playwright install chromium` in an approved environment and then `npm run e2e` before release acceptance.
 
 ### Active protected Student routes
 
@@ -14,6 +16,8 @@ Sprint 4 uses the OpenAPI v1.3.0 contract for strict request/response validation
 - `/student/profile`
 - `/student/skills`
 - `/student/projects`
+- `/student/cv-builder`
+- `/student/academic-records`
 
 ## Setup
 
@@ -44,4 +48,4 @@ npm run e2e
 
 The app uses `src/app` for bootstrap, providers, routing, layouts, and runtime config; `src/shared` for reusable UI, API, security, validation, and pagination infrastructure; and `src/features` for approved feature/domain modules.
 
-Sprint 4 acceptance evidence is recorded in `docs/implementation/sprint-4-frontend-completion-notes.md`.
+Sprint 5 implementation and validation evidence is recorded in `docs/implementation/sprint-5-frontend-completion-notes.md`.

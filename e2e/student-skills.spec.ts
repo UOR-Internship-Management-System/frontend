@@ -95,6 +95,34 @@ async function mockSkillsApi(
 ) {
   let declarations = [{ ...initialDeclaration }]
 
+  await page.route(/\/api\/v1\/skill-taxonomy$/, (route) => {
+    if (options.unavailableTaxonomy) {
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          type: 'about:blank',
+          title: 'Unavailable',
+          status: 503,
+          code: 'SERVICE_UNAVAILABLE',
+          message: 'Taxonomy unavailable.',
+          correlationId: 'e2e-tree-503',
+        }),
+      })
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        clusters: [
+          {
+            ...clusters[0],
+            categories: [{ ...categories[0], skills }],
+          },
+        ],
+      }),
+    })
+  })
   await page.route('**/api/v1/skill-taxonomy/clusters**', (route) =>
     route.fulfill({
       status: 200,
@@ -233,12 +261,20 @@ test('Student completes the declared-skill workflow through protected navigation
   await page.getByLabel('Competency Level').selectOption('ADVANCED')
   await page.getByRole('button', { name: 'Add declared skill' }).click()
   await expect(page.getByText('Skill added')).toBeVisible()
+  await page
+    .locator('.toast', { hasText: 'Skill added' })
+    .getByRole('button', { name: 'Dismiss' })
+    .click()
   await expect(page.getByRole('row', { name: /TypeScript/ })).toBeVisible()
 
   const reactRow = page.getByRole('row', { name: /React/ })
   await reactRow.getByLabel('Competency for React').selectOption('ADVANCED')
   await reactRow.getByRole('button', { name: 'Update' }).click()
   await expect(page.getByText('Competency updated')).toBeVisible()
+  await page
+    .locator('.toast', { hasText: 'Competency updated' })
+    .getByRole('button', { name: 'Dismiss' })
+    .click()
 
   await reactRow.getByRole('button', { name: 'Remove React' }).click()
   await page

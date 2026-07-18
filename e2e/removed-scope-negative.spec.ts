@@ -10,6 +10,8 @@ const forbiddenVisibleText = [
   ['verified', 'skill'].join(' '),
   ['project', 'approval'].join(' '),
   ['project', 'verification'].join(' '),
+  ['Admin', 'Review'].join(' '),
+  ['Estimated', 'GPA'].join(' '),
 ]
 
 const studentUser = {
@@ -69,6 +71,48 @@ async function mockProtectedStudentScope(page: Page) {
       body: JSON.stringify(emptyPage(route.request().url(), 'updatedAt,desc')),
     }),
   )
+  await page.route('**/api/v1/me/cv/source-freshness', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'NOT_SAVED',
+        changedAreas: [],
+        cvId: null,
+        savedAt: null,
+        evaluatedAt: '2026-07-21T08:00:00Z',
+        message: 'No saved CV exists.',
+      }),
+    }),
+  )
+  await page.route('**/api/v1/me/cv/versions**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(emptyPage(route.request().url(), 'savedAt,desc')),
+    }),
+  )
+  await page.route('**/api/v1/me/academic-records/gpa', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        studentId: '30000000-0000-4000-8000-000000000001',
+        status: 'NOT_AVAILABLE',
+        computerScienceGpa: null,
+        totalCredits: null,
+        calculatedAt: null,
+        source: null,
+      }),
+    }),
+  )
+  await page.route('**/api/v1/me/academic-records?**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(emptyPage(route.request().url(), 'academicYear,desc')),
+    }),
+  )
 }
 
 async function expectNoForbiddenVisibleText(page: Page) {
@@ -110,4 +154,20 @@ test('Sprint 4 Student pages omit removed terminology and unsupported project fi
   for (const label of unsupportedFieldLabels) {
     await expect(dialog.getByLabel(label, { exact: false })).toHaveCount(0)
   }
+})
+
+test('Sprint 5 Student pages omit removed wording and unsupported academic actions', async ({
+  page,
+}) => {
+  await mockProtectedStudentScope(page)
+
+  await page.goto('/student/cv-builder', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('heading', { level: 1, name: 'CV Builder' })).toBeVisible()
+  await expectNoForbiddenVisibleText(page)
+
+  await page.goto('/student/academic-records', { waitUntil: 'domcontentloaded' })
+  await expect(page.getByRole('heading', { level: 1, name: 'Academic Records' })).toBeVisible()
+  await expectNoForbiddenVisibleText(page)
+  await expect(page.getByRole('button', { name: /edit|add|delete|save/i })).toHaveCount(0)
+  await expect(page.getByRole('columnheader', { name: /actions/i })).toHaveCount(0)
 })

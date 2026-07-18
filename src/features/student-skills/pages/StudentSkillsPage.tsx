@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
+import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
@@ -20,7 +21,9 @@ import {
   useDeleteDeclaredSkill,
   useUpdateDeclaredSkill,
 } from '../hooks/useDeclaredSkillMutations'
-import { useDeclaredSkills } from '../hooks/useDeclaredSkills'
+import { useAllDeclaredSkills, useDeclaredSkills } from '../hooks/useDeclaredSkills'
+import { useSkillTaxonomyTree } from '../hooks/useSkillTaxonomy'
+import { indexSkillTaxonomy } from '../mappers/skillMapper'
 import type { CompetencyLevel, DeclaredSkill, IndividualSkill } from '../types/studentSkillTypes'
 
 const pageSize = 5
@@ -33,7 +36,6 @@ export function StudentSkillsPage() {
   const [page, setPage] = useState(0)
   const [removeTarget, setRemoveTarget] = useState<DeclaredSkill | null>(null)
   const [conflictMessage, setConflictMessage] = useState<string>()
-  const [knownDeclaredSkillIds, setKnownDeclaredSkillIds] = useState<Set<string>>(() => new Set())
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
 
   const declared = useDeclaredSkills({
@@ -42,18 +44,19 @@ export function StudentSkillsPage() {
     sort,
     search: debouncedSearch || undefined,
   })
+  const allDeclared = useAllDeclaredSkills()
+  const taxonomyTree = useSkillTaxonomyTree()
+  const taxonomyIndex = useMemo(
+    () => (taxonomyTree.data ? indexSkillTaxonomy(taxonomyTree.data) : null),
+    [taxonomyTree.data],
+  )
+  const declaredSkillIds = useMemo(
+    () => new Set(allDeclared.data?.map((item) => item.skillId) ?? []),
+    [allDeclared.data],
+  )
   const createMutation = useCreateDeclaredSkill()
   const updateMutation = useUpdateDeclaredSkill()
   const deleteMutation = useDeleteDeclaredSkill()
-
-  useEffect(() => {
-    if (!declared.data?.items.length) return
-    setKnownDeclaredSkillIds((current) => {
-      const next = new Set(current)
-      for (const item of declared.data.items) next.add(item.skillId)
-      return next
-    })
-  }, [declared.data?.items])
 
   const handleRecoverableError = async (reason: unknown) => {
     const error = mapApiError(reason, 'protected')
@@ -69,7 +72,7 @@ export function StudentSkillsPage() {
 
   const addSkill = async (competencyLevel: CompetencyLevel) => {
     if (!selectedSkill) throw new TypeError('Select a taxonomy skill before adding it.')
-    if (knownDeclaredSkillIds.has(selectedSkill.skillId)) {
+    if (declaredSkillIds.has(selectedSkill.skillId)) {
       throw {
         title: 'Duplicate declared skill',
         status: 409,
@@ -84,7 +87,6 @@ export function StudentSkillsPage() {
         title: 'Skill added',
         message: `${selectedSkill.name} is now declared.`,
       })
-      setKnownDeclaredSkillIds((current) => new Set(current).add(selectedSkill.skillId))
       setSelectedSkill(null)
       setConflictMessage(undefined)
     } catch (reason) {
@@ -127,11 +129,6 @@ export function StudentSkillsPage() {
         title: 'Skill removed',
         message: `${target.skillName} was removed.`,
       })
-      setKnownDeclaredSkillIds((current) => {
-        const next = new Set(current)
-        next.delete(target.skillId)
-        return next
-      })
       setRemoveTarget(null)
       setConflictMessage(undefined)
     } catch (reason) {
@@ -142,6 +139,9 @@ export function StudentSkillsPage() {
   }
 
   const mappedDeclaredError = declared.error ? mapApiError(declared.error, 'protected') : null
+  const addSkillError = taxonomyTree.error ?? allDeclared.error
+  const mappedAddSkillError = addSkillError ? mapApiError(addSkillError, 'protected') : null
+  const addSkillLoading = taxonomyTree.isPending || allDeclared.isPending
 
   return (
     <main className="content-stack s4-skills-page">
@@ -158,17 +158,44 @@ export function StudentSkillsPage() {
         </div>
       ) : null}
 
-      <SectionCard className="s4-skills-add-card">
+      <SectionCard aria-labelledby="add-skill-title" className="s4-skills-add-card">
+        <div className="s4-skills-section-heading">
+          <div>
+            <h2 id="add-skill-title">Add Skill</h2>
+            <p>Select each taxonomy level, choose your competency, and save immediately.</p>
+          </div>
+        </div>
+        {addSkillLoading ? (
+          <div aria-label="Loading Add Skill options" role="status">
+            <SkeletonBlock lines={3} />
+          </div>
+        ) : null}
+        {mappedAddSkillError ? (
+          <ErrorState
+            correlationId={mappedAddSkillError.correlationId}
+            message={mappedAddSkillError.message}
+            onAction={() => void Promise.all([taxonomyTree.refetch(), allDeclared.refetch()])}
+            title="Add Skill unavailable"
+          />
+        ) : null}
+        {taxonomyTree.data && allDeclared.data ? (
+          <DeclaredSkillForm
+            declaredSkillIds={declaredSkillIds}
+            isPending={createMutation.isPending}
+            onSelectSkill={setSelectedSkill}
+            onSubmit={addSkill}
+            selectedSkill={selectedSkill}
+            taxonomy={taxonomyTree.data}
+          />
+        ) : null}
+      </SectionCard>
+
+      <SectionCard className="s4-skills-available-card">
         <SkillTaxonomyBrowser
-          declaredSkillIds={knownDeclaredSkillIds}
-          disabled={createMutation.isPending}
+          declaredSkillIds={declaredSkillIds}
           onSelect={setSelectedSkill}
+          selectionDisabled={createMutation.isPending || !taxonomyTree.data || !allDeclared.data}
           selectedSkillId={selectedSkill?.skillId}
-        />
-        <DeclaredSkillForm
-          isPending={createMutation.isPending}
-          onSubmit={addSkill}
-          selectedSkill={selectedSkill}
         />
       </SectionCard>
 
@@ -229,6 +256,7 @@ export function StudentSkillsPage() {
             items={declared.data.items}
             onRemove={setRemoveTarget}
             onUpdate={updateSkill}
+            taxonomyPathsBySkillId={taxonomyIndex?.pathsBySkillId ?? new Map()}
             updatingId={
               updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
             }

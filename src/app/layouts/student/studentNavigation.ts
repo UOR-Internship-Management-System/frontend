@@ -27,4 +27,14 @@ export const studentNavigation: readonly StudentNavigationItem[] = [
     route: routePaths.studentProjects,
     icon: 'folder_copy',
   },
+  {
+    label: 'CV Builder',
+    route: routePaths.studentCvBuilder,
+    icon: 'description',
+  },
+  {
+    label: 'Academic Records',
+    route: routePaths.studentAcademicRecords,
+    icon: 'school',
+  },
 ]

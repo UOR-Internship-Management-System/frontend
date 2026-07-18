@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Material+Symbols+Outlined&display=swap');
+@import './styles/print-cv-preview.css';
 
 :root {
   --primary: #6750a4;
@@ -2716,6 +2717,7 @@ td {
 .s4-projects-skill-picker,
 .s4-projects-links,
 .s4-projects-skill-chips,
+.s4-projects-ongoing-option,
 .s4-projects-cv-option {
   display: flex;
   align-items: center;
@@ -2757,11 +2759,13 @@ td {
   color: var(--color-text-muted);
 }
 
+.s4-projects-ongoing-option,
 .s4-projects-cv-option {
   align-items: flex-start;
   font-weight: 700;
 }
 
+.s4-projects-ongoing-option input,
 .s4-projects-cv-option input {
   width: 18px;
   height: 18px;
@@ -2830,12 +2834,472 @@ td {
   }
 }
 
+/* Sprint 5: Student Academic Records */
+.s5-records-page {
+  --s5-records-accent: #4058c7;
+  --s5-records-accent-soft: color-mix(in srgb, var(--s5-records-accent) 11%, var(--color-card));
+}
+
+:root.dark .s5-records-page,
+body.dark-mode .s5-records-page {
+  --s5-records-accent: #b9c3ff;
+}
+
+.s5-records-gpa-section,
+.s5-records-list-section {
+  display: grid;
+  gap: 24px;
+  overflow: hidden;
+}
+
+.s5-records-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.s5-records-section-heading h2,
+.s5-records-gpa-unavailable h3 {
+  margin: 5px 0 6px;
+}
+
+.s5-records-section-heading p,
+.s5-records-gpa-card p,
+.s5-records-gpa-unavailable p {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.s5-records-kicker {
+  color: var(--s5-records-accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.s5-records-read-only-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 13px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.s5-records-read-only-note .material-symbols-outlined {
+  color: var(--s5-records-accent);
+  font-size: 19px;
+}
+
+.s5-records-gpa-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) repeat(2, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.s5-records-gpa-card {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.s5-records-gpa-card.s5-records-gpa-primary {
+  border-color: color-mix(in srgb, var(--s5-records-accent) 35%, var(--color-border));
+  background: var(--s5-records-accent-soft);
+}
+
+.s5-records-card-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 0.83rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.s5-records-gpa-card > strong {
+  display: block;
+  margin: 17px 0 8px;
+  color: var(--color-text);
+  font-size: clamp(1.65rem, 3vw, 2.65rem);
+  line-height: 1;
+}
+
+.s5-records-gpa-card > strong.s5-records-date-value {
+  font-size: 1.05rem;
+  line-height: 1.35;
+}
+
+.s5-records-gpa-unavailable {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px;
+  border: 1px dashed color-mix(in srgb, var(--s5-records-accent) 45%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--s5-records-accent-soft);
+}
+
+.s5-records-gpa-unavailable > .material-symbols-outlined {
+  color: var(--s5-records-accent);
+  font-size: 30px;
+}
+
+.s5-records-gpa-unavailable .chip {
+  margin-bottom: 8px;
+}
+
+.s5-records-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(230px, 0.65fr);
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.s5-records-toolbar label {
+  display: grid;
+  gap: 7px;
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.s5-records-toolbar .input,
+.s5-records-toolbar .select {
+  width: 100%;
+  min-height: 44px;
+  background: var(--color-card);
+}
+
+.s5-records-refreshing {
+  margin: -10px 0 -10px;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+}
+
+.s5-records-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  scrollbar-width: thin;
+}
+
+.s5-records-table-wrap:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--s5-records-accent) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.s5-records-table {
+  width: 100%;
+  min-width: 1160px;
+  border-collapse: collapse;
+  background: var(--color-card);
+  font-size: 0.91rem;
+}
+
+.s5-records-table th,
+.s5-records-table td {
+  padding: 15px 14px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.s5-records-table th {
+  background: var(--color-card-muted);
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.s5-records-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.s5-records-table tbody tr:hover {
+  background: color-mix(in srgb, var(--s5-records-accent) 5%, var(--color-card));
+}
+
+.s5-records-table td:first-child {
+  min-width: 120px;
+}
+
+.s5-records-table td:nth-child(2) {
+  min-width: 240px;
+}
+
+.s5-records-grade {
+  display: inline-grid;
+  min-width: 35px;
+  min-height: 35px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--s5-records-accent-soft);
+  color: var(--s5-records-accent);
+  font-weight: 800;
+}
+
+.s5-records-skeleton {
+  display: grid;
+  gap: 8px;
+}
+
+.s5-records-skeleton > div {
+  min-height: 58px;
+}
+
+@media (max-width: 860px) {
+  .s5-records-gpa-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .s5-records-toolbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .s5-records-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .s5-records-read-only-note {
+    align-self: flex-start;
+  }
+
+  .s5-records-gpa-card,
+  .s5-records-gpa-unavailable,
+  .s5-records-toolbar {
+    padding: 16px;
+  }
+}
+
+/* Sprint 5: Student CV Builder */
+.s5-cv-builder-page {
+  min-width: 0;
+}
+
+.s5-section-heading,
+.s5-cv-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.s5-section-heading h2,
+.s5-cv-freshness h2 {
+  margin: 0;
+}
+
+.s5-section-heading p,
+.s5-cv-freshness p {
+  margin: 6px 0 0;
+  color: var(--color-muted);
+}
+
+.s5-cv-freshness {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+}
+
+.s5-cv-freshness-success {
+  border-color: color-mix(in srgb, var(--success) 55%, var(--color-border));
+}
+
+.s5-cv-freshness-warning,
+.s5-inline-warning,
+.s5-inline-alert {
+  border-color: #b26a00;
+  background: color-mix(in srgb, #f6a800 14%, var(--color-card));
+}
+
+.s5-cv-configuration,
+.s5-cv-preview-panel {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.s5-cv-identity-note,
+.s5-inline-alert {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.s5-cv-source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.s5-cv-source-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.s5-cv-source-fieldset legend {
+  padding: 0 6px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.s5-cv-record-options {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.s5-cv-record-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  cursor: pointer;
+}
+
+.s5-cv-source-fieldset > a {
+  display: inline-block;
+  margin-top: 12px;
+  font-weight: 700;
+}
+
+.s5-cv-record-options label > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.s5-cv-record-options input {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+}
+
+.s5-cv-selection-warning {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, #b26a00 45%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, #f6a800 14%, var(--color-card));
+  color: var(--color-text);
+}
+
+.s5-inline-guidance,
+.s5-inline-warning {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.s5-cv-preview-paper {
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid #b9b9b9;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+}
+
+.s5-cv-preview-frame {
+  display: block;
+  width: 100%;
+  min-height: 680px;
+  border: 0;
+  background: #fff;
+}
+
+.s5-cv-preview-loading {
+  min-height: 360px;
+}
+
+.s5-status-pill {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-card-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.s5-status-pill.warning {
+  background: color-mix(in srgb, #f6a800 18%, var(--color-card));
+}
+
+.s5-cv-action-bar {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 680px) {
+  .s5-section-heading,
+  .s5-cv-action-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .s5-cv-action-bar .button {
+    width: 100%;
+  }
+
+  .s5-cv-preview-paper {
+    min-height: 480px;
+  }
+
+  .s5-cv-preview-frame {
+    min-height: 560px;
+  }
+}
+
 /* Sprint 4: Student declared skills. Keep selectors feature-scoped. */
 .s4-skills-page {
   min-width: 0;
 }
 
 .s4-skills-add-card,
+.s4-skills-available-card,
 .s4-skills-list-card,
 .s4-skills-taxonomy {
   display: grid;
@@ -2931,10 +3395,24 @@ td {
 }
 
 .s4-skills-declare-form {
+  display: grid;
+  align-items: stretch;
+  justify-content: initial;
+  gap: 16px;
   padding: 16px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-card-muted);
+}
+
+.s4-skills-add-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.s4-skills-declare-form > .button {
+  justify-self: start;
 }
 
 .s4-skills-declare-form > div,
@@ -2966,6 +3444,7 @@ td {
 
 .s4-skills-table {
   width: 100%;
+  min-width: 980px;
   border-collapse: collapse;
 }
 
@@ -3035,6 +3514,7 @@ td {
 
 @media (max-width: 900px) {
   .s4-skills-taxonomy-filters,
+  .s4-skills-add-fields,
   .s4-skills-results {
     grid-template-columns: 1fr;
   }

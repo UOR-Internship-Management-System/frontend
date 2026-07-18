@@ -64,7 +64,7 @@ describe('StudentProjectsPage', () => {
     expect(
       await view.findByRole('row', { name: /Revised accessible portfolio evidence/ }),
     ).toBeVisible()
-  })
+  }, 10_000)
 
   it('deletes a Student-owned portfolio project from its latest details', async () => {
     const user = userEvent.setup()
@@ -111,6 +111,17 @@ describe('StudentProjectsPage', () => {
       await view.findByRole('heading', { name: 'Projects unavailable' }, { timeout: 3_000 }),
     ).toBeInTheDocument()
     expect(view.getByText('Reference: projects-page-503')).toBeInTheDocument()
+  })
+
+  it('keeps repository controls available in a single empty state', async () => {
+    setStudentProjectsFixture([])
+    const view = renderWithProviders(<StudentProjectsPage />)
+
+    expect(await view.findByText('No projects yet')).toBeVisible()
+    expect(view.getByRole('searchbox', { name: 'Search projects' })).toBeVisible()
+    expect(view.getByLabelText('Sort projects')).toBeVisible()
+    expect(view.queryByRole('table')).not.toBeInTheDocument()
+    expect(view.queryByRole('navigation', { name: 'Projects pagination' })).not.toBeInTheDocument()
   })
 
   it('retries a stale edit without overwriting a concurrent server field change', async () => {

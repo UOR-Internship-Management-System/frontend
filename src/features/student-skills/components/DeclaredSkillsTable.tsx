@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { Button } from '../../../shared/components/ui/Button'
-import type { CompetencyLevel, DeclaredSkill } from '../types/studentSkillTypes'
+import type { CompetencyLevel, DeclaredSkill, SkillTaxonomyPath } from '../types/studentSkillTypes'
 import { competencyLabel, SkillLevelSelect } from './SkillLevelSelect'
 
 export function DeclaredSkillsTable({
@@ -9,9 +9,11 @@ export function DeclaredSkillsTable({
   items,
   onRemove,
   onUpdate,
+  taxonomyPathsBySkillId,
   updatingId,
 }: {
   items: DeclaredSkill[]
+  taxonomyPathsBySkillId: ReadonlyMap<string, SkillTaxonomyPath[]>
   updatingId?: string
   deletingId?: string
   onUpdate: (item: DeclaredSkill, competencyLevel: CompetencyLevel) => Promise<void>
@@ -47,6 +49,8 @@ export function DeclaredSkillsTable({
         <table className="s4-skills-table">
           <thead>
             <tr>
+              <th scope="col">Core Cluster</th>
+              <th scope="col">Skill Category</th>
               <th scope="col">Skill</th>
               <th scope="col">Competency</th>
               <th scope="col">Last updated</th>
@@ -57,8 +61,11 @@ export function DeclaredSkillsTable({
             {items.map((item) => {
               const errorId = `declared-skill-${item.declaredSkillId}-error`
               const isUpdating = updatingId === item.declaredSkillId
+              const paths = taxonomyPathsBySkillId.get(item.skillId) ?? []
               return (
                 <tr key={item.declaredSkillId}>
+                  <td>{taxonomyNames(paths, 'clusterName')}</td>
+                  <td>{taxonomyNames(paths, 'categoryName')}</td>
                   <th scope="row">{item.skillName}</th>
                   <td>
                     <span className="visually-hidden">
@@ -114,9 +121,18 @@ export function DeclaredSkillsTable({
       <div aria-label="Declared skills" className="s4-skills-mobile-list">
         {items.map((item) => {
           const isUpdating = updatingId === item.declaredSkillId
+          const paths = taxonomyPathsBySkillId.get(item.skillId) ?? []
           return (
             <article className="s4-skills-mobile-card" key={item.declaredSkillId}>
               <h3>{item.skillName}</h3>
+              <p>
+                <span>Core Cluster</span>
+                <strong>{taxonomyNames(paths, 'clusterName')}</strong>
+              </p>
+              <p>
+                <span>Skill Category</span>
+                <strong>{taxonomyNames(paths, 'categoryName')}</strong>
+              </p>
               <p>
                 <span>Current competency</span>
                 <strong>{competencyLabel(item.competencyLevel)}</strong>
@@ -160,4 +176,9 @@ export function DeclaredSkillsTable({
       </div>
     </>
   )
+}
+
+function taxonomyNames(paths: SkillTaxonomyPath[], field: 'clusterName' | 'categoryName') {
+  const names = [...new Set(paths.map((path) => path[field]))]
+  return names.length ? names.join(', ') : 'Taxonomy context unavailable'
 }

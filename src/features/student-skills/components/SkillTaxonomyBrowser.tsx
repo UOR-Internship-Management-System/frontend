@@ -20,10 +20,12 @@ export function SkillTaxonomyBrowser({
   declaredSkillIds,
   disabled,
   onSelect,
+  selectionDisabled,
   selectedSkillId,
 }: {
   declaredSkillIds: Set<string>
   disabled?: boolean
+  selectionDisabled?: boolean
   onSelect: (skill: IndividualSkill) => void
   selectedSkillId?: string
 }) {
@@ -59,7 +61,7 @@ export function SkillTaxonomyBrowser({
     <section aria-labelledby="taxonomy-browser-title" className="s4-skills-taxonomy">
       <div className="s4-skills-section-heading">
         <div>
-          <h2 id="taxonomy-browser-title">Browse available skills</h2>
+          <h2 id="taxonomy-browser-title">Available System Skills</h2>
           <p>Choose a canonical skill from the developer-managed taxonomy.</p>
         </div>
       </div>
@@ -145,7 +147,7 @@ export function SkillTaxonomyBrowser({
                 <button
                   aria-pressed={isSelected}
                   className={`s4-skills-result ${isSelected ? 'is-selected' : ''}`}
-                  disabled={disabled || isDeclared}
+                  disabled={disabled || selectionDisabled || isDeclared}
                   onClick={() => onSelect(skill)}
                   type="button"
                 >

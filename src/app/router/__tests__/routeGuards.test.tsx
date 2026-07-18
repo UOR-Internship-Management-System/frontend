@@ -105,6 +105,22 @@ describe('Route Guards', () => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument()
       expect(screen.queryByText('Student Dashboard')).not.toBeInTheDocument()
     })
+
+    it.each(['/student/cv-builder', '/student/academic-records'])(
+      'prevents an Admin from using the Student route %s',
+      (path) => {
+        renderWithRouterAndAuth(
+          { status: 'authenticated', currentUser: adminUser },
+          path,
+          <RequireStudent>
+            <ProtectedStudent />
+          </RequireStudent>,
+          path,
+        )
+        expect(screen.getByText('Unauthorized')).toBeInTheDocument()
+        expect(screen.queryByText('Student Dashboard')).not.toBeInTheDocument()
+      },
+    )
   })
 
   describe('RequireAdmin', () => {

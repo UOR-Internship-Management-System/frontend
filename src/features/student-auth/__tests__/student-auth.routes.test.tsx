@@ -19,7 +19,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     ).toBeInTheDocument()
   })
 
-  it('exposes only the approved Sprint 4 student navigation', () => {
+  it('exposes the six approved Sprint 5 student destinations', () => {
     renderWithProviders(
       <MemoryRouter initialEntries={[routePaths.studentDashboard]}>
         <Routes>
@@ -32,9 +32,14 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     expect(screen.getByRole('link', { name: /^profile$/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /^skills$/i })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /^projects$/i })).toBeInTheDocument()
-    expect(
-      screen.queryByRole('link', { name: /cv builder|academic records/i }),
-    ).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /^cv builder$/i })).toHaveAttribute(
+      'href',
+      routePaths.studentCvBuilder,
+    )
+    expect(screen.getByRole('link', { name: /^academic records$/i })).toHaveAttribute(
+      'href',
+      routePaths.studentAcademicRecords,
+    )
 
     renderWithProviders(
       <MemoryRouter initialEntries={[routePaths.adminDashboard]}>

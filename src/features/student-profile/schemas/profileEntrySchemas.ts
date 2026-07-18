@@ -1,7 +1,8 @@
 import { z } from 'zod'
+import { createDateOnlySchema } from '../../../shared/validation/dateOnlySchemas'
 import { fileAssetSchema, safeWebUrlSchema } from './studentProfileSchemas'
 
-const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid date.')
+const dateSchema = createDateOnlySchema()
 const nullableDateSchema = dateSchema.nullable()
 const timestampSchema = z.string().datetime({ offset: true })
 const baseResponse = {

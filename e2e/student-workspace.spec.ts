@@ -33,6 +33,19 @@ const workspaceProject = {
   updatedAt: '2026-07-16T08:00:00Z',
 }
 
+const profileUploadPolicy = {
+  profilePhoto: {
+    allowedMimeTypes: ['image/jpeg', 'image/png'],
+    allowedExtensions: ['.jpg', '.jpeg', '.png'],
+    maxSizeBytes: 2_000_000,
+  },
+  certificateEvidence: {
+    allowedMimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+    allowedExtensions: ['.pdf', '.jpg', '.jpeg', '.png'],
+    maxSizeBytes: 5_000_000,
+  },
+}
+
 async function authenticateStudent(page: Page) {
   await page.addInitScript(() => {
     window.sessionStorage.setItem('cv-management.foundation-token', 'student-workspace-token')
@@ -62,6 +75,13 @@ async function authenticateStudent(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(studentProfile),
+    }),
+  )
+  await page.route('**/api/v1/me/profile/upload-policy', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(profileUploadPolicy),
     }),
   )
   await page.route('**/api/v1/me/projects**', (route) =>
@@ -94,7 +114,15 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   await expect(page.locator('.app-footer')).toHaveCount(0)
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
-  ).toHaveCount(4)
+  ).toHaveCount(6)
+  await expect(page.getByRole('link', { name: 'CV Builder' })).toHaveAttribute(
+    'href',
+    '/student/cv-builder',
+  )
+  await expect(page.getByRole('link', { name: 'Academic Records' })).toHaveAttribute(
+    'href',
+    '/student/academic-records',
+  )
 
   const expandedWidth = await sidebar.evaluate((element) => element.getBoundingClientRect().width)
   expect(expandedWidth).toBeGreaterThan(250)
@@ -142,7 +170,7 @@ for (const viewport of responsiveViewports) {
       await expect(page.getByRole('link', { name: 'Dashboard' })).toBeFocused()
       await expect(
         page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
-      ).toHaveCount(4)
+      ).toHaveCount(6)
       await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute(
         'aria-current',
         'page',

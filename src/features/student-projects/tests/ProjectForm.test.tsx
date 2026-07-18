@@ -59,6 +59,25 @@ describe('ProjectForm and project dialogs', () => {
     )
   })
 
+  it('clears and disables the end date while a project is ongoing', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    const view = renderWithProviders(
+      <ProjectForm mode="create" onCancel={vi.fn()} onSubmit={onSubmit} />,
+    )
+
+    await user.type(view.getByLabelText('Project title'), 'Ongoing research tool')
+    fireEvent.change(view.getByLabelText('Start date'), { target: { value: '2026-06-01' } })
+    fireEvent.change(view.getByLabelText('End date'), { target: { value: '2026-07-01' } })
+    await user.click(view.getByLabelText('This project is ongoing'))
+
+    expect(view.getByLabelText('End date')).toBeDisabled()
+    expect(view.getByLabelText('End date')).toHaveValue('')
+    await user.click(view.getByRole('button', { name: 'Create project' }))
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledOnce())
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ endDate: '' }))
+  })
+
   it('searches and paginates the server taxonomy while preserving selected skills', async () => {
     const user = userEvent.setup()
     const lateSkill = {

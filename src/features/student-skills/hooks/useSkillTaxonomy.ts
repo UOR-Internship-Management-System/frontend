@@ -22,6 +22,15 @@ export function useSkillClusters(query: TaxonomyQuery) {
   })
 }
 
+export function useSkillTaxonomyTree() {
+  return useQuery({
+    queryKey: studentSkillKeys.tree(),
+    queryFn: ({ signal }) => studentSkillsApi.getTaxonomy(signal),
+    retry: shouldRetryTaxonomyQuery,
+    staleTime: 5 * 60_000,
+  })
+}
+
 export function useSkillCategories(query: TaxonomyQuery, enabled = true) {
   return useQuery({
     queryKey: studentSkillKeys.categories(query),
