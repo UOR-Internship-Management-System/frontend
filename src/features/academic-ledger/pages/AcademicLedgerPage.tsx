@@ -27,6 +27,10 @@ export function AcademicLedgerPage() {
   }, [state.uploads.page, updateUploads, uploads.data?.page.totalPages])
 
   const uploadsError = uploads.isError ? mapApiError(uploads.error, 'protected') : null
+  const isReviewable = Boolean(
+    selected.data &&
+    !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
+  )
   return (
     <div className="content-stack academic-ledger-page">
       <PageHeader
@@ -50,7 +54,7 @@ export function AcademicLedgerPage() {
           onAction={() => void selected.refetch()}
         />
       ) : null}
-      {state.uploadId && selected.data && selected.data.uploadStatus !== 'PROCESSING_FAILED' ? (
+      {state.uploadId && selected.data && isReviewable ? (
         <LedgerReviewSection
           onQueryChange={updateRows}
           onSearchChange={setRowSearchInput}
@@ -59,7 +63,7 @@ export function AcademicLedgerPage() {
           uploadId={state.uploadId}
         />
       ) : null}
-      {selected.data ? <LedgerCommitControl detail={selected.data} /> : null}
+      {selected.data && isReviewable ? <LedgerCommitControl detail={selected.data} /> : null}
       <section aria-labelledby="recent-ledger-batches-title" className="section-card">
         <div className="ledger-section-heading">
           <div>

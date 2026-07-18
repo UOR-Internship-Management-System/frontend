@@ -30,11 +30,13 @@ export const mapValidationStatus = (status: ApiAcademicLedgerValidationStatus) =
 const pollableStatuses = new Set<ApiAcademicLedgerUploadStatus>([
   'RECEIVED',
   'PROCESSING',
-  'STAGED',
   'COMMITTING',
 ])
 
 export function shouldPollLedgerUpload(detail: ApiAcademicLedgerUploadDetailResponse) {
+  if (detail.uploadStatus === 'STAGED') {
+    return detail.validationStatus === 'NOT_STARTED' || detail.validationStatus === 'IN_PROGRESS'
+  }
   return pollableStatuses.has(detail.uploadStatus)
 }
 

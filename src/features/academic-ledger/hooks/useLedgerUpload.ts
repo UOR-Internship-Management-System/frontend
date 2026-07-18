@@ -36,8 +36,11 @@ export function useUploadLedger() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (file: File) => academicLedgerApi.upload(file),
-    onSuccess: async ({ data }) => {
-      queryClient.setQueryData(academicLedgerKeys.upload(data.uploadId), data)
+    onSuccess: async ({ data, retryAfterSeconds }) => {
+      queryClient.setQueryData(academicLedgerKeys.upload(data.uploadId), {
+        ...data,
+        nextPollAfterSeconds: data.nextPollAfterSeconds ?? retryAfterSeconds,
+      })
       await queryClient.invalidateQueries({ queryKey: academicLedgerKeys.uploads() })
     },
   })

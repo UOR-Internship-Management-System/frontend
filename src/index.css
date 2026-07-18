@@ -3262,6 +3262,63 @@ td {
   }
 }
 
+@media (max-width: 680px) {
+  .ledger-inspection-table {
+    min-width: 0;
+  }
+
+  .ledger-inspection-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .ledger-inspection-table,
+  .ledger-inspection-table tbody,
+  .ledger-inspection-table tr,
+  .ledger-inspection-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .ledger-inspection-table tbody {
+    display: grid;
+    gap: 14px;
+  }
+
+  .ledger-inspection-table tr {
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-card-muted);
+  }
+
+  .ledger-inspection-table td {
+    display: grid;
+    grid-template-columns: minmax(90px, 0.4fr) minmax(0, 1fr);
+    gap: 10px;
+    padding: 9px 4px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .ledger-inspection-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .ledger-inspection-table td::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    font-weight: 800;
+  }
+
+  .ledger-inspection-table .button {
+    justify-self: start;
+  }
+}
+
 /* Sprint 5: Student Academic Records */
 .s5-records-page {
   --s5-records-accent: #4058c7;

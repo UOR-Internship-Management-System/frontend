@@ -16,6 +16,24 @@ export function LedgerCommitControl({ detail }: { detail: ApiAcademicLedgerUploa
     isPending: commit.isPending,
   })
 
+  if (detail.uploadStatus === 'COMMITTED') {
+    return (
+      <section aria-labelledby="ledger-commit-title" className="section-card ledger-commit-control">
+        <div>
+          <p className="section-kicker">Final step</p>
+          <h2 id="ledger-commit-title">Records already committed</h2>
+          <p>
+            This batch was committed
+            {detail.committedAt
+              ? ` on ${new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(detail.committedAt))}`
+              : ''}
+            . It remains read-only in this workflow.
+          </p>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section aria-labelledby="ledger-commit-title" className="section-card ledger-commit-control">
       <div>

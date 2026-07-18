@@ -71,6 +71,18 @@ describe('Academic Ledger foundation', () => {
     expect(
       ledgerPollInterval({ ...upload, uploadStatus: 'PROCESSING', nextPollAfterSeconds: 2 }),
     ).toBe(2000)
+    expect(
+      ledgerPollInterval(
+        {
+          ...upload,
+          uploadStatus: 'STAGED',
+          validationStatus: 'IN_PROGRESS',
+          nextPollAfterSeconds: null,
+        },
+        4,
+      ),
+    ).toBe(4000)
+    expect(ledgerPollInterval({ ...upload, uploadStatus: 'STAGED' })).toBe(false)
     expect(ledgerPollInterval(upload)).toBe(false)
     expect(canCommitLedger({ detail: upload, validation, isPending: false })).toBe(true)
     expect(

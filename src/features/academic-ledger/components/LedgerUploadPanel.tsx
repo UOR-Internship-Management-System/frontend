@@ -42,7 +42,8 @@ export function LedgerUploadPanel({
           <span className="field-label">Ledger CSV</span>
           <FileUploadField
             accept=".csv,text/csv"
-            aria-describedby="ledger-file-help ledger-file-error"
+            aria-describedby={`ledger-file-help${validationMessage || requestError ? ' ledger-file-error' : ''}`}
+            aria-invalid={Boolean(validationMessage || requestError) || undefined}
             disabled={isPending}
             onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
             ref={inputRef}

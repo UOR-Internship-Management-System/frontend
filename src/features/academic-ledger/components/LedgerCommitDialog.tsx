@@ -48,6 +48,7 @@ export function LedgerCommitDialog({
           <div className="ledger-validation-summary" role="alert">
             <strong>Commit failed</strong>
             <p>{mappedError.message}</p>
+            <p>No partial commit is shown. Reload the batch before trying again.</p>
             {mappedError.correlationId ? <p>Reference: {mappedError.correlationId}</p> : null}
           </div>
         ) : null}
