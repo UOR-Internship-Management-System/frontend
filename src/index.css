@@ -3068,6 +3068,24 @@ td {
   justify-content: flex-end;
 }
 
+.ledger-inspection-panel,
+.ledger-record-modal-content {
+  display: grid;
+  gap: 18px;
+}
+
+.ledger-inspection-table {
+  min-width: 1040px;
+}
+
+.ledger-records-table {
+  min-width: 900px;
+}
+
+.ledger-record-modal-content {
+  min-width: min(1050px, 82vw);
+}
+
 .ledger-validation-success {
   border: 1px solid var(--success);
   background: color-mix(in srgb, var(--success) 10%, var(--color-card));

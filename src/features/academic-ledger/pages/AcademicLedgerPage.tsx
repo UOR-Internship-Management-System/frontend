@@ -10,6 +10,7 @@ import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
 import { LedgerReviewSection } from '../components/LedgerReviewSection'
 import { LedgerCommitControl } from '../components/LedgerCommitControl'
+import { LedgerAcademicInspection } from '../components/LedgerAcademicInspection'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
 import { useLedgerUploadDetail, useLedgerUploads, useUploadLedger } from '../hooks/useLedgerUpload'
 
@@ -131,6 +132,7 @@ export function AcademicLedgerPage() {
           />
         ) : null}
       </section>
+      <LedgerAcademicInspection />
     </div>
   )
 }

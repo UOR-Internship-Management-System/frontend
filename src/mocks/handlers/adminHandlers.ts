@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { adminDashboardMetricsFixture } from '../fixtures/adminDashboard.fixture'
 import { registeredStudentsFixture } from '../fixtures/registeredStudents.fixture'
+import { academicRecordsFixture } from '../fixtures/academicRecords.fixture'
 import {
   ledgerStagedRowsFixture,
   ledgerUploadDetailFixture,
@@ -44,6 +45,37 @@ export const adminHandlers = [
     const items = sorted.slice(page * size, page * size + size)
     return HttpResponse.json({
       items,
+      page: {
+        page,
+        size,
+        totalElements: sorted.length,
+        totalPages: Math.ceil(sorted.length / size),
+        sort,
+      },
+    })
+  }),
+  http.get(`${apiBase}/admin/students/:studentId/academic-records`, ({ request }) => {
+    const url = new URL(request.url)
+    const page = Number(url.searchParams.get('page') ?? 0)
+    const size = Number(url.searchParams.get('size') ?? 20)
+    const search = (url.searchParams.get('search') ?? '').toLowerCase()
+    const courseCode = (url.searchParams.get('courseCode') ?? '').toLowerCase()
+    const sort = url.searchParams.get('sort') ?? 'academicYear,desc'
+    const filtered = academicRecordsFixture.filter((record) => {
+      const searchable =
+        `${record.courseCode} ${record.courseTitle} ${record.academicYear} ${record.semester} ${record.letterGrade}`.toLowerCase()
+      return (
+        (!search || searchable.includes(search)) &&
+        (!courseCode || record.courseCode.toLowerCase().includes(courseCode))
+      )
+    })
+    const sorted = [...filtered].sort((left, right) =>
+      sort === 'courseCode,asc'
+        ? left.courseCode.localeCompare(right.courseCode)
+        : right.academicYear.localeCompare(left.academicYear),
+    )
+    return HttpResponse.json({
+      items: sorted.slice(page * size, page * size + size),
       page: {
         page,
         size,
