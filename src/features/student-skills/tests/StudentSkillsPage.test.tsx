@@ -3,6 +3,10 @@ import { http, HttpResponse, delay } from 'msw'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { server } from '../../../mocks/server'
+import {
+  individualSkillsFixture,
+  setDeclaredSkillsFixture,
+} from '../../../mocks/fixtures/skills.fixture'
 import { renderWithProviders } from '../../../test/renderWithProviders'
 import { StudentSkillsPage } from '../pages/StudentSkillsPage'
 
@@ -36,6 +40,8 @@ describe('StudentSkillsPage', () => {
 
     const typeScriptRow = await view.findByRole('row', { name: /TypeScript/ })
     expect(typeScriptRow).toHaveTextContent('TypeScript')
+    expect(typeScriptRow).toHaveTextContent('Software Engineering')
+    expect(typeScriptRow).toHaveTextContent('Frontend Development, Backend Development')
     expect(await view.findByText('Skill added')).toBeInTheDocument()
 
     const reactRow = view.getByRole('row', { name: /React/ })
@@ -47,6 +53,51 @@ describe('StudentSkillsPage', () => {
     const dialog = view.getByRole('dialog', { name: 'Remove React?' })
     await user.click(within(dialog).getByRole('button', { name: 'Remove skill' }))
     expect(await view.findByText('Skill removed')).toBeInTheDocument()
+  })
+
+  it('provides distinct Add, Available, and Declared sections with a keyboard-safe cascade', async () => {
+    const user = userEvent.setup()
+    const view = renderWithProviders(<StudentSkillsPage />)
+
+    expect(await view.findByRole('heading', { name: 'Add Skill' })).toBeVisible()
+    expect(view.getByRole('heading', { name: 'Available System Skills' })).toBeVisible()
+    expect(view.getByRole('heading', { name: 'Your declared skills' })).toBeVisible()
+
+    await user.selectOptions(
+      await view.findByLabelText('Add Skill Core Cluster'),
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    )
+    await user.selectOptions(
+      view.getByLabelText('Add Skill Category'),
+      'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    )
+    await user.selectOptions(
+      view.getByLabelText('Add Skill Individual Skill'),
+      '22222222-2222-4222-8222-222222222222',
+    )
+    await user.selectOptions(view.getByLabelText('Competency Level'), 'ADVANCED')
+    await user.click(view.getByRole('button', { name: 'Add declared skill' }))
+
+    expect(await view.findByRole('row', { name: /TypeScript/ })).toBeVisible()
+  })
+
+  it('disables a canonical skill declared on an unvisited server page', async () => {
+    setDeclaredSkillsFixture(
+      individualSkillsFixture.map((skill, index) => ({
+        declaredSkillId: `77777777-7777-4777-8777-${String(index + 100).padStart(12, '0')}`,
+        skillId: skill.skillId,
+        skillName: skill.name,
+        competencyLevel: 'INTERMEDIATE' as const,
+        version: 1,
+        createdAt: '2026-07-16T08:30:00Z',
+        updatedAt: '2026-07-16T08:30:00Z',
+      })),
+    )
+    const view = renderWithProviders(<StudentSkillsPage />)
+
+    const availableSkills = await view.findByRole('region', { name: 'Available System Skills' })
+    expect(await within(availableSkills).findByRole('button', { name: /Python/ })).toBeDisabled()
+    expect(await view.findByText(/6 declared skills from server metadata/)).toBeVisible()
   })
 
   it('prevents a local duplicate and keeps the taxonomy and declared-list errors independent', async () => {

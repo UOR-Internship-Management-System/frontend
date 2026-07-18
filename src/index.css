@@ -3372,6 +3372,7 @@ body.dark-mode .s5-records-page {
 }
 
 .s4-skills-add-card,
+.s4-skills-available-card,
 .s4-skills-list-card,
 .s4-skills-taxonomy {
   display: grid;
@@ -3467,10 +3468,24 @@ body.dark-mode .s5-records-page {
 }
 
 .s4-skills-declare-form {
+  display: grid;
+  align-items: stretch;
+  justify-content: initial;
+  gap: 16px;
   padding: 16px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-card-muted);
+}
+
+.s4-skills-add-fields {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.s4-skills-declare-form > .button {
+  justify-self: start;
 }
 
 .s4-skills-declare-form > div,
@@ -3502,6 +3517,7 @@ body.dark-mode .s5-records-page {
 
 .s4-skills-table {
   width: 100%;
+  min-width: 980px;
   border-collapse: collapse;
 }
 
@@ -3571,6 +3587,7 @@ body.dark-mode .s5-records-page {
 
 @media (max-width: 900px) {
   .s4-skills-taxonomy-filters,
+  .s4-skills-add-fields,
   .s4-skills-results {
     grid-template-columns: 1fr;
   }
