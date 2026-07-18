@@ -1,8 +1,10 @@
 # CV Builder Single-Active-CV Secure Migration Plan
 
 Date: 2026-07-18  
-Status: Proposed; documentation and contract approval required before implementation  
+Status: Superseded for inclusion-control semantics by `cv-builder-record-level-inclusion-correction-plan.md`
 Target branch: `codex/cv-builder-single-active-cv`
+
+> The single-active-CV, fixed-order, preview/save, PDF-download, and Admin read-only decisions remain valid. The section-level boolean design in this document is not valid for implementation. The corrective plan replaces it with item-level selections for Work Experience, Projects, Certificates, Awards and Honors, and Extracurricular Activities.
 
 ## 1. Objective
 
