@@ -36,7 +36,7 @@ export function RegisteredStudentsPage() {
         <LoadingBoundary
           isLoading={studentsQuery.isPending}
           label="Loading registered Students"
-          minHeight={620}
+          minHeight={650}
           skeleton={<RegisteredStudentsSectionSkeleton />}
         >
           {mappedError ? (
