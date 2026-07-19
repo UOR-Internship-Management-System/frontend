@@ -145,6 +145,25 @@ test('Admin uploads, reviews, and transactionally commits an academic ledger', a
   await page.goto('/admin/academic-ledger', { waitUntil: 'domcontentloaded' })
 
   await expect(page.getByRole('heading', { level: 1, name: 'Academic Ledger' })).toBeVisible()
+  await expect(page.locator('.app-header')).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Skip to admin content' })).toHaveCount(0)
+  await expect(page.locator('button.theme-toggle')).toHaveCount(1)
+  await expect(page.locator('.app-main > .page-transition')).toHaveCount(0)
+  await expect(page.locator('.admin-shell .page-transition')).toHaveCount(1)
+  const sidebarBounds = await page.locator('.admin-sidebar').evaluate((sidebar) => {
+    const bounds = sidebar.getBoundingClientRect()
+    return {
+      bottom: bounds.bottom,
+      height: bounds.height,
+      left: bounds.left,
+      top: bounds.top,
+      viewportHeight: window.innerHeight,
+    }
+  })
+  expect(sidebarBounds.left).toBe(0)
+  expect(sidebarBounds.top).toBe(0)
+  expect(sidebarBounds.bottom).toBe(sidebarBounds.viewportHeight)
+  expect(sidebarBounds.height).toBe(sidebarBounds.viewportHeight)
   await page.locator('input[type="file"][accept*="csv"]').setInputFiles({
     name: 'browser-upload.csv',
     mimeType: 'text/csv',
@@ -189,7 +208,35 @@ test('Admin inspects official Student records without edit controls on a narrow 
   const dialog = page.getByRole('dialog', { name: /academic records/i })
   await expect(dialog.getByRole('table', { name: /Official academic records/i })).toBeVisible()
   await expect(dialog.getByRole('button', { name: /edit|save|delete/i })).toHaveCount(0)
+  const modalBounds = await dialog.evaluate((element) => {
+    const bounds = element.getBoundingClientRect()
+    const content = element.querySelector<HTMLElement>('.modal-content')
+    const tableWrap = element.querySelector<HTMLElement>('.ledger-table-wrap')
+    return {
+      bottom: bounds.bottom,
+      contentClientHeight: content?.clientHeight ?? 0,
+      contentScrollHeight: content?.scrollHeight ?? 0,
+      left: bounds.left,
+      right: bounds.right,
+      tableClientWidth: tableWrap?.clientWidth ?? 0,
+      tableScrollWidth: tableWrap?.scrollWidth ?? 0,
+      top: bounds.top,
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth,
+    }
+  })
+  expect(modalBounds.left).toBeGreaterThanOrEqual(0)
+  expect(modalBounds.right).toBeLessThanOrEqual(modalBounds.viewportWidth)
+  expect(modalBounds.top).toBeGreaterThanOrEqual(0)
+  expect(modalBounds.bottom).toBeLessThanOrEqual(modalBounds.viewportHeight)
+  expect(modalBounds.contentScrollHeight).toBeGreaterThan(modalBounds.contentClientHeight)
+  expect(modalBounds.tableScrollWidth).toBeGreaterThan(modalBounds.tableClientWidth)
+  await expect(page.locator('#root')).toHaveAttribute('inert', '')
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBeTruthy()
+  await dialog.locator('.modal-close-button').click()
+  await expect(dialog).not.toBeVisible()
+  await expect(page.locator('#root')).not.toHaveAttribute('inert', '')
+  await expect(inspectButton).toBeFocused()
 })

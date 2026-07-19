@@ -138,6 +138,7 @@ textarea:focus-visible {
   flex: 1;
 }
 
+.app-main-workspace,
 .app-main-student-workspace {
   width: 100%;
   max-width: none;
@@ -271,7 +272,7 @@ textarea:focus-visible {
 @keyframes pageTransitionIn {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.992);
+    transform: translateY(6px);
   }
 
   to {
@@ -2206,25 +2207,13 @@ td {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: grid;
+  place-items: center;
   padding: 20px;
   background: rgba(0, 0, 0, 0.45);
   opacity: 1;
   overflow-y: auto;
   animation: overlayFade 0.2s var(--motion-standard) both;
-}
-
-.modal-backdrop::before,
-.modal-backdrop::after {
-  content: '';
-  flex: 1 1 0%;
-  min-height: 20px;
-}
-
-.modal-backdrop::after {
-  flex: 1.5 1 0%;
 }
 
 .modal-backdrop.closing {
@@ -2233,12 +2222,19 @@ td {
 
 .modal-card {
   width: min(560px, 100%);
+  max-height: calc(100dvh - 40px);
   margin: 0 auto;
-  flex-shrink: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
   border-radius: var(--radius-modal);
   box-shadow: var(--shadow-modal);
   background: var(--color-card);
   animation: modalIn 0.25s var(--motion-emphasized) both;
+}
+
+.modal-card-wide {
+  width: min(1120px, 100%);
 }
 
 .modal-backdrop.closing .modal-card {
@@ -2273,7 +2269,11 @@ td {
 }
 
 .modal-content {
+  min-width: 0;
+  min-height: 0;
   padding: 20px;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .modal-actions {
@@ -3078,12 +3078,8 @@ td {
   min-width: 1040px;
 }
 
-.ledger-records-table {
-  min-width: 900px;
-}
-
 .ledger-record-modal-content {
-  min-width: min(1050px, 82vw);
+  min-width: 0;
 }
 
 .ledger-validation-success {
@@ -3213,6 +3209,10 @@ td {
   width: 100%;
   min-width: 980px;
   border-collapse: collapse;
+}
+
+.ledger-table.ledger-records-table {
+  min-width: 760px;
 }
 
 .ledger-table caption {

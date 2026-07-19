@@ -35,10 +35,11 @@ export function LedgerRecordDetailsModal({
     <Modal
       description={`${student.indexNumber} · ${student.degreeProgram}`}
       onClose={onClose}
+      size="wide"
       title={`${student.fullName}'s academic records`}
     >
       <div className="ledger-record-modal-content">
-        <div className="ledger-stat-grid">
+        <dl className="ledger-stat-grid">
           <div>
             <dt>Current level</dt>
             <dd>{student.currentLevel}</dd>
@@ -47,7 +48,7 @@ export function LedgerRecordDetailsModal({
             <dt>Official GPA</dt>
             <dd>{student.officialGpaLabel}</dd>
           </div>
-        </div>
+        </dl>
         <div className="ledger-toolbar">
           <label>
             Search records

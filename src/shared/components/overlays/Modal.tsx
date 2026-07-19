@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { AnimationEvent, ReactNode } from 'react'
 import { useCallback, useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -17,6 +17,7 @@ export type ModalProps = {
   description?: string
   onClose?: () => void
   closeDisabled?: boolean
+  size?: 'default' | 'wide'
 }
 
 export function Modal({
@@ -24,33 +25,66 @@ export function Modal({
   closeDisabled = false,
   description,
   onClose,
+  size = 'default',
   title,
 }: ModalProps) {
   const titleId = useId()
   const descriptionId = useId()
   const dialogRef = useRef<HTMLElement | null>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
+  const closeTimerRef = useRef<number | null>(null)
+  const isClosingRef = useRef(false)
+  const onCloseRef = useRef(onClose)
+  const closeDisabledRef = useRef(closeDisabled)
+
+  onCloseRef.current = onClose
+  closeDisabledRef.current = closeDisabled
 
   const [isClosing, setIsClosing] = useState(false)
 
+  const finishClose = useCallback(() => {
+    if (closeTimerRef.current !== null) {
+      window.clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+    onCloseRef.current?.()
+  }, [])
+
   const handleClose = useCallback(() => {
-    if (!onClose || closeDisabled || isClosing) return
+    if (!onCloseRef.current || closeDisabledRef.current || isClosingRef.current) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      finishClose()
+      return
+    }
+    isClosingRef.current = true
     setIsClosing(true)
-    setTimeout(() => {
-      onClose()
-    }, 200)
-  }, [onClose, closeDisabled, isClosing])
+    closeTimerRef.current = window.setTimeout(finishClose, 250)
+  }, [finishClose])
+
+  const handleCloseAnimationEnd = useCallback(
+    (event: AnimationEvent<HTMLDivElement>) => {
+      if (isClosing && event.target === event.currentTarget) finishClose()
+    },
+    [finishClose, isClosing],
+  )
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement as HTMLElement | null
     const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(focusableSelector)
-    window.setTimeout(
-      () => (firstFocusable ?? dialogRef.current)?.focus({ preventScroll: true }),
-      0,
-    )
+    ;(firstFocusable ?? dialogRef.current)?.focus({ preventScroll: true })
+
+    const appRoot = document.getElementById('root')
+    const rootWasInert = appRoot?.inert ?? false
+    const rootHadInertAttribute = appRoot?.hasAttribute('inert') ?? false
+    const previousAriaHidden = appRoot?.getAttribute('aria-hidden')
+    if (appRoot) {
+      appRoot.inert = true
+      appRoot.setAttribute('inert', '')
+      appRoot.setAttribute('aria-hidden', 'true')
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && onClose && !closeDisabled) {
+      if (event.key === 'Escape' && onCloseRef.current && !closeDisabledRef.current) {
         event.preventDefault()
         handleClose()
         return
@@ -77,9 +111,22 @@ export function Modal({
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
+      if (appRoot) {
+        appRoot.inert = rootWasInert
+        if (!rootHadInertAttribute) appRoot.removeAttribute('inert')
+        if (previousAriaHidden == null) appRoot.removeAttribute('aria-hidden')
+        else appRoot.setAttribute('aria-hidden', previousAriaHidden)
+      }
       previousFocusRef.current?.focus({ preventScroll: true })
     }
-  }, [closeDisabled, onClose, handleClose])
+  }, [handleClose])
+
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current !== null) window.clearTimeout(closeTimerRef.current)
+    },
+    [],
+  )
 
   useEffect(() => {
     const originalOverflow = document.body.style.overflow
@@ -90,12 +137,15 @@ export function Modal({
   }, [])
 
   return createPortal(
-    <div className={`modal-backdrop app-modal-overlay active ${isClosing ? 'closing' : ''}`}>
+    <div
+      className={`modal-backdrop app-modal-overlay active ${isClosing ? 'closing' : ''}`}
+      onAnimationEnd={handleCloseAnimationEnd}
+    >
       <section
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className="modal-card card"
+        className={`modal-card modal-card-${size} card`}
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}

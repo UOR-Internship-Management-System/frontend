@@ -97,9 +97,6 @@ export function AdminLayout() {
     <section
       className={`student-shell admin-shell ${isSidebarCollapsed ? 'student-shell-collapsed' : ''}`.trim()}
     >
-      <a className="student-skip-link" href="#admin-content">
-        Skip to admin content
-      </a>
       <AdminSidebar
         adminName={adminName}
         firstNavigationItemRef={firstNavigationItemRef}

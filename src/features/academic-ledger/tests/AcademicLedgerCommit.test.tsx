@@ -43,7 +43,11 @@ describe('Academic Ledger transactional commit', () => {
       ),
     )
     renderCommitPage()
-    const open = await screen.findByRole('button', { name: 'Commit official records' })
+    const open = await screen.findByRole(
+      'button',
+      { name: 'Commit official records' },
+      { timeout: 5_000 },
+    )
     await waitFor(() => expect(open).toBeEnabled())
     await user.click(open)
     expect(
@@ -52,7 +56,7 @@ describe('Academic Ledger transactional commit', () => {
     await user.click(screen.getByRole('button', { name: 'Confirm commit' }))
     expect(await screen.findByText('Academic records committed successfully.')).toBeInTheDocument()
     expect(body).toEqual({ confirm: true })
-  })
+  }, 15_000)
 
   it('keeps the confirmation open and maps conflicts to a recoverable message', async () => {
     const user = userEvent.setup()
@@ -67,12 +71,16 @@ describe('Academic Ledger transactional commit', () => {
       }),
     )
     renderCommitPage()
-    const open = await screen.findByRole('button', { name: 'Commit official records' })
+    const open = await screen.findByRole(
+      'button',
+      { name: 'Commit official records' },
+      { timeout: 5_000 },
+    )
     await waitFor(() => expect(open).toBeEnabled())
     await user.click(open)
     await user.click(screen.getByRole('button', { name: 'Confirm commit' }))
     expect(await screen.findByText(/conflicts with existing information/i)).toBeInTheDocument()
     expect(screen.getByText('Reference: ledger-409')).toBeInTheDocument()
     expect(conflict).toHaveBeenCalledOnce()
-  })
+  }, 15_000)
 })

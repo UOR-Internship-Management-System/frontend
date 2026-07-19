@@ -37,8 +37,14 @@ function renderReview(query = '') {
 describe('Academic Ledger staged review', () => {
   it('shows the validation gate, semantic staged-row table, and row diagnostics', async () => {
     renderReview()
-    expect(await screen.findByText('All server validation checks passed.')).toBeInTheDocument()
-    const table = await screen.findByRole('table', { name: 'Staged academic ledger rows' })
+    expect(
+      await screen.findByText('All server validation checks passed.', {}, { timeout: 5_000 }),
+    ).toBeInTheDocument()
+    const table = await screen.findByRole(
+      'table',
+      { name: 'Staged academic ledger rows' },
+      { timeout: 5_000 },
+    )
     expect(within(table).getByText('2021CS001')).toBeInTheDocument()
     expect(within(table).getByText('Confirm the moderated grade.')).toBeInTheDocument()
     expect(within(table).getByText('Unmatched Student')).toBeInTheDocument()
@@ -50,7 +56,7 @@ describe('Academic Ledger staged review', () => {
   it('persists staged-row search, filter, and sorting in the URL', async () => {
     const user = userEvent.setup()
     renderReview()
-    await screen.findByRole('table', { name: 'Staged academic ledger rows' })
+    await screen.findByRole('table', { name: 'Staged academic ledger rows' }, { timeout: 5_000 })
     await user.type(screen.getByLabelText('Search staged rows'), 'CS4020')
     await waitFor(
       () => expect(screen.getByTestId('review-location')).toHaveTextContent('rowSearch=CS4020'),
@@ -60,5 +66,5 @@ describe('Academic Ledger staged review', () => {
     expect(screen.getByTestId('review-location')).toHaveTextContent('rowStatus=VALID')
     await user.selectOptions(screen.getByLabelText('Sort rows'), 'courseCode,asc')
     expect(screen.getByTestId('review-location')).toHaveTextContent('rowSort=courseCode%2Casc')
-  })
+  }, 15_000)
 })

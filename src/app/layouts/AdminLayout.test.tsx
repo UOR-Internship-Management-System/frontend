@@ -90,18 +90,15 @@ describe('AdminLayout', () => {
     expect(screen.queryByRole('link', { name: /internship/i })).not.toBeInTheDocument()
   })
 
-  it('provides skip, theme, identity, and logout controls', async () => {
+  it('provides one theme control, identity, route focus target, and logout', async () => {
     installMatchMedia(false)
     const user = userEvent.setup()
     const { logout } = renderAdminLayout()
 
-    expect(screen.getByRole('link', { name: 'Skip to admin content' })).toHaveAttribute(
-      'href',
-      '#admin-content',
-    )
+    expect(screen.queryByRole('link', { name: 'Skip to admin content' })).not.toBeInTheDocument()
     expect(document.querySelector('#admin-content')).toHaveAttribute('tabindex', '-1')
     expect(screen.getAllByText('Department Admin')).toHaveLength(2)
-    expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: /switch to dark mode/i })).toHaveLength(1)
 
     await user.click(screen.getByRole('button', { name: 'Log Out' }))
     expect(logout).toHaveBeenCalledOnce()
