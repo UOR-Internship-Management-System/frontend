@@ -93,11 +93,12 @@ The Linux Chromium baselines were regenerated on GitHub Actions from commit `075
 
 The dark gateway baseline was regenerated in the same run so the full motion snapshot set comes from one environment and commit. No production layout code was changed to force the snapshots to pass.
 
-The complete 90-image skeleton/content baseline set was then regenerated on Ubuntu from the final combined implementation in GitHub Actions run `29689408381`. Enabling these 45 cases in the required CI matrix exposed real CLS and intrinsic-height issues, which were fixed instead of relaxing the `< 0.02` budget or screenshot tolerance:
+The complete 90-image skeleton/content baseline set was then regenerated on Ubuntu from the final combined implementation in GitHub Actions run `29689922893`. Enabling these 45 cases in the required CI matrix exposed real CLS, intrinsic-height, and visual-state timing issues, which were fixed instead of relaxing the `< 0.02` budget or screenshot tolerance:
 
 - The Academic Records GPA loading boundary now reserves enough height for the final three-card summary in current Linux text metrics.
 - The Registered Students mobile skeleton now mirrors the compact roster-row geometry instead of using oversized project-style cards.
 - The Registered Students loading boundary reserves a stable height above both measured desktop intrinsic states.
+- Visual captures wait for the intended loading regions and a short render-settle interval, preventing transient nested skeleton compositions from becoming baselines.
 
 ## Known limitations
 
