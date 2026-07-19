@@ -27,6 +27,7 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: npx playwright install msedge
-      - run: npm run e2e
+      - run: npm run e2e:visual
+      - run: npm run e2e:cross-browser
       - run: npm run openapi:check
       - run: npm run verify:scope

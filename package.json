@@ -15,6 +15,7 @@
     "test:coverage": "vitest run --coverage --config vitest.config.mjs --pool=threads --maxWorkers=4",
     "e2e": "playwright test",
     "e2e:motion": "playwright test e2e/motion-accessibility.spec.ts",
+    "e2e:visual": "playwright test e2e/skeleton-visuals.spec.ts --workers=1",
     "e2e:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit --project=edge",
     "openapi:check": "node scripts/check-openapi-sync.mjs",
     "openapi:generate": "node scripts/generate-api-client.mjs",
