@@ -12,6 +12,7 @@ describe('RegisteredStudentsSkeleton', () => {
     expect(
       container.querySelectorAll('.skeleton-table-cell:not(.skeleton-table-head)'),
     ).toHaveLength(36)
+    expect(container.querySelectorAll('.skeleton-mobile-roster-row')).toHaveLength(6)
     expect(container.querySelector('.skeleton-pagination')).toBeInTheDocument()
   })
 })

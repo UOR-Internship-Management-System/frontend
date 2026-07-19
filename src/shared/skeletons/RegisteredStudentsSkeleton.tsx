@@ -1,5 +1,4 @@
 import {
-  SkeletonMobileCards,
   SkeletonPageHeader,
   SkeletonPagination,
   SkeletonShape,
@@ -9,6 +8,22 @@ import {
 
 const rosterColumns =
   'minmax(140px,.9fr) minmax(220px,1.5fr) minmax(160px,1fr) minmax(120px,.7fr) minmax(110px,.7fr) minmax(150px,.9fr)'
+
+function RegisteredStudentsMobileRowsSkeleton() {
+  return (
+    <div aria-hidden="true" className="skeleton-mobile-cards skeleton-mobile-roster">
+      {Array.from({ length: 6 }, (_, index) => (
+        <article className="skeleton-mobile-card skeleton-mobile-roster-row" key={index}>
+          <SkeletonShape height={16} width="88%" />
+          <div className="skeleton-stack">
+            <SkeletonShape height={18} width="72%" />
+            <SkeletonShape height={12} radius="pill" width="94%" />
+          </div>
+        </article>
+      ))}
+    </div>
+  )
+}
 
 export function RegisteredStudentsSectionSkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
@@ -40,7 +55,7 @@ export function RegisteredStudentsSectionSkeleton({ announce = true }: { announc
         rows={6}
         testId="registered-students-table-skeleton"
       />
-      <SkeletonMobileCards count={6} />
+      <RegisteredStudentsMobileRowsSkeleton />
       <SkeletonPagination />
     </div>
   )
