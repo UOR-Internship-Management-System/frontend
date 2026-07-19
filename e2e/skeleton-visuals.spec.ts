@@ -288,6 +288,7 @@ for (const scenario of scenarios) {
     await page.goto(scenario.path, { waitUntil: 'domcontentloaded' })
 
     await expect(page.getByRole('status', { name: scenario.loading }).first()).toBeVisible()
+    await page.waitForTimeout(300)
 
     await expect(page).toHaveScreenshot(`${scenario.name}-skeleton.png`, { fullPage: true })
 
