@@ -105,8 +105,10 @@ export function AdminSidebar({
                   `student-sidebar-item ${isActive ? 'student-sidebar-item-selected' : ''}`.trim()
                 }
                 data-admin-navigation-link
+                data-tooltip={item.label}
                 onClick={() => onCloseMobile(false)}
                 ref={index === 0 ? firstNavigationItemRef : undefined}
+                title={isCollapsed ? item.label : undefined}
                 to={item.route}
               >
                 <span aria-hidden="true" className="material-symbols-outlined student-sidebar-icon">
@@ -123,12 +125,14 @@ export function AdminSidebar({
         aria-label="Log Out"
         className="student-sidebar-logout"
         data-admin-logout
+        data-tooltip="Log Out"
         icon={
           <span aria-hidden="true" className="material-symbols-outlined student-sidebar-icon">
             logout
           </span>
         }
         onClick={onLogout}
+        title={isCollapsed ? 'Log Out' : undefined}
         variant="secondary"
       >
         <span className="student-sidebar-collapsible-label">Log Out</span>

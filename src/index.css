@@ -915,6 +915,7 @@ body.admin-mobile-drawer-open {
   font-size: 1rem;
   font-weight: 800;
   white-space: nowrap;
+  transition: gap 0.2s var(--motion-standard);
 }
 
 .student-sidebar-brand-mark,
@@ -976,6 +977,7 @@ body.admin-mobile-drawer-open {
   border: 1px solid var(--sidebar-border);
   border-radius: var(--radius-lg);
   background: var(--sidebar-surface);
+  transition: gap 0.2s var(--motion-standard);
 }
 
 .student-sidebar-avatar {
@@ -1038,6 +1040,7 @@ body.admin-mobile-drawer-open {
     background-color 0.18s var(--motion-standard),
     border-color 0.18s var(--motion-standard),
     color 0.18s var(--motion-standard),
+    gap 0.2s var(--motion-standard),
     transform 0.18s var(--motion-standard);
 }
 
@@ -1092,6 +1095,7 @@ body.admin-mobile-drawer-open {
   width: 100%;
   justify-content: flex-start;
   gap: 14px;
+  transition: gap 0.2s var(--motion-standard);
 }
 
 .student-sidebar-logout:hover:not(:disabled) {
@@ -1137,6 +1141,15 @@ body.admin-mobile-drawer-open {
 
 .student-shell-collapsed .student-sidebar-logout .button-content {
   justify-content: center;
+}
+
+@media (min-width: 900px) {
+  .student-shell-collapsed .student-sidebar-brand,
+  .student-shell-collapsed .student-sidebar-identity,
+  .student-shell-collapsed .student-sidebar-item,
+  .student-shell-collapsed .student-sidebar-logout .button-content {
+    gap: 0;
+  }
 }
 
 .student-shell-collapsed .student-sidebar-item::after,

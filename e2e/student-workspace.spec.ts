@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 const studentUser = {
   userId: 'student-workspace-e2e',
@@ -44,6 +44,35 @@ const profileUploadPolicy = {
     allowedExtensions: ['.pdf', '.jpg', '.jpeg', '.png'],
     maxSizeBytes: 5_000_000,
   },
+}
+
+async function expectFoldedRailContentCentered(sidebar: Locator) {
+  await expect(sidebar).toHaveCSS('width', '88px')
+
+  const offsets = await sidebar.evaluate((element) => {
+    const rail = element.getBoundingClientRect()
+    const railCenter = rail.left + rail.width / 2
+    const selectors = {
+      avatar: '.student-sidebar-avatar',
+      brand: '.student-sidebar-brand-mark',
+      logout: '.student-sidebar-logout .student-sidebar-icon',
+      navigation: '.student-sidebar-item-selected .student-sidebar-icon',
+      toggle: '.student-sidebar-toggle',
+    }
+
+    return Object.fromEntries(
+      Object.entries(selectors).map(([name, selector]) => {
+        const item = element.querySelector(selector)
+        if (!item) throw new Error(`Missing folded sidebar element: ${selector}`)
+        const bounds = item.getBoundingClientRect()
+        return [name, bounds.left + bounds.width / 2 - railCenter]
+      }),
+    )
+  })
+
+  for (const [name, offset] of Object.entries(offsets)) {
+    expect(Math.abs(offset), `${name} should be centered in the folded rail`).toBeLessThanOrEqual(1)
+  }
 }
 
 async function authenticateStudent(page: Page) {
@@ -130,6 +159,7 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   await page.getByRole('button', { name: 'Collapse student sidebar' }).click()
   await expect(shell).toHaveClass(/student-shell-collapsed/)
   await expect(page.getByRole('button', { name: 'Expand student sidebar' })).toBeVisible()
+  await expectFoldedRailContentCentered(sidebar)
 
   await page.getByRole('link', { name: 'Profile' }).click()
   await expect(page).toHaveURL(/\/student\/profile$/)
@@ -201,7 +231,9 @@ for (const viewport of responsiveViewports) {
   })
 }
 
-test('Admin workspace retains its existing shell without Student navigation', async ({ page }) => {
+test('Admin workspace uses a centered fixed Admin rail without Student navigation', async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     window.sessionStorage.setItem('cv-management.foundation-token', 'admin-workspace-token')
   })
@@ -222,8 +254,17 @@ test('Admin workspace retains its existing shell without Student navigation', as
 
   await page.goto('/admin/dashboard', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.locator('.app-header')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible()
-  await expect(page.locator('.student-sidebar')).toHaveCount(0)
+  await expect(page.locator('.app-header')).toHaveCount(0)
+  const adminSidebar = page.locator('.admin-sidebar')
+  await expect(adminSidebar).toBeVisible()
+  await expect(adminSidebar).toHaveCSS('position', 'fixed')
+  await expect(page.locator('.student-sidebar:not(.admin-sidebar)')).toHaveCount(0)
   await expect(page.locator('.app-footer')).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Collapse admin sidebar' }).click()
+  await expect(page.locator('.admin-shell')).toHaveClass(/student-shell-collapsed/)
+  await expect(page.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('title', 'Dashboard')
+  await expect(page.getByRole('button', { name: 'Log Out' })).toHaveAttribute('title', 'Log Out')
+  await expectFoldedRailContentCentered(adminSidebar)
 })
