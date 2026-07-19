@@ -2199,6 +2199,23 @@ p {
   line-height: 1.5;
 }
 
+.auth-test-credentials {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  padding: 12px 14px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.auth-test-credentials span {
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-mono);
+}
+
 .otp-input-group {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 48px));

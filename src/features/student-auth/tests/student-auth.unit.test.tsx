@@ -140,6 +140,24 @@ describe('student Sprint 2 authentication', () => {
     expect(await screen.findByText('Student dashboard target')).toBeInTheDocument()
   })
 
+  it('rejects incorrect local Student test credentials safely', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(
+      <MemoryRouter>
+        <StudentLoginPage />
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByLabelText(/university email/i), 'student@dcs.ruh.ac.lk')
+    await user.type(screen.getByLabelText(/^password$/i), 'WrongPassword@123')
+    await user.click(screen.getByRole('button', { name: /log in/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The email or password is incorrect.',
+    )
+  })
+
   it('redirects direct Student reset password access without reset context', () => {
     authStorage.clearPasswordResetContext()
 

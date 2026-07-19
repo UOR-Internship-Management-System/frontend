@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { LocalTestCredentialsHint } from '../../../shared/auth/LocalTestCredentialsHint'
 import { AuthSplitShell } from '../../../shared/components/layout/AuthShell'
 import { useAuth } from '../../../shared/hooks/useAuth'
 import { StudentLoginForm } from '../components/StudentLoginForm'
@@ -49,6 +50,7 @@ export function StudentLoginPage() {
             {message}
           </div>
         ) : null}
+        <LocalTestCredentialsHint role="STUDENT" />
         <StudentLoginForm isSubmitting={login.isPending} onSubmit={handleSubmit} />
         <p className="auth-secondary-link">
           New student? <Link to={routePaths.studentSignUp}>Student Registration</Link>
