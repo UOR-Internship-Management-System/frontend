@@ -22,9 +22,8 @@ ${missing.join('\n')}`)
   process.exit(1)
 }
 
-const contract = fs.readFileSync(path.join(root, contractPath), 'utf8')
-const canonicalContract = contract.replace(/\r\n?/g, '\n')
-const actualHash = crypto.createHash('sha256').update(canonicalContract, 'utf8').digest('hex')
+const contract = fs.readFileSync(path.join(root, contractPath), 'utf8').replace(/\r\n?/g, '\n')
+const actualHash = crypto.createHash('sha256').update(contract, 'utf8').digest('hex')
 if (actualHash !== expectedContractSha256) {
   console.error(
     `OpenAPI v1.5.0 checksum mismatch: expected ${expectedContractSha256}, received ${actualHash}`,
