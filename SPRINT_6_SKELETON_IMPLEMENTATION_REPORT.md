@@ -2,10 +2,10 @@
 
 ## Completion summary
 
-- **Implementation branch:** `sprint-6/youtube-style-skeletons`
-- **Implementation target:** React 19 + TypeScript + Vite frontend supplied in `frontend(6).zip`
+- **Implementation branch:** `feature/sprint-6-animation-hardening`
+- **Implementation target:** React 19 + TypeScript + Vite frontend repository, based on `develop`
 - **Result:** The loading-skeleton remediation was implemented across the shared design system, route fallbacks, Student pages, Admin pages, modal/detail regions, and automated tests.
-- **Contract/scope safety:** No API endpoint, DTO, generated OpenAPI transport type, query key, authentication behavior, role boundary, or removed-scope rule was changed.
+- **Contract/scope safety:** The skeleton implementation did not change an API endpoint, DTO, generated OpenAPI transport type, query key, role boundary, or removed-scope rule. A separate commit on the final branch restores documented local test credentials and their route coverage without changing production authentication contracts.
 
 ## Findings resolved
 
@@ -57,10 +57,12 @@
 - `playwright.config.ts`
 - Related unit and E2E regression tests
 
-## Obsolete files removed
+## Legacy files retained but retired
 
 - `src/shared/skeletons/TableSkeleton.tsx`
 - `src/shared/skeletons/WorkspaceSkeleton.tsx`
+
+These files remain tracked for compatibility, but they are no longer exported by the skeleton barrel or used by application routes. The content-aware skeletons listed above are the active implementations.
 
 ## Validation results
 
@@ -70,37 +72,31 @@
 | `npm run format:check`     | Passed                                                                                                                              |
 | `npm run lint`             | Passed                                                                                                                              |
 | `npm run typecheck`        | Passed                                                                                                                              |
-| `npm run build`            | Passed; 599 modules transformed                                                                                                     |
+| `npm run build`            | Passed; 601 modules transformed                                                                                                     |
 | `npm run verify:scope`     | Passed                                                                                                                              |
-| Unit/component tests       | **55 test files and 247 tests passed** in deterministic isolated chunks                                                             |
+| `npm run openapi:check`    | Passed against the repository's canonical OpenAPI artifacts                                                                         |
+| Unit/component tests       | **55 test files and 250 tests passed** with the standard `npm run test` command                                                     |
 | Focused functional E2E     | **3 passed**: Academic Ledger redirect, ledger upload/review/commit, and reduced-motion shimmer behavior                            |
 | Skeleton visual/CLS E2E    | **45 passed** across desktop light, tablet light, mobile light, desktop dark, and reduced-motion projects when executed per project |
+| Motion/accessibility E2E   | Four Linux Chromium baselines regenerated from the final branch; the three reported differences were reviewed and accepted          |
 | Static legacy-shimmer scan | Passed; no `@keyframes shimmer`, `animation: shimmer`, skeleton `background-position`, or `skeletonShimmer` remains                 |
 | Static legacy-radius scan  | Passed; no obsolete skeleton `rounded` API usage remains                                                                            |
-| Generic skeleton cleanup   | Passed; `TableSkeleton.tsx` and `WorkspaceSkeleton.tsx` are removed                                                                 |
+| Generic skeleton cleanup   | Passed; `TableSkeleton.tsx` and `WorkspaceSkeleton.tsx` are unexported and unused                                                   |
 
-## Known source-package limitations
+## Visual baseline verification
 
-### OpenAPI synchronization check
+The Linux Chromium baselines were regenerated on GitHub Actions from commit `0752181` after the final skeleton, authentication, and motion changes had been combined. The three CI differences were reviewed as a single consistent text-metric reflow rather than missing content or broken geometry:
 
-`npm run openapi:check` cannot pass from the supplied source ZIP because the repository does not include the required canonical v1.5.0 files. The required paths are declared in `scripts/check-openapi-sync.mjs:6-16`, and the script exits when they are absent at `scripts/check-openapi-sync.mjs:18-23`.
+- The collapsed Student workspace preserves all dashboard content, cards, sidebar states, and overflow boundaries; only text wrapping and vertical spacing changed.
+- The verification dialog preserves its content, focus controls, and bounds; the current text metrics reduce its captured height from 292 px to 288 px.
+- The light gateway preserves both role cards, actions, and the split layout; line wrapping reflects the current Linux Chromium rendering.
 
-Missing source artifacts:
+The dark gateway baseline was regenerated in the same run so the full motion snapshot set comes from one environment and commit. No production layout code was changed to force the snapshots to pass.
 
-- `docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml`
-- `docs/api/CV_Management_API_OpenAPI_v1.5.0_CHANGELOG.md`
-- `docs/api/CV_Management_API_OpenAPI_v1.5.0_VALIDATION_REPORT.md`
-- `docs/api/generated-client-notes.md`
+## Known limitations
 
-No replacement contract was invented, and no generated API types were modified.
-
-### Monolithic Vitest process teardown
-
-The exact `npm run test` command at `package.json:14` completes its test execution but can remain alive during worker teardown in this container. To produce a reliable release result, all 55 discovered test files were executed in isolated ordered chunks with the same Vitest configuration; all 247 tests passed.
-
-### Browser runtime
-
-Network access was unavailable for downloading Playwright-managed browsers. The suite supports a local executable through `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` at `playwright.config.ts:6-9`; testing used the installed system Chromium. This does not alter production application behavior.
+- Visual snapshots are platform-specific. Linux Chromium baselines are authoritative in CI; local Windows rendering is not used to overwrite them.
+- Independent reviewer approval may still be required by repository branch-protection rules even after the implementation self-review and automated checks complete.
 
 ## Final scope confirmation
 
