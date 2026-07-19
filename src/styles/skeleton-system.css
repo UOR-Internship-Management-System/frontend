@@ -1,0 +1,316 @@
+:root {
+  --skeleton-base: color-mix(in srgb, var(--color-border) 54%, var(--color-card-muted));
+  --skeleton-highlight: color-mix(in srgb, var(--color-card) 74%, var(--color-primary) 26%);
+  --skeleton-speed: 1.35s;
+  --skeleton-reveal-duration: 150ms;
+}
+
+.skeleton-block,
+.skeleton-card,
+.skeleton-inline,
+.skeleton-circle {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-block {
+  padding: 18px;
+  background: color-mix(in srgb, var(--color-card-muted) 82%, var(--color-card));
+  border: 1px solid var(--color-border);
+}
+
+.skeleton-card {
+  padding: 24px;
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.skeleton-inline,
+.skeleton-circle {
+  display: inline-grid;
+  padding: 0;
+  border: 0;
+  vertical-align: middle;
+}
+
+.skeleton-radius-none {
+  border-radius: 0;
+}
+.skeleton-radius-sm {
+  border-radius: 6px;
+}
+.skeleton-radius-md {
+  border-radius: var(--radius-md);
+}
+.skeleton-radius-lg {
+  border-radius: var(--radius-lg);
+}
+.skeleton-radius-pill {
+  border-radius: 999px;
+}
+.skeleton-radius-circle {
+  border-radius: 50%;
+}
+
+.skeleton-empty {
+  min-width: 1px;
+  min-height: 1px;
+}
+
+.skeleton-line {
+  display: block;
+  height: 12px;
+  border-radius: 999px;
+}
+
+/* Base stays static; only the overlay is composited across the surface. */
+.skeleton-shimmer-surface {
+  position: relative;
+  overflow: hidden;
+  background: var(--skeleton-base);
+  isolation: isolate;
+}
+
+.skeleton-shimmer-surface::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--skeleton-highlight) 20%, transparent) 28%,
+    var(--skeleton-highlight) 50%,
+    color-mix(in srgb, var(--skeleton-highlight) 20%, transparent) 72%,
+    transparent 100%
+  );
+  transform: translate3d(-110%, 0, 0);
+  animation: skeleton-sweep var(--skeleton-speed) linear infinite;
+  will-change: transform;
+}
+
+@keyframes skeleton-sweep {
+  to {
+    transform: translate3d(110%, 0, 0);
+  }
+}
+
+.loading-boundary {
+  display: grid;
+}
+
+.loading-boundary__skeleton,
+.loading-boundary__content {
+  grid-area: 1 / 1;
+}
+
+.loading-boundary__skeleton {
+  opacity: 1;
+  transition: opacity var(--skeleton-reveal-duration) ease-out;
+}
+
+.loading-boundary__skeleton.is-exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-boundary__content {
+  animation: skeleton-content-reveal var(--skeleton-reveal-duration) ease-out both;
+}
+
+@keyframes skeleton-content-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page-specific shared geometry used by the supplied examples. */
+.skeleton-section-heading,
+.skeleton-toolbar,
+.skeleton-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.skeleton-gpa-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.skeleton-table-grid {
+  display: grid;
+  min-width: max-content;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.skeleton-table-cell {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.skeleton-table-head {
+  min-height: 46px;
+  background: var(--color-card-muted);
+}
+
+.skeleton-table-cell.is-last-row {
+  border-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  .skeleton-gpa-grid {
+    grid-template-columns: 1fr;
+  }
+  .skeleton-section-heading,
+  .skeleton-toolbar,
+  .skeleton-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer-surface::after {
+    display: none;
+    animation: none;
+    will-change: auto;
+  }
+
+  .loading-boundary__skeleton,
+  .loading-boundary__content {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* Feature-aware skeleton layout geometry */
+.skeleton-page-header > div,
+.skeleton-stack,
+.skeleton-field,
+.skeleton-card-stack,
+.skeleton-selection-group,
+.skeleton-project-modal,
+.skeleton-profile-section {
+  display: grid;
+  gap: 12px;
+}
+
+.skeleton-page-header {
+  align-items: flex-start;
+}
+
+.skeleton-page-header > div {
+  width: 100%;
+}
+
+.skeleton-controls-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+  gap: 16px;
+  align-items: end;
+}
+
+.skeleton-chip-row,
+.skeleton-action-row,
+.skeleton-modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.skeleton-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.skeleton-mobile-cards {
+  display: none;
+}
+.skeleton-mobile-card {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.skeleton-cv-source-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.skeleton-cv-paper {
+  min-height: 680px;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  padding: 32px;
+  border: 1px solid var(--paper-border, var(--color-border));
+  border-radius: 8px;
+  background: var(--paper-bg, var(--color-card));
+}
+
+.skeleton-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(250px, 0.34fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.skeleton-profile-avatar-area {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  min-height: 320px;
+}
+
+.skeleton-supporting-grid {
+  display: grid;
+  gap: 18px;
+}
+
+@media (max-width: 900px) {
+  .skeleton-controls-grid,
+  .skeleton-cv-source-grid,
+  .skeleton-profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .skeleton-desktop-table {
+    display: none;
+  }
+  .skeleton-mobile-cards {
+    display: grid;
+    gap: 12px;
+  }
+}
+
+.skeleton-skill-result {
+  cursor: default;
+}
+
+.skeleton-skill-result__copy {
+  flex: 1 1 auto;
+  gap: 7px;
+  min-width: 0;
+}

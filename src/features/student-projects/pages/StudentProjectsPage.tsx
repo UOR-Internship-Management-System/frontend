@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { clampPage } from '../../../shared/utils/clampPage'
+import { ProjectModalSkeleton, ProjectRepositorySkeleton } from '../../../shared/skeletons'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
 import { ProjectDetailsModal } from '../components/ProjectDetailsModal'
 import { ProjectForm } from '../components/ProjectForm'
@@ -165,47 +166,57 @@ export function StudentProjectsPage() {
           </div>
         </div>
 
-        {projects.isPending ? <ProjectListSkeleton /> : null}
-        {mappedError ? (
-          <ErrorState
-            correlationId={mappedError.correlationId}
-            message={mappedError.message}
-            onAction={() => void projects.refetch()}
-            title="Projects unavailable"
-          />
+        {projects.isFetching && !projects.isPending ? (
+          <p aria-live="polite">Updating projects...</p>
         ) : null}
-        {!projects.isPending && !mappedError && projects.data ? (
-          <ProjectRepository
-            items={projects.data.items}
-            onAdd={() => setOverlay('create')}
-            onPageChange={setPage}
-            onSearchChange={(value) => {
-              setSearch(value)
-              setPage(0)
-            }}
-            onSelect={(projectId) => {
-              setSelectedProjectId(projectId)
-              setOverlay('details')
-            }}
-            onSortChange={(value) => {
-              setSort(value)
-              setPage(0)
-            }}
-            page={projects.data.page}
-            search={search}
-            sort={sort}
-          />
-        ) : null}
+        <LoadingBoundary
+          isLoading={projects.isPending}
+          label="Loading project repository"
+          minHeight={520}
+          skeleton={<ProjectRepositorySkeleton />}
+        >
+          {mappedError ? (
+            <ErrorState
+              correlationId={mappedError.correlationId}
+              message={mappedError.message}
+              onAction={() => void projects.refetch()}
+              title="Projects unavailable"
+            />
+          ) : projects.data ? (
+            <ProjectRepository
+              items={projects.data.items}
+              onAdd={() => setOverlay('create')}
+              onPageChange={setPage}
+              onSearchChange={(value) => {
+                setSearch(value)
+                setPage(0)
+              }}
+              onSelect={(projectId) => {
+                setSelectedProjectId(projectId)
+                setOverlay('details')
+              }}
+              onSortChange={(value) => {
+                setSort(value)
+                setPage(0)
+              }}
+              page={projects.data.page}
+              search={search}
+              sort={sort}
+            />
+          ) : null}
+        </LoadingBoundary>
       </SectionCard>
 
       {overlay === 'create' ? (
         <ProjectForm mode="create" onCancel={closeOverlay} onSubmit={createProject} />
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
-        <Modal onClose={closeOverlay} title="Loading project">
-          <div aria-label="Loading project details" role="status">
-            <SkeletonBlock lines={5} />
-          </div>
+        <Modal
+          onClose={closeOverlay}
+          title="Project details"
+          description="Portfolio project details"
+        >
+          <ProjectModalSkeleton />
         </Modal>
       ) : null}
       {overlay && overlay !== 'create' && selected.error ? (
@@ -242,14 +253,5 @@ export function StudentProjectsPage() {
         />
       ) : null}
     </main>
-  )
-}
-
-function ProjectListSkeleton() {
-  return (
-    <div aria-label="Loading projects" className="s4-projects-list-skeleton" role="status">
-      <span className="visually-hidden">Loading projects</span>
-      <SkeletonBlock lines={6} />
-    </div>
   )
 }

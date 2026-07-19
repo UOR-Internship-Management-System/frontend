@@ -327,7 +327,7 @@ test('Skills skeleton uses transform shimmer and stops for reduced motion', asyn
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
 
-  const skeleton = page.locator('.s4-skills-list-skeleton > div').first()
+  const skeleton = page.locator('.s4-skills-list-card .skeleton-shimmer-surface').first()
   await expect(skeleton).toBeVisible()
 
   const normalMotion = await skeleton.evaluate((element) => {
@@ -338,7 +338,7 @@ test('Skills skeleton uses transform shimmer and stops for reduced motion', asyn
     }
   })
 
-  expect(normalMotion.animationName).toBe('skeletonShimmer')
+  expect(normalMotion.animationName).toBe('skeleton-sweep')
   expect(normalMotion.transform).not.toBe('none')
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
