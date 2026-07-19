@@ -46,7 +46,10 @@ export function StudentSignUpPage() {
             <h1>Student Registration</h1>
             <p>Initialize your passwordless account authorization request below.</p>
           </div>
-          <StudentSignUpForm isSubmitting={startVerification.isPending} onSubmit={handleSubmit} />
+          <StudentSignUpForm
+            isSubmitting={startVerification.isPending && !dialog.isOpen}
+            onSubmit={handleSubmit}
+          />
         </section>
       </AuthSplitShell>
       <VerificationStatusDialog

@@ -3,6 +3,10 @@ import { defineConfig, devices } from '@playwright/test'
 const e2eHost = '127.0.0.1'
 const e2ePort = 5174
 const e2eBaseUrl = `http://${e2eHost}:${e2ePort}`
+const localChromiumExecutable = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+const chromiumLaunchOverride = localChromiumExecutable
+  ? { launchOptions: { executablePath: localChromiumExecutable } }
+  : {}
 
 export default defineConfig({
   testDir: './e2e',
@@ -25,7 +29,22 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunchOverride },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'edge',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'msedge',
+      },
     },
   ],
 })
