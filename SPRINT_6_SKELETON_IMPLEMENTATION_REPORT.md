@@ -66,22 +66,22 @@ These files remain tracked for compatibility, but they are no longer exported by
 
 ## Validation results
 
-| Validation                 | Result                                                                                                                              |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `npm ci`                   | Passed                                                                                                                              |
-| `npm run format:check`     | Passed                                                                                                                              |
-| `npm run lint`             | Passed                                                                                                                              |
-| `npm run typecheck`        | Passed                                                                                                                              |
-| `npm run build`            | Passed; 601 modules transformed                                                                                                     |
-| `npm run verify:scope`     | Passed                                                                                                                              |
-| `npm run openapi:check`    | Passed against the repository's canonical OpenAPI artifacts                                                                         |
-| Unit/component tests       | **55 test files and 250 tests passed** with the standard `npm run test` command                                                     |
-| Focused functional E2E     | **3 passed**: Academic Ledger redirect, ledger upload/review/commit, and reduced-motion shimmer behavior                            |
-| Skeleton visual/CLS E2E    | **45 passed** across desktop light, tablet light, mobile light, desktop dark, and reduced-motion projects when executed per project |
-| Motion/accessibility E2E   | Four Linux Chromium baselines regenerated from the final branch; the three reported differences were reviewed and accepted          |
-| Static legacy-shimmer scan | Passed; no `@keyframes shimmer`, `animation: shimmer`, skeleton `background-position`, or `skeletonShimmer` remains                 |
-| Static legacy-radius scan  | Passed; no obsolete skeleton `rounded` API usage remains                                                                            |
-| Generic skeleton cleanup   | Passed; `TableSkeleton.tsx` and `WorkspaceSkeleton.tsx` are unexported and unused                                                   |
+| Validation                 | Result                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `npm ci`                   | Passed                                                                                                                         |
+| `npm run format:check`     | Passed                                                                                                                         |
+| `npm run lint`             | Passed                                                                                                                         |
+| `npm run typecheck`        | Passed                                                                                                                         |
+| `npm run build`            | Passed; 601 modules transformed                                                                                                |
+| `npm run verify:scope`     | Passed                                                                                                                         |
+| `npm run openapi:check`    | Passed against the repository's canonical OpenAPI artifacts                                                                    |
+| Unit/component tests       | **55 test files and 250 tests passed** with the standard `npm run test` command                                                |
+| Focused functional E2E     | **3 passed**: Academic Ledger redirect, ledger upload/review/commit, and reduced-motion shimmer behavior                       |
+| Skeleton visual/CLS E2E    | **45 passed** across desktop light, tablet light, mobile light, desktop dark, and reduced-motion projects; included in full CI |
+| Motion/accessibility E2E   | Four Linux Chromium baselines regenerated from the final branch; the three reported differences were reviewed and accepted     |
+| Static legacy-shimmer scan | Passed; no `@keyframes shimmer`, `animation: shimmer`, skeleton `background-position`, or `skeletonShimmer` remains            |
+| Static legacy-radius scan  | Passed; no obsolete skeleton `rounded` API usage remains                                                                       |
+| Generic skeleton cleanup   | Passed; `TableSkeleton.tsx` and `WorkspaceSkeleton.tsx` are unexported and unused                                              |
 
 ## Visual baseline verification
 
