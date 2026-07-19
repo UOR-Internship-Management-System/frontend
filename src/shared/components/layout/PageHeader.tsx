@@ -8,16 +8,11 @@ export type PageHeaderProps = {
   eyebrow?: string
 }
 
-export function PageHeader({
-  actions,
-  description,
-  eyebrow = 'Sprint 1 foundation shell',
-  title,
-}: PageHeaderProps) {
+export function PageHeader({ actions, description, eyebrow, title }: PageHeaderProps) {
   return (
     <header className="page-header">
       <div>
-        <Chip>{eyebrow}</Chip>
+        {eyebrow ? <Chip>{eyebrow}</Chip> : null}
         <h1>{title}</h1>
         <p>{description}</p>
       </div>

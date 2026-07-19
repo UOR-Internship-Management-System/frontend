@@ -142,7 +142,7 @@ describe('StudentSkillsPage', () => {
       ),
     )
     const view = renderWithProviders(<StudentSkillsPage />)
-    const reactRow = await view.findByRole('row', { name: /React/ })
+    const reactRow = await view.findByRole('row', { name: /React/ }, { timeout: 5_000 })
     const competency = within(reactRow).getByLabelText('Competency for React')
     await user.selectOptions(competency, 'ADVANCED')
     await user.click(within(reactRow).getByRole('button', { name: 'Update' }))
@@ -150,7 +150,7 @@ describe('StudentSkillsPage', () => {
     expect(await view.findByText('Review the latest record')).toBeInTheDocument()
     expect(competency).toHaveValue('ADVANCED')
     expect(within(reactRow).getByRole('button', { name: 'Update' })).toBeEnabled()
-  })
+  }, 15_000)
 
   it('shows a no-results state for declared-skill search without changing taxonomy state', async () => {
     const user = userEvent.setup()

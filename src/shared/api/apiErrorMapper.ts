@@ -62,6 +62,10 @@ function safeFallback(
     return 'The submitted content format is not supported.'
   }
 
+  if (status === 413) {
+    return 'The selected file is too large.'
+  }
+
   if (status === 429) {
     return 'Too many attempts. Please wait before trying again.'
   }

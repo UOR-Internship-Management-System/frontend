@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { authTokenStorage } from './authTokenStorage'
-import { httpClient } from './httpClient'
+import { httpClient, httpClientWithResponse } from './httpClient'
 import { sessionEvents } from '../auth/sessionEvents'
 
 describe('httpClient protected-session handling', () => {
@@ -79,5 +79,27 @@ describe('httpClient protected-session handling', () => {
     await expect(httpClient('/me/profile')).rejects.toEqual(
       expect.objectContaining({ status: 503, code: 'HTTP_503' }),
     )
+  })
+
+  it('exposes status and response headers through the response-aware mode', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          Response.json(
+            { uploadId: 'upload-1' },
+            { status: 202, headers: { Location: '/uploads/upload-1', 'Retry-After': '2' } },
+          ),
+        ),
+    )
+
+    const result = await httpClientWithResponse<{ uploadId: string }>('/uploads', {
+      method: 'POST',
+    })
+    expect(result.status).toBe(202)
+    expect(result.data.uploadId).toBe('upload-1')
+    expect(result.headers.get('Location')).toBe('/uploads/upload-1')
+    expect(result.headers.get('Retry-After')).toBe('2')
   })
 })

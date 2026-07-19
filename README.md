@@ -2,13 +2,13 @@
 
 React, TypeScript, and Vite frontend for the CV Management and Deterministic Internship Candidate Filtering System.
 
-## Sprint 5 Status
+## Sprint 6 Status
 
-The frontend implements the approved Student workflows delivered through Sprint 5: authentication and onboarding, Dashboard metrics, Student-owned Profile editing, declared-skill management, Student-owned projects, the CV Builder, and read-only Academic Records with the official Computer Science GPA.
+The frontend implements the approved Student workflows delivered through Sprint 5 plus the Sprint 6 Admin workspace: live dashboard metrics, a server-driven registered-Student roster, academic-ledger CSV upload and processing, staged-row validation, transactional commit, and read-only official-record inspection.
 
-Sprint 5 adopts OpenAPI v1.4.0. The CV Builder supports server-confirmed previews, immutable saved versions, freshness states, preview-expiration recovery, and authenticated PDF downloads. Academic Records supports the official `AVAILABLE` and `NOT_AVAILABLE` GPA states plus contract-authorized search, sorting, and pagination over committed read-only records.
+Sprint 6 adopts OpenAPI v1.5.0. All Sprint 6 Admin data is contract parsed, query keys include server-affecting state, list controls persist in the URL, and session restoration preserves a known-valid identity during recoverable transport or service failures.
 
-All non-browser release checks pass. The 38 Playwright scenarios are implemented and discoverable, but execution is currently blocked because the configured Chromium executable is not installed in the validation environment. Run `npx playwright install chromium` in an approved environment and then `npm run e2e` before release acceptance.
+The clean release checks pass: 222 Vitest tests, production build, OpenAPI synchronization, removed-scope scanning, 40 discoverable Playwright scenarios, and the three critical Sprint 6 Chromium workflows. Backend conformance remains a release-environment check because browser automation uses deterministic contract mocks.
 
 ### Active protected Student routes
 
@@ -18,6 +18,13 @@ All non-browser release checks pass. The 38 Playwright scenarios are implemented
 - `/student/projects`
 - `/student/cv-builder`
 - `/student/academic-records`
+
+### Active protected Admin routes
+
+- `/admin/dashboard`
+- `/admin/academic-ledger`
+- `/admin/students`
+- `/admin/students/:studentId`
 
 ## Setup
 
@@ -48,4 +55,4 @@ npm run e2e
 
 The app uses `src/app` for bootstrap, providers, routing, layouts, and runtime config; `src/shared` for reusable UI, API, security, validation, and pagination infrastructure; and `src/features` for approved feature/domain modules.
 
-Sprint 5 implementation and validation evidence is recorded in `docs/implementation/sprint-5-frontend-completion-notes.md`.
+Sprint 6 implementation and validation evidence is recorded in `docs/implementation/sprint-6-frontend-completion-report.md` and `docs/implementation/sprint-6-validation-report.md`.

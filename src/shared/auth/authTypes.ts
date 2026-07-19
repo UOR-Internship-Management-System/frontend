@@ -18,9 +18,15 @@ export type AuthTokenResponse = {
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated'
 
+export type SessionRestoreError = {
+  message: string
+  correlationId?: string
+}
+
 export type AuthState = {
-  status: AuthStatus
+  status: AuthStatus | 'error'
   currentUser: CurrentUser | null
+  sessionError?: SessionRestoreError
 }
 
 export type VerificationFlowContext = {
