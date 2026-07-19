@@ -2,12 +2,13 @@
 export type ApiContractMetadata = {
   title: 'CV Management API'
   openapi: '3.1.1'
-  version: '1.4.1'
-  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.4.1.yaml'
+  version: '1.5.0'
+  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
 }
 
 export type ApiProblemFieldError = {
   field: string
+  code: string
   message: string
 }
 
@@ -190,3 +191,152 @@ export type ApiCvResponse = {
 }
 
 export type ApiPagedAcademicRecordResponse = ApiPagedResponse<ApiAcademicRecordResponse>
+
+export type ApiAdminDashboardMetricsResponse = {
+  totalStudents: number
+  registeredStudents: number
+  internshipRequestsCreated: number
+  lastUpdatedAt: string
+}
+
+export type ApiAcademicLedgerUploadStatus =
+  | 'RECEIVED'
+  | 'PROCESSING'
+  | 'STAGED'
+  | 'READY_TO_COMMIT'
+  | 'COMMITTING'
+  | 'COMMITTED'
+  | 'VALIDATION_FAILED'
+  | 'PROCESSING_FAILED'
+
+export type ApiAcademicLedgerValidationStatus =
+  | 'NOT_STARTED'
+  | 'IN_PROGRESS'
+  | 'PASSED'
+  | 'FAILED'
+
+export type ApiAcademicLedgerRowValidationStatus = 'VALID' | 'WARNING' | 'INVALID'
+export type ApiAcademicLedgerValidationSeverity = 'ERROR' | 'WARNING'
+
+export type ApiAcademicLedgerUploadSort =
+  | 'uploadedAt,desc'
+  | 'uploadedAt,asc'
+  | 'originalFilename,asc'
+  | 'status,asc'
+  | 'status,desc'
+
+export type ApiAcademicLedgerStagedRowSort =
+  | 'rowNumber,asc'
+  | 'rowNumber,desc'
+  | 'studentIndexNumber,asc'
+  | 'courseCode,asc'
+  | 'validationStatus,asc'
+
+export type ApiRegisteredStudentSort =
+  | 'fullName,asc'
+  | 'officialGpa,desc'
+  | 'officialGpa,asc'
+  | 'indexNumber,asc'
+
+export type ApiAcademicRecordSort =
+  | 'academicYear,desc'
+  | 'courseCode,asc'
+  | 'semester,asc'
+  | 'gradePoint,desc'
+
+export type ApiAcademicLedgerUploadRequest = {
+  file: File
+}
+
+export type ApiAcademicLedgerUploadSummaryResponse = {
+  uploadId: string
+  originalFilename: string
+  contentType: 'text/csv'
+  fileSizeBytes: number
+  uploadStatus: ApiAcademicLedgerUploadStatus
+  validationStatus: ApiAcademicLedgerValidationStatus
+  totalRows: number
+  validRows: number
+  invalidRows: number
+  uploadedAt: string
+  committedAt: string | null
+  failureSummary: string | null
+}
+
+export type ApiAcademicLedgerUploadDetailResponse = ApiAcademicLedgerUploadSummaryResponse & {
+  statusMessage: string
+  nextPollAfterSeconds: number | null
+}
+
+export type ApiPagedAcademicLedgerUploadResponse =
+  ApiPagedResponse<ApiAcademicLedgerUploadSummaryResponse>
+
+export type ApiAcademicLedgerValidationErrorResponse = {
+  rowNumber: number
+  field: string | null
+  code: string
+  message: string
+  severity: ApiAcademicLedgerValidationSeverity
+  rejectedValue: string | null
+  relatedRowNumber: number | null
+}
+
+export type ApiAcademicLedgerStagedRowResponse = {
+  stagingRowId: string
+  uploadId: string
+  rowNumber: number
+  studentIndexNumber: string
+  studentId: string | null
+  courseCode: string
+  courseTitle: string | null
+  credits: number
+  letterGrade: string
+  gradePoint: number | null
+  semester: string
+  academicYear: string
+  attemptNumber: number
+  resultStatus: string
+  validationStatus: ApiAcademicLedgerRowValidationStatus
+  validationErrors: ApiAcademicLedgerValidationErrorResponse[]
+}
+
+export type ApiPagedAcademicLedgerStagedRowResponse =
+  ApiPagedResponse<ApiAcademicLedgerStagedRowResponse>
+
+export type ApiAcademicLedgerValidationResultResponse = {
+  uploadId: string
+  validationStatus: ApiAcademicLedgerValidationStatus
+  valid: boolean
+  totalRows: number
+  validRows: number
+  invalidRows: number
+  errors: ApiAcademicLedgerValidationErrorResponse[]
+}
+
+export type ApiAcademicLedgerCommitRequest = {
+  confirm: true
+}
+
+export type ApiAcademicLedgerCommitResponse = {
+  uploadId: string
+  status: 'COMMITTED'
+  committedRecords: number
+  affectedStudents: number
+  recalculatedGpaCount: number
+  committedAt: string
+}
+
+export type ApiRegisteredStudentLevel = 3 | 4
+
+export type ApiStudentSummaryResponse = {
+  studentId: string
+  indexNumber: string
+  fullName: string
+  universityEmail: string
+  degreeProgram: string
+  academicBatch: string
+  currentLevel: ApiRegisteredStudentLevel
+  officialGpa: number | null
+}
+
+export type ApiPagedStudentSummaryResponse = ApiPagedResponse<ApiStudentSummaryResponse>

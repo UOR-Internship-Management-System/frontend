@@ -44,6 +44,7 @@ function renderRoot(initialPath: string, onStudentShellMount = vi.fn()) {
             </Route>
 
             <Route path={routePaths.adminDashboard} element={<h1>Admin page</h1>} />
+            <Route path={routePaths.adminStudentDetail} element={<h1>Admin Student page</h1>} />
             <Route path={routePaths.studentLogin} element={<h1>Student login page</h1>} />
           </Route>
         </Routes>
@@ -103,12 +104,23 @@ describe('RootLayout', () => {
     expect(container.querySelector('.app-header')).not.toBeInTheDocument()
   })
 
-  it('preserves the existing global header for the Admin workspace without a footer', () => {
+  it('renders the Admin workspace without duplicate global chrome', () => {
     const { container } = renderRoot(routePaths.adminDashboard)
 
-    expect(container.querySelector('.app-header')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'CV Management' })).toBeInTheDocument()
+    expect(container.querySelector('.app-header')).not.toBeInTheDocument()
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-workspace')
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-admin-workspace')
+    expect(container.querySelector('.app-main > .page-transition')).not.toBeInTheDocument()
     expect(container.querySelector('.app-footer')).not.toBeInTheDocument()
+  })
+
+  it('keeps parameterized Admin Student details inside the workspace shell', () => {
+    const { container } = renderRoot('/admin/students/student-123')
+
+    expect(screen.getByRole('heading', { name: 'Admin Student page' })).toBeInTheDocument()
+    expect(container.querySelector('.app-header')).not.toBeInTheDocument()
+    expect(container.querySelector('.app-main')).toHaveClass('app-main-admin-workspace')
+    expect(container.querySelector('.app-main > .page-transition')).not.toBeInTheDocument()
   })
 
   it('keeps standalone authentication routes isolated from workspace chrome', () => {

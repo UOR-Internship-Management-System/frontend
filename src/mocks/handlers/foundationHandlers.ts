@@ -4,6 +4,7 @@ import { studentSkillsHandlers } from './studentSkillsHandlers'
 import { studentProjectsHandlers } from './studentProjectsHandlers'
 import { cvBuilderHandlers } from './cvBuilderHandlers'
 import { academicRecordsHandlers } from './academicRecordsHandlers'
+import { adminHandlers } from './adminHandlers'
 
 export const handlers = [
   ...authHandlers,
@@ -12,4 +13,5 @@ export const handlers = [
   ...studentProjectsHandlers,
   ...cvBuilderHandlers,
   ...academicRecordsHandlers,
+  ...adminHandlers,
 ]

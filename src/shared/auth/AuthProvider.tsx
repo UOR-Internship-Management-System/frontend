@@ -2,6 +2,7 @@ import type { PropsWithChildren } from 'react'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { httpClient } from '../api/httpClient'
+import { mapApiError } from '../api/apiErrorMapper'
 import { queryKeys } from '../api/queryKeys'
 import { authStorage } from './authStorage'
 import type { AuthContextValue, AuthState, AuthTokenResponse } from './authTypes'
@@ -35,8 +36,24 @@ export function AuthProvider({ children }: PropsWithChildren) {
       const currentUser = mapCurrentUser(response)
       setState({ status: 'authenticated', currentUser })
       return currentUser
-    } catch {
-      await clearSession()
+    } catch (error) {
+      const mappedError = mapApiError(error, 'protected')
+      if (mappedError.status === 401) {
+        await clearSession()
+        return null
+      }
+
+      setState((current) => ({
+        status: 'error',
+        currentUser: current.currentUser,
+        sessionError: {
+          message:
+            mappedError.status === 503
+              ? 'Session verification is temporarily unavailable. Your session has been preserved.'
+              : 'We could not verify your session right now. Your session has been preserved.',
+          correlationId: mappedError.correlationId,
+        },
+      }))
       return null
     }
   }, [clearSession])
@@ -85,7 +102,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     return {
       ...state,
-      isAuthenticated: state.status === 'authenticated',
+      isAuthenticated: state.currentUser !== null,
       roles,
       primaryRole,
       role: primaryRole,

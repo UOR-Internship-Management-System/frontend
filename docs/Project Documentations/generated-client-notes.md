@@ -1,30 +1,34 @@
 # Generated API Metadata Notes
 
-The canonical frontend contract is OpenAPI 3.1.1 version 1.4.0 at `docs/api/CV_Management_API_OpenAPI_v1.4.0.yaml`. Its finalized canonical LF SHA-256 checksum is `e96b7cb2efbe84295753ff03924b747f90196ada4726d7eebd39fd64a3e83282`.
+The canonical frontend contract is OpenAPI 3.1.1 version 1.5.0 at `docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml`.
 
-`npm run openapi:generate` should produce deterministic contract metadata and selected transport types for the completed Sprint 1–4 contract plus the Sprint 5 CV Builder and Academic Records contract. It does not generate a complete endpoint SDK. Feature-owned API modules remain responsible for JSON HTTP orchestration, and feature-owned strict runtime schemas remain responsible for validating backend responses while backend implementation is pending.
+Canonical LF SHA-256: `7b67a7c071e57e6619ba655501b8f6053a81454af1d80a50bf610ff3838f6521`.
 
-Sprint 5 generation must include strict equivalents of the following transport contracts:
+`npm run openapi:generate` produces deterministic contract metadata and selected transport types for completed Sprint 1–5 behavior plus the finalized Sprint 6 Admin Dashboard, Academic Ledger, committed academic inspection, and Registered Students contract. It does not generate a complete endpoint SDK.
 
+Feature-owned API modules remain responsible for JSON/multipart HTTP orchestration. Feature-owned strict runtime schemas remain responsible for validating backend responses while Sprint 6 backend implementation is pending.
+
+The generated Sprint 6 transport metadata includes strict equivalents of:
+
+- `AdminDashboardMetricsResponse`
+- `AcademicLedgerUploadRequest`
+- `AcademicLedgerUploadStatus`
+- `AcademicLedgerValidationStatus`
+- `AcademicLedgerUploadSummaryResponse`
+- `AcademicLedgerUploadDetailResponse`
+- `PagedAcademicLedgerUploadResponse`
+- `AcademicLedgerStagedRowResponse`
+- `PagedAcademicLedgerStagedRowResponse`
+- `AcademicLedgerValidationErrorResponse`
+- `AcademicLedgerValidationResultResponse`
+- `AcademicLedgerCommitRequest`
+- `AcademicLedgerCommitResponse`
+- `StudentSummaryResponse`
+- `PagedStudentSummaryResponse`
 - `AcademicRecordResponse`
 - `PagedAcademicRecordResponse`
-- `AcademicRecordSourceResponse`
-- `GpaAvailabilityStatus`
-- `GpaSummaryResponse`
-- `CvFreshnessStatus`
-- `CvSourceArea`
-- `CvSectionType`
-- `CvFreshnessResponse`
-- `CvPreviewRequest`
-- `CvPreviewResponse`
-- `CvPreviewConfigurationResponse`
-- `CvVersionCreateRequest`
-- `GeneratedFileMetadataResponse`
-- `CvVersionResponse`
-- `PagedCvVersionResponse`
+- Sprint 6 endpoint-specific sort/filter enums
 
-PDF download operations are binary responses rather than JSON responses. The frontend therefore requires a separate authenticated PDF-download client that reads `response.blob()`, handles `application/problem+json` errors, extracts and sanitizes the `Content-Disposition` filename, and revokes created object URLs. The established JSON client must not be changed to parse PDF success responses as JSON.
+The academic ledger upload is exactly one UTF-8 CSV file (`text/csv`, `.csv`) no larger than 5 MiB. Do not add JSON/XLSX support, row editing, cancellation, rollback, or committed-record mutation without an approved contract revision.
 
-OpenAPI v1.4.0 is the canonical transport authority. Feature wrappers, runtime schemas, MSW handlers, tests, and UI state models must not invent fields, endpoints, statuses, media types, filenames, or error behavior outside this contract.
-
-Do not mix OpenAPI v1.3.0 Sprint 5 placeholder types with v1.4.0 types. Regenerate or manually replace all Sprint 5 generated metadata and types when adopting v1.4.0.
+OpenAPI v1.5.0 is the canonical transport authority. Feature wrappers, runtime schemas, MSW handlers, tests, and UI state models must not invent fields, endpoints, lifecycle statuses, media types, filenames, or error behavior outside this contract.

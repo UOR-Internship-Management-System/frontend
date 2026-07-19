@@ -18,6 +18,9 @@ import { fallbackRoutes } from './fallbackRoutes'
 import {
   AdminCreatePasswordPage,
   AdminDashboardPage,
+  AcademicLedgerPage,
+  RegisteredStudentsPage,
+  StudentDeepDivePage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
@@ -236,6 +239,24 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminDashboard,
             element: withSuspense(<AdminDashboardPage />, <AdminDashboardSkeleton />),
+          },
+          {
+            path: routePaths.adminAcademicLedger,
+            element: withSuspense(
+              <AcademicLedgerPage />,
+              <TableSkeleton variant="academic-ledger" />,
+            ),
+          },
+          {
+            path: routePaths.adminStudents,
+            element: withSuspense(
+              <RegisteredStudentsPage />,
+              <TableSkeleton variant="registered-students" />,
+            ),
+          },
+          {
+            path: routePaths.adminStudentDetail,
+            element: withSuspense(<StudentDeepDivePage />, <TableSkeleton />),
           },
         ],
       },

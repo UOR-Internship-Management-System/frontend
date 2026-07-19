@@ -6,6 +6,7 @@ import { authStorage } from '../../shared/auth/authStorage'
 import type { AuthRole } from '../../shared/auth/authTypes'
 import { getDashboardPathForRole, getLoginPathForRole } from '../../shared/auth/redirects'
 import { AuthSkeleton } from '../../shared/skeletons'
+import { ErrorState } from '../../shared/components/feedback/ErrorState'
 
 type RoleGuardProps = PropsWithChildren<{
   role: AuthRole
@@ -24,6 +25,20 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
     return <AuthSkeleton variant="session" />
   }
 
+  if (auth.status === 'error' && !auth.currentUser) {
+    return (
+      <ErrorState
+        correlationId={auth.sessionError?.correlationId}
+        message={
+          auth.sessionError?.message ??
+          'We could not verify your session right now. Your session has been preserved.'
+        }
+        onAction={() => void auth.refreshCurrentUser()}
+        title="Unable to verify your session"
+      />
+    )
+  }
+
   if (auth.currentUser) {
     return <Navigate replace to={getDashboardPathForRole(auth.currentUser.primaryRole)} />
   }
@@ -37,6 +52,20 @@ export function RequireRole({ children, role }: RoleGuardProps) {
 
   if (auth.status === 'loading') {
     return <AuthSkeleton variant="session" />
+  }
+
+  if (auth.status === 'error' && !auth.currentUser) {
+    return (
+      <ErrorState
+        correlationId={auth.sessionError?.correlationId}
+        message={
+          auth.sessionError?.message ??
+          'We could not verify your session right now. Your session has been preserved.'
+        }
+        onAction={() => void auth.refreshCurrentUser()}
+        title="Unable to verify your session"
+      />
+    )
   }
 
   if (auth.status === 'anonymous') {

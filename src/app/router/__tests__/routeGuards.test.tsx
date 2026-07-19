@@ -161,5 +161,25 @@ describe('Route Guards', () => {
       expect(screen.getByText('Unauthorized')).toBeInTheDocument()
       expect(screen.queryByText('Admin Dashboard')).not.toBeInTheDocument()
     })
+
+    it('shows a recoverable session verification state without redirecting', () => {
+      renderWithRouterAndAuth(
+        {
+          status: 'error',
+          currentUser: null,
+          sessionError: { message: 'Session verification is temporarily unavailable.' },
+        },
+        '/admin/dashboard',
+        <RequireAdmin>
+          <ProtectedAdmin />
+        </RequireAdmin>,
+        '/admin/dashboard',
+      )
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Session verification is temporarily unavailable.',
+      )
+      expect(screen.queryByText('Admin Login')).not.toBeInTheDocument()
+    })
   })
 })

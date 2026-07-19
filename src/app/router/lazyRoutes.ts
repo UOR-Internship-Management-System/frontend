@@ -93,3 +93,18 @@ export const AdminDashboardPage = lazy(() =>
     default: module.AdminDashboardPage,
   })),
 )
+export const AcademicLedgerPage = lazy(() =>
+  import('../../features/academic-ledger/pages/AcademicLedgerPage').then((module) => ({
+    default: module.AcademicLedgerPage,
+  })),
+)
+export const RegisteredStudentsPage = lazy(() =>
+  import('../../features/student-management/pages/RegisteredStudentsPage').then((module) => ({
+    default: module.RegisteredStudentsPage,
+  })),
+)
+export const StudentDeepDivePage = lazy(() =>
+  import('../../features/student-management/pages/StudentDeepDivePage').then((module) => ({
+    default: module.StudentDeepDivePage,
+  })),
+)
