@@ -1,81 +1,44 @@
-import type { CSSProperties } from 'react'
 import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
+import { SkeletonPageHeader, SkeletonShape, SkeletonStatusRegion } from './SkeletonPrimitives'
 
 export type FormSkeletonVariant = 'generic' | 'profile' | 'student-detail'
 
-function Shape({
-  height = 14,
-  rounded = false,
-  width = '100%',
-}: {
-  height?: CSSProperties['height']
-  rounded?: boolean
-  width?: CSSProperties['width']
-}) {
-  return (
-    <SkeletonBlock
-      decorative
-      height={height}
-      lines={0}
-      rounded={rounded}
-      variant="inline"
-      width={width}
-    />
-  )
-}
-
 function FieldSkeleton() {
   return (
-    <div className="form-skeleton-field" aria-hidden="true">
-      <Shape height={10} width="32%" />
-      <Shape height={48} rounded />
+    <div aria-hidden="true" className="form-skeleton-field">
+      <SkeletonShape height={10} radius="pill" width="32%" />
+      <SkeletonShape height={48} radius="md" />
     </div>
-  )
-}
-
-function PageHeaderSkeleton() {
-  return (
-    <header className="page-header skeleton-page-header" aria-hidden="true">
-      <div>
-        <Shape height={24} rounded width={150} />
-        <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock
-          decorative
-          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
-          lines={2}
-          variant="inline"
-        />
-      </div>
-    </header>
   )
 }
 
 function GenericFormSkeleton() {
   return (
-    <section className="section-card form-skeleton-card" aria-hidden="true">
-      <Shape height={28} width={220} />
+    <section aria-hidden="true" className="section-card form-skeleton-card skeleton-stack">
+      <SkeletonShape height={28} width={220} />
       <div className="form-skeleton-grid">
         <FieldSkeleton />
         <FieldSkeleton />
         <FieldSkeleton />
         <FieldSkeleton />
       </div>
-      <Shape height={44} rounded width={150} />
+      <SkeletonShape height={44} radius="pill" width={150} />
     </section>
   )
 }
 
 function ProfileFormSkeleton() {
   return (
-    <div className="profile-skeleton-layout" aria-hidden="true">
-      <section className="section-card profile-skeleton-summary">
-        <Shape height={96} rounded width={96} />
-        <Shape height={26} width="70%" />
-        <SkeletonBlock decorative lineWidths={['86%', '54%']} lines={2} variant="inline" />
+    <div aria-hidden="true" className="skeleton-profile-layout">
+      <section className="section-card skeleton-profile-avatar-area">
+        <SkeletonShape height={112} radius="circle" width={112} />
+        <SkeletonShape height={42} radius="pill" width={180} />
+        <SkeletonShape height={26} width="70%" />
+        <SkeletonBlock decorative lineWidths={['86%', '72%', '60%']} lines={3} variant="inline" />
       </section>
-      <div className="profile-skeleton-main">
-        <section className="section-card form-skeleton-card">
-          <Shape height={28} width={260} />
+      <div className="skeleton-supporting-grid">
+        <section className="section-card skeleton-stack">
+          <SkeletonShape height={28} width={260} />
           <div className="form-skeleton-grid two-column">
             <FieldSkeleton />
             <FieldSkeleton />
@@ -84,14 +47,19 @@ function ProfileFormSkeleton() {
             <FieldSkeleton />
           </div>
           <FieldSkeleton />
-          <Shape height={44} rounded width={160} />
+          <SkeletonShape height={44} radius="pill" width={160} />
         </section>
         {['Professional Links', 'Certificates', 'Awards', 'Activities', 'Experience'].map(
           (title) => (
-            <section className="section-card profile-section-skeleton" key={title}>
-              <Shape height={26} width="42%" />
-              <Shape height={48} rounded />
-              <SkeletonBlock decorative lines={3} />
+            <section className="section-card skeleton-profile-section" key={title}>
+              <div className="skeleton-section-heading">
+                <SkeletonShape height={26} width="42%" />
+                <SkeletonShape height={40} radius="pill" width={120} />
+              </div>
+              <div className="skeleton-card skeleton-stack">
+                <SkeletonShape height={18} width="48%" />
+                <SkeletonBlock decorative lineWidths={['90%', '72%']} lines={2} variant="inline" />
+              </div>
             </section>
           ),
         )}
@@ -102,14 +70,14 @@ function ProfileFormSkeleton() {
 
 function StudentDetailSkeleton() {
   return (
-    <div className="student-detail-skeleton-layout" aria-hidden="true">
-      <section className="section-card profile-skeleton-summary">
-        <Shape height={88} rounded width={88} />
-        <Shape height={28} width="68%" />
+    <div aria-hidden="true" className="skeleton-profile-layout">
+      <section className="section-card skeleton-profile-avatar-area">
+        <SkeletonShape height={88} radius="circle" width={88} />
+        <SkeletonShape height={28} width="68%" />
         <SkeletonBlock decorative lineWidths={['84%', '52%']} lines={2} variant="inline" />
       </section>
-      <section className="section-card form-skeleton-card">
-        <Shape height={28} width={240} />
+      <section className="section-card skeleton-stack">
+        <SkeletonShape height={28} width={240} />
         <div className="form-skeleton-grid two-column">
           <FieldSkeleton />
           <FieldSkeleton />
@@ -123,18 +91,12 @@ function StudentDetailSkeleton() {
 
 export function FormSkeleton({ variant = 'generic' }: { variant?: FormSkeletonVariant }) {
   return (
-    <section
-      aria-busy="true"
-      aria-label="Loading form content"
-      className="content-stack"
-      role="status"
-    >
-      <span className="visually-hidden">Loading form content</span>
-      <PageHeaderSkeleton />
+    <SkeletonStatusRegion className="content-stack" label="Loading form content">
+      <SkeletonPageHeader />
       {variant === 'profile' ? <ProfileFormSkeleton /> : null}
       {variant === 'student-detail' ? <StudentDetailSkeleton /> : null}
       {variant === 'generic' ? <GenericFormSkeleton /> : null}
-    </section>
+    </SkeletonStatusRegion>
   )
 }
 

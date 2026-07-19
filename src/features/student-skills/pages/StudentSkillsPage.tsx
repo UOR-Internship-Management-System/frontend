@@ -5,9 +5,10 @@ import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { AddSkillOptionsSkeleton, DeclaredSkillsListSkeleton } from '../../../shared/skeletons'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
@@ -165,29 +166,30 @@ export function StudentSkillsPage() {
             <p>Select each taxonomy level, choose your competency, and save immediately.</p>
           </div>
         </div>
-        {addSkillLoading ? (
-          <div aria-label="Loading Add Skill options" role="status">
-            <SkeletonBlock lines={3} />
-          </div>
-        ) : null}
-        {mappedAddSkillError ? (
-          <ErrorState
-            correlationId={mappedAddSkillError.correlationId}
-            message={mappedAddSkillError.message}
-            onAction={() => void Promise.all([taxonomyTree.refetch(), allDeclared.refetch()])}
-            title="Add Skill unavailable"
-          />
-        ) : null}
-        {taxonomyTree.data && allDeclared.data ? (
-          <DeclaredSkillForm
-            declaredSkillIds={declaredSkillIds}
-            isPending={createMutation.isPending}
-            onSelectSkill={setSelectedSkill}
-            onSubmit={addSkill}
-            selectedSkill={selectedSkill}
-            taxonomy={taxonomyTree.data}
-          />
-        ) : null}
+        <LoadingBoundary
+          isLoading={addSkillLoading}
+          label="Loading Add Skill options"
+          minHeight={150}
+          skeleton={<AddSkillOptionsSkeleton />}
+        >
+          {mappedAddSkillError ? (
+            <ErrorState
+              correlationId={mappedAddSkillError.correlationId}
+              message={mappedAddSkillError.message}
+              onAction={() => void Promise.all([taxonomyTree.refetch(), allDeclared.refetch()])}
+              title="Add Skill unavailable"
+            />
+          ) : taxonomyTree.data && allDeclared.data ? (
+            <DeclaredSkillForm
+              declaredSkillIds={declaredSkillIds}
+              isPending={createMutation.isPending}
+              onSelectSkill={setSelectedSkill}
+              onSubmit={addSkill}
+              selectedSkill={selectedSkill}
+              taxonomy={taxonomyTree.data}
+            />
+          ) : null}
+        </LoadingBoundary>
       </SectionCard>
 
       <SectionCard className="s4-skills-available-card">
@@ -231,47 +233,56 @@ export function StudentSkillsPage() {
           </SortSelect>
         </div>
 
-        {declared.isPending ? <StudentSkillsListSkeleton /> : null}
-        {mappedDeclaredError ? (
-          <ErrorState
-            correlationId={mappedDeclaredError.correlationId}
-            message={mappedDeclaredError.message}
-            onAction={() => void declared.refetch()}
-            title="Declared skills unavailable"
-          />
+        {declared.isFetching && !declared.isPending ? (
+          <p aria-live="polite">Updating declared skills...</p>
         ) : null}
-        {!declared.isPending && !mappedDeclaredError && declared.data?.items.length === 0 ? (
-          <EmptyState
-            message={
-              search
-                ? `No declared skills match “${search}”.`
-                : 'Select an available taxonomy skill above to create your first declaration.'
-            }
-            title={search ? 'No matching declared skills' : 'No declared skills yet'}
-          />
-        ) : null}
-        {!declared.isPending && !mappedDeclaredError && declared.data?.items.length ? (
-          <DeclaredSkillsTable
-            deletingId={deleteMutation.isPending ? removeTarget?.declaredSkillId : undefined}
-            items={declared.data.items}
-            onRemove={setRemoveTarget}
-            onUpdate={updateSkill}
-            taxonomyPathsBySkillId={taxonomyIndex?.pathsBySkillId ?? new Map()}
-            updatingId={
-              updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
-            }
-          />
-        ) : null}
-        {declared.data && declared.data.page.totalPages > 0 ? (
-          <PaginationBar
-            label="Declared skills pagination"
-            onPageChange={setPage}
-            page={declared.data.page.page}
-            size={declared.data.page.size}
-            totalElements={declared.data.page.totalElements}
-            totalPages={declared.data.page.totalPages}
-          />
-        ) : null}
+        <LoadingBoundary
+          isLoading={declared.isPending}
+          label="Loading declared skills"
+          minHeight={420}
+          skeleton={<DeclaredSkillsListSkeleton includeToolbar={false} />}
+        >
+          {mappedDeclaredError ? (
+            <ErrorState
+              correlationId={mappedDeclaredError.correlationId}
+              message={mappedDeclaredError.message}
+              onAction={() => void declared.refetch()}
+              title="Declared skills unavailable"
+            />
+          ) : declared.data?.items.length === 0 ? (
+            <EmptyState
+              message={
+                search
+                  ? `No declared skills match “${search}”.`
+                  : 'Select an available taxonomy skill above to create your first declaration.'
+              }
+              title={search ? 'No matching declared skills' : 'No declared skills yet'}
+            />
+          ) : declared.data?.items.length ? (
+            <>
+              <DeclaredSkillsTable
+                deletingId={deleteMutation.isPending ? removeTarget?.declaredSkillId : undefined}
+                items={declared.data.items}
+                onRemove={setRemoveTarget}
+                onUpdate={updateSkill}
+                taxonomyPathsBySkillId={taxonomyIndex?.pathsBySkillId ?? new Map()}
+                updatingId={
+                  updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
+                }
+              />
+              {declared.data.page.totalPages > 0 ? (
+                <PaginationBar
+                  label="Declared skills pagination"
+                  onPageChange={setPage}
+                  page={declared.data.page.page}
+                  size={declared.data.page.size}
+                  totalElements={declared.data.page.totalElements}
+                  totalPages={declared.data.page.totalPages}
+                />
+              ) : null}
+            </>
+          ) : null}
+        </LoadingBoundary>
       </SectionCard>
 
       {removeTarget ? (
@@ -296,16 +307,5 @@ export function StudentSkillsPage() {
         </ConfirmDialog>
       ) : null}
     </main>
-  )
-}
-
-function StudentSkillsListSkeleton() {
-  return (
-    <div aria-label="Loading declared skills" className="s4-skills-list-skeleton" role="status">
-      <span className="visually-hidden">Loading declared skills</span>
-      <div />
-      <div />
-      <div />
-    </div>
   )
 }

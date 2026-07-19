@@ -6,6 +6,9 @@ import { routes } from '../routes'
 
 describe('application route registration', () => {
   const rootChildren = routes[0]?.children ?? []
+  const publicBranch = rootChildren.find((route) =>
+    route.children?.some((child) => child.path === routePaths.studentLogin),
+  )
   const studentBranch = rootChildren.find((route) =>
     route.children?.some((child) => child.path === routePaths.studentDashboard),
   )
@@ -24,6 +27,22 @@ describe('application route registration', () => {
       routePaths.studentProjects,
       routePaths.studentCvBuilder,
       routePaths.studentAcademicRecords,
+    ])
+  })
+
+  it('registers every approved public authentication destination', () => {
+    expect(publicBranch?.children?.map((route) => route.path)).toEqual([
+      routePaths.studentSignUp,
+      routePaths.studentVerifyOtp,
+      routePaths.studentCreatePassword,
+      routePaths.studentLogin,
+      routePaths.studentForgotPassword,
+      routePaths.studentResetVerifyOtp,
+      routePaths.studentResetCreatePassword,
+      routePaths.adminLogin,
+      routePaths.adminForgotPassword,
+      routePaths.adminVerifyResetOtp,
+      routePaths.adminCreatePassword,
     ])
   })
 

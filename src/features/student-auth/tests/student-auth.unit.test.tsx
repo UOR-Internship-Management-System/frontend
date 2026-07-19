@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { routePaths } from '../../../app/config/routePaths'
 import { RequireResetContextRoute } from '../../../app/router/routeGuards'
 import { authStorage } from '../../../shared/auth/authStorage'
@@ -75,18 +75,49 @@ describe('student Sprint 2 authentication', () => {
     expect(latestValue).toBe('12345')
   })
 
-  it('renders verification modal status states accessibly', () => {
-    const { rerender } = renderWithProviders(
-      <VerificationStatusDialog isOpen onClose={() => undefined} status="loading" />,
+  it('renders verification states through the shared accessible modal', async () => {
+    const user = userEvent.setup()
+    const onClose = vi.fn()
+    const appRoot = document.createElement('div')
+    appRoot.id = 'root'
+    document.body.appendChild(appRoot)
+
+    const { rerender, unmount } = renderWithProviders(
+      <VerificationStatusDialog isOpen onClose={onClose} status="loading" />,
     )
 
-    expect(screen.getByRole('dialog', { name: /your details are verifying/i })).toBeInTheDocument()
+    const loadingDialog = screen.getByRole('dialog', { name: /your details are verifying/i })
+    expect(loadingDialog.parentElement?.parentElement).toBe(document.body)
+    expect(
+      screen.queryByRole('button', { name: /close your details are verifying/i }),
+    ).not.toBeInTheDocument()
+    expect(appRoot).toHaveAttribute('aria-hidden', 'true')
+    expect(appRoot).toHaveAttribute('inert')
 
-    rerender(<VerificationStatusDialog isOpen onClose={() => undefined} status="success" />)
+    rerender(<VerificationStatusDialog isOpen onClose={onClose} status="success" />)
     expect(screen.getByRole('dialog', { name: /your details are verified/i })).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: /close your details are verified/i }),
+    ).not.toBeInTheDocument()
 
-    rerender(<VerificationStatusDialog isOpen onClose={() => undefined} status="failure" />)
-    expect(screen.getByRole('button', { name: /check details/i })).toBeInTheDocument()
+    rerender(
+      <VerificationStatusDialog
+        isOpen
+        message="The supplied student record did not match."
+        onClose={onClose}
+        status="failure"
+      />,
+    )
+    expect(screen.getByText('The supplied student record did not match.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Close Verification issue' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: /check details/i }))
+    expect(onClose).toHaveBeenCalledOnce()
+
+    unmount()
+    expect(appRoot).not.toHaveAttribute('aria-hidden')
+    expect(appRoot).not.toHaveAttribute('inert')
+    appRoot.remove()
   })
 
   it('logs in a Student and redirects to the Student dashboard shell', async () => {
@@ -107,6 +138,24 @@ describe('student Sprint 2 authentication', () => {
     await user.click(screen.getByRole('button', { name: /log in/i }))
 
     expect(await screen.findByText('Student dashboard target')).toBeInTheDocument()
+  })
+
+  it('rejects incorrect local Student test credentials safely', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(
+      <MemoryRouter>
+        <StudentLoginPage />
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByLabelText(/university email/i), 'student@dcs.ruh.ac.lk')
+    await user.type(screen.getByLabelText(/^password$/i), 'WrongPassword@123')
+    await user.click(screen.getByRole('button', { name: /log in/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The email or password is incorrect.',
+    )
   })
 
   it('redirects direct Student reset password access without reset context', () => {

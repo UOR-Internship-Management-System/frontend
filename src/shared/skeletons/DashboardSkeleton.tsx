@@ -1,97 +1,84 @@
-import type { CSSProperties } from 'react'
 import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
-
-function Shape({
-  height = 14,
-  rounded = false,
-  width = '100%',
-}: {
-  height?: CSSProperties['height']
-  rounded?: boolean
-  width?: CSSProperties['width']
-}) {
-  return (
-    <SkeletonBlock
-      decorative
-      height={height}
-      lines={0}
-      rounded={rounded}
-      variant="inline"
-      width={width}
-    />
-  )
-}
-
-function PageHeaderSkeleton({ label }: { label: string }) {
-  return (
-    <header aria-hidden="true" className="page-header skeleton-page-header">
-      <div>
-        <Shape height={24} rounded width={150} />
-        <Shape height={44} width="min(420px, 82vw)" />
-        <SkeletonBlock
-          decorative
-          lineWidths={['min(620px, 90vw)', 'min(460px, 72vw)']}
-          lines={2}
-          variant="inline"
-        />
-      </div>
-      <Shape height={42} rounded width={138} />
-      <span className="visually-hidden">{label}</span>
-    </header>
-  )
-}
+import { SkeletonPageHeader, SkeletonShape, SkeletonStatusRegion } from './SkeletonPrimitives'
 
 function MetricCardSkeleton() {
   return (
-    <article className="section-card metric-skeleton-card" aria-hidden="true">
-      <Shape height={12} width="42%" />
-      <Shape height={36} width="34%" />
-      <Shape height={1} width="100%" />
-      <SkeletonBlock decorative lineWidths={['88%', '64%']} lines={2} variant="inline" />
+    <article
+      aria-hidden="true"
+      className="section-card metric-skeleton-card skeleton-card-stack"
+      data-skeleton-metric
+    >
+      <div className="skeleton-section-heading">
+        <SkeletonShape height={12} radius="pill" width="48%" />
+        <SkeletonShape height={42} radius="circle" width={42} />
+      </div>
+      <SkeletonShape height={38} width="38%" />
+      <SkeletonShape height={1} radius="none" />
+      <SkeletonBlock decorative lineWidths={['92%', '68%']} lines={2} variant="inline" />
     </article>
   )
 }
 
-function MetricsGridSkeleton({ count }: { count: number }) {
+function SummaryHeader({ admin = false }: { admin?: boolean }) {
   return (
-    <div className="skeleton-metrics-grid" aria-hidden="true">
-      {Array.from({ length: count }, (_, index) => (
-        <MetricCardSkeleton key={index} />
-      ))}
+    <div
+      aria-hidden="true"
+      className={admin ? 'admin-dashboard-summary-header' : 'student-dashboard-summary-header'}
+    >
+      <div className="skeleton-stack">
+        <SkeletonShape height={28} width={admin ? 210 : 205} />
+        <SkeletonShape height={12} radius="pill" width={390} />
+      </div>
+      <SkeletonShape height={14} radius="pill" width={190} />
     </div>
   )
 }
 
 export function StudentDashboardSkeleton() {
   return (
-    <section
-      aria-busy="true"
-      aria-label="Loading student dashboard"
-      className="content-stack"
-      role="status"
+    <SkeletonStatusRegion
+      className="content-stack student-dashboard-page"
+      label="Loading student dashboard"
     >
-      <span className="visually-hidden">Loading student dashboard</span>
-      <PageHeaderSkeleton label="Student dashboard header loading" />
-      <article className="section-card dashboard-welcome-skeleton" aria-hidden="true">
-        <Shape height={30} width="min(360px, 72vw)" />
-        <SkeletonBlock decorative lineWidths={['92%', '76%']} lines={2} variant="inline" />
-      </article>
-      <MetricsGridSkeleton count={4} />
-    </section>
+      <SkeletonPageHeader />
+      <section aria-hidden="true" className="section-card student-dashboard-welcome">
+        <div className="skeleton-stack">
+          <SkeletonShape height={12} radius="pill" width={270} />
+          <SkeletonShape height={30} width="min(360px, 72vw)" />
+          <SkeletonBlock decorative lineWidths={['92%', '76%']} lines={2} variant="inline" />
+        </div>
+        <SkeletonShape height={72} radius="circle" width={72} />
+      </section>
+      <section aria-hidden="true" className="student-dashboard-summary skeleton-stack">
+        <SummaryHeader />
+        <div
+          className="student-dashboard-metrics-grid"
+          data-testid="student-dashboard-metrics-skeleton"
+        >
+          {Array.from({ length: 4 }, (_, index) => (
+            <MetricCardSkeleton key={index} />
+          ))}
+        </div>
+      </section>
+    </SkeletonStatusRegion>
   )
 }
 
 export function AdminDashboardSkeleton() {
   return (
-    <section
-      aria-busy="true"
-      aria-label="Loading admin dashboard"
-      className="content-stack"
-      role="status"
+    <SkeletonStatusRegion
+      className="content-stack admin-dashboard-page"
+      label="Loading admin dashboard"
     >
-      <span className="visually-hidden">Loading admin dashboard</span>
-      <PageHeaderSkeleton label="Admin dashboard header loading" />
-      <MetricsGridSkeleton count={3} />
-    </section>
+      <SkeletonPageHeader />
+      <section aria-hidden="true" className="admin-dashboard-summary skeleton-stack">
+        <SummaryHeader admin />
+        <div className="admin-metrics-grid" data-testid="admin-dashboard-metrics-skeleton">
+          {Array.from({ length: 3 }, (_, index) => (
+            <MetricCardSkeleton key={index} />
+          ))}
+        </div>
+      </section>
+    </SkeletonStatusRegion>
   )
 }

@@ -1,7 +1,8 @@
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { CvPreviewPaperSkeleton } from '../../../shared/skeletons/CvBuilderSkeleton'
 import type { CvPreview } from '../types/cvBuilderTypes'
 import { sanitizeCvHtml } from '../utils/sanitizeCvHtml'
 
@@ -43,38 +44,37 @@ export function CvPreviewPanel({
           <span>Your configuration is preserved. Regenerate the preview before saving.</span>
         </div>
       ) : null}
-      {isPending ? (
-        <div aria-label="Generating CV preview" className="s5-cv-preview-loading" role="status">
-          <span className="visually-hidden">Generating CV preview</span>
-          <SkeletonBlock lines={8} />
-        </div>
-      ) : null}
-      {error ? (
-        <ErrorState
-          correlationId={error.correlationId}
-          message={error.message}
-          onAction={onRetry}
-          title="Preview generation failed"
-        />
-      ) : null}
-      {!preview && !isPending && !error ? (
-        <EmptyState
-          message="Choose the records to include, then generate an explicit preview."
-          title="No preview generated"
-        />
-      ) : null}
-      {preview ? (
-        <div className="s5-cv-preview-paper">
-          <iframe
-            className="s5-cv-preview-frame"
-            referrerPolicy="no-referrer"
-            sandbox=""
-            srcDoc={buildPreviewDocument(preview.htmlPreview)}
-            tabIndex={-1}
-            title="Generated CV visual preview"
+      <LoadingBoundary
+        isLoading={isPending}
+        label="Generating CV preview"
+        minHeight={680}
+        skeleton={<CvPreviewPaperSkeleton />}
+      >
+        {error ? (
+          <ErrorState
+            correlationId={error.correlationId}
+            message={error.message}
+            onAction={onRetry}
+            title="Preview generation failed"
           />
-        </div>
-      ) : null}
+        ) : preview ? (
+          <div className="s5-cv-preview-paper">
+            <iframe
+              className="s5-cv-preview-frame"
+              referrerPolicy="no-referrer"
+              sandbox=""
+              srcDoc={buildPreviewDocument(preview.htmlPreview)}
+              tabIndex={-1}
+              title="Generated CV visual preview"
+            />
+          </div>
+        ) : (
+          <EmptyState
+            message="Choose the records to include, then generate an explicit preview."
+            title="No preview generated"
+          />
+        )}
+      </LoadingBoundary>
     </SectionCard>
   )
 }

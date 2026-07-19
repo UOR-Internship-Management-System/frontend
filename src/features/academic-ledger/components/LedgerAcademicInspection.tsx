@@ -5,7 +5,7 @@ import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { TableSkeleton } from '../../../shared/skeletons'
+import { LedgerInspectionTableSkeleton } from '../../../shared/skeletons'
 import { useRegisteredStudents } from '../../student-management/hooks/useRegisteredStudents'
 import type {
   RegisteredStudentsQuery,
@@ -74,7 +74,7 @@ export function LedgerAcademicInspection() {
           </select>
         </label>
       </div>
-      {students.isPending ? <TableSkeleton variant="registered-students" /> : null}
+      {students.isPending ? <LedgerInspectionTableSkeleton /> : null}
       {students.isError ? (
         <ErrorState
           title="Unable to load Student records"

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { WorkspaceSkeleton } from '../../../shared/skeletons/WorkspaceSkeleton'
+import { CvBuilderSkeleton } from '../../../shared/skeletons/CvBuilderSkeleton'
 import { CvActionBar } from '../components/CvActionBar'
 import { CvConfigurationPanel } from '../components/CvConfigurationPanel'
 import type { CvSelectionItem } from '../components/CvRecordSelectionGroup'
@@ -205,7 +205,7 @@ export function CvBuilderPage() {
   }
 
   if (freshness.isPending && sourceQueries.every((query) => query.isPending)) {
-    return <WorkspaceSkeleton variant="cv-builder" />
+    return <CvBuilderSkeleton />
   }
 
   return (

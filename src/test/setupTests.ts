@@ -6,6 +6,7 @@ import { resetStudentSkillsMock } from '../mocks/fixtures/skills.fixture'
 import { resetStudentProjectsMock } from '../mocks/fixtures/studentProjects.fixture'
 import { resetCvBuilderMock } from '../mocks/fixtures/cvBuilder.fixture'
 import { resetAcademicRecordsMock } from '../mocks/fixtures/academicRecords.fixture'
+import { resetAuthMocks } from '../mocks/handlers/authHandlers'
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })
@@ -24,6 +25,7 @@ beforeAll(() => {
 })
 afterEach(() => {
   server.resetHandlers()
+  resetAuthMocks()
   resetStudentProfileMock()
   resetStudentSkillsMock()
   resetStudentProjectsMock()

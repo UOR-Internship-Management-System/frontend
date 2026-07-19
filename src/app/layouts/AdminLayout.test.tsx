@@ -104,6 +104,24 @@ describe('AdminLayout', () => {
     expect(logout).toHaveBeenCalledOnce()
   })
 
+  it('preserves the desktop collapsed state while Admin navigation remains usable', async () => {
+    installMatchMedia(false)
+    const user = userEvent.setup()
+    const { container } = renderAdminLayout()
+
+    await user.click(screen.getByRole('button', { name: 'Collapse admin sidebar' }))
+    expect(container.querySelector('.admin-shell')).toHaveClass('student-shell-collapsed')
+
+    await user.click(screen.getByRole('link', { name: 'Academic Ledger' }))
+    expect(await screen.findByRole('heading', { name: 'Academic Ledger' })).toBeInTheDocument()
+    expect(container.querySelector('.admin-shell')).toHaveClass('student-shell-collapsed')
+    expect(screen.getByRole('button', { name: 'Expand admin sidebar' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Academic Ledger' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+  })
+
   it('traps focus in the mobile drawer and restores the menu trigger', async () => {
     installMatchMedia(true)
     const user = userEvent.setup()

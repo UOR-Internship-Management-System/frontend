@@ -37,6 +37,13 @@ Environment variables are documented in `.env.example`.
 
 The application calls `VITE_API_BASE_URL` (default `/api/v1`) by default. For local demonstrations while corresponding backend endpoints are pending, set `VITE_ENABLE_API_MOCKS=true` in a non-production environment to enable the deterministic MSW handlers. Production mode never starts the mock worker.
 
+When local API mocks are enabled, use these non-production test accounts:
+
+- Student: `student@dcs.ruh.ac.lk` / `Password@123`
+- Admin: `admin@dcs.ruh.ac.lk` / `Password@123`
+
+The login pages show these values only while local API mocks are active. Passwords created through the mocked onboarding or reset flows replace the corresponding local account password for that browser session.
+
 ## Quality Commands
 
 ```bash

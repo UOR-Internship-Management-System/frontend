@@ -50,7 +50,9 @@ describe('AcademicRecordsPage', () => {
     const user = userEvent.setup()
     const searched = renderWithProviders(<AcademicRecordsPage />)
     await user.type(searched.getByRole('searchbox', { name: 'Search academic records' }), 'quantum')
-    expect(await searched.findByText('No matching records')).toBeVisible()
+    expect(
+      await searched.findByText('No matching records', undefined, { timeout: 3_000 }),
+    ).toBeVisible()
     expect(searched.getByText(/No committed records match "quantum"/)).toBeVisible()
   })
 

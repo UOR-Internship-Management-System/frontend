@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 import { env } from './app/config/env'
 import './index.css'
+import './styles/skeleton-system.css'
 
 const rootElement = document.getElementById('root')
 
