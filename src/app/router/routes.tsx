@@ -41,15 +41,19 @@ import {
 } from './lazyRoutes'
 
 import {
-  AuthSkeleton,
-  StudentDashboardSkeleton,
-  StudentProfileSkeleton,
-  StudentSkillsSkeleton,
-  StudentProjectsSkeleton,
-  WorkspaceSkeleton,
-  TableSkeleton,
+  AcademicLedgerRouteSkeleton,
+  AcademicRecordsSkeleton,
   AdminDashboardSkeleton,
+  AuthSkeleton,
+  CvBuilderSkeleton,
   FormSkeleton,
+  GatewaySkeleton,
+  RegisteredStudentsSkeleton,
+  StudentDashboardSkeleton,
+  StudentDeepDiveSkeleton,
+  StudentProfileSkeleton,
+  StudentProjectsSkeleton,
+  StudentSkillsSkeleton,
 } from '../../shared/skeletons'
 
 const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
@@ -62,7 +66,7 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: withSuspense(<HomePage />, <FormSkeleton />) },
+      { index: true, element: withSuspense(<HomePage />, <GatewaySkeleton />) },
       {
         element: <AuthLayout />,
         children: [
@@ -218,14 +222,11 @@ export const routes: RouteObject[] = [
           },
           {
             path: routePaths.studentCvBuilder,
-            element: withSuspense(<CvBuilderPage />, <WorkspaceSkeleton variant="cv-builder" />),
+            element: withSuspense(<CvBuilderPage />, <CvBuilderSkeleton />),
           },
           {
             path: routePaths.studentAcademicRecords,
-            element: withSuspense(
-              <AcademicRecordsPage />,
-              <TableSkeleton variant="academic-records" />,
-            ),
+            element: withSuspense(<AcademicRecordsPage />, <AcademicRecordsSkeleton />),
           },
         ],
       },
@@ -242,21 +243,15 @@ export const routes: RouteObject[] = [
           },
           {
             path: routePaths.adminAcademicLedger,
-            element: withSuspense(
-              <AcademicLedgerPage />,
-              <TableSkeleton variant="academic-ledger" />,
-            ),
+            element: withSuspense(<AcademicLedgerPage />, <AcademicLedgerRouteSkeleton />),
           },
           {
             path: routePaths.adminStudents,
-            element: withSuspense(
-              <RegisteredStudentsPage />,
-              <TableSkeleton variant="registered-students" />,
-            ),
+            element: withSuspense(<RegisteredStudentsPage />, <RegisteredStudentsSkeleton />),
           },
           {
             path: routePaths.adminStudentDetail,
-            element: withSuspense(<StudentDeepDivePage />, <TableSkeleton />),
+            element: withSuspense(<StudentDeepDivePage />, <StudentDeepDiveSkeleton />),
           },
         ],
       },

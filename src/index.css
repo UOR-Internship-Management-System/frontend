@@ -49,6 +49,12 @@
   --radius-md: 12px;
   --radius-pill: 999px;
   --radius-modal: 28px;
+  --motion-duration-instant: 0ms;
+  --motion-duration-fast: 160ms;
+  --motion-duration-medium: 220ms;
+  --motion-duration-slow: 320ms;
+  --motion-duration-spinner: 800ms;
+  --motion-duration-loading: 1250ms;
   --motion-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --motion-emphasized: cubic-bezier(0.34, 1.56, 0.64, 1);
   --md-sys-color-primary: var(--primary);
@@ -151,8 +157,8 @@ body {
   background: var(--color-page);
   color: var(--color-text);
   transition:
-    background-color 0.25s var(--motion-standard),
-    color 0.25s var(--motion-standard);
+    background-color var(--motion-duration-medium) var(--motion-standard),
+    color var(--motion-duration-medium) var(--motion-standard);
 }
 
 button,
@@ -291,7 +297,7 @@ textarea:focus-visible {
 
 .page-transition {
   width: 100%;
-  animation: pageTransitionIn 0.26s var(--motion-standard) both;
+  animation: pageTransitionIn var(--motion-duration-medium) var(--motion-standard) both;
 }
 
 .app-main-standalone .page-transition {
@@ -326,6 +332,7 @@ textarea:focus-visible {
   border-color: var(--color-border-strong);
   color: var(--color-primary);
   box-shadow: var(--shadow-card);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -361,6 +368,7 @@ textarea:focus-visible {
 
 .gateway-page {
   position: fixed;
+  scrollbar-width: none;
   inset: 0;
   z-index: 50;
   display: grid;
@@ -430,8 +438,7 @@ textarea:focus-visible {
 }
 
 .gateway-hero-top,
-.gateway-hero-content,
-.gateway-scroll-cue {
+.gateway-hero-content {
   position: relative;
   z-index: 1;
 }
@@ -446,7 +453,7 @@ textarea:focus-visible {
 .gateway-hero-content {
   max-width: 760px;
   align-self: center;
-  animation: gatewayIntroRise 0.7s var(--motion-emphasized) both;
+  animation: gatewayIntroRise var(--motion-duration-slow) var(--motion-emphasized) both;
 }
 
 .gateway-eyebrow {
@@ -475,19 +482,6 @@ textarea:focus-visible {
 .gateway-scroll-link {
   width: fit-content;
   margin-top: 32px;
-}
-
-.gateway-scroll-cue {
-  display: grid;
-  place-items: center;
-  justify-self: center;
-  width: 42px;
-  height: 42px;
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--surface-container-high);
-  color: var(--color-primary);
-  animation: gatewayCueFloat 1.8s var(--motion-standard) infinite;
 }
 
 .gateway-access {
@@ -557,8 +551,8 @@ textarea:focus-visible {
   padding: clamp(24px, 3vw, 34px);
   background: var(--gateway-surface);
   transition:
-    transform 0.4s var(--motion-emphasized),
-    background-color 0.4s var(--motion-emphasized);
+    transform var(--motion-duration-medium) var(--motion-standard),
+    background-color var(--motion-duration-medium) var(--motion-standard);
 }
 
 .gateway-card + .gateway-card {
@@ -616,29 +610,6 @@ textarea:focus-visible {
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes gatewayPanelIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.985);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes gatewayCueFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(8px);
   }
 }
 
@@ -813,7 +784,7 @@ body.admin-mobile-drawer-open {
   min-width: 0;
   min-height: 100dvh;
   margin-inline-start: var(--student-sidebar-current-width);
-  transition: margin-inline-start 0.25s var(--motion-standard);
+  transition: none;
 }
 
 .student-workspace-toolbar {
@@ -829,6 +800,7 @@ body.admin-mobile-drawer-open {
   justify-content: flex-end;
   gap: 12px;
   background: color-mix(in srgb, var(--color-page) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
 
@@ -863,7 +835,7 @@ body.admin-mobile-drawer-open {
   font-weight: 800;
   text-decoration: none;
   transform: translateY(-180%);
-  transition: transform 0.18s var(--motion-standard);
+  transition: transform var(--motion-duration-fast) var(--motion-standard);
 }
 
 .student-skip-link:focus {
@@ -890,9 +862,8 @@ body.admin-mobile-drawer-open {
   box-shadow: var(--shadow-card);
   color: var(--sidebar-text);
   transition:
-    width 0.25s var(--motion-standard),
-    transform 0.25s var(--motion-standard),
-    background-color 0.25s var(--motion-standard);
+    transform var(--motion-duration-medium) var(--motion-standard),
+    background-color var(--motion-duration-medium) var(--motion-standard);
 }
 
 .student-sidebar-header,
@@ -915,7 +886,7 @@ body.admin-mobile-drawer-open {
   font-size: 1rem;
   font-weight: 800;
   white-space: nowrap;
-  transition: gap 0.2s var(--motion-standard);
+  transition: none;
 }
 
 .student-sidebar-brand-mark,
@@ -953,9 +924,9 @@ body.admin-mobile-drawer-open {
   color: var(--sidebar-text);
   cursor: pointer;
   transition:
-    background-color 0.18s var(--motion-standard),
-    color 0.18s var(--motion-standard),
-    transform 0.18s var(--motion-standard);
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard),
+    transform var(--motion-duration-fast) var(--motion-standard);
 }
 
 .student-sidebar-icon-button:hover {
@@ -977,7 +948,7 @@ body.admin-mobile-drawer-open {
   border: 1px solid var(--sidebar-border);
   border-radius: var(--radius-lg);
   background: var(--sidebar-surface);
-  transition: gap 0.2s var(--motion-standard);
+  transition: none;
 }
 
 .student-sidebar-avatar {
@@ -1037,11 +1008,10 @@ body.admin-mobile-drawer-open {
   font-weight: 700;
   text-decoration: none;
   transition:
-    background-color 0.18s var(--motion-standard),
-    border-color 0.18s var(--motion-standard),
-    color 0.18s var(--motion-standard),
-    gap 0.2s var(--motion-standard),
-    transform 0.18s var(--motion-standard);
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard),
+    transform var(--motion-duration-fast) var(--motion-standard);
 }
 
 .student-sidebar-item:hover {
@@ -1075,9 +1045,8 @@ body.admin-mobile-drawer-open {
   overflow: hidden;
   white-space: nowrap;
   transition:
-    max-width 0.2s var(--motion-standard),
-    opacity 0.14s var(--motion-standard),
-    transform 0.2s var(--motion-standard);
+    opacity var(--motion-duration-fast) var(--motion-standard),
+    transform var(--motion-duration-fast) var(--motion-standard);
 }
 
 .button.student-sidebar-logout {
@@ -1095,7 +1064,7 @@ body.admin-mobile-drawer-open {
   width: 100%;
   justify-content: flex-start;
   gap: 14px;
-  transition: gap 0.2s var(--motion-standard);
+  transition: none;
 }
 
 .student-sidebar-logout:hover:not(:disabled) {
@@ -1175,8 +1144,8 @@ body.admin-mobile-drawer-open {
   text-overflow: ellipsis;
   transform: translate(-50%, -4px);
   transition:
-    opacity 0.16s var(--motion-standard),
-    transform 0.16s var(--motion-standard);
+    opacity var(--motion-duration-fast) var(--motion-standard),
+    transform var(--motion-duration-fast) var(--motion-standard);
   white-space: nowrap;
 }
 
@@ -1190,6 +1159,20 @@ body.admin-mobile-drawer-open {
 
 .student-sidebar-backdrop {
   display: none;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .button.theme-toggle {
+    background: var(--color-card);
+  }
+
+  .student-workspace-toolbar {
+    background: var(--color-page);
+  }
+
+  .student-sidebar-backdrop {
+    background: var(--overlay);
+  }
 }
 
 .profile-page {
@@ -1365,7 +1348,6 @@ body.admin-mobile-drawer-open {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-card-muted);
-  animation: modalIn 0.3s var(--motion-emphasized) both;
 }
 
 .profile-entry-heading,
@@ -1709,9 +1691,7 @@ body.admin-mobile-drawer-open {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 16px;
-  transition:
-    transform 0.2s var(--motion-standard),
-    box-shadow 0.2s var(--motion-standard);
+  transition: transform var(--motion-duration-fast) var(--motion-standard);
 }
 
 .student-metric-card:hover {
@@ -1809,81 +1789,6 @@ p {
   clip: rect(0 0 0 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
-}
-
-.skeleton-block,
-.skeleton-card,
-.skeleton-inline,
-.skeleton-circle {
-  --skeleton-base: color-mix(in srgb, var(--color-border) 58%, var(--color-card-muted));
-  --skeleton-highlight: color-mix(in srgb, var(--color-primary) 18%, var(--color-card));
-  display: grid;
-  gap: 12px;
-}
-
-.skeleton-block {
-  padding: 18px;
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--color-card-muted) 82%, var(--color-card));
-  border: 1px solid var(--color-border);
-}
-
-.skeleton-card {
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  background: var(--color-card);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
-}
-
-.skeleton-inline {
-  display: inline-grid;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  vertical-align: middle;
-}
-
-.skeleton-circle {
-  display: inline-grid;
-  padding: 0;
-  border-radius: 999px;
-}
-
-.skeleton-rounded {
-  border-radius: 999px !important;
-  overflow: hidden;
-}
-
-.skeleton-empty {
-  min-width: 1px;
-  min-height: 1px;
-  background: linear-gradient(
-    90deg,
-    var(--skeleton-base) 0%,
-    var(--skeleton-highlight) 45%,
-    var(--skeleton-base) 90%
-  );
-  background-size: 220% 100%;
-  animation: shimmer 1.45s infinite linear;
-}
-
-.skeleton-line {
-  width: 100%;
-  height: 12px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    var(--skeleton-base) 0%,
-    var(--skeleton-highlight) 45%,
-    var(--skeleton-base) 90%
-  );
-  background-size: 220% 100%;
-  animation: shimmer 1.45s infinite linear;
-}
-
-.skeleton-line:last-child {
-  width: 78%;
 }
 
 .route-skeleton {
@@ -2092,11 +1997,10 @@ p {
   font-weight: 800;
   text-decoration: none;
   transition:
-    transform 0.2s var(--motion-standard),
-    box-shadow 0.2s var(--motion-standard),
-    background-color 0.2s var(--motion-standard),
-    border-color 0.2s var(--motion-standard),
-    color 0.2s var(--motion-standard);
+    transform var(--motion-duration-fast) var(--motion-standard),
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard);
 }
 
 .button:hover:not(:disabled) {
@@ -2162,10 +2066,10 @@ p {
   color: var(--color-text);
   padding: 10px 12px;
   transition:
-    border-color 0.2s var(--motion-standard),
-    box-shadow 0.2s var(--motion-standard),
-    background-color 0.2s var(--motion-standard),
-    color 0.2s var(--motion-standard);
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    box-shadow var(--motion-duration-fast) var(--motion-standard),
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard);
 }
 
 .input:focus,
@@ -2213,6 +2117,23 @@ p {
   line-height: 1.5;
 }
 
+.auth-test-credentials {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  padding: 12px 14px;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.auth-test-credentials span {
+  overflow-wrap: anywhere;
+  font-family: var(--font-family-mono);
+}
+
 .otp-input-group {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 48px));
@@ -2250,7 +2171,7 @@ p {
   border: 4px solid var(--surface-container-high);
   border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin var(--motion-duration-spinner) linear infinite;
 }
 
 .empty-state-message {
@@ -2302,11 +2223,11 @@ td {
   background: var(--overlay);
   opacity: 1;
   overflow-y: auto;
-  animation: overlayFade 0.2s var(--motion-standard) both;
+  animation: overlayFade var(--motion-duration-medium) var(--motion-standard) both;
 }
 
 .modal-backdrop.closing {
-  animation: overlayFadeOut 0.2s var(--motion-standard) both;
+  animation: overlayFadeOut var(--motion-duration-medium) var(--motion-standard) both;
 }
 
 .modal-card {
@@ -2319,7 +2240,7 @@ td {
   border-radius: var(--radius-modal);
   box-shadow: var(--shadow-modal);
   background: var(--color-card);
-  animation: modalIn 0.25s var(--motion-emphasized) both;
+  animation: modalIn var(--motion-duration-medium) var(--motion-emphasized) both;
 }
 
 .modal-card-wide {
@@ -2327,7 +2248,7 @@ td {
 }
 
 .modal-backdrop.closing .modal-card {
-  animation: modalOut 0.2s var(--motion-standard) both;
+  animation: modalOut var(--motion-duration-medium) var(--motion-standard) both;
 }
 
 .modal-header {
@@ -2380,6 +2301,20 @@ td {
   text-align: center;
 }
 
+.verification-state {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  animation: verificationStateIn var(--motion-duration-fast) var(--motion-standard) both;
+}
+
+@keyframes verificationStateIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 .link-button {
   border: 0;
   background: transparent;
@@ -2417,12 +2352,6 @@ td {
   border: 1px solid var(--color-border);
   background: var(--color-card);
   box-shadow: var(--shadow-card);
-}
-
-@keyframes shimmer {
-  to {
-    background-position-x: -220%;
-  }
 }
 
 @keyframes spin {
@@ -2677,15 +2606,15 @@ td {
     transform: translateX(-105%);
     box-shadow: var(--shadow-modal);
     transition:
-      transform 0.25s var(--motion-standard),
-      visibility 0s linear 0.25s;
+      transform var(--motion-duration-medium) var(--motion-standard),
+      visibility var(--motion-duration-instant) linear var(--motion-duration-medium);
   }
 
   .student-sidebar.student-sidebar-mobile-open {
     visibility: visible;
     pointer-events: auto;
     transform: translateX(0);
-    transition-delay: 0s;
+    transition-delay: var(--motion-duration-instant);
   }
 
   .student-sidebar-toggle {
@@ -2744,8 +2673,9 @@ td {
     display: block;
     border: 0;
     background: var(--overlay);
+    -webkit-backdrop-filter: blur(2px);
     backdrop-filter: blur(2px);
-    animation: overlayFade 0.2s var(--motion-standard);
+    animation: overlayFade var(--motion-duration-medium) var(--motion-standard);
   }
 
   .student-workspace-toolbar {
@@ -2806,6 +2736,12 @@ td {
     scroll-behavior: auto !important;
     animation: none !important;
     transition: none !important;
+  }
+
+  .skeleton-empty::after,
+  .skeleton-line::after,
+  .s4-skills-list-skeleton > div::after {
+    display: none;
   }
 }
 
@@ -3336,7 +3272,7 @@ td {
   font-size: var(--font-size-sm);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 1100px) {
   .ledger-upload-panel {
     flex-direction: column;
   }
@@ -3820,10 +3756,6 @@ body.dark-mode .s5-records-page {
   background: var(--paper-bg);
 }
 
-.s5-cv-preview-loading {
-  min-height: 360px;
-}
-
 .s5-status-pill {
   padding: 6px 10px;
   border-radius: var(--radius-pill);
@@ -4069,25 +4001,7 @@ body.dark-mode .s5-records-page {
   margin: 5px 0 0;
 }
 
-.s4-skills-list-skeleton {
-  display: grid;
-  gap: 10px;
-}
-
-.s4-skills-list-skeleton > div {
-  height: 62px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(
-    90deg,
-    var(--color-card-muted) 25%,
-    var(--color-border) 50%,
-    var(--color-card-muted) 75%
-  );
-  background-size: 220% 100%;
-  animation: shimmer 1.4s infinite;
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .s4-skills-taxonomy-filters,
   .s4-skills-add-fields,
   .s4-skills-results {

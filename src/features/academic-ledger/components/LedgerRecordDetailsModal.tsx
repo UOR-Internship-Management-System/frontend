@@ -4,7 +4,7 @@ import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { Modal } from '../../../shared/components/overlays/Modal'
-import { TableSkeleton } from '../../../shared/skeletons'
+import { LedgerRecordsModalSkeleton } from '../../../shared/skeletons'
 import { useAdminStudentAcademicRecords } from '../../student-management/hooks/useRegisteredStudents'
 import type {
   AdminAcademicRecordsQuery,
@@ -87,7 +87,7 @@ export function LedgerRecordDetailsModal({
             </select>
           </label>
         </div>
-        {records.isPending ? <TableSkeleton variant="academic-records" /> : null}
+        {records.isPending ? <LedgerRecordsModalSkeleton /> : null}
         {records.isError ? (
           <ErrorState
             title="Unable to load academic records"

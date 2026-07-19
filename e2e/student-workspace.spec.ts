@@ -156,10 +156,42 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
   const expandedWidth = await sidebar.evaluate((element) => element.getBoundingClientRect().width)
   expect(expandedWidth).toBeGreaterThan(250)
 
+  const transitionAudit = await page.evaluate(() => {
+    const main = document.querySelector<HTMLElement>('.student-shell-main')
+    const auditSidebar = document.querySelector<HTMLElement>('.student-sidebar')
+    const item = document.querySelector<HTMLElement>('.student-sidebar-item')
+    const label = document.querySelector<HTMLElement>('.student-sidebar-collapsible-label')
+
+    if (!main || !auditSidebar || !item || !label) {
+      throw new Error('Missing student shell animation audit target')
+    }
+
+    return {
+      mainDuration: getComputedStyle(main).transitionDuration,
+      sidebarProperties: getComputedStyle(auditSidebar).transitionProperty,
+      itemProperties: getComputedStyle(item).transitionProperty,
+      labelProperties: getComputedStyle(label).transitionProperty,
+    }
+  })
+
+  expect(transitionAudit.mainDuration).toBe('0s')
+  for (const properties of [
+    transitionAudit.sidebarProperties,
+    transitionAudit.itemProperties,
+    transitionAudit.labelProperties,
+  ]) {
+    expect(properties).not.toMatch(
+      /(^|,\s*)(width|max-width|margin|margin-inline-start|gap|height)(,|$)/,
+    )
+  }
+
   await page.getByRole('button', { name: 'Collapse student sidebar' }).click()
   await expect(shell).toHaveClass(/student-shell-collapsed/)
   await expect(page.getByRole('button', { name: 'Expand student sidebar' })).toBeVisible()
   await expectFoldedRailContentCentered(sidebar)
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBeTruthy()
 
   await page.getByRole('link', { name: 'Profile' }).click()
   await expect(page).toHaveURL(/\/student\/profile$/)
@@ -169,6 +201,12 @@ test('desktop student rail remains fixed and collapsed across nested routes', as
 
   await page.getByRole('button', { name: /switch to dark mode/i }).click()
   await expect(page.locator('html')).toHaveClass(/dark/)
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+  ).toBeTruthy()
+
+  await page.getByRole('button', { name: 'Expand student sidebar' }).click()
+  await expect(shell).not.toHaveClass(/student-shell-collapsed/)
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
   ).toBeTruthy()

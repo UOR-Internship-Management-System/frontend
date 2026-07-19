@@ -4,8 +4,9 @@ import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SelectField } from '../../../shared/components/forms/SelectField'
+import { TaxonomyResultsSkeleton } from '../../../shared/skeletons'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import {
   useIndividualSkills,
@@ -112,68 +113,73 @@ export function SkillTaxonomyBrowser({
         </label>
       </div>
 
-      {isInitialLoading ? (
-        <div aria-label="Loading available skills" className="s4-skills-results" role="status">
-          <SkeletonBlock lines={3} />
-        </div>
+      {skills.isFetching && !skills.isPending ? (
+        <p aria-live="polite">Updating available skills...</p>
       ) : null}
-      {mappedError ? (
-        <ErrorState
-          correlationId={mappedError.correlationId}
-          message={mappedError.message}
-          onAction={() =>
-            void Promise.all([clusters.refetch(), categories.refetch(), skills.refetch()])
-          }
-          title="Skill taxonomy unavailable"
-        />
-      ) : null}
-      {!isInitialLoading && !mappedError && skills.data?.items.length === 0 ? (
-        <EmptyState
-          message={
-            search || clusterId || categoryId
-              ? 'No available skills match the selected filters.'
-              : 'No taxonomy skills are currently available.'
-          }
-          title={search || clusterId || categoryId ? 'No matching skills' : 'Taxonomy is empty'}
-        />
-      ) : null}
-      {!isInitialLoading && !mappedError && skills.data?.items.length ? (
-        <div className="s4-skills-results" role="list" aria-label="Available taxonomy skills">
-          {skills.data.items.map((skill) => {
-            const isDeclared = declaredSkillIds.has(skill.skillId)
-            const isSelected = selectedSkillId === skill.skillId
-            return (
-              <div key={skill.skillId} role="listitem">
-                <button
-                  aria-pressed={isSelected}
-                  className={`s4-skills-result ${isSelected ? 'is-selected' : ''}`}
-                  disabled={disabled || selectionDisabled || isDeclared}
-                  onClick={() => onSelect(skill)}
-                  type="button"
-                >
-                  <span>
-                    <strong>{skill.name}</strong>
-                    {skill.description ? <small>{skill.description}</small> : null}
-                  </span>
-                  <span className="s4-skills-result-status">
-                    {isDeclared ? 'Already declared' : isSelected ? 'Selected' : 'Select'}
-                  </span>
-                </button>
-              </div>
-            )
-          })}
-        </div>
-      ) : null}
-      {skills.data && skills.data.page.totalPages > 0 ? (
-        <PaginationBar
-          label="Available skills pagination"
-          onPageChange={setPage}
-          page={skills.data.page.page}
-          size={skills.data.page.size}
-          totalElements={skills.data.page.totalElements}
-          totalPages={skills.data.page.totalPages}
-        />
-      ) : null}
+      <LoadingBoundary
+        isLoading={isInitialLoading}
+        label="Loading available skills"
+        minHeight={360}
+        skeleton={<TaxonomyResultsSkeleton />}
+      >
+        {mappedError ? (
+          <ErrorState
+            correlationId={mappedError.correlationId}
+            message={mappedError.message}
+            onAction={() =>
+              void Promise.all([clusters.refetch(), categories.refetch(), skills.refetch()])
+            }
+            title="Skill taxonomy unavailable"
+          />
+        ) : skills.data?.items.length === 0 ? (
+          <EmptyState
+            message={
+              search || clusterId || categoryId
+                ? 'No available skills match the selected filters.'
+                : 'No taxonomy skills are currently available.'
+            }
+            title={search || clusterId || categoryId ? 'No matching skills' : 'Taxonomy is empty'}
+          />
+        ) : skills.data?.items.length ? (
+          <>
+            <div className="s4-skills-results" role="list" aria-label="Available taxonomy skills">
+              {skills.data.items.map((skill) => {
+                const isDeclared = declaredSkillIds.has(skill.skillId)
+                const isSelected = selectedSkillId === skill.skillId
+                return (
+                  <div key={skill.skillId} role="listitem">
+                    <button
+                      aria-pressed={isSelected}
+                      className={`s4-skills-result ${isSelected ? 'is-selected' : ''}`}
+                      disabled={disabled || selectionDisabled || isDeclared}
+                      onClick={() => onSelect(skill)}
+                      type="button"
+                    >
+                      <span>
+                        <strong>{skill.name}</strong>
+                        {skill.description ? <small>{skill.description}</small> : null}
+                      </span>
+                      <span className="s4-skills-result-status">
+                        {isDeclared ? 'Already declared' : isSelected ? 'Selected' : 'Select'}
+                      </span>
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+            {skills.data.page.totalPages > 0 ? (
+              <PaginationBar
+                label="Available skills pagination"
+                onPageChange={setPage}
+                page={skills.data.page.page}
+                size={skills.data.page.size}
+                totalElements={skills.data.page.totalElements}
+                totalPages={skills.data.page.totalPages}
+              />
+            ) : null}
+          </>
+        ) : null}
+      </LoadingBoundary>
     </section>
   )
 }

@@ -57,6 +57,24 @@ describe('admin Sprint 2 authentication', () => {
     expect(await screen.findByText('Admin dashboard target')).toBeInTheDocument()
   })
 
+  it('rejects incorrect local Admin test credentials safely', async () => {
+    const user = userEvent.setup()
+
+    renderWithProviders(
+      <MemoryRouter>
+        <AdminLoginPage />
+      </MemoryRouter>,
+    )
+
+    await user.type(screen.getByLabelText(/admin email address/i), 'admin@dcs.ruh.ac.lk')
+    await user.type(screen.getByLabelText(/security password/i), 'WrongPassword@123')
+    await user.click(screen.getByRole('button', { name: /log in/i }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The email or password is incorrect.',
+    )
+  })
+
   it('redirects direct Admin create-password access without verified reset context', () => {
     authStorage.clearPasswordResetContext()
 

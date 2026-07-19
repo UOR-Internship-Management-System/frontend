@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
+import { LocalTestCredentialsHint } from '../../../shared/auth/LocalTestCredentialsHint'
 import { AuthSplitShell } from '../../../shared/components/layout/AuthShell'
 import { useAuth } from '../../../shared/hooks/useAuth'
 import { AdminLoginForm } from '../components/AdminLoginForm'
@@ -49,6 +50,7 @@ export function AdminLoginPage() {
             {message}
           </div>
         ) : null}
+        <LocalTestCredentialsHint role="ADMIN" />
         <AdminLoginForm isSubmitting={login.isPending} onSubmit={handleSubmit} />
         <p className="auth-secondary-link">
           System access issue? <a href="/support.html">Contact IT Operations.</a>

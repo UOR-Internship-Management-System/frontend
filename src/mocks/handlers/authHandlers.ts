@@ -1,6 +1,43 @@
 import { http, HttpResponse } from 'msw'
+import { localTestCredentials } from '../../app/config/localTestCredentials'
 
 const apiBase = '/api/v1'
+
+const initialStudentAccounts = [
+  [localTestCredentials.student.email, localTestCredentials.student.password],
+] as const
+const initialAdminAccounts = [
+  [localTestCredentials.admin.email, localTestCredentials.admin.password],
+] as const
+
+let studentAccounts = new Map<string, string>(initialStudentAccounts)
+let adminAccounts = new Map<string, string>(initialAdminAccounts)
+const verificationEmails = new Map<string, string>()
+const passwordResetAccounts = new Map<string, { accountType: 'STUDENT' | 'ADMIN'; email: string }>()
+
+function normalizeEmail(value: string | undefined) {
+  return value?.trim().toLowerCase() ?? ''
+}
+
+function invalidCredentials() {
+  return HttpResponse.json(
+    {
+      type: 'about:blank',
+      title: 'Invalid email or password.',
+      status: 401,
+      code: 'INVALID_CREDENTIALS',
+      message: 'Invalid email or password.',
+    },
+    { status: 401 },
+  )
+}
+
+export function resetAuthMocks() {
+  studentAccounts = new Map<string, string>(initialStudentAccounts)
+  adminAccounts = new Map<string, string>(initialAdminAccounts)
+  verificationEmails.clear()
+  passwordResetAccounts.clear()
+}
 
 const users = {
   student: {
@@ -34,7 +71,8 @@ function currentUserFromRequest(request: Request) {
 
 export const authHandlers = [
   http.post(`${apiBase}/student-verifications`, async ({ request }) => {
-    await request.json()
+    const body = (await request.json()) as { universityEmail?: string }
+    verificationEmails.set('verification-1', normalizeEmail(body.universityEmail))
     return HttpResponse.json(
       {
         verificationId: 'verification-1',
@@ -60,22 +98,34 @@ export const authHandlers = [
 
   http.post(
     `${apiBase}/student-verifications/:verificationId/password`,
-    () => new HttpResponse(null, { status: 204 }),
+    async ({ params, request }) => {
+      const body = (await request.json()) as { newPassword?: string }
+      const email = verificationEmails.get(String(params.verificationId))
+      if (email && body.newPassword) {
+        studentAccounts.set(email, body.newPassword)
+      }
+      return new HttpResponse(null, { status: 204 })
+    },
   ),
 
   http.post(`${apiBase}/auth/student/login`, async ({ request }) => {
-    const body = (await request.json()) as { email?: string }
+    const body = (await request.json()) as { email?: string; password?: string }
+    const email = normalizeEmail(body.email)
+    if (!email || studentAccounts.get(email) !== body.password) {
+      return invalidCredentials()
+    }
     return HttpResponse.json({
       accessToken: 'student-token',
       tokenType: 'Bearer',
       expiresInSeconds: 900,
-      user: { ...users.student, email: body.email ?? users.student.email },
+      user: { ...users.student, email },
     })
   }),
 
   http.post(`${apiBase}/auth/admin/login`, async ({ request }) => {
-    const body = (await request.json()) as { email?: string }
-    if (body.email === 'disabled.admin@dcs.ruh.ac.lk') {
+    const body = (await request.json()) as { email?: string; password?: string }
+    const email = normalizeEmail(body.email)
+    if (email === 'disabled.admin@dcs.ruh.ac.lk') {
       return HttpResponse.json(
         {
           title: 'This administrator account cannot sign in. Contact IT or operations.',
@@ -84,11 +134,14 @@ export const authHandlers = [
         { status: 403 },
       )
     }
+    if (!email || adminAccounts.get(email) !== body.password) {
+      return invalidCredentials()
+    }
     return HttpResponse.json({
       accessToken: 'admin-token',
       tokenType: 'Bearer',
       expiresInSeconds: 900,
-      user: { ...users.admin, email: body.email ?? users.admin.email },
+      user: { ...users.admin, email },
     })
   }),
 
@@ -104,9 +157,12 @@ export const authHandlers = [
 
   http.post(`${apiBase}/password-resets`, async ({ request }) => {
     const body = (await request.json()) as { accountType?: 'STUDENT' | 'ADMIN'; email?: string }
+    const accountType = body.accountType ?? 'STUDENT'
+    const resetId = `${accountType.toLowerCase()}-reset-1`
+    passwordResetAccounts.set(resetId, { accountType, email: normalizeEmail(body.email) })
     return HttpResponse.json(
       {
-        resetId: `${body.accountType?.toLowerCase() ?? 'student'}-reset-1`,
+        resetId,
         message: 'If the account can be recovered, an OTP has been sent.',
         expiresInSeconds: 300,
       },
@@ -126,8 +182,15 @@ export const authHandlers = [
     HttpResponse.json({ message: 'OTP resent.', expiresInSeconds: 300 }, { status: 202 }),
   ),
 
-  http.post(
-    `${apiBase}/password-resets/:resetId/password`,
-    () => new HttpResponse(null, { status: 204 }),
-  ),
+  http.post(`${apiBase}/password-resets/:resetId/password`, async ({ params, request }) => {
+    const body = (await request.json()) as { newPassword?: string }
+    const account = passwordResetAccounts.get(String(params.resetId))
+    if (account && body.newPassword) {
+      const accounts = account.accountType === 'ADMIN' ? adminAccounts : studentAccounts
+      if (accounts.has(account.email)) {
+        accounts.set(account.email, body.newPassword)
+      }
+    }
+    return new HttpResponse(null, { status: 204 })
+  }),
 ]

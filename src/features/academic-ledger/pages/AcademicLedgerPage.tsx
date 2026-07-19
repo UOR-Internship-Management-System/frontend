@@ -4,7 +4,7 @@ import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { TableSkeleton } from '../../../shared/skeletons'
+import { LedgerSelectedBatchSkeleton, LedgerUploadsTableSkeleton } from '../../../shared/skeletons'
 import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
@@ -45,7 +45,7 @@ export function AcademicLedgerPage() {
           upload.mutate(file, { onSuccess: ({ data }) => selectUpload(data.uploadId) })
         }
       />
-      {state.uploadId && selected.isPending ? <TableSkeleton variant="academic-ledger" /> : null}
+      {state.uploadId && selected.isPending ? <LedgerSelectedBatchSkeleton /> : null}
       {selected.data ? <LedgerUploadStatus detail={selected.data} /> : null}
       {selected.isError ? (
         <ErrorState
@@ -101,7 +101,7 @@ export function AcademicLedgerPage() {
             </select>
           </label>
         </div>
-        {uploads.isPending ? <TableSkeleton variant="academic-ledger" /> : null}
+        {uploads.isPending ? <LedgerUploadsTableSkeleton /> : null}
         {uploadsError ? (
           <ErrorState
             title="Unable to load upload batches"

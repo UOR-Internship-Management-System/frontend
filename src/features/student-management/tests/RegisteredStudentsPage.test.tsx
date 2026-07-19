@@ -37,7 +37,7 @@ describe('RegisteredStudentsPage', () => {
   it('renders the server roster, count, null GPA, and deep-dive route', async () => {
     renderPage()
     expect(await screen.findByRole('heading', { name: 'Registered Students' })).toBeInTheDocument()
-    expect(screen.getByText('6 registered Students')).toBeInTheDocument()
+    expect(await screen.findByText('6 registered Students')).toBeInTheDocument()
     expect(screen.getByText('Not available')).toBeInTheDocument()
     const kavindiRow = screen.getByText('Kavindi Silva').closest('tr')
     expect(kavindiRow).not.toBeNull()

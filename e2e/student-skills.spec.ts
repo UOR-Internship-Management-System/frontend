@@ -91,7 +91,12 @@ function paged<T>(items: T[], url: string, fallbackSort: string) {
 
 async function mockSkillsApi(
   page: Page,
-  options: { duplicateCreate?: boolean; staleUpdate?: boolean; unavailableTaxonomy?: boolean } = {},
+  options: {
+    duplicateCreate?: boolean
+    staleUpdate?: boolean
+    unavailableTaxonomy?: boolean
+    responseDelayMs?: number
+  } = {},
 ) {
   let declarations = [{ ...initialDeclaration }]
 
@@ -164,6 +169,9 @@ async function mockSkillsApi(
     const id = url.pathname.split('/').at(-1)
 
     if (request.method() === 'GET') {
+      if (options.responseDelayMs) {
+        await new Promise((resolve) => setTimeout(resolve, options.responseDelayMs))
+      }
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -311,6 +319,32 @@ test('Skills keeps declared records usable when taxonomy is unavailable', async 
 
   await expect(page.getByRole('heading', { name: 'Skill taxonomy unavailable' })).toBeVisible()
   await expect(page.getByRole('row', { name: /React/ })).toBeVisible()
+})
+
+test('Skills skeleton uses transform shimmer and stops for reduced motion', async ({ page }) => {
+  await authenticateStudent(page)
+  await mockSkillsApi(page, { responseDelayMs: 1_000 })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
+
+  const skeleton = page.locator('.s4-skills-list-card .skeleton-shimmer-surface').first()
+  await expect(skeleton).toBeVisible()
+
+  const normalMotion = await skeleton.evaluate((element) => {
+    const style = getComputedStyle(element, '::after')
+    return {
+      animationName: style.animationName,
+      transform: style.transform,
+    }
+  })
+
+  expect(normalMotion.animationName).toBe('skeleton-sweep')
+  expect(normalMotion.transform).not.toBe('none')
+
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect
+    .poll(() => skeleton.evaluate((element) => getComputedStyle(element, '::after').animationName))
+    .toBe('none')
 })
 
 test('anonymous Skills access redirects to Student login', async ({ page }) => {
