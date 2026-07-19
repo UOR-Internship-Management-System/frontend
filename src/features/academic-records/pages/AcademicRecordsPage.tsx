@@ -66,7 +66,7 @@ export function AcademicRecordsPage() {
         <LoadingBoundary
           isLoading={gpa.isPending}
           label="Loading official GPA"
-          minHeight={170}
+          minHeight={190}
           skeleton={<AcademicGpaSkeleton />}
         >
           {gpaError ? (
