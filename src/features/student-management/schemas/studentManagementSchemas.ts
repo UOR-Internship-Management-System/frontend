@@ -29,6 +29,12 @@ const isoDateSchema = z.string().refine((value) => {
   return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value
 }, 'Use a valid ISO date.')
 const officialGpaSchema = z.number().min(0).max(4).multipleOf(0.01)
+const safeWebUrlSchema = z
+  .string()
+  .url()
+  .refine((value) => ['http:', 'https:'].includes(new URL(value).protocol), {
+    message: 'URL must use HTTP or HTTPS.',
+  })
 
 function validateDateRange(
   values: { startDate: string | null; endDate: string | null },
@@ -62,7 +68,7 @@ export const fileAssetSchema: z.ZodType<ApiFileAssetResponse> = z
     fileName: z.string().max(255),
     mimeType: z.string().max(120),
     fileSizeBytes: z.number().int().min(1),
-    url: z.string().url(),
+    url: safeWebUrlSchema,
     createdAt: dateTimeSchema,
   })
   .strict()
@@ -121,7 +127,7 @@ export const certificateSchema: z.ZodType<ApiCertificateResponse> = z
     title: z.string().min(1).max(200),
     issuer: z.string().min(1).max(200),
     issueDate: isoDateSchema,
-    credentialUrl: z.string().url().nullable(),
+    credentialUrl: safeWebUrlSchema.nullable(),
     cvInclude: z.boolean(),
     evidence: fileAssetSchema.nullable(),
     version: z.number().int().nonnegative(),
@@ -256,8 +262,8 @@ export const adminStudentProjectSchema: z.ZodType<ApiProjectResponse> = z
     projectId: uuidSchema,
     title: z.string().min(1).max(200),
     description: z.string().nullable(),
-    repositoryUrl: z.string().url().nullable(),
-    demoUrl: z.string().url().nullable(),
+    repositoryUrl: safeWebUrlSchema.nullable(),
+    demoUrl: safeWebUrlSchema.nullable(),
     startDate: isoDateSchema.nullable(),
     endDate: isoDateSchema.nullable(),
     skills: z.array(

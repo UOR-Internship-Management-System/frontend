@@ -161,6 +161,12 @@ describe('Student Deep-Dive runtime schemas', () => {
       updatedAt: now,
     }
     expect(pagedAdminStudentProjectsSchema.parse({ items: [project], page }).items).toHaveLength(1)
+    expect(() =>
+      pagedAdminStudentProjectsSchema.parse({
+        items: [{ ...project, repositoryUrl: 'javascript:alert(1)' }],
+        page,
+      }),
+    ).toThrow()
 
     const academic = {
       academicRecordId: recordId,

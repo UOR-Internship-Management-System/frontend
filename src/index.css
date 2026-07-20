@@ -3025,6 +3025,337 @@ td {
   }
 }
 
+/* Sprint 7 — read-only administrative Student Deep-Dive */
+.student-deep-dive-layout {
+  align-items: start;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+}
+
+.student-identity-panel {
+  display: grid;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+}
+
+.student-identity-avatar {
+  aspect-ratio: 1;
+  background: var(--color-card-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  height: 108px;
+  justify-self: center;
+  object-fit: cover;
+  width: 108px;
+}
+
+.student-identity-initials {
+  align-items: center;
+  color: var(--color-primary);
+  display: flex;
+  font-size: 2rem;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.student-identity-heading {
+  text-align: center;
+}
+
+.student-identity-heading h2,
+.student-identity-heading p,
+.deep-dive-cv-panel p,
+.deep-dive-record-card p,
+.deep-dive-section-error p {
+  margin: 0;
+}
+
+.student-identity-heading p,
+.deep-dive-record-card p,
+.deep-dive-cv-panel p {
+  color: var(--color-text-muted);
+}
+
+.student-identity-details,
+.deep-dive-cv-metadata,
+.deep-dive-detail-grid {
+  margin: 0;
+}
+
+.student-identity-details {
+  display: grid;
+  gap: 0;
+}
+
+.student-identity-details > div,
+.deep-dive-cv-metadata > div {
+  border-bottom: 1px solid var(--color-border);
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+}
+
+.student-identity-details > div:last-child,
+.deep-dive-cv-metadata > div:last-child {
+  border-bottom: 0;
+}
+
+.student-identity-details dt,
+.deep-dive-cv-metadata dt,
+.deep-dive-detail dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.student-identity-details dd,
+.deep-dive-cv-metadata dd,
+.deep-dive-detail dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.student-gpa-panel,
+.deep-dive-cv-panel {
+  background: var(--color-card-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.student-gpa-panel span,
+.student-gpa-panel small {
+  color: var(--color-text-muted);
+}
+
+.student-gpa-panel strong {
+  color: var(--color-primary);
+  font-size: 1.8rem;
+}
+
+.deep-dive-cv-heading,
+.deep-dive-record-heading,
+.deep-dive-section-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.deep-dive-cv-metadata {
+  display: grid;
+}
+
+.student-deep-dive-content {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.deep-dive-section {
+  display: grid;
+  gap: 20px;
+  scroll-margin-top: 24px;
+}
+
+.deep-dive-section-heading {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 16px;
+}
+
+.deep-dive-section-heading h2,
+.deep-dive-section-heading p,
+.deep-dive-record-heading h3,
+.deep-dive-record-heading p {
+  margin: 0;
+}
+
+.section-eyebrow {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px !important;
+  text-transform: uppercase;
+}
+
+.read-only-indicator,
+.deep-dive-count {
+  background: var(--color-card-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.deep-dive-detail-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.deep-dive-detail {
+  background: var(--color-card-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+}
+
+.deep-dive-detail-wide {
+  grid-column: 1 / -1;
+}
+
+.deep-dive-search {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.deep-dive-search .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.deep-dive-skill-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.deep-dive-skill-card,
+.deep-dive-record-card {
+  background: var(--color-card-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.deep-dive-skill-card {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+}
+
+.deep-dive-skill-card > span:not(.chip) {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.deep-dive-record-list {
+  display: grid;
+  gap: 14px;
+}
+
+.deep-dive-record-card {
+  display: grid;
+  gap: 14px;
+}
+
+.deep-dive-record-period {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.deep-dive-chip-list,
+.deep-dive-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.deep-dive-chip-list {
+  list-style: none;
+  padding: 0;
+}
+
+.deep-dive-chip-list li {
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-card));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  padding: 5px 9px;
+}
+
+.deep-dive-link-row a {
+  font-weight: 700;
+}
+
+.deep-dive-academic-table table {
+  min-width: 760px;
+}
+
+.deep-dive-academic-table td:first-child span {
+  color: var(--color-text-muted);
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-top: 4px;
+}
+
+.deep-dive-section-error {
+  background: var(--danger-bg);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+}
+
+@media (max-width: 1024px) {
+  .student-deep-dive-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .student-identity-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 680px) {
+  .deep-dive-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deep-dive-detail-wide {
+    grid-column: auto;
+  }
+
+  .deep-dive-search,
+  .deep-dive-record-heading,
+  .deep-dive-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .deep-dive-search .button {
+    width: 100%;
+  }
+
+  .deep-dive-academic-table td {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1fr);
+  }
+
+  .deep-dive-academic-table td::before {
+    color: var(--color-text-muted);
+    content: attr(data-label);
+    font-size: var(--font-size-xs);
+    font-weight: 800;
+  }
+}
+
 /* Sprint 6 Academic Ledger */
 .academic-ledger-page {
   max-width: 1500px;
