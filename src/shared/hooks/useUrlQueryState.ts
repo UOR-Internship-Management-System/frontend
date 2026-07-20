@@ -29,7 +29,7 @@ export function useUrlQueryState<TState>({
 
       const merged = new URLSearchParams(parameters)
       for (const key of ownedKeys) merged.delete(key)
-      serialized.forEach((value, key) => merged.set(key, value))
+      serialized.forEach((value, key) => merged.append(key, value))
       setParameters(merged, { replace: options.replace })
     },
     [ownedKeys, parameters, serialize, setParameters],
