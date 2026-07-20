@@ -34,6 +34,24 @@ describe('downloadBlob', () => {
     expect(filenameFromContentDisposition(null)).toBe('student-cv.pdf')
   })
 
+  it('sanitizes CSV and ZIP filenames without falling back to a PDF extension', () => {
+    expect(sanitizeDownloadFilename('../shortlist.exe', 'shortlist.csv', '.csv')).toBe(
+      'shortlist.exe.csv',
+    )
+    expect(
+      filenameFromContentDisposition('attachment; filename="../all candidates.zip"', {
+        extension: '.zip',
+        fallback: 'shortlist-cvs.zip',
+      }),
+    ).toBe('all candidates.zip')
+    expect(
+      filenameFromContentDisposition(null, {
+        extension: '.csv',
+        fallback: 'shortlist.csv',
+      }),
+    ).toBe('shortlist.csv')
+  })
+
   it('clicks once and always removes the anchor and revokes the object URL', () => {
     const createObjectURL = vi.fn().mockReturnValue('blob:student-cv')
     const revokeObjectURL = vi.fn()
@@ -61,5 +79,22 @@ describe('downloadBlob', () => {
     expect(() => saveBlobAsFile(new Blob(['pdf']), 'student-cv.pdf')).toThrow('click failed')
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:student-cv')
     expect(document.querySelector('a')).toBeNull()
+  })
+
+  it('preserves an explicitly selected CSV extension during browser delivery', () => {
+    vi.stubGlobal('URL', {
+      createObjectURL: vi.fn().mockReturnValue('blob:shortlist'),
+      revokeObjectURL: vi.fn(),
+    })
+    let downloadedFilename = ''
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      downloadedFilename = this.download
+    })
+
+    saveBlobAsFile(new Blob(['csv']), '../shortlist.csv', '.csv')
+
+    expect(downloadedFilename).toBe('shortlist.csv')
   })
 })
