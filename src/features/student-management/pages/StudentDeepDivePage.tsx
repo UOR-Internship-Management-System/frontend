@@ -86,7 +86,7 @@ export function StudentDeepDivePage() {
             </strong>
             <small>Derived from committed academic records</small>
           </div>
-          <LatestSavedCvPanel latestCv={deepDive.latestCv} />
+          <LatestSavedCvPanel latestCv={deepDive.latestCv} studentId={deepDive.studentId} />
         </aside>
         <div className="student-deep-dive-content">
           <ReadOnlyStudentProfile profile={profile} />

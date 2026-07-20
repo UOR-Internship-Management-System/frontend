@@ -3312,6 +3312,23 @@ td {
   padding: 18px;
 }
 
+.deep-dive-download-message {
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+.deep-dive-download-message.is-error {
+  background: var(--danger-bg);
+  color: var(--color-danger);
+}
+
+.deep-dive-download-message.is-success {
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-card));
+  color: var(--color-success);
+}
+
 @media (max-width: 1024px) {
   .student-deep-dive-layout {
     grid-template-columns: 1fr;

@@ -115,6 +115,18 @@ export const deepDiveDetailFixture = adminStudentDetailSchema.parse({
 
 export const deepDiveLatestCvFixture = adminLatestCvSchema.parse(deepDiveDetailFixture.latestCv)
 
+export const deepDiveAvailableCvFixture = adminLatestCvSchema.parse({
+  availability: 'AVAILABLE',
+  cvId: '44444444-4444-4444-8444-444444444444',
+  revision: 3,
+  generatedAt: now,
+  savedAt: now,
+  freshnessStatus: 'CURRENT',
+  fileName: 'Asha_Silva_CV.pdf',
+  fileSizeBytes: 184320,
+  downloadUrl: `/admin/students/${deepDiveStudentId}/latest-cv/download`,
+})
+
 export const deepDiveSkillsFixture = pagedAdminDeclaredSkillsSchema.parse({
   items: [
     {
