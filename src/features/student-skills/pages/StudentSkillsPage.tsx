@@ -14,6 +14,8 @@ import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { clampPage } from '../../../shared/utils/clampPage'
+import { indexSkillTaxonomy, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
+import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { DeclaredSkillForm } from '../components/DeclaredSkillForm'
 import { DeclaredSkillsTable } from '../components/DeclaredSkillsTable'
 import { SkillTaxonomyBrowser } from '../components/SkillTaxonomyBrowser'
@@ -23,9 +25,7 @@ import {
   useUpdateDeclaredSkill,
 } from '../hooks/useDeclaredSkillMutations'
 import { useAllDeclaredSkills, useDeclaredSkills } from '../hooks/useDeclaredSkills'
-import { useSkillTaxonomyTree } from '../hooks/useSkillTaxonomy'
-import { indexSkillTaxonomy } from '../mappers/skillMapper'
-import type { CompetencyLevel, DeclaredSkill, IndividualSkill } from '../types/studentSkillTypes'
+import type { CompetencyLevel, DeclaredSkill } from '../types/studentSkillTypes'
 
 const pageSize = 5
 

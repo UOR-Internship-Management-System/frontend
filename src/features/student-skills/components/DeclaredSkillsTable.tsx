@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { Button } from '../../../shared/components/ui/Button'
-import type { CompetencyLevel, DeclaredSkill, SkillTaxonomyPath } from '../types/studentSkillTypes'
+import type { SkillTaxonomyPath } from '../../../shared/skill-taxonomy'
+import type { CompetencyLevel, DeclaredSkill } from '../types/studentSkillTypes'
 import { competencyLabel, SkillLevelSelect } from './SkillLevelSelect'
 
 export function DeclaredSkillsTable({

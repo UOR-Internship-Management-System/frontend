@@ -6,8 +6,14 @@ import { describe, expect, it, vi } from 'vitest'
 import { server } from '../../../mocks/server'
 import { categoryIds, clusterIds, skillIds } from '../../../mocks/fixtures/skills.fixture'
 import { formatIfMatchVersion } from '../../../shared/api/formatIfMatchVersion'
-import { deduplicateCanonicalSkills, indexSkillTaxonomy } from '../mappers/skillMapper'
-import { individualSkillSchema, pagedIndividualSkillsSchema } from '../schemas/studentSkillSchemas'
+import {
+  deduplicateCanonicalSkills,
+  indexSkillTaxonomy,
+  individualSkillSchema,
+  pagedIndividualSkillsSchema,
+  skillTaxonomyApi,
+  skillTaxonomyKeys,
+} from '../../../shared/skill-taxonomy'
 import { studentSkillsApi } from '../api/studentSkillsApi'
 import { useCreateDeclaredSkill } from '../hooks/useDeclaredSkillMutations'
 import { studentSkillKeys } from '../hooks/studentSkillKeys'
@@ -39,7 +45,7 @@ describe('Student Skills taxonomy data', () => {
   })
 
   it('indexes every canonical taxonomy path without duplicating skill identity', async () => {
-    const taxonomy = await studentSkillsApi.getTaxonomy()
+    const taxonomy = await skillTaxonomyApi.getTree()
     const index = indexSkillTaxonomy(taxonomy)
 
     expect(index.skillsById.get(skillIds.python)?.name).toBe('Python')
@@ -53,7 +59,7 @@ describe('Student Skills taxonomy data', () => {
   })
 
   it('maps encoded taxonomy filters to the paged API and keeps cross-mapped identities stable', async () => {
-    const frontend = await studentSkillsApi.listSkills({
+    const frontend = await skillTaxonomyApi.listSkills({
       page: 0,
       size: 10,
       sort: 'name,asc',
@@ -61,7 +67,7 @@ describe('Student Skills taxonomy data', () => {
       clusterId: clusterIds.software,
       categoryId: categoryIds.frontend,
     })
-    const backend = await studentSkillsApi.listSkills({
+    const backend = await skillTaxonomyApi.listSkills({
       page: 0,
       size: 10,
       sort: 'name,asc',
@@ -88,8 +94,18 @@ describe('Student Skills taxonomy data', () => {
     )
 
     await expect(
-      studentSkillsApi.listSkills({ page: 0, size: 20, sort: 'name,asc' }),
+      skillTaxonomyApi.listSkills({ page: 0, size: 20, sort: 'name,asc' }),
     ).rejects.toThrow()
+  })
+
+  it('keeps every server-side taxonomy query parameter in its query key', () => {
+    const base = { page: 0, size: 20, sort: 'name,asc' }
+    expect(skillTaxonomyKeys.skills({ ...base, search: 'React' })).not.toEqual(
+      skillTaxonomyKeys.skills({ ...base, search: 'Java' }),
+    )
+    expect(skillTaxonomyKeys.skills({ ...base, clusterId: clusterIds.software })).not.toEqual(
+      skillTaxonomyKeys.skills({ ...base, categoryId: categoryIds.frontend }),
+    )
   })
 
   it('sends exact create and competency-only update bodies with quoted If-Match', async () => {

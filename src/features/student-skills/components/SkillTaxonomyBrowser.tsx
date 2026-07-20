@@ -12,8 +12,8 @@ import {
   useIndividualSkills,
   useSkillCategories,
   useSkillClusters,
-} from '../hooks/useSkillTaxonomy'
-import type { IndividualSkill } from '../types/studentSkillTypes'
+} from '../../../shared/skill-taxonomy'
+import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 
 const skillPageSize = 6
 

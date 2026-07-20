@@ -1,9 +1,5 @@
-import type {
-  DeclaredSkill,
-  IndividualSkill,
-  SkillCategory,
-  SkillCluster,
-} from '../../features/student-skills/types/studentSkillTypes'
+import type { DeclaredSkill } from '../../features/student-skills/types/studentSkillTypes'
+import type { IndividualSkill, SkillCategory, SkillCluster } from '../../shared/skill-taxonomy'
 
 export const skillIds = {
   javascript: '11111111-1111-4111-8111-111111111111',

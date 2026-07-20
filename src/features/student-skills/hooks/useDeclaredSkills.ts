@@ -1,14 +1,24 @@
 import { useQuery } from '@tanstack/react-query'
+import { ZodError } from 'zod'
+import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { studentSkillsApi } from '../api/studentSkillsApi'
 import type { DeclaredSkillQuery } from '../types/studentSkillTypes'
 import { studentSkillKeys } from './studentSkillKeys'
-import { shouldRetryTaxonomyQuery } from './useSkillTaxonomy'
+
+const nonRetryableStatuses = new Set([400, 401, 403, 404, 409, 412, 415, 422, 428, 429])
+
+export function shouldRetryDeclaredSkillsQuery(failureCount: number, error: unknown) {
+  if (error instanceof ZodError) return false
+  const status = mapApiError(error, 'protected').status
+  if (status && (nonRetryableStatuses.has(status) || status < 500)) return false
+  return failureCount < 1
+}
 
 export function useDeclaredSkills(query: DeclaredSkillQuery) {
   return useQuery({
     queryKey: studentSkillKeys.declaredPage(query),
     queryFn: ({ signal }) => studentSkillsApi.listDeclaredSkills(query, signal),
-    retry: shouldRetryTaxonomyQuery,
+    retry: shouldRetryDeclaredSkillsQuery,
   })
 }
 
@@ -29,7 +39,7 @@ export function useAllDeclaredSkills() {
       )
       return [firstPage, ...remainingPages].flatMap((page) => page.items)
     },
-    retry: shouldRetryTaxonomyQuery,
+    retry: shouldRetryDeclaredSkillsQuery,
     staleTime: 60_000,
   })
 }

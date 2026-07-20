@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { createPagedResponseSchema } from '../../../shared/validation/paginationSchemas'
-import { individualSkillSchema } from '../../student-skills/schemas/studentSkillSchemas'
+import { individualSkillSchema } from '../../../shared/skill-taxonomy'
 
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/
 

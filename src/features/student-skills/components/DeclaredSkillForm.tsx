@@ -3,7 +3,8 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
 import { SelectField } from '../../../shared/components/forms/SelectField'
 import { Button } from '../../../shared/components/ui/Button'
-import type { CompetencyLevel, IndividualSkill, SkillTaxonomy } from '../types/studentSkillTypes'
+import type { IndividualSkill, SkillTaxonomy } from '../../../shared/skill-taxonomy'
+import type { CompetencyLevel } from '../types/studentSkillTypes'
 import { SkillLevelSelect } from './SkillLevelSelect'
 
 export function DeclaredSkillForm({

@@ -3,10 +3,7 @@ import {
   declaredSkillCreateSchema,
   declaredSkillUpdateSchema,
 } from '../../features/student-skills/schemas/studentSkillSchemas'
-import type {
-  IndividualSkill,
-  SkillCategory,
-} from '../../features/student-skills/types/studentSkillTypes'
+import type { IndividualSkill, SkillCategory } from '../../shared/skill-taxonomy'
 import {
   categoryClusterIds,
   categorySkillIds,

@@ -1,16 +1,9 @@
-import type {
-  IndividualSkill,
-  SkillTaxonomy,
-  SkillTaxonomyIndex,
-  SkillTaxonomyPath,
-} from '../types/studentSkillTypes'
+import type { IndividualSkill, SkillTaxonomy, SkillTaxonomyIndex, SkillTaxonomyPath } from './types'
 
 export function deduplicateCanonicalSkills(skills: IndividualSkill[]): IndividualSkill[] {
   const canonical = new Map<string, IndividualSkill>()
   for (const skill of skills) {
-    if (!canonical.has(skill.skillId)) {
-      canonical.set(skill.skillId, skill)
-    }
+    if (!canonical.has(skill.skillId)) canonical.set(skill.skillId, skill)
   }
   return [...canonical.values()]
 }
