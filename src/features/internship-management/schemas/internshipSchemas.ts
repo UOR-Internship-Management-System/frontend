@@ -15,6 +15,32 @@ const safeWebsiteSchema = z
     message: 'Website URL must use HTTP or HTTPS.',
   })
 
+const nullableFormTextSchema = (maximum: number) =>
+  z
+    .string()
+    .trim()
+    .max(maximum)
+    .transform((value) => value || null)
+
+const nullableFormWebsiteSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine(
+    (value) => !value || safeWebsiteSchema.safeParse(value).success,
+    'Enter a valid HTTP or HTTPS website URL.',
+  )
+  .transform((value) => value || null)
+
+const nullableFormEmailSchema = z
+  .string()
+  .trim()
+  .max(254)
+  .refine((value) => !value || z.string().email().safeParse(value).success, {
+    message: 'Enter a valid email address.',
+  })
+  .transform((value) => value || null)
+
 const companyFields = {
   name: z.string().min(1).max(200),
   websiteUrl: safeWebsiteSchema.nullable().optional(),
@@ -25,6 +51,18 @@ const companyFields = {
 }
 
 export const companySortSchema = z.enum(['name,asc', 'name,desc', 'updatedAt,desc'])
+
+export const companyFormSchema = z
+  .object({
+    name: z.string().trim().min(1, 'Company name is required.').max(200),
+    websiteUrl: nullableFormWebsiteSchema,
+    contactPerson: nullableFormTextSchema(150),
+    contactEmail: nullableFormEmailSchema,
+    contactPhone: nullableFormTextSchema(30),
+    notes: nullableFormTextSchema(4000),
+    active: z.boolean(),
+  })
+  .strict()
 
 export const companyRequestSchema: z.ZodType<ApiCompanyRequest> = z.object(companyFields).strict()
 

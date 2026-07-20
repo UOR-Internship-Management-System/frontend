@@ -3025,6 +3025,195 @@ td {
   }
 }
 
+/* Sprint 7 · Company metadata workspace */
+.internship-management-page,
+.company-workspace,
+.company-form,
+.company-details,
+.company-deactivate-dialog {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.company-workspace-heading,
+.company-details-heading,
+.company-toolbar,
+.company-reactivate-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.company-workspace-heading,
+.company-details-heading {
+  justify-content: space-between;
+}
+
+.company-workspace-heading h2,
+.company-workspace-heading p,
+.company-details-heading h3,
+.company-details-heading p,
+.company-deactivate-dialog p {
+  margin: 0;
+}
+
+.company-workspace-heading p,
+.company-details-heading p,
+.company-secondary,
+.company-updating,
+.company-details dt {
+  color: var(--color-text-muted);
+}
+
+.company-toolbar {
+  align-items: end;
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.company-toolbar label {
+  display: grid;
+  flex: 1 1 210px;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.company-toolbar label:first-child {
+  flex-basis: 320px;
+}
+
+.company-updating {
+  min-height: 1.25rem;
+  margin: calc(var(--space-3) * -1) 0 0;
+  font-size: var(--font-size-sm);
+}
+
+.company-table {
+  min-width: 820px;
+}
+
+.company-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.company-table td {
+  vertical-align: middle;
+}
+
+.company-table td:first-child,
+.company-table td:nth-child(2) {
+  max-width: 260px;
+}
+
+.company-table td:first-child strong,
+.company-secondary {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.company-secondary {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.company-row-inactive {
+  background: color-mix(in srgb, var(--color-card-muted) 78%, transparent);
+  color: var(--color-text-muted);
+}
+
+.company-row-inactive strong {
+  color: var(--color-text);
+}
+
+.company-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.company-form textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+.company-reactivate-option {
+  align-items: flex-start;
+  padding: var(--space-4);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-card));
+}
+
+.company-reactivate-option input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+}
+
+.company-details dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.company-details dl > div {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.company-details dt {
+  margin-bottom: var(--space-1);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.company-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.company-details-notes {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 760px) {
+  .company-workspace-heading,
+  .company-details-heading,
+  .company-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .company-toolbar label,
+  .company-toolbar label:first-child {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .company-form-grid,
+  .company-details dl {
+    grid-template-columns: 1fr;
+  }
+
+  .company-details-notes {
+    grid-column: auto;
+  }
+}
+
 /* Sprint 7 — read-only administrative Student Deep-Dive */
 .student-deep-dive-layout {
   align-items: start;
