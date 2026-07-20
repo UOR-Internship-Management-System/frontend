@@ -29,6 +29,12 @@ export type AdminAcademicRecordsQuery = {
   courseCode: string
 }
 
+export type AdminStudentCollectionQuery = {
+  page: number
+  size: 20 | 50 | 100
+  search: string
+}
+
 export type RegisteredStudentView = ApiStudentSummaryResponse & {
   levelLabel: string
   officialGpaLabel: string
