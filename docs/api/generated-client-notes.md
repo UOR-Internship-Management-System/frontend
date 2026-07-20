@@ -1,34 +1,35 @@
 # Generated API Metadata Notes
 
-The canonical frontend contract is OpenAPI 3.1.1 version 1.5.0 at `docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml`.
+The canonical frontend contract is OpenAPI 3.1.1 version 1.6.0 at `docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml`.
 
-Canonical LF SHA-256: `7b67a7c071e57e6619ba655501b8f6053a81454af1d80a50bf610ff3838f6521`.
+Canonical LF SHA-256: `ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a85d8350`.
 
-`npm run openapi:generate` produces deterministic contract metadata and selected transport types for completed Sprint 1–5 behavior plus the finalized Sprint 6 Admin Dashboard, Academic Ledger, committed academic inspection, and Registered Students contract. It does not generate a complete endpoint SDK.
+`npm run openapi:generate` produces deterministic contract metadata and selected strict transport types for completed Sprint 1-6 behavior plus the frozen Sprint 7-8 Admin Student inspection, company/request, deterministic filtering, shortlist, and export contracts. It does not generate a complete endpoint SDK.
 
-Feature-owned API modules remain responsible for JSON/multipart HTTP orchestration. Feature-owned strict runtime schemas remain responsible for validating backend responses while Sprint 6 backend implementation is pending.
+Feature-owned API modules remain responsible for JSON and file-transfer HTTP orchestration. Feature-owned strict runtime schemas remain responsible for validating backend responses. The next integration step is to synchronize those runtime schemas, API wrappers, MSW handlers, and focused tests before implementing the React pages.
 
-The generated Sprint 6 transport metadata includes strict equivalents of:
+The generated Sprint 7-8 metadata includes strict equivalents of:
 
-- `AdminDashboardMetricsResponse`
-- `AcademicLedgerUploadRequest`
-- `AcademicLedgerUploadStatus`
-- `AcademicLedgerValidationStatus`
-- `AcademicLedgerUploadSummaryResponse`
-- `AcademicLedgerUploadDetailResponse`
-- `PagedAcademicLedgerUploadResponse`
-- `AcademicLedgerStagedRowResponse`
-- `PagedAcademicLedgerStagedRowResponse`
-- `AcademicLedgerValidationErrorResponse`
-- `AcademicLedgerValidationResultResponse`
-- `AcademicLedgerCommitRequest`
-- `AcademicLedgerCommitResponse`
-- `StudentSummaryResponse`
-- `PagedStudentSummaryResponse`
-- `AcademicRecordResponse`
-- `PagedAcademicRecordResponse`
-- Sprint 6 endpoint-specific sort/filter enums
+- `AdminStudentDetailResponse`
+- `AdminLatestCvResponse`
+- Company create/update/response and page types
+- Internship request create/update/response, status, work-mode, required-skill, and page types
+- Candidate filtering criteria/run/candidate/page and constrained sort types
+- Shortlist create/detail/candidate/mutation/finalization/page and status types
+- CSV summary and ZIP bulk-CV export requests
+- Export-job lifecycle, missing-CV, warning, and download-readiness types
 
-The academic ledger upload is exactly one UTF-8 CSV file (`text/csv`, `.csv`) no larger than 5 MiB. Do not add JSON/XLSX support, row editing, cancellation, rollback, or committed-record mutation without an approved contract revision.
+Contract rules:
 
-OpenAPI v1.5.0 is the canonical transport authority. Feature wrappers, runtime schemas, MSW handlers, tests, and UI state models must not invent fields, endpoints, lifecycle statuses, media types, filenames, or error behavior outside this contract.
+- Admin Student inspection is read-only.
+- Latest saved CV access is read-only and PDF-only.
+- Companies are metadata-only external stakeholders with no system identity.
+- Internship requests contain no GPA criteria.
+- GPA appears only as official academic data or runtime filtering criteria.
+- Filtering is deterministic and contains no score, rank, probability, recommendation, or match percentage.
+- Candidate selection is manual.
+- Shortlist guidance is non-blocking after acknowledgement.
+- Shortlist summary export is CSV; bulk latest-saved CV export is ZIP of available PDF files.
+- Missing CVs are explicitly reported.
+
+OpenAPI v1.6.0 is the canonical transport authority. Feature wrappers, runtime schemas, MSW handlers, tests, UI state models, backend DTOs, and database migrations must not invent behavior outside this contract.
