@@ -108,3 +108,8 @@ export const StudentDeepDivePage = lazy(() =>
     default: module.StudentDeepDivePage,
   })),
 )
+export const InternshipManagementPage = lazy(() =>
+  import('../../features/internship-management/pages/InternshipManagementPage').then((module) => ({
+    default: module.InternshipManagementPage,
+  })),
+)

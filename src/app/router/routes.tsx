@@ -21,6 +21,7 @@ import {
   AcademicLedgerPage,
   RegisteredStudentsPage,
   StudentDeepDivePage,
+  InternshipManagementPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
@@ -54,6 +55,7 @@ import {
   StudentProfileSkeleton,
   StudentProjectsSkeleton,
   StudentSkillsSkeleton,
+  InternshipManagementSkeleton,
 } from '../../shared/skeletons'
 
 const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
@@ -252,6 +254,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminStudentDetail,
             element: withSuspense(<StudentDeepDivePage />, <StudentDeepDiveSkeleton />),
+          },
+          {
+            path: routePaths.adminInternships,
+            element: withSuspense(<InternshipManagementPage />, <InternshipManagementSkeleton />),
           },
         ],
       },

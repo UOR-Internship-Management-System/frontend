@@ -50,7 +50,7 @@ describe('application route registration', () => {
     expect(rootChildren.some((route) => route.path === '*')).toBe(true)
   })
 
-  it('registers the four Sprint 6 Admin destinations under RequireAdmin', () => {
+  it('registers approved Admin destinations under RequireAdmin', () => {
     expect(isValidElement(adminBranch?.element)).toBe(true)
     if (!isValidElement(adminBranch?.element)) throw new TypeError('Missing Admin guard')
     expect(adminBranch.element.type).toBe(RequireAdmin)
@@ -59,6 +59,7 @@ describe('application route registration', () => {
       routePaths.adminAcademicLedger,
       routePaths.adminStudents,
       routePaths.adminStudentDetail,
+      routePaths.adminInternships,
     ])
   })
 })
