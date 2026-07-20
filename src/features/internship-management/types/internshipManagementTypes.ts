@@ -47,6 +47,9 @@ export type InternshipRequestsQuery = {
   status?: ApiInternshipRequestStatus
   companyId?: string
 }
+export type InternshipRequestsUrlState = InternshipRequestsQuery & {
+  selectedRequestId?: string
+}
 export type RequiredSkillsQuery = {
   requestId: string
   page: number
