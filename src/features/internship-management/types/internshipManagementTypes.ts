@@ -8,6 +8,8 @@ import type {
   ApiInternshipRequestStatus,
   ApiInternshipRequestUpdateRequest,
   ApiInternshipRequiredSkillRequest,
+  ApiCompetencyLevel,
+  ApiInternshipWorkMode,
 } from '../../../shared/api/generated/cvManagementApi.types'
 import type { z } from 'zod'
 import type { companyFormSchema } from '../schemas/internshipSchemas'
@@ -71,4 +73,21 @@ export type RequiredSkillRemoveInput = {
   requestId: string
   requiredSkillId: string
   version: number
+}
+
+export type RequiredSkillSelection = {
+  skillId: string
+  skillName: string
+  requiredCompetencyLevel: ApiCompetencyLevel | null
+}
+export type InternshipRequestFormValues = {
+  companyId: string
+  title: string
+  description: string
+  location: string
+  workMode: ApiInternshipWorkMode | ''
+  status: ApiInternshipRequestStatus
+  shortlistGuidanceValue: string
+  notes: string
+  requiredSkills: RequiredSkillSelection[]
 }

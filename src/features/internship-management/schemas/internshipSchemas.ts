@@ -207,3 +207,35 @@ export const pagedInternshipRequestResponseSchema: z.ZodType<ApiPagedInternshipR
 
 export const pagedInternshipRequiredSkillResponseSchema: z.ZodType<ApiPagedInternshipRequiredSkillResponse> =
   createPagedResponseSchema(internshipRequiredSkillResponseSchema)
+
+export const internshipRequestFormValuesSchema = z
+  .object({
+    companyId: z.string().uuid('Select an active company.'),
+    title: z.string().trim().min(1, 'Role title is required.').max(200),
+    description: z.string().trim().max(10000),
+    location: z.string().trim().max(150),
+    workMode: z.union([internshipWorkModeSchema, z.literal('')]),
+    status: internshipRequestStatusSchema,
+    shortlistGuidanceValue: z
+      .string()
+      .trim()
+      .refine((value) => !value || /^\d+$/.test(value), 'Enter a whole number from 0 to 10000.')
+      .refine((value) => !value || Number(value) <= 10000, 'Enter a whole number from 0 to 10000.'),
+    notes: z.string().trim().max(4000),
+    requiredSkills: z
+      .array(
+        z
+          .object({
+            skillId: z.string().uuid(),
+            skillName: z.string().min(1),
+            requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable(),
+          })
+          .strict(),
+      )
+      .max(100)
+      .refine(
+        (skills) => new Set(skills.map((skill) => skill.skillId)).size === skills.length,
+        'Select each required skill only once.',
+      ),
+  })
+  .strict()

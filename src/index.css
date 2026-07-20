@@ -3214,6 +3214,120 @@ td {
   }
 }
 
+/* Sprint 7 · Internship request form and taxonomy picker */
+.internship-request-form,
+.request-skill-picker,
+.request-selected-skills {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.internship-request-form-grid,
+.request-skill-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.internship-request-form textarea {
+  resize: vertical;
+}
+
+.request-company-picker {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.request-guidance-note,
+.request-skill-picker > p,
+.request-selected-skills > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.request-skill-picker {
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.request-skill-picker legend {
+  padding: 0 var(--space-2);
+  font-weight: 700;
+}
+
+.request-skill-filters label {
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.request-skill-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.request-skill-result {
+  width: 100%;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.request-skill-result:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-card));
+}
+
+.request-skill-result:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+}
+
+.request-skill-result span:first-child,
+.request-skill-result small {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.request-skill-result small {
+  color: var(--color-text-muted);
+}
+
+.request-selected-skill {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(180px, 0.8fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+@media (max-width: 760px) {
+  .internship-request-form-grid,
+  .request-skill-filters,
+  .request-skill-results,
+  .request-selected-skill {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Sprint 7 — read-only administrative Student Deep-Dive */
 .student-deep-dive-layout {
   align-items: start;
