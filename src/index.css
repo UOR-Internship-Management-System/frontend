@@ -3649,6 +3649,14 @@ td {
   justify-content: space-between;
 }
 
+.candidate-results-heading-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
 .candidate-results-heading h2,
 .candidate-results-heading p,
 .candidate-skills-modal p {
@@ -3735,6 +3743,45 @@ td {
   background: var(--color-card-muted);
 }
 
+.selected-candidates-review {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.selected-candidates-review > p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.selected-candidates-review ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.selected-candidates-review li {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.7fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.selected-candidates-review li > div {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.selected-candidates-review li > div span,
+.selected-candidates-review li > span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 @media (max-width: 1180px) {
   .candidate-filtering-layout {
     grid-template-columns: 1fr;
@@ -3747,9 +3794,14 @@ td {
 
 @media (max-width: 760px) {
   .candidate-results-heading,
+  .candidate-results-heading-actions,
   .candidate-results-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .selected-candidates-review li {
+    grid-template-columns: 1fr;
   }
 
   .candidate-results-toolbar label {

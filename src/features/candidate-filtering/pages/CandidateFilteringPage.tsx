@@ -3,10 +3,12 @@ import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { CandidateResultsWorkspace } from '../components/CandidateResultsWorkspace'
 import { CandidateSelectionPanel } from '../components/CandidateSelectionPanel'
 import { useCandidateFilteringUrlState } from '../hooks/useCandidateFilteringUrlState'
+import { useCandidateSelection } from '../hooks/useCandidateSelection'
 
 export function CandidateFilteringPage() {
   const { candidateSearchInput, setCandidateSearchInput, state, updateState } =
     useCandidateFilteringUrlState()
+  const selection = useCandidateSelection(state.runId)
 
   return (
     <main className="content-stack candidate-filtering-page">
@@ -21,6 +23,7 @@ export function CandidateFilteringPage() {
         </SectionCard>
         <CandidateResultsWorkspace
           candidateSearchInput={candidateSearchInput}
+          selection={selection}
           setCandidateSearchInput={setCandidateSearchInput}
           state={state}
           updateState={updateState}

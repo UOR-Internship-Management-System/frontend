@@ -8,18 +8,21 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
 import { clampPage } from '../../../shared/utils/clampPage'
 import {
   useCandidateFilteringCandidates,
   useCandidateFilteringRun,
 } from '../hooks/useCandidateFiltering'
+import type { CandidateSelectionState } from '../hooks/useCandidateSelection'
 import type {
   CandidateFilteringCandidate,
   CandidateFilteringUrlState,
 } from '../types/candidateFilteringTypes'
 import { CandidateResultsTable } from './CandidateResultsTable'
 import { CandidateSkillsModal } from './CandidateSkillsModal'
+import { SelectedCandidatesReviewModal } from './SelectedCandidatesReviewModal'
 
 const sortOptions = [
   { value: 'officialGpa,desc', label: 'Official GPA · High to low' },
@@ -30,17 +33,19 @@ const sortOptions = [
 
 export function CandidateResultsWorkspace({
   candidateSearchInput,
+  selection,
   setCandidateSearchInput,
   state,
   updateState,
 }: {
   candidateSearchInput: string
+  selection: CandidateSelectionState
   setCandidateSearchInput: (value: string) => void
   state: CandidateFilteringUrlState
   updateState: (patch: Partial<CandidateFilteringUrlState>) => void
 }) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [skillsCandidate, setSkillsCandidate] = useState<CandidateFilteringCandidate>()
+  const [reviewOpen, setReviewOpen] = useState(false)
   const run = useCandidateFilteringRun(state.runId ?? null)
   const query = useMemo(
     () =>
@@ -73,8 +78,6 @@ export function CandidateResultsWorkspace({
     if (page !== state.candidatePage) updateState({ candidatePage: page })
   }, [candidates.data, state.candidatePage, state.candidateSize, updateState])
 
-  useEffect(() => setSelectedIds(new Set()), [state.runId])
-
   if (!state.runId) {
     return (
       <SectionCard
@@ -103,9 +106,16 @@ export function CandidateResultsWorkspace({
               : 'Loading filtering run context…'}
           </p>
         </div>
-        <Chip>
-          {candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} candidates
-        </Chip>
+        <div className="candidate-results-heading-actions">
+          <Chip>
+            {candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} candidates
+          </Chip>
+          {selection.candidates.size ? (
+            <Button onClick={() => setReviewOpen(true)} variant="secondary">
+              Review selected ({selection.candidates.size})
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       <div className="candidate-results-toolbar">
@@ -156,15 +166,8 @@ export function CandidateResultsWorkspace({
             <CandidateResultsTable
               candidates={candidates.data.items}
               onShowSkills={setSkillsCandidate}
-              onToggle={(candidate) =>
-                setSelectedIds((current) => {
-                  const next = new Set(current)
-                  if (next.has(candidate.studentId)) next.delete(candidate.studentId)
-                  else next.add(candidate.studentId)
-                  return next
-                })
-              }
-              selectedIds={selectedIds}
+              onToggle={selection.toggle}
+              selectedIds={new Set(selection.candidates.keys())}
             />
             <PaginationBar
               label="Candidate result pages"
@@ -192,6 +195,9 @@ export function CandidateResultsWorkspace({
           candidate={skillsCandidate}
           onClose={() => setSkillsCandidate(undefined)}
         />
+      ) : null}
+      {reviewOpen ? (
+        <SelectedCandidatesReviewModal onClose={() => setReviewOpen(false)} selection={selection} />
       ) : null}
     </SectionCard>
   )

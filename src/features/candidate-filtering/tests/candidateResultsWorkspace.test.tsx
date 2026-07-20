@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, within } from '@testing-library/react'
+import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createQueryClient } from '../../../app/config/queryClient'
 import { server } from '../../../mocks/server'
 import { CandidateResultsWorkspace } from '../components/CandidateResultsWorkspace'
+import { useCandidateSelection } from '../hooks/useCandidateSelection'
 import type { CandidateFilteringUrlState } from '../types/candidateFilteringTypes'
 
 const requestId = '11111111-1111-4111-8111-111111111111'
@@ -90,15 +91,23 @@ function renderWorkspace(updateState = vi.fn()) {
       }),
     ),
   )
+  function WorkspaceHarness() {
+    const selection = useCandidateSelection(runId)
+    return (
+      <CandidateResultsWorkspace
+        candidateSearchInput=""
+        selection={selection}
+        setCandidateSearchInput={() => undefined}
+        state={state}
+        updateState={updateState}
+      />
+    )
+  }
+
   render(
     <QueryClientProvider client={createQueryClient()}>
       <MemoryRouter>
-        <CandidateResultsWorkspace
-          candidateSearchInput=""
-          setCandidateSearchInput={() => undefined}
-          state={state}
-          updateState={updateState}
-        />
+        <WorkspaceHarness />
       </MemoryRouter>
     </QueryClientProvider>,
   )
@@ -106,6 +115,17 @@ function renderWorkspace(updateState = vi.fn()) {
 }
 
 describe('CandidateResultsWorkspace', () => {
+  it('preserves selections within a run and clears them when the run changes', async () => {
+    const { rerender, result } = renderHook(
+      ({ activeRunId }) => useCandidateSelection(activeRunId),
+      { initialProps: { activeRunId: runId } },
+    )
+    act(() => result.current.toggle(candidate))
+    expect(result.current.candidates.has(studentId)).toBe(true)
+    rerender({ activeRunId: '99999999-9999-4999-8999-999999999999' })
+    await waitFor(() => expect(result.current.candidates.size).toBe(0))
+  })
+
   it('renders factual candidate data and keeps manual selection explicit', async () => {
     const user = userEvent.setup()
     renderWorkspace()
@@ -121,6 +141,17 @@ describe('CandidateResultsWorkspace', () => {
     expect(checkbox).not.toBeChecked()
     await user.click(checkbox)
     expect(checkbox).toBeChecked()
+    expect(screen.getByRole('button', { name: 'Review selected (1)' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Review selected (1)' }))
+    const review = await screen.findByRole('dialog', { name: 'Selected candidates' })
+    expect(within(review).getByText('1 candidate selected.')).toBeInTheDocument()
+    await user.click(within(review).getByRole('button', { name: 'Remove Ayesha Perera' }))
+    expect(within(review).getByText('0 candidates selected.')).toBeInTheDocument()
+    await user.click(within(review).getByRole('button', { name: 'Done' }))
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Selected candidates' })).not.toBeInTheDocument(),
+    )
 
     await user.click(screen.getByRole('button', { name: 'View all 4' }))
     const dialog = await screen.findByRole('dialog', { name: 'Matching declared skills' })
