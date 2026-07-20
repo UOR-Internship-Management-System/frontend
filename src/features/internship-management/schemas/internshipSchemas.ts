@@ -3,7 +3,15 @@ import type {
   ApiCompanyRequest,
   ApiCompanyResponse,
   ApiCompanyUpdateRequest,
+  ApiInternshipRequestCreateRequest,
+  ApiInternshipRequestResponse,
+  ApiInternshipRequestSummaryResponse,
+  ApiInternshipRequestUpdateRequest,
+  ApiInternshipRequiredSkillRequest,
+  ApiInternshipRequiredSkillResponse,
   ApiPagedCompanyResponse,
+  ApiPagedInternshipRequestResponse,
+  ApiPagedInternshipRequiredSkillResponse,
 } from '../../../shared/api/generated/cvManagementApi.types'
 import { createPagedResponseSchema } from '../../../shared/validation/paginationSchemas'
 
@@ -97,3 +105,105 @@ export const companyResponseSchema: z.ZodType<ApiCompanyResponse> = z
 
 export const pagedCompanyResponseSchema: z.ZodType<ApiPagedCompanyResponse> =
   createPagedResponseSchema(companyResponseSchema)
+
+export const internshipRequestStatusSchema = z.enum(['DRAFT', 'ACTIVE', 'CLOSED', 'CANCELLED'])
+export const internshipWorkModeSchema = z.enum(['ONSITE', 'HYBRID', 'REMOTE'])
+export const internshipRequestSortSchema = z.enum([
+  'createdAt,desc',
+  'title,asc',
+  'companyName,asc',
+  'status,asc',
+])
+export const requiredCompetencyLevelSchema = z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'])
+
+export const internshipRequiredSkillRequestSchema: z.ZodType<ApiInternshipRequiredSkillRequest> = z
+  .object({
+    skillId: z.string().uuid(),
+    requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable().optional(),
+  })
+  .strict()
+
+export const internshipRequiredSkillResponseSchema: z.ZodType<ApiInternshipRequiredSkillResponse> =
+  z
+    .object({
+      requiredSkillId: z.string().uuid(),
+      skillId: z.string().uuid(),
+      skillName: z.string().min(1),
+      requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable(),
+    })
+    .strict()
+
+const requiredSkillsSchema = z
+  .array(internshipRequiredSkillRequestSchema)
+  .max(100)
+  .refine(
+    (skills) => new Set(skills.map((skill) => skill.skillId)).size === skills.length,
+    'Select each required skill only once.',
+  )
+
+const internshipRequestFields = {
+  companyId: z.string().uuid(),
+  title: z.string().min(1).max(200),
+  description: z.string().max(10000).nullable().optional(),
+  location: z.string().max(150).nullable().optional(),
+  workMode: internshipWorkModeSchema.nullable().optional(),
+  status: internshipRequestStatusSchema,
+  shortlistGuidanceValue: z.number().int().min(0).max(10000).nullable().optional(),
+  notes: z.string().max(4000).nullable().optional(),
+  requiredSkills: requiredSkillsSchema,
+}
+
+export const internshipRequestCreateSchema: z.ZodType<ApiInternshipRequestCreateRequest> = z
+  .object(internshipRequestFields)
+  .strict()
+
+export const internshipRequestUpdateSchema: z.ZodType<ApiInternshipRequestUpdateRequest> = z
+  .object({
+    companyId: internshipRequestFields.companyId.optional(),
+    title: internshipRequestFields.title.optional(),
+    description: internshipRequestFields.description,
+    location: internshipRequestFields.location,
+    workMode: internshipRequestFields.workMode,
+    status: internshipRequestFields.status.optional(),
+    shortlistGuidanceValue: internshipRequestFields.shortlistGuidanceValue,
+    notes: internshipRequestFields.notes,
+    requiredSkills: internshipRequestFields.requiredSkills.optional(),
+  })
+  .strict()
+  .refine((value) => Object.keys(value).length > 0, 'Change at least one internship request field.')
+
+export const internshipRequestResponseSchema: z.ZodType<ApiInternshipRequestResponse> = z
+  .object({
+    requestId: z.string().uuid(),
+    company: companyResponseSchema,
+    title: z.string().min(1).max(200),
+    description: z.string().max(10000).nullable(),
+    location: z.string().max(150).nullable(),
+    workMode: internshipWorkModeSchema.nullable(),
+    status: internshipRequestStatusSchema,
+    shortlistGuidanceValue: z.number().int().nonnegative().nullable(),
+    notes: z.string().max(4000).nullable(),
+    requiredSkills: z.array(internshipRequiredSkillResponseSchema),
+    version: z.number().int().nonnegative(),
+    createdAt: z.string().datetime({ offset: true }),
+    updatedAt: z.string().datetime({ offset: true }),
+  })
+  .strict()
+
+export const internshipRequestSummaryResponseSchema: z.ZodType<ApiInternshipRequestSummaryResponse> =
+  z
+    .object({
+      requestId: z.string().uuid(),
+      companyId: z.string().uuid(),
+      companyName: z.string().min(1),
+      title: z.string().min(1).max(200),
+      status: internshipRequestStatusSchema,
+      shortlistGuidanceValue: z.number().int().nonnegative().nullable(),
+    })
+    .strict()
+
+export const pagedInternshipRequestResponseSchema: z.ZodType<ApiPagedInternshipRequestResponse> =
+  createPagedResponseSchema(internshipRequestResponseSchema)
+
+export const pagedInternshipRequiredSkillResponseSchema: z.ZodType<ApiPagedInternshipRequiredSkillResponse> =
+  createPagedResponseSchema(internshipRequiredSkillResponseSchema)
