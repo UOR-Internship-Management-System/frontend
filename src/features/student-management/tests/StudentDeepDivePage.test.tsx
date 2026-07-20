@@ -135,6 +135,26 @@ describe('StudentDeepDivePage', () => {
       expect(screen.getByRole('heading', { name: 'Student not found' })).toBeInTheDocument(),
     )
   })
+
+  it.each([
+    {
+      status: 403,
+      title: 'Forbidden',
+      expected: 'You do not have permission to access this information.',
+    },
+    {
+      status: 401,
+      title: 'Unauthorized',
+      expected: 'Your session has expired. Please sign in again.',
+    },
+  ])('shows a controlled protected-page message for HTTP $status', async (problem) => {
+    mockSuccessfulDeepDive()
+    vi.spyOn(studentManagementApi, 'getStudentDetail').mockRejectedValue(problem)
+    renderPage(buildAdminStudentDetailPath(deepDiveStudentId))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(problem.expected)
+    expect(screen.queryByRole('heading', { name: 'Profile summary' })).not.toBeInTheDocument()
+  })
 })
 
 function mockSuccessfulDeepDive() {
