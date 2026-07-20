@@ -160,4 +160,32 @@ describe('InternshipRequestWorkspace', () => {
     await user.click(within(confirmation).getByRole('button', { name: 'Cancel request' }))
     await waitFor(() => expect(remove).toHaveBeenCalledWith('"5"'))
   })
+
+  it('reloads the latest request after a stale edit while preserving entered values', async () => {
+    const user = userEvent.setup()
+    let detailReads = 0
+    renderWorkspace()
+    server.use(
+      http.get('/api/v1/admin/internship-requests/:requestId', () => {
+        detailReads += 1
+        return HttpResponse.json({ ...request, version: detailReads > 1 ? 6 : 5 })
+      }),
+      http.patch('/api/v1/admin/internship-requests/:requestId', () =>
+        HttpResponse.json({ title: 'Precondition Failed', status: 412 }, { status: 412 }),
+      ),
+    )
+
+    await user.click(await screen.findByRole('button', { name: 'View request' }))
+    const details = await screen.findByRole('dialog', { name: 'Internship request details' })
+    await user.click(within(details).getByRole('button', { name: 'Edit request' }))
+    const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
+    const title = within(edit).getByLabelText('Role title')
+    await user.clear(title)
+    await user.type(title, 'Preserved role title')
+    await user.click(within(edit).getByRole('button', { name: 'Save request' }))
+
+    expect(await within(edit).findByRole('alert')).toBeInTheDocument()
+    expect(title).toHaveValue('Preserved role title')
+    await waitFor(() => expect(detailReads).toBeGreaterThanOrEqual(2))
+  })
 })

@@ -74,6 +74,8 @@ describe('Internship request lifecycle data layer', () => {
       }),
     ).toThrow()
     expect(() => internshipRequestCreateSchema.parse({ ...create, unsupported: 3 })).toThrow()
+    expect(() => internshipRequestCreateSchema.parse({ ...create, status: 'PUBLISHED' })).toThrow()
+    expect(() => internshipRequestCreateSchema.parse({ ...create, workMode: 'FLEXIBLE' })).toThrow()
   })
 
   it('constructs request list, detail, create, update, and cancellation calls', async () => {

@@ -91,7 +91,7 @@ function renderPage(initialEntry: string = routePaths.adminInternships) {
 describe('InternshipManagementPage company workspace', () => {
   it('renders active and inactive companies and stores filters in the URL', async () => {
     const user = userEvent.setup()
-    renderPage()
+    renderPage(`${routePaths.adminInternships}?requestStatus=ACTIVE`)
     expect(await screen.findByText('Acme Lanka')).toBeInTheDocument()
     const inactiveRow = screen.getByText('Legacy Systems').closest('tr')
     expect(inactiveRow).toHaveClass('company-row-inactive')
@@ -99,6 +99,7 @@ describe('InternshipManagementPage company workspace', () => {
 
     await user.selectOptions(screen.getByLabelText('Company status'), 'inactive')
     expect(screen.getByTestId('location')).toHaveTextContent('companyActive=false')
+    expect(screen.getByTestId('location')).toHaveTextContent('requestStatus=ACTIVE')
     await user.type(screen.getByLabelText('Search companies'), 'Legacy')
     await waitFor(
       () => expect(screen.getByTestId('location')).toHaveTextContent('companySearch=Legacy'),
