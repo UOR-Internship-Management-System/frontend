@@ -294,11 +294,72 @@
   gap: 18px;
 }
 
+.skeleton-admin-split {
+  display: grid;
+  grid-template-columns: minmax(250px, 300px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.skeleton-admin-identity {
+  position: sticky;
+  top: 20px;
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+}
+
+.skeleton-admin-metric {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.skeleton-admin-readonly-row,
+.skeleton-admin-list-row {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.skeleton-admin-list-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.skeleton-admin-management-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.35fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.skeleton-filtering-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
 @media (max-width: 900px) {
   .skeleton-controls-grid,
   .skeleton-cv-source-grid,
-  .skeleton-profile-layout {
+  .skeleton-profile-layout,
+  .skeleton-admin-split,
+  .skeleton-admin-management-grid,
+  .skeleton-filtering-layout {
     grid-template-columns: 1fr;
+  }
+
+  .skeleton-admin-identity {
+    position: static;
   }
 }
 
@@ -309,6 +370,10 @@
   .skeleton-mobile-cards {
     display: grid;
     gap: 12px;
+  }
+
+  .skeleton-admin-list-row {
+    grid-template-columns: 1fr;
   }
 }
 
