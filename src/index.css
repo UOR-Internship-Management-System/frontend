@@ -3619,6 +3619,145 @@ td {
   }
 }
 
+.candidate-filtering-layout {
+  display: grid;
+  grid-template-columns: minmax(310px, 0.72fr) minmax(0, 1.65fr);
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.candidate-filtering-layout > .section-card:first-child {
+  position: sticky;
+  top: var(--space-5);
+}
+
+.candidate-results-workspace,
+.candidate-skills-modal {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.candidate-results-heading,
+.candidate-results-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.candidate-results-heading {
+  justify-content: space-between;
+}
+
+.candidate-results-heading h2,
+.candidate-results-heading p,
+.candidate-skills-modal p {
+  margin: 0;
+}
+
+.candidate-results-heading p {
+  color: var(--color-text-muted);
+}
+
+.candidate-results-toolbar {
+  align-items: end;
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.candidate-results-toolbar label {
+  display: grid;
+  flex: 1 1 220px;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.candidate-results-table {
+  min-width: 1120px;
+}
+
+.candidate-results-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.candidate-results-table td {
+  vertical-align: middle;
+}
+
+.candidate-select-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+.candidate-skill-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  max-width: 300px;
+}
+
+.button-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.candidate-skills-modal ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.candidate-skills-modal li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+@media (max-width: 1180px) {
+  .candidate-filtering-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate-filtering-layout > .section-card:first-child {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .candidate-results-heading,
+  .candidate-results-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .candidate-results-toolbar label {
+    flex-basis: auto;
+    width: 100%;
+  }
+}
+
 /* Sprint 7 — read-only administrative Student Deep-Dive */
 .student-deep-dive-layout {
   align-items: start;
