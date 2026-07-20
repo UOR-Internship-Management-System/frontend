@@ -1,6 +1,13 @@
 import type {
   ApiAcademicRecordResponse,
   ApiAcademicRecordSort,
+  ApiAdminLatestCvAvailabilityStatus,
+  ApiAdminStudentDetailResponse,
+  ApiDeclaredSkillResponse,
+  ApiGpaAvailabilityStatus,
+  ApiGpaSummaryResponse,
+  ApiPagedResponse,
+  ApiProjectResponse,
   ApiRegisteredStudentLevel,
   ApiRegisteredStudentSort,
   ApiStudentSummaryResponse,
@@ -32,3 +39,10 @@ export type AdminAcademicRecordView = ApiAcademicRecordResponse & {
   gradePointLabel: string
   periodLabel: string
 }
+
+export type AdminStudentDetail = ApiAdminStudentDetailResponse
+export type AdminLatestCvAvailability = ApiAdminLatestCvAvailabilityStatus
+export type AdminGpaAvailability = ApiGpaAvailabilityStatus
+export type AdminGpaSummary = ApiGpaSummaryResponse
+export type PagedAdminDeclaredSkills = ApiPagedResponse<ApiDeclaredSkillResponse>
+export type PagedAdminStudentProjects = ApiPagedResponse<ApiProjectResponse>

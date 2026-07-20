@@ -348,11 +348,12 @@ export type ApiStudentSummaryResponse = {
 export type ApiPagedStudentSummaryResponse = ApiPagedResponse<ApiStudentSummaryResponse>
 
 export type ApiFileAssetResponse = {
-  fileAssetId: string
-  originalFileName: string
-  mediaType: string
+  fileId: string
+  fileName: string
+  mimeType: string
   fileSizeBytes: number
-  downloadUrl: string
+  url: string
+  createdAt: string
 }
 
 export type ApiStudentProfileResponse = {
