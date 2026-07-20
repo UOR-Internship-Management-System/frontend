@@ -62,7 +62,11 @@ function requestToForm(request: {
     shortlistGuidanceValue:
       request.shortlistGuidanceValue === null ? '' : String(request.shortlistGuidanceValue),
     notes: request.notes ?? '',
-    requiredSkills: request.requiredSkills.map((skill) => ({ ...skill })),
+    requiredSkills: request.requiredSkills.map((skill) => ({
+      skillId: skill.skillId,
+      skillName: skill.skillName,
+      requiredCompetencyLevel: skill.requiredCompetencyLevel,
+    })),
   }
 }
 

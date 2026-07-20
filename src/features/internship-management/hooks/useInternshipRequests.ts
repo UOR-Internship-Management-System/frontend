@@ -1,9 +1,12 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ZodError } from 'zod'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { internshipManagementApi } from '../api/internshipManagementApi'
 import type {
   InternshipRequestsQuery,
+  InternshipRequestCancelInput,
+  InternshipRequestCreateInput,
+  InternshipRequestUpdateInput,
   RequiredSkillsQuery,
 } from '../types/internshipManagementTypes'
 import { internshipManagementKeys } from './internshipManagementQueryKeys'
@@ -43,4 +46,53 @@ export function useRequiredSkills(query: RequiredSkillsQuery | null) {
     placeholderData: keepPreviousData,
     retry: shouldRetryInternshipRequestQuery,
   })
+}
+
+export function useCreateInternshipRequest() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: InternshipRequestCreateInput) =>
+      internshipManagementApi.createInternshipRequest(input),
+    onSuccess: (request) => {
+      queryClient.setQueryData(internshipManagementKeys.requestDetail(request.requestId), request)
+      return queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() })
+    },
+  })
+}
+
+export function useUpdateInternshipRequest() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: InternshipRequestUpdateInput) =>
+      internshipManagementApi.updateInternshipRequest(input),
+    onSuccess: (request) => {
+      queryClient.setQueryData(internshipManagementKeys.requestDetail(request.requestId), request)
+      return queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() })
+    },
+  })
+}
+
+export function useCancelInternshipRequest() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (input: InternshipRequestCancelInput) =>
+      internshipManagementApi.cancelInternshipRequest(input),
+    onSuccess: (_result, input) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() }),
+        queryClient.invalidateQueries({
+          queryKey: internshipManagementKeys.requestDetail(input.requestId),
+        }),
+      ]),
+  })
+}
+
+export function getInternshipRequestMutationErrorMessage(error: unknown) {
+  const mapped = mapApiError(error, 'protected')
+  if (mapped.status === 412) {
+    return 'This request changed. Reload the latest version and try again.'
+  }
+  if (mapped.status === 428) return 'Reload this request before saving the change.'
+  if (mapped.status === 409) return 'The request cannot make that lifecycle change.'
+  return mapped.message
 }

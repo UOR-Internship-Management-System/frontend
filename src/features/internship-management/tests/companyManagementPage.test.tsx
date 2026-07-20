@@ -60,6 +60,12 @@ function renderPage(initialEntry: string = routePaths.adminInternships) {
         params.companyId === inactiveCompany.companyId ? inactiveCompany : activeCompany
       return HttpResponse.json(company)
     }),
+    http.get('/api/v1/admin/internship-requests', () =>
+      HttpResponse.json({
+        items: [],
+        page: { page: 0, size: 20, totalElements: 0, totalPages: 0, sort: 'createdAt,desc' },
+      }),
+    ),
   )
   return render(
     <QueryClientProvider client={createQueryClient()}>

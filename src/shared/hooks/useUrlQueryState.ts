@@ -4,9 +4,14 @@ import { useSearchParams } from 'react-router-dom'
 export type UrlQueryStateConfig<TState> = {
   parse: (parameters: URLSearchParams) => TState
   serialize: (state: TState) => URLSearchParams
+  ownedKeys?: readonly string[]
 }
 
-export function useUrlQueryState<TState>({ parse, serialize }: UrlQueryStateConfig<TState>) {
+export function useUrlQueryState<TState>({
+  ownedKeys,
+  parse,
+  serialize,
+}: UrlQueryStateConfig<TState>) {
   const [parameters, setParameters] = useSearchParams()
   const serializedParameters = parameters.toString()
   const state = useMemo(
@@ -16,9 +21,18 @@ export function useUrlQueryState<TState>({ parse, serialize }: UrlQueryStateConf
 
   const setState = useCallback(
     (next: TState, options: { replace?: boolean } = {}) => {
-      setParameters(serialize(next), { replace: options.replace })
+      const serialized = serialize(next)
+      if (!ownedKeys) {
+        setParameters(serialized, { replace: options.replace })
+        return
+      }
+
+      const merged = new URLSearchParams(parameters)
+      for (const key of ownedKeys) merged.delete(key)
+      serialized.forEach((value, key) => merged.set(key, value))
+      setParameters(merged, { replace: options.replace })
     },
-    [serialize, setParameters],
+    [ownedKeys, parameters, serialize, setParameters],
   )
 
   return [state, setState] as const

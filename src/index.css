@@ -3319,12 +3319,169 @@ td {
   background: var(--color-card-muted);
 }
 
+.request-workspace,
+.internship-request-details,
+.request-cancel-dialog,
+.request-skill-summary {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.request-heading-actions,
+.request-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.request-heading-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.request-toolbar {
+  align-items: end;
+  flex-wrap: wrap;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.request-toolbar label {
+  display: grid;
+  flex: 1 1 190px;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.request-toolbar label:first-child {
+  flex-basis: 300px;
+}
+
+.internship-request-table {
+  min-width: 1080px;
+}
+
+.internship-request-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.internship-request-table td {
+  vertical-align: middle;
+}
+
+.internship-request-table td:first-child {
+  max-width: 260px;
+}
+
+.internship-request-table td:first-child strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.request-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.request-details-grid > div {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.request-details-grid dt {
+  margin-bottom: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.request-details-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.request-details-wide {
+  grid-column: 1 / -1;
+}
+
+.request-skill-summary {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.request-skill-summary h4,
+.request-skill-summary p {
+  margin: 0;
+}
+
+.request-skill-summary > div p,
+.request-skills-empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.request-skill-summary ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.request-skill-summary li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-card-muted);
+}
+
+.request-skill-summary li span {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 @media (max-width: 760px) {
   .internship-request-form-grid,
   .request-skill-filters,
   .request-skill-results,
-  .request-selected-skill {
+  .request-selected-skill,
+  .request-details-grid,
+  .request-skill-summary ul {
     grid-template-columns: 1fr;
+  }
+
+  .request-toolbar,
+  .request-heading-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .request-toolbar label,
+  .request-toolbar label:first-child {
+    flex-basis: auto;
+    width: 100%;
+  }
+
+  .request-details-wide {
+    grid-column: auto;
   }
 }
 

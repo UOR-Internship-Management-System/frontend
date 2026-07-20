@@ -4,10 +4,12 @@ import type {
   ApiCompanySort,
   ApiCompanyUpdateRequest,
   ApiInternshipRequestCreateRequest,
+  ApiInternshipRequestResponse,
   ApiInternshipRequestSort,
   ApiInternshipRequestStatus,
   ApiInternshipRequestUpdateRequest,
   ApiInternshipRequiredSkillRequest,
+  ApiInternshipRequiredSkillResponse,
   ApiCompetencyLevel,
   ApiInternshipWorkMode,
 } from '../../../shared/api/generated/cvManagementApi.types'
@@ -74,6 +76,8 @@ export type RequiredSkillRemoveInput = {
   requiredSkillId: string
   version: number
 }
+export type InternshipRequest = ApiInternshipRequestResponse
+export type InternshipRequiredSkill = ApiInternshipRequiredSkillResponse
 
 export type RequiredSkillSelection = {
   skillId: string

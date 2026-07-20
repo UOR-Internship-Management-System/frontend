@@ -6,6 +6,14 @@ import { companySortSchema } from '../schemas/internshipSchemas'
 import type { CompaniesUrlState, CompanyPageSize } from '../types/internshipManagementTypes'
 
 const allowedSizes = [20, 50, 100] as const
+const companyUrlKeys = [
+  'companySearch',
+  'companyActive',
+  'companySort',
+  'companyPage',
+  'companySize',
+  'companyId',
+] as const
 
 export const defaultCompaniesUrlState: CompaniesUrlState = {
   page: 0,
@@ -48,6 +56,7 @@ export function serializeCompaniesUrlState(state: CompaniesUrlState) {
 
 export function useCompaniesUrlState() {
   const [state, setState] = useUrlQueryState({
+    ownedKeys: companyUrlKeys,
     parse: parseCompaniesUrlState,
     serialize: serializeCompaniesUrlState,
   })

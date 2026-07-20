@@ -12,6 +12,15 @@ import type {
 } from '../types/internshipManagementTypes'
 
 const allowedSizes = [20, 50, 100] as const
+const requestUrlKeys = [
+  'requestSearch',
+  'requestStatus',
+  'requestCompanyId',
+  'requestSort',
+  'requestPage',
+  'requestSize',
+  'requestId',
+] as const
 
 export const defaultInternshipRequestsUrlState: InternshipRequestsUrlState = {
   page: 0,
@@ -61,6 +70,7 @@ export function serializeInternshipRequestsUrlState(state: InternshipRequestsUrl
 
 export function useInternshipRequestsUrlState() {
   const [state, setState] = useUrlQueryState({
+    ownedKeys: requestUrlKeys,
     parse: parseInternshipRequestsUrlState,
     serialize: serializeInternshipRequestsUrlState,
   })

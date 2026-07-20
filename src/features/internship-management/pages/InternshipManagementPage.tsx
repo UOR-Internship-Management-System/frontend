@@ -19,6 +19,7 @@ import { CompanyDeactivateDialog } from '../components/CompanyDeactivateDialog'
 import { CompanyDetailsModal } from '../components/CompanyDetailsModal'
 import { CompanyForm, mapCompanyToForm } from '../components/CompanyForm'
 import { CompanyTable } from '../components/CompanyTable'
+import { InternshipRequestWorkspace } from '../components/InternshipRequestWorkspace'
 import {
   getCompanyMutationErrorMessage,
   useCompanies,
@@ -160,7 +161,7 @@ export function InternshipManagementPage() {
     <main className="content-stack internship-management-page">
       <PageHeader
         actions={<Button onClick={() => setOverlay('create')}>Add company</Button>}
-        description="Maintain company metadata and prepare approved internship request operations."
+        description="Maintain company metadata and deterministic internship request requirements."
         eyebrow="Administration"
         title="Internship Management"
       />
@@ -283,6 +284,8 @@ export function InternshipManagementPage() {
           )}
         </LoadingBoundary>
       </SectionCard>
+
+      <InternshipRequestWorkspace />
 
       {overlay === 'create' ? (
         <CompanyForm mode="create" onCancel={() => setOverlay(null)} onSubmit={createCompany} />
