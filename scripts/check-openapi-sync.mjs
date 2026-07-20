@@ -3,13 +3,17 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const root = process.cwd()
-const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
-const expectedContractSha256 = '7b67a7c071e57e6619ba655501b8f6053a81454af1d80a50bf610ff3838f6521'
+const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml'
+const priorContractPath = 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
+const expectedContractSha256 = 'ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a85d8350'
 const requiredFiles = [
   contractPath,
-  'docs/api/CV_Management_API_OpenAPI_v1.5.0_CHANGELOG.md',
-  'docs/api/CV_Management_API_OpenAPI_v1.5.0_VALIDATION_REPORT.md',
+  priorContractPath,
+  'docs/api/CV_Management_API_OpenAPI_v1.6.0_CHANGELOG.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.6.0_VALIDATION_REPORT.md',
   'docs/api/generated-client-notes.md',
+  'docs/api/SPRINT_7_8_CONTRACT_DECISION_REGISTER.md',
+  'docs/api/SPRINT_7_8_CONTRACT_TRACEABILITY_MATRIX.md',
   'src/shared/api/generated/README.md',
   'src/shared/api/generated/cvManagementApi.client.ts',
   'src/shared/api/generated/cvManagementApi.types.ts',
@@ -17,241 +21,313 @@ const requiredFiles = [
 
 const missing = requiredFiles.filter((file) => !fs.existsSync(path.join(root, file)))
 if (missing.length > 0) {
-  console.error(`Missing OpenAPI artifacts:
-${missing.join('\n')}`)
+  console.error(`Missing OpenAPI artifacts:\n${missing.join('\n')}`)
   process.exit(1)
 }
 
-const contract = fs.readFileSync(path.join(root, contractPath), 'utf8').replace(/\r\n?/g, '\n')
+const readLf = (file) => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n')
+const contract = readLf(contractPath)
+const priorContract = readLf(priorContractPath)
 const actualHash = crypto.createHash('sha256').update(contract, 'utf8').digest('hex')
-if (actualHash !== expectedContractSha256) {
-  console.error(
-    `OpenAPI v1.5.0 checksum mismatch: expected ${expectedContractSha256}, received ${actualHash}`,
-  )
-  process.exit(1)
-}
-if (!contract.trimStart().startsWith('openapi: 3.1.1')) {
-  console.error('OpenAPI contract must start with openapi: 3.1.1')
-  process.exit(1)
-}
-if (!/^info:\s*$[\s\S]*?^ {2}version: 1\.5\.0\s*$/m.test(contract)) {
-  console.error('OpenAPI info.version must be 1.5.0')
+
+function fail(message) {
+  console.error(message)
   process.exit(1)
 }
 
-const requiredFragments = [
-  '/skill-taxonomy:',
-  '/me/declared-skills:',
-  '/me/projects:',
-  '/me/academic-records:',
-  '/me/cv/source-freshness:',
-  '/me/cv/preview:',
-  '/me/cv:',
-  '/me/cv/download:',
-  '/admin/dashboard/metrics:',
-  '/admin/academic-ledger/uploads:',
-  '/admin/academic-ledger/uploads/{uploadId}/staged-rows:',
-  '/admin/academic-ledger/uploads/{uploadId}/validation-results:',
-  '/admin/academic-ledger/uploads/{uploadId}/commit:',
-  '/admin/students:',
-  '/admin/students/{studentId}/academic-records:',
-  'CvSelectedRecordIds:',
-  'CvPreviewRequest:',
-  'CvPreviewResponse:',
-  'CvSaveRequest:',
-  'CvResponse:',
-  'AdminDashboardMetricsResponse:',
-  'AcademicLedgerUploadRequest:',
-  'AcademicLedgerUploadStatus:',
-  'AcademicLedgerValidationStatus:',
-  'AcademicLedgerUploadSummaryResponse:',
-  'AcademicLedgerUploadDetailResponse:',
-  'PagedAcademicLedgerUploadResponse:',
-  'AcademicLedgerStagedRowResponse:',
-  'PagedAcademicLedgerStagedRowResponse:',
-  'AcademicLedgerValidationErrorResponse:',
-  'AcademicLedgerValidationResultResponse:',
-  'AcademicLedgerCommitRequest:',
-  'AcademicLedgerCommitResponse:',
-  'StudentSummaryResponse:',
-  'PagedStudentSummaryResponse:',
-  'RegisteredStudentSort:',
-  'AcademicLedgerStagedRowSort:',
-]
-for (const fragment of requiredFragments) {
-  if (!contract.includes(fragment)) {
-    console.error(`OpenAPI contract is missing required fragment: ${fragment}`)
-    process.exit(1)
+if (actualHash !== expectedContractSha256) {
+  fail(
+    `OpenAPI v1.6.0 checksum mismatch: expected ${expectedContractSha256}, received ${actualHash}`,
+  )
+}
+if (!contract.trimStart().startsWith('openapi: 3.1.1'))
+  fail('OpenAPI contract must start with openapi: 3.1.1')
+if (!/^info:\s*$[\s\S]*?^ {2}version: 1\.6\.0\s*$/m.test(contract))
+  fail('OpenAPI info.version must be 1.6.0')
+if (!contract.includes('- url: /api/v1')) fail('OpenAPI server must remain /api/v1')
+
+function parseOperations(source) {
+  const lines = source.split('\n')
+  const operations = new Map()
+  let currentPath = null
+  let currentMethod = null
+  for (const line of lines) {
+    const pathMatch = line.match(/^ {2}(\/[^:]+):\s*$/)
+    if (pathMatch) {
+      currentPath = pathMatch[1]
+      currentMethod = null
+      continue
+    }
+    const methodMatch = line.match(/^ {4}(get|post|put|patch|delete):\s*$/)
+    if (methodMatch && currentPath) {
+      currentMethod = methodMatch[1]
+      continue
+    }
+    const operationMatch = line.match(/^ {6}operationId:\s*(\S+)\s*$/)
+    if (operationMatch && currentPath && currentMethod) {
+      operations.set(`${currentPath} ${currentMethod}`, operationMatch[1])
+    }
+  }
+  return operations
+}
+
+const priorOperations = parseOperations(priorContract)
+const operations = parseOperations(contract)
+const operationIds = new Map()
+for (const [key, operationId] of operations) {
+  if (operationIds.has(operationId)) fail(`Duplicate operationId: ${operationId}`)
+  operationIds.set(operationId, key)
+}
+for (const [key, operationId] of priorOperations) {
+  if (!operations.has(key)) fail(`OpenAPI v1.6.0 removed existing operation: ${key}`)
+  if (operations.get(key) !== operationId) {
+    fail(
+      `OpenAPI v1.6.0 changed existing operationId for ${key}: ${operationId} -> ${operations.get(key)}`,
+    )
   }
 }
 
-for (const obsoleteFragment of [
-  '/me/cv/versions',
-  '/me/cv/latest/download',
-  'CvOptionalSections:',
-  'sectionOrder:',
-  'optionalSections:',
-  'latexSource:',
+function sectionBlock(sectionName) {
+  const marker = `\n  ${sectionName}:\n`
+  const start = contract.indexOf(marker)
+  if (start < 0) fail(`Missing components section: ${sectionName}`)
+  const bodyStart = start + marker.length
+  const tail = contract.slice(bodyStart)
+  const next = tail.search(/\n {2}[A-Za-z][A-Za-z0-9_-]*:\n|\nsecurity:\n|\ntags:\n/)
+  return next < 0 ? tail : tail.slice(0, next)
+}
+
+function namedBlock(sectionName, name) {
+  const section = sectionBlock(sectionName)
+  const marker = `\n    ${name}:\n`
+  const normalized = `\n${section}`
+  const start = normalized.indexOf(marker)
+  if (start < 0) fail(`Missing ${sectionName} entry: ${name}`)
+  const bodyStart = start + marker.length
+  const tail = normalized.slice(bodyStart)
+  const next = tail.search(/\n {4}[A-Za-z0-9_-]+:\n/)
+  return next < 0 ? tail : tail.slice(0, next)
+}
+
+function operationBlock(pathName, method) {
+  const pathMarker = `\n  ${pathName}:\n`
+  const pathStart = contract.indexOf(pathMarker)
+  if (pathStart < 0) fail(`Missing path: ${pathName}`)
+  const pathTail = contract.slice(pathStart + pathMarker.length)
+  const nextPath = pathTail.search(/\n {2}\/|\ncomponents:\n/)
+  const pathBlock = nextPath < 0 ? pathTail : pathTail.slice(0, nextPath)
+  const methodMarker = `\n    ${method}:\n`
+  const normalized = `\n${pathBlock}`
+  const methodStart = normalized.indexOf(methodMarker)
+  if (methodStart < 0) fail(`Missing method: ${method.toUpperCase()} ${pathName}`)
+  const methodTail = normalized.slice(methodStart + methodMarker.length)
+  const nextMethod = methodTail.search(/\n {4}(get|post|put|patch|delete):\n/)
+  return nextMethod < 0 ? methodTail : methodTail.slice(0, nextMethod)
+}
+
+// Resolve all local component refs without needing a YAML runtime dependency.
+const componentSections = ['schemas', 'parameters', 'responses', 'headers', 'securitySchemes']
+const componentNames = new Map(componentSections.map((section) => [section, new Set()]))
+for (const section of componentSections) {
+  let block = ''
+  try {
+    block = sectionBlock(section)
+  } catch {
+    continue
+  }
+  for (const match of block.matchAll(/^ {4}([A-Za-z0-9_-]+):\s*$/gm))
+    componentNames.get(section).add(match[1])
+}
+for (const match of contract.matchAll(
+  /\$ref:\s*['"]?#\/components\/(schemas|parameters|responses|headers|securitySchemes)\/([A-Za-z0-9_-]+)['"]?/g,
+)) {
+  const [, section, name] = match
+  if (!componentNames.get(section)?.has(name))
+    fail(`Unresolved local ref: #/components/${section}/${name}`)
+}
+
+const requiredPaths = [
+  '/admin/students/{studentId}',
+  '/admin/students/{studentId}/declared-skills',
+  '/admin/students/{studentId}/projects',
+  '/admin/students/{studentId}/latest-cv',
+  '/admin/students/{studentId}/latest-cv/download',
+  '/admin/companies',
+  '/admin/companies/{companyId}',
+  '/admin/internship-requests',
+  '/admin/internship-requests/{requestId}',
+  '/admin/internship-requests/{requestId}/required-skills',
+  '/admin/internship-requests/{requestId}/required-skills/{requiredSkillId}',
+  '/admin/candidate-filtering/runs',
+  '/admin/candidate-filtering/runs/{filterRunId}',
+  '/admin/candidate-filtering/runs/{filterRunId}/candidates',
+  '/admin/shortlists',
+  '/admin/shortlists/{shortlistId}',
+  '/admin/shortlists/{shortlistId}/candidates',
+  '/admin/shortlists/{shortlistId}/candidates/{studentId}',
+  '/admin/shortlists/{shortlistId}/finalize',
+  '/admin/exports/shortlists/{shortlistId}',
+  '/admin/exports/{exportJobId}',
+  '/admin/exports/{exportJobId}/download',
+  '/admin/exports/shortlists/{shortlistId}/bulk-cvs',
+  '/admin/exports/{exportJobId}/bulk-cvs/download',
+]
+for (const requiredPath of requiredPaths) {
+  if (!contract.includes(`\n  ${requiredPath}:\n`)) fail(`Missing Sprint 7-8 path: ${requiredPath}`)
+}
+
+const strictSchemas = [
+  'AdminLatestCvResponse',
+  'AdminStudentCvSupportingDataResponse',
+  'AdminStudentDetailResponse',
+  'CompanyRequest',
+  'CompanyUpdateRequest',
+  'CompanyResponse',
+  'PagedCompanyResponse',
+  'InternshipRequiredSkillRequest',
+  'InternshipRequiredSkillResponse',
+  'InternshipRequestCreateRequest',
+  'InternshipRequestUpdateRequest',
+  'InternshipRequestSummaryResponse',
+  'InternshipRequestResponse',
+  'PagedInternshipRequestResponse',
+  'CandidateFilteringCriteriaRequest',
+  'CandidateFilteringCriteriaResponse',
+  'CandidateFilteringRunResponse',
+  'CandidateFilteringCandidateResponse',
+  'PagedCandidateFilteringCandidateResponse',
+  'ShortlistCreateRequest',
+  'ShortlistCandidateRequest',
+  'ShortlistCandidateResponse',
+  'ShortlistResponse',
+  'ShortlistDetailResponse',
+  'ShortlistCandidateMutationResponse',
+  'ShortlistFinalizeRequest',
+  'ShortlistFinalizeResponse',
+  'ShortlistSummaryExportCreateRequest',
+  'BulkCvExportCreateRequest',
+  'MissingCvStudentResponse',
+  'ExportWarningResponse',
+  'ExportJobResponse',
+]
+for (const schemaName of strictSchemas) {
+  const block = namedBlock('schemas', schemaName)
+  if (block.includes('type: object') && !block.includes('additionalProperties: false')) {
+    fail(`${schemaName} must set additionalProperties: false`)
+  }
+}
+
+const internshipSchemas = [
+  'InternshipRequestCreateRequest',
+  'InternshipRequestUpdateRequest',
+  'InternshipRequestResponse',
+]
+for (const schemaName of internshipSchemas) {
+  const block = namedBlock('schemas', schemaName)
+  if (/^ {6}[A-Za-z0-9_]*gpa[A-Za-z0-9_]*:/im.test(block))
+    fail(`${schemaName} contains persisted GPA criteria`)
+}
+
+const candidateSchemas = ['CandidateFilteringCandidateResponse', 'ShortlistCandidateResponse']
+for (const schemaName of candidateSchemas) {
+  const block = namedBlock('schemas', schemaName)
+  for (const forbiddenProperty of [
+    'score',
+    'rank',
+    'matchPercentage',
+    'weightedScore',
+    'probability',
+    'recommendation',
+  ]) {
+    if (new RegExp(`^ {6}${forbiddenProperty}:`, 'm').test(block))
+      fail(`${schemaName} contains forbidden ${forbiddenProperty}`)
+  }
+}
+
+for (const forbiddenPath of [
   '/admin/registration-approvals',
   '/admin/skill-master',
   '/company/login',
+  '/company/auth',
+  '/admin/cv-reviews',
+  '/admin/projects/approvals',
+  '/admin/candidate-filtering/automatic-selection',
 ]) {
-  if (contract.includes(obsoleteFragment)) {
-    console.error(`OpenAPI contract contains removed fragment: ${obsoleteFragment}`)
-    process.exit(1)
+  if (contract.includes(`\n  ${forbiddenPath}`))
+    fail(`Removed-scope path present: ${forbiddenPath}`)
+}
+if (/x-access-role:\s*COMPANY/.test(contract)) fail('COMPANY API role is forbidden')
+
+for (const [key] of operations) {
+  const [pathName, method] = key.split(' ')
+  if (pathName.startsWith('/admin/students/{studentId}') && method !== 'get') {
+    fail(`Admin Student deep-dive must remain read-only: ${key}`)
   }
+  if (pathName.startsWith('/admin/skill') && method !== 'get')
+    fail(`Admin taxonomy mutation is forbidden: ${key}`)
 }
 
-function schemaBlock(schemaName) {
-  const marker = `\n    ${schemaName}:\n`
-  const start = contract.indexOf(marker)
-  if (start < 0) {
-    console.error(`Unable to inspect OpenAPI schema: ${schemaName}`)
-    process.exit(1)
-  }
-  const bodyStart = start + marker.length
-  const tail = contract.slice(bodyStart)
-  const next = tail.search(/\n {4}[A-Za-z0-9_]+:\n|\n {2}[a-zA-Z]+:\n/)
-  return next < 0 ? tail : tail.slice(0, next)
+const latestCvDownload = operationBlock('/admin/students/{studentId}/latest-cv/download', 'get')
+for (const fragment of ['application/pdf:', 'ContentDispositionPdf', 'x-audit-required: true']) {
+  if (!latestCvDownload.includes(fragment)) fail(`Latest CV download missing: ${fragment}`)
 }
-
-function pathBlock(pathName) {
-  const marker = `\n  ${pathName}:\n`
-  const start = contract.indexOf(marker)
-  if (start < 0) {
-    console.error(`Unable to inspect OpenAPI path: ${pathName}`)
-    process.exit(1)
-  }
-  const bodyStart = start + marker.length
-  const tail = contract.slice(bodyStart)
-  const next = tail.search(/\n {2}\/|\ncomponents:\n/)
-  return next < 0 ? tail : tail.slice(0, next)
+const summaryDownload = operationBlock('/admin/exports/{exportJobId}/download', 'get')
+if (!summaryDownload.includes('text/csv:') || !summaryDownload.includes('ContentDispositionCsv')) {
+  fail('Shortlist summary download must be CSV-only')
 }
-
-const previewRequest = schemaBlock('CvPreviewRequest')
-for (const field of [
-  'includedExperienceIds:',
-  'includedProjectIds:',
-  'includedCertificateIds:',
-  'includedAwardIds:',
-  'includedActivityIds:',
-]) {
-  if (!previewRequest.includes(field)) {
-    console.error(`CvPreviewRequest is missing ${field}`)
-    process.exit(1)
-  }
+const bulkDownload = operationBlock('/admin/exports/{exportJobId}/bulk-cvs/download', 'get')
+if (!bulkDownload.includes('application/zip:') || !bulkDownload.includes('ContentDispositionZip')) {
+  fail('Bulk CV download must be ZIP-only')
 }
-if (previewRequest.includes('sectionOrder:') || previewRequest.includes('optionalSections:')) {
-  console.error('CvPreviewRequest contains removed ordering/toggle fields')
-  process.exit(1)
+const exportJob = namedBlock('schemas', 'ExportJobResponse')
+for (const fragment of ['missingCvCount:', 'missingCvStudents:', 'includedFileCount:']) {
+  if (!exportJob.includes(fragment)) fail(`ExportJobResponse missing: ${fragment}`)
 }
-
-const uploadRequest = schemaBlock('AcademicLedgerUploadRequest')
+const exportType = namedBlock('schemas', 'ExportType')
+if (!exportType.includes('BULK_LATEST_CV_ZIP')) fail('ExportType must include BULK_LATEST_CV_ZIP')
+const finalizeOperation = operationBlock('/admin/shortlists/{shortlistId}/finalize', 'post')
 for (const fragment of [
-  'additionalProperties: false',
-  '- file',
-  'contentMediaType: text/csv',
-  'x-max-size-bytes: 5242880',
+  'IfMatchVersion',
+  'ShortlistGuidanceAcknowledgement409',
+  'non-blocking',
+  'x-audit-required: true',
 ]) {
-  if (!uploadRequest.includes(fragment)) {
-    console.error(`AcademicLedgerUploadRequest is missing: ${fragment}`)
-    process.exit(1)
-  }
-}
-if (uploadRequest.includes('academicYear:') || uploadRequest.includes('notes:')) {
-  console.error('AcademicLedgerUploadRequest contains unfrozen optional metadata')
-  process.exit(1)
-}
-
-const uploadPage = schemaBlock('PagedAcademicLedgerUploadResponse')
-if (!uploadPage.includes('#/components/schemas/AcademicLedgerUploadSummaryResponse')) {
-  console.error('PagedAcademicLedgerUploadResponse items are not typed')
-  process.exit(1)
-}
-const validation = schemaBlock('AcademicLedgerValidationResultResponse')
-if (
-  !validation.includes('#/components/schemas/AcademicLedgerValidationErrorResponse') ||
-  validation.includes('rowErrors:')
-) {
-  console.error('AcademicLedgerValidationResultResponse must use typed errors and no rowErrors')
-  process.exit(1)
-}
-const studentSummary = schemaBlock('StudentSummaryResponse')
-for (const fragment of ['degreeProgram:', 'academicBatch:', 'officialGpa:', '- officialGpa']) {
-  if (!studentSummary.includes(fragment)) {
-    console.error(`StudentSummaryResponse is missing: ${fragment}`)
-    process.exit(1)
-  }
-}
-
-const studentPath = pathBlock('/admin/students')
-for (const fragment of [
-  'RegisteredStudentLevel',
-  'RegisteredStudentSort',
-  'RegisteredStudentSearch',
-]) {
-  if (!studentPath.includes(fragment)) {
-    console.error(`/admin/students is missing: ${fragment}`)
-    process.exit(1)
-  }
-}
-const uploadPath = pathBlock('/admin/academic-ledger/uploads')
-for (const fragment of ["'202':", "'413':", "'415':", "'422':", 'text/csv']) {
-  if (!uploadPath.includes(fragment)) {
-    console.error(`Upload path is missing: ${fragment}`)
-    process.exit(1)
-  }
-}
-const commitPath = pathBlock('/admin/academic-ledger/uploads/{uploadId}/commit')
-for (const fragment of ['x-access-role: ADMIN', 'x-audit-required: true', "'409':", "'422':"]) {
-  if (!commitPath.includes(fragment)) {
-    console.error(`Commit path is missing: ${fragment}`)
-    process.exit(1)
-  }
-}
-const downloadPath = pathBlock('/me/cv/download')
-if (!downloadPath.includes('application/pdf:') || !downloadPath.includes('Content-Disposition:')) {
-  console.error('/me/cv/download must remain PDF-only with Content-Disposition')
-  process.exit(1)
+  if (!finalizeOperation.includes(fragment)) fail(`Shortlist finalization missing: ${fragment}`)
 }
 
 const generatedExpectations = new Map([
   [
     'src/shared/api/generated/cvManagementApi.types.ts',
     [
-      "version: '1.5.0'",
-      'ApiCvRecordSelections',
-      'ApiAcademicRecordResponse',
-      'ApiAdminDashboardMetricsResponse',
-      'ApiAcademicLedgerUploadStatus',
-      'ApiAcademicLedgerValidationStatus',
-      'ApiAcademicLedgerUploadSummaryResponse',
-      'ApiAcademicLedgerUploadDetailResponse',
-      'ApiPagedAcademicLedgerUploadResponse',
-      'ApiAcademicLedgerStagedRowResponse',
-      'ApiPagedAcademicLedgerStagedRowResponse',
-      'ApiAcademicLedgerValidationErrorResponse',
-      'ApiAcademicLedgerValidationResultResponse',
-      'ApiAcademicLedgerCommitRequest',
-      'ApiAcademicLedgerCommitResponse',
-      'ApiStudentSummaryResponse',
-      'ApiPagedStudentSummaryResponse',
-      'ApiRegisteredStudentSort',
+      "version: '1.6.0'",
+      'ApiAdminStudentDetailResponse',
+      'ApiAdminLatestCvResponse',
+      'ApiCompanyResponse',
+      'ApiPagedCompanyResponse',
+      'ApiInternshipRequestStatus',
+      'ApiPagedInternshipRequestResponse',
+      'ApiCandidateFilteringCriteriaRequest',
+      'ApiFilterSkillMatchMode',
+      'ApiPagedCandidateFilteringCandidateResponse',
+      'ApiShortlistStatus',
+      'ApiShortlistFinalizeResponse',
+      'ApiPagedShortlistResponse',
+      'ApiExportJobStatus',
+      'ApiMissingCvStudentResponse',
     ],
   ],
   [
     'src/shared/api/generated/cvManagementApi.client.ts',
-    ["version: '1.5.0'", `contractPath: '${contractPath}'`],
+    ["version: '1.6.0'", `contractPath: '${contractPath}'`],
   ],
 ])
 for (const [file, expectedFragments] of generatedExpectations) {
-  const source = fs.readFileSync(path.join(root, file), 'utf8')
+  const source = readLf(file)
   for (const fragment of expectedFragments) {
-    if (!source.includes(fragment)) {
-      console.error(`Generated artifact ${file} is missing: ${fragment}`)
-      process.exit(1)
-    }
+    if (!source.includes(fragment)) fail(`Generated artifact ${file} is missing: ${fragment}`)
   }
 }
 
-console.log('OpenAPI v1.5.0 contract and deterministic Sprint 1-6 metadata are synchronized.')
+console.log(
+  'OpenAPI v1.6.0 contract, Sprint 1-6 preservation, Sprint 7-8 scope guardrails, and deterministic metadata are synchronized.',
+)

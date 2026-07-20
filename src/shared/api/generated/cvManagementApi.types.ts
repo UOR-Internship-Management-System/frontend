@@ -2,8 +2,8 @@
 export type ApiContractMetadata = {
   title: 'CV Management API'
   openapi: '3.1.1'
-  version: '1.5.0'
-  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
+  version: '1.6.0'
+  contractPath: 'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml'
 }
 
 export type ApiProblemFieldError = {
@@ -340,3 +340,380 @@ export type ApiStudentSummaryResponse = {
 }
 
 export type ApiPagedStudentSummaryResponse = ApiPagedResponse<ApiStudentSummaryResponse>
+
+export type ApiFileAssetResponse = {
+  fileAssetId: string
+  originalFileName: string
+  mediaType: string
+  fileSizeBytes: number
+  downloadUrl: string
+}
+
+export type ApiStudentProfileResponse = {
+  studentId: string
+  fullName: string
+  indexNumber: string
+  universityEmail: string
+  degreeProgramme: string
+  studentLevel: 3 | 4
+  cohortYear: number | null
+  personalEmail: string | null
+  headline: string | null
+  summary: string | null
+  phone: string | null
+  location: string | null
+  profilePhoto: ApiFileAssetResponse | null
+  version: number
+  updatedAt: string
+  cvSourceUpdatedAt: string
+}
+
+export type ApiExperienceResponse = {
+  id: string
+  organization: string
+  positionTitle: string
+  location: string | null
+  startDate: string
+  endDate: string | null
+  currentRole: boolean
+  description: string | null
+  cvInclude: boolean
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiCertificateResponse = {
+  id: string
+  title: string
+  issuer: string
+  issueDate: string
+  credentialUrl: string | null
+  cvInclude: boolean
+  evidence: ApiFileAssetResponse | null
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiAwardResponse = {
+  id: string
+  title: string
+  issuer: string
+  awardDate: string
+  description: string | null
+  cvInclude: boolean
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiActivityResponse = {
+  id: string
+  activityName: string
+  roleTitle: string
+  startDate: string | null
+  endDate: string | null
+  description: string | null
+  cvInclude: boolean
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiAdminLatestCvAvailabilityStatus = 'AVAILABLE' | 'NOT_SAVED'
+
+export type ApiAdminLatestCvResponse = {
+  availability: ApiAdminLatestCvAvailabilityStatus
+  cvId: string | null
+  revision: number | null
+  generatedAt: string | null
+  savedAt: string | null
+  freshnessStatus: 'CURRENT' | 'OUTDATED' | null
+  fileName: string | null
+  fileSizeBytes: number | null
+  downloadUrl: string | null
+}
+
+export type ApiAdminStudentCvSupportingDataResponse = {
+  experiences: ApiExperienceResponse[]
+  certificates: ApiCertificateResponse[]
+  awards: ApiAwardResponse[]
+  activities: ApiActivityResponse[]
+}
+
+export type ApiAdminStudentDetailResponse = {
+  student: ApiStudentSummaryResponse
+  profile: ApiStudentProfileResponse
+  cvSupportingData: ApiAdminStudentCvSupportingDataResponse
+  latestCv: ApiAdminLatestCvResponse
+}
+
+export type ApiCompanySort = 'name,asc' | 'name,desc' | 'updatedAt,desc'
+
+export type ApiCompanyRequest = {
+  name: string
+  websiteUrl?: string | null
+  contactPerson?: string | null
+  contactEmail?: string | null
+  contactPhone?: string | null
+  notes?: string | null
+}
+
+export type ApiCompanyUpdateRequest = Partial<ApiCompanyRequest> & { active?: boolean }
+
+export type ApiCompanyResponse = {
+  companyId: string
+  name: string
+  websiteUrl: string | null
+  contactPerson: string | null
+  contactEmail: string | null
+  contactPhone: string | null
+  notes: string | null
+  active: boolean
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiPagedCompanyResponse = ApiPagedResponse<ApiCompanyResponse>
+
+export type ApiInternshipRequestStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED' | 'CANCELLED'
+export type ApiInternshipWorkMode = 'ONSITE' | 'HYBRID' | 'REMOTE'
+export type ApiInternshipRequestSort =
+  | 'createdAt,desc'
+  | 'title,asc'
+  | 'companyName,asc'
+  | 'status,asc'
+
+export type ApiInternshipRequiredSkillRequest = {
+  skillId: string
+  requiredCompetencyLevel?: ApiCompetencyLevel | null
+}
+
+export type ApiInternshipRequiredSkillResponse = {
+  requiredSkillId: string
+  skillId: string
+  skillName: string
+  requiredCompetencyLevel: ApiCompetencyLevel | null
+}
+
+export type ApiInternshipRequestCreateRequest = {
+  companyId: string
+  title: string
+  description?: string | null
+  location?: string | null
+  workMode?: ApiInternshipWorkMode | null
+  status: ApiInternshipRequestStatus
+  shortlistGuidanceValue?: number | null
+  notes?: string | null
+  requiredSkills: ApiInternshipRequiredSkillRequest[]
+}
+
+export type ApiInternshipRequestUpdateRequest = Partial<ApiInternshipRequestCreateRequest>
+
+export type ApiInternshipRequestSummaryResponse = {
+  requestId: string
+  companyId: string
+  companyName: string
+  title: string
+  status: ApiInternshipRequestStatus
+  shortlistGuidanceValue: number | null
+}
+
+export type ApiInternshipRequestResponse = {
+  requestId: string
+  company: ApiCompanyResponse
+  title: string
+  description: string | null
+  location: string | null
+  workMode: ApiInternshipWorkMode | null
+  status: ApiInternshipRequestStatus
+  shortlistGuidanceValue: number | null
+  notes: string | null
+  requiredSkills: ApiInternshipRequiredSkillResponse[]
+  version: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type ApiPagedInternshipRequestResponse = ApiPagedResponse<ApiInternshipRequestResponse>
+export type ApiPagedInternshipRequiredSkillResponse =
+  ApiPagedResponse<ApiInternshipRequiredSkillResponse>
+
+export type ApiFilterSkillMatchMode = 'AND' | 'OR'
+export type ApiCandidateSort =
+  | 'officialGpa,desc'
+  | 'officialGpa,asc'
+  | 'fullName,asc'
+  | 'indexNumber,asc'
+
+export type ApiCandidateFilteringCriteriaRequest = {
+  requestId: string
+  runtimeGpaLowerBound?: number
+  runtimeGpaUpperBound?: number
+  requestSkillIds?: string[]
+  additionalSkillIds?: string[]
+  skillMatchMode: ApiFilterSkillMatchMode
+}
+
+export type ApiCandidateFilteringCriteriaResponse = {
+  requestId: string
+  runtimeGpaLowerBound: number | null
+  runtimeGpaUpperBound: number | null
+  requestSkillIds: string[]
+  additionalSkillIds: string[]
+  skillMatchMode: ApiFilterSkillMatchMode
+}
+
+export type ApiCandidateFilteringRunRequest = ApiCandidateFilteringCriteriaRequest
+
+export type ApiCandidateFilteringRunResponse = {
+  filterRunId: string
+  request: ApiInternshipRequestSummaryResponse
+  criteria: ApiCandidateFilteringCriteriaResponse
+  candidateCount: number
+  createdAt: string
+}
+
+export type ApiCandidateFilteringCandidateResponse = {
+  studentId: string
+  indexNumber: string
+  fullName: string
+  officialGpa: number | null
+  gpaAvailabilityStatus: ApiGpaAvailabilityStatus
+  matchingDeclaredSkills: ApiDeclaredSkillResponse[]
+  declaredSkillCount: number
+  hasLatestSavedCv: boolean
+  hasExistingActiveShortlist: boolean
+  existingActiveShortlistCount: number
+}
+
+export type ApiPagedCandidateFilteringCandidateResponse =
+  ApiPagedResponse<ApiCandidateFilteringCandidateResponse>
+
+export type ApiShortlistStatus = 'DRAFT' | 'FINALIZED'
+export type ApiShortlistSort =
+  | 'updatedAt,desc'
+  | 'createdAt,desc'
+  | 'companyName,asc'
+  | 'roleTitle,asc'
+
+export type ApiShortlistCreateRequest = {
+  requestId: string
+  filterRunId?: string | null
+  name?: string | null
+}
+
+export type ApiShortlistCandidateRequest = {
+  studentIds: string[]
+  note?: string | null
+}
+
+export type ApiShortlistCandidateResponse = {
+  studentId: string
+  indexNumber: string
+  fullName: string
+  officialGpa: number | null
+  gpaAvailabilityStatus: ApiGpaAvailabilityStatus
+  hasLatestSavedCv: boolean
+  hasExistingActiveShortlist: boolean
+  existingActiveShortlistCount: number
+  selectedAt: string
+  selectionNote: string | null
+}
+
+export type ApiPagedShortlistCandidateResponse = ApiPagedResponse<ApiShortlistCandidateResponse>
+
+export type ApiShortlistResponse = {
+  shortlistId: string
+  request: ApiInternshipRequestSummaryResponse
+  filterRunId: string | null
+  name: string | null
+  status: ApiShortlistStatus
+  guidanceValue: number | null
+  selectedCandidateCount: number
+  guidanceExceeded: boolean
+  guidanceWarning: string | null
+  version: number
+  createdAt: string
+  updatedAt: string
+  finalizedAt: string | null
+}
+
+export type ApiShortlistDetailResponse = {
+  shortlist: ApiShortlistResponse
+  candidates: ApiPagedShortlistCandidateResponse
+}
+
+export type ApiPagedShortlistResponse = ApiPagedResponse<ApiShortlistResponse>
+
+export type ApiShortlistCandidateMutationResponse = {
+  shortlistId: string
+  addedCount: number
+  alreadyPresentCount: number
+  removedCount: number
+  selectedCandidateCount: number
+  guidanceExceeded: boolean
+  version: number
+}
+
+export type ApiShortlistFinalizeRequest = {
+  acknowledgeGuidanceWarning: boolean
+  finalizationNote?: string | null
+}
+
+export type ApiShortlistFinalizeResponse = {
+  shortlistId: string
+  status: 'FINALIZED'
+  selectedCandidateCount: number
+  guidanceValue: number | null
+  guidanceExceeded: boolean
+  guidanceAcknowledged: boolean
+  version: number
+  finalizedAt: string
+}
+
+export type ApiExportJobStatus =
+  | 'QUEUED'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'CANCELLED'
+export type ApiExportType = 'SHORTLIST_SUMMARY_CSV' | 'BULK_LATEST_CV_ZIP'
+export type ApiExportFormat = 'CSV' | 'ZIP'
+
+export type ApiShortlistSummaryExportCreateRequest = { format: 'CSV' }
+export type ApiBulkCvExportCreateRequest = { format: 'ZIP' }
+
+export type ApiMissingCvStudentResponse = {
+  studentId: string
+  indexNumber: string
+  fullName: string
+}
+
+export type ApiExportWarningResponse = {
+  code: 'MISSING_CVS' | 'PARTIAL_EXPORT'
+  message: string
+}
+
+export type ApiExportJobResponse = {
+  exportJobId: string
+  shortlistId: string
+  exportType: ApiExportType
+  format: ApiExportFormat
+  status: ApiExportJobStatus
+  totalCandidateCount: number
+  includedFileCount: number
+  missingCvCount: number
+  missingCvStudents: ApiMissingCvStudentResponse[]
+  warnings: ApiExportWarningResponse[]
+  downloadReady: boolean
+  downloadUrl: string | null
+  createdAt: string
+  startedAt: string | null
+  completedAt: string | null
+  expiresAt: string | null
+  failureCode: string | null
+  failureMessage: string | null
+}

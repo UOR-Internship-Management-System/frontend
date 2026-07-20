@@ -2,10 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-const contractPath = path.join(
-  process.cwd(),
-  'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml',
-)
+const contractPath = path.join(process.cwd(), 'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml')
 const contract = fs.readFileSync(contractPath, 'utf8').replace(/\r\n?/g, '\n')
 
 function schemaBlock(name: string): string {
