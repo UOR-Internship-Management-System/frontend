@@ -110,7 +110,7 @@ describe('Company metadata data layer', () => {
     await internshipManagementApi.deactivateCompany({ companyId, version: 4 })
 
     expect(requests).toEqual([
-      { method: 'GET', search: '?page=0&size=20&sort=name%2Casc&active=null' },
+      { method: 'GET', search: '?page=0&size=20&sort=name%2Casc' },
       { method: 'POST', body: { name: company.name } },
       { method: 'PATCH', body: { name: 'Updated Technologies' }, ifMatch: '"3"' },
       { method: 'DELETE', ifMatch: '"4"' },

@@ -51,7 +51,7 @@ export const internshipManagementApi = {
         size: query.size,
         sort: query.sort,
         search: query.search,
-        active: query.active === undefined ? 'null' : query.active,
+        active: query.active,
       })}`,
       { signal },
     )

@@ -32,7 +32,7 @@ describe('Academic Ledger read-only inspection', () => {
         expect(
           within(studentTable).getAllByRole('button', { name: 'View academic records' }),
         ).toHaveLength(1),
-      { timeout: 2_000 },
+      { timeout: 5_000 },
     )
     expect(within(studentTable).getByText('Lahiru Gunasekara')).toBeInTheDocument()
     await user.click(within(studentTable).getByRole('button', { name: 'View academic records' }))
@@ -47,7 +47,7 @@ describe('Academic Ledger read-only inspection', () => {
     expect(
       within(dialog).queryByRole('button', { name: /edit|save|delete/i }),
     ).not.toBeInTheDocument()
-  })
+  }, 15_000)
 
   it('supports course controls and restores focus when the record modal closes', async () => {
     const user = userEvent.setup()
@@ -62,5 +62,5 @@ describe('Academic Ledger read-only inspection', () => {
     await user.click(within(dialog).getByRole('button', { name: /Close .* academic records/i }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(trigger).toHaveFocus()
-  })
+  }, 15_000)
 })

@@ -14,6 +14,6 @@ export const handlers = [
   ...studentProjectsHandlers,
   ...cvBuilderHandlers,
   ...academicRecordsHandlers,
-  ...adminHandlers,
   ...sprint78Handlers,
+  ...adminHandlers,
 ]

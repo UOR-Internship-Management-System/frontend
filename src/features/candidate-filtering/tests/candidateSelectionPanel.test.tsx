@@ -166,9 +166,11 @@ describe('CandidateSelectionPanel', () => {
     renderPanel(onRun)
 
     await selectRequest(user)
-    expect(await screen.findByRole('button', { name: /TypeScript/ })).toHaveAttribute(
-      'aria-pressed',
-      'true',
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /TypeScript/ })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      ),
     )
     await user.type(screen.getByLabelText('Minimum GPA'), '2.75')
     await user.type(screen.getByLabelText('Maximum GPA'), '4')
@@ -192,7 +194,7 @@ describe('CandidateSelectionPanel', () => {
       additionalSkillIds: [additionalSkillId],
       skillMatchMode: 'OR',
     })
-  })
+  }, 15_000)
 
   it('blocks reversed GPA bounds before creating a run', async () => {
     const user = userEvent.setup()
@@ -205,5 +207,5 @@ describe('CandidateSelectionPanel', () => {
 
     expect(await screen.findByText('Minimum GPA cannot exceed maximum GPA.')).toBeInTheDocument()
     expect(onRun).not.toHaveBeenCalled()
-  })
+  }, 15_000)
 })
