@@ -45,6 +45,9 @@ function renderRoot(initialPath: string, onStudentShellMount = vi.fn()) {
 
             <Route path={routePaths.adminDashboard} element={<h1>Admin page</h1>} />
             <Route path={routePaths.adminStudentDetail} element={<h1>Admin Student page</h1>} />
+            <Route path={routePaths.adminInternships} element={<h1>Internship Management page</h1>} />
+            <Route path={routePaths.adminCandidateFiltering} element={<h1>Candidate Filtering page</h1>} />
+            <Route path={routePaths.adminShortlists} element={<h1>Shortlists page</h1>} />
             <Route path={routePaths.studentLogin} element={<h1>Student login page</h1>} />
           </Route>
         </Routes>
@@ -130,4 +133,50 @@ describe('RootLayout', () => {
     expect(container.querySelector('.app-footer')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeInTheDocument()
   })
+
+  it.each([
+    [
+      routePaths.adminInternships,
+      'Internship Management page',
+    ],
+    [
+      routePaths.adminCandidateFiltering,
+      'Candidate Filtering page',
+    ],
+    [
+      routePaths.adminShortlists,
+      'Shortlists page',
+    ],
+  ])(
+    'keeps %s inside the Admin workspace without duplicate theme controls',
+    (path, heading) => {
+      const { container } = renderRoot(path)
+
+      expect(
+        screen.getByRole('heading', {
+          name: heading,
+        }),
+      ).toBeInTheDocument()
+
+      expect(
+        container.querySelector('.app-header'),
+      ).not.toBeInTheDocument()
+
+      expect(
+        container.querySelector('.app-main'),
+      ).toHaveClass('app-main-admin-workspace')
+
+      expect(
+        container.querySelector(
+          '.app-main > .page-transition',
+        ),
+      ).not.toBeInTheDocument()
+
+      expect(
+        screen.queryByRole('button', {
+          name: /switch to (dark|light) mode/i,
+        }),
+      ).not.toBeInTheDocument()
+    },
+  )
 })

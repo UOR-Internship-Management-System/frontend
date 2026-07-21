@@ -113,3 +113,9 @@ export const InternshipManagementPage = lazy(() =>
     default: module.InternshipManagementPage,
   })),
 )
+
+export const CandidateFilteringPage = lazy(() =>
+  import('../../features/candidate-filtering/pages/CandidateFilteringPage').then((module) => ({
+    default: module.CandidateFilteringPage,
+  })),
+)

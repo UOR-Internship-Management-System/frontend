@@ -4,6 +4,7 @@ import App from './App'
 import { env } from './app/config/env'
 import './index.css'
 import './styles/skeleton-system.css'
+import './styles/sprint78-wireframe-alignment.css'
 
 const rootElement = document.getElementById('root')
 

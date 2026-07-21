@@ -19,7 +19,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
     ).toBeInTheDocument()
   })
 
-  it('exposes the approved Sprint 5 Student and Sprint 6 Admin destinations', () => {
+  it('exposes the approved Student and Admin destinations', () => {
     renderWithProviders(
       <MemoryRouter initialEntries={[routePaths.studentDashboard]}>
         <Routes>
@@ -53,7 +53,14 @@ describe('Sprint 2 frontend gateway and route guards', () => {
       'href',
       routePaths.adminAcademicLedger,
     )
-    expect(screen.queryByRole('link', { name: /candidate filtering/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /internship management/i })).toHaveAttribute(
+      'href',
+      routePaths.adminInternships,
+    )
+    expect(screen.getByRole('link', { name: /candidate filtering/i })).toHaveAttribute(
+      'href',
+      routePaths.adminCandidateFiltering,
+    )
   })
 
   it('redirects anonymous students to the student login shell', () => {

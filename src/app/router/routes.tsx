@@ -22,6 +22,7 @@ import {
   RegisteredStudentsPage,
   StudentDeepDivePage,
   InternshipManagementPage,
+  CandidateFilteringPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
@@ -46,6 +47,7 @@ import {
   AcademicRecordsSkeleton,
   AdminDashboardSkeleton,
   AuthSkeleton,
+  CandidateFilteringSkeleton,
   CvBuilderSkeleton,
   FormSkeleton,
   GatewaySkeleton,
@@ -258,6 +260,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminInternships,
             element: withSuspense(<InternshipManagementPage />, <InternshipManagementSkeleton />),
+          },
+          {
+            path: routePaths.adminCandidateFiltering,
+            element: withSuspense(<CandidateFilteringPage />, <CandidateFilteringSkeleton />),
           },
         ],
       },
