@@ -2,64 +2,36 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryClient } from '../../../app/config/queryClient'
-import { routePaths } from '../../../app/config/routePaths'
 import { NotificationProvider } from '../../../app/providers/NotificationProvider'
 import { server } from '../../../mocks/server'
 import type { Company } from '../types/internshipManagementTypes'
 import { InternshipManagementPage } from '../pages/InternshipManagementPage'
 
-const activeCompany: Company = {
+const company: Company = {
   companyId: '11111111-1111-4111-8111-111111111111',
   name: 'Acme Lanka',
   websiteUrl: 'https://acme.example',
   contactPerson: 'Nimali Perera',
   contactEmail: 'nimali@acme.example',
   contactPhone: '+94 11 234 5678',
-  notes: 'Preferred contact by email.',
+  notes: null,
   active: true,
   version: 4,
-  createdAt: '2026-07-01T08:00:00+05:30',
-  updatedAt: '2026-07-18T09:30:00+05:30',
+  createdAt: '2026-07-01T08:00:00Z',
+  updatedAt: '2026-07-18T09:30:00Z',
+}
+const companyPage = {
+  items: [company],
+  page: { page: 0, size: 20, totalElements: 1, totalPages: 1, sort: 'name,asc' },
 }
 
-const inactiveCompany: Company = {
-  ...activeCompany,
-  companyId: '22222222-2222-4222-8222-222222222222',
-  name: 'Legacy Systems',
-  active: false,
-  version: 7,
-}
-
-function page(items: Company[]) {
-  return {
-    items,
-    page: {
-      page: 0,
-      size: 20,
-      totalElements: items.length,
-      totalPages: items.length ? 1 : 0,
-      sort: 'name,asc',
-    },
-  }
-}
-
-function LocationProbe() {
-  return <output data-testid="location">{useLocation().search}</output>
-}
-
-function renderPage(initialEntry: string = routePaths.adminInternships) {
+function renderPage() {
   server.use(
-    http.get('/api/v1/admin/companies', () =>
-      HttpResponse.json(page([activeCompany, inactiveCompany])),
-    ),
-    http.get('/api/v1/admin/companies/:companyId', ({ params }) => {
-      const company =
-        params.companyId === inactiveCompany.companyId ? inactiveCompany : activeCompany
-      return HttpResponse.json(company)
-    }),
+    http.get('/api/v1/admin/companies', () => HttpResponse.json(companyPage)),
+    http.get('/api/v1/admin/companies/:companyId', () => HttpResponse.json(company)),
     http.get('/api/v1/admin/internship-requests', () =>
       HttpResponse.json({
         items: [],
@@ -70,129 +42,79 @@ function renderPage(initialEntry: string = routePaths.adminInternships) {
   return render(
     <QueryClientProvider client={createQueryClient()}>
       <NotificationProvider>
-        <MemoryRouter initialEntries={[initialEntry]}>
-          <Routes>
-            <Route
-              path={routePaths.adminInternships}
-              element={
-                <>
-                  <InternshipManagementPage />
-                  <LocationProbe />
-                </>
-              }
-            />
-          </Routes>
+        <MemoryRouter>
+          <InternshipManagementPage />
         </MemoryRouter>
       </NotificationProvider>
     </QueryClientProvider>,
   )
 }
 
-describe('InternshipManagementPage company workspace', () => {
-  it('renders active and inactive companies and stores filters in the URL', async () => {
+describe('InternshipManagementPage wireframe behavior', () => {
+  it('renders the supplied company row inventory and enables request creation after selection', async () => {
     const user = userEvent.setup()
-    renderPage(`${routePaths.adminInternships}?requestStatus=ACTIVE`)
+    renderPage()
     expect(await screen.findByText('Acme Lanka')).toBeInTheDocument()
-    const inactiveRow = screen
-      .getByRole('heading', { name: 'Legacy Systems', level: 3 })
-      .closest('article')
-    expect(inactiveRow).toHaveClass('management-row-inactive')
-    expect(within(inactiveRow as HTMLElement).getByText('Inactive')).toBeInTheDocument()
-
-    await user.selectOptions(screen.getByLabelText('Company status'), 'inactive')
-    expect(screen.getByTestId('location')).toHaveTextContent('companyActive=false')
-    expect(screen.getByTestId('location')).toHaveTextContent('requestStatus=ACTIVE')
-    await user.type(screen.getByLabelText('Search companies'), 'Legacy')
-    await waitFor(
-      () => expect(screen.getByTestId('location')).toHaveTextContent('companySearch=Legacy'),
-      { timeout: 2_000 },
+    expect(screen.getByText('https://acme.example · HR Rep: Nimali Perera')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create internship request' })).toBeDisabled()
+    await user.click(screen.getByText('Acme Lanka'))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Create internship request' })).toBeEnabled(),
+    )
+    expect(screen.getByRole('navigation', { name: 'Company list pagination' })).toHaveTextContent(
+      'Showing 1 to 1 of 1 companies',
     )
   })
 
-  it('validates company creation and normalizes blank nullable fields', async () => {
+  it('uses the five required wireframe fields when creating a company', async () => {
     const user = userEvent.setup()
-    let submittedBody: unknown
+    const create = vi.fn()
     server.use(
       http.post('/api/v1/admin/companies', async ({ request }) => {
-        submittedBody = await request.json()
-        return HttpResponse.json(
-          { ...activeCompany, name: 'New Partner', version: 0 },
-          { status: 201 },
-        )
+        create(await request.json())
+        return HttpResponse.json(company, { status: 201 })
       }),
     )
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Create a company' }))
-    const dialog = screen.getByRole('dialog', { name: 'Add company' })
-    await user.click(within(dialog).getByRole('button', { name: 'Add company' }))
+    await user.click(screen.getByRole('button', { name: 'Create a Company' }))
+    const dialog = screen.getByRole('dialog', { name: 'Create Corporate CRM Profile Parameters' })
+    await user.click(within(dialog).getByRole('button', { name: 'Save Profile' }))
     expect(await within(dialog).findByText('Company name is required.')).toBeInTheDocument()
-
-    await user.type(within(dialog).getByLabelText(/Company legal name/i), '  New Partner  ')
-    await user.click(within(dialog).getByRole('button', { name: 'Add company' }))
-    await waitFor(() => expect(submittedBody).toBeDefined())
-    expect(submittedBody).toEqual({
-      name: 'New Partner',
-      websiteUrl: null,
-      contactPerson: null,
-      contactEmail: null,
-      contactPhone: null,
-      notes: null,
-    })
+    expect(within(dialog).getByText('Corporate website is required.')).toBeInTheDocument()
+    await user.type(within(dialog).getByLabelText('Company Legal Name'), 'Acme Lanka')
+    await user.type(within(dialog).getByLabelText('Corporate Website URL'), 'https://acme.example')
+    await user.type(within(dialog).getByLabelText('HR Representative Name'), 'Nimali Perera')
+    await user.type(
+      within(dialog).getByLabelText('Office / HR Email Address'),
+      'nimali@acme.example',
+    )
+    await user.type(within(dialog).getByLabelText('Direct Line Phone'), '+94 11 234 5678')
+    await user.click(within(dialog).getByRole('button', { name: 'Save Profile' }))
+    await waitFor(() =>
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Acme Lanka', notes: null }),
+      ),
+    )
   })
 
-  it('reactivates an inactive company only through the edit flow', async () => {
-    const user = userEvent.setup()
-    const patch = vi.fn()
-    server.use(
-      http.patch('/api/v1/admin/companies/:companyId', async ({ request }) => {
-        patch(request.headers.get('If-Match'), await request.json())
-        return HttpResponse.json({ ...inactiveCompany, active: true, version: 8 })
-      }),
-    )
-    renderPage(`${routePaths.adminInternships}?companyId=${inactiveCompany.companyId}`)
-    const inactiveCard = (
-      await screen.findByRole('heading', { name: 'Legacy Systems', level: 3 })
-    ).closest('article')
-    await user.click(
-      within(inactiveCard as HTMLElement).getByRole('button', { name: 'View details' }),
-    )
-    await screen.findByText(/unavailable for new internship requests/i)
-    const details = screen.getByRole('dialog', { name: 'Company details' })
-    await user.click(within(details).getByRole('button', { name: 'Edit and reactivate' }))
-    const edit = await screen.findByRole('dialog', { name: 'Edit company' })
-    await user.click(within(edit).getByRole('checkbox', { name: /Reactivate this company/i }))
-    await user.click(within(edit).getByRole('button', { name: 'Save changes' }))
-    await waitFor(() => expect(patch).toHaveBeenCalled())
-    expect(patch).toHaveBeenCalledWith('"7"', expect.objectContaining({ active: true }))
-  })
-
-  it('describes deactivation safely and preserves the dialog on a linked-request conflict', async () => {
+  it('opens the exact delete confirmation and submits the version precondition', async () => {
     const user = userEvent.setup()
     const remove = vi.fn()
     server.use(
       http.delete('/api/v1/admin/companies/:companyId', ({ request }) => {
         remove(request.headers.get('If-Match'))
-        return HttpResponse.json({ title: 'Conflict', status: 409 }, { status: 409 })
+        return new HttpResponse(null, { status: 204 })
       }),
     )
-    renderPage(`${routePaths.adminInternships}?companyId=${activeCompany.companyId}`)
-    const activeCard = (
-      await screen.findByRole('heading', { name: 'Acme Lanka', level: 3 })
-    ).closest('article')
-    await user.click(
-      within(activeCard as HTMLElement).getByRole('button', { name: 'View details' }),
-    )
-    const deactivateButton = await screen.findByRole('button', { name: 'Deactivate company' })
-    await user.click(deactivateButton)
-    const confirmation = await screen.findByRole('dialog', { name: 'Deactivate company' })
+    renderPage()
+    await screen.findByText('Acme Lanka')
+    await user.click(screen.getByRole('button', { name: 'Delete' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm Deletion' })
     expect(
-      within(confirmation).getByText(/metadata and existing links are preserved/i),
+      within(dialog).getByText('Are you sure you want to delete this company?'),
     ).toBeInTheDocument()
-    await user.click(within(confirmation).getByRole('button', { name: 'Deactivate company' }))
-    expect(await within(confirmation).findByRole('alert')).toHaveTextContent(
-      'linked to an active internship request',
-    )
-    expect(remove).toHaveBeenCalledWith('"4"')
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
+    await waitFor(() => expect(remove).toHaveBeenCalledWith('"4"'))
   })
 })

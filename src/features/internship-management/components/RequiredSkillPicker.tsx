@@ -56,8 +56,7 @@ export function RequiredSkillPicker({
   })
 
   const activeClusterName =
-    clusters.data?.items.find((cluster) => cluster.clusterId === clusterId)?.name ??
-    'All clusters'
+    clusters.data?.items.find((cluster) => cluster.clusterId === clusterId)?.name ?? 'All clusters'
   const activeCategoryName =
     categories.data?.items.find((category) => category.categoryId === categoryId)?.name ??
     (clusterId ? 'All categories' : 'Global search')
@@ -116,10 +115,10 @@ export function RequiredSkillPicker({
       className="request-skill-picker"
       disabled={disabled}
     >
-      <legend>Required Technical Skills</legend>
+      <legend>Skill requirement selector</legend>
       <p id="required-skills-help">
-        Browse the developer-managed taxonomy. Select one or more results, then add them to
-        the compiled matching array.
+        Browse the developer-managed taxonomy. Select one or more results, then add them to the
+        compiled matching array.
       </p>
 
       <div className="request-skill-filters">
@@ -277,36 +276,17 @@ export function RequiredSkillPicker({
 
       <div className="selected-skill-token-field">
         <div className="selected-skill-token-heading">
-          <strong>Required Technical Skills — Compiled Matching Array</strong>
+          <strong>Required Technical Skills (Compiled Matching Array)</strong>
           <span>{value.length} selected</span>
         </div>
-        <div aria-label="Selected required skills" className="selected-skill-token-list" role="list">
+        <div
+          aria-label="Selected required skills"
+          className="selected-skill-token-list"
+          role="list"
+        >
           {value.map((skill) => (
             <div className="selected-skill-token" key={skill.skillId} role="listitem">
               <strong>{skill.skillName}</strong>
-              <SelectField
-                aria-label={`Required competency for ${skill.skillName}`}
-                disabled={disabled}
-                onChange={(event) =>
-                  onChange(
-                    value.map((item) =>
-                      item.skillId === skill.skillId
-                        ? {
-                            ...item,
-                            requiredCompetencyLevel: (event.target.value ||
-                              null) as RequiredSkillSelection['requiredCompetencyLevel'],
-                          }
-                        : item,
-                    ),
-                  )
-                }
-                value={skill.requiredCompetencyLevel ?? ''}
-              >
-                <option value="">Any competency</option>
-                <option value="BEGINNER">Beginner</option>
-                <option value="INTERMEDIATE">Intermediate</option>
-                <option value="ADVANCED">Advanced</option>
-              </SelectField>
               <button
                 aria-label={`Remove ${skill.skillName}`}
                 className="skill-token-remove"

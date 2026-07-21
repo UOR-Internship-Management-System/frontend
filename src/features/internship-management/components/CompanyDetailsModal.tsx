@@ -1,11 +1,6 @@
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { Company } from '../types/internshipManagementTypes'
-
-function valueOrFallback(value: string | null) {
-  return value || 'Not provided'
-}
 
 export function CompanyDetailsModal({
   company,
@@ -19,72 +14,39 @@ export function CompanyDetailsModal({
   onEdit: () => void
 }) {
   return (
-    <Modal
-      description="Read and maintain approved company metadata."
-      onClose={onClose}
-      title="Company details"
-    >
-      <div className="company-details">
-        <div className="company-details-heading">
-          <div>
-            <h3>{company.name}</h3>
-            <p>Company metadata record</p>
-          </div>
-          <StatusBadge tone={company.active ? 'success' : 'neutral'}>
-            {company.active ? 'Active' : 'Inactive'}
-          </StatusBadge>
+    <Modal onClose={onClose} title="Corporate CRM Details Panel">
+      <dl className="wireframe-details-grid">
+        <div className="wireframe-details-wide">
+          <dt>Company Legal Name</dt>
+          <dd>{company.name}</dd>
         </div>
-        {!company.active ? (
-          <div className="inline-alert" role="status">
-            This company is unavailable for new internship requests. Edit it to reactivate access.
-          </div>
-        ) : null}
-        <dl>
-          <div>
-            <dt>Website</dt>
-            <dd>
-              {company.websiteUrl ? (
-                <a href={company.websiteUrl} rel="noreferrer" target="_blank">
-                  Open company website
-                </a>
-              ) : (
-                'Not provided'
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Contact person</dt>
-            <dd>{valueOrFallback(company.contactPerson)}</dd>
-          </div>
-          <div>
-            <dt>Contact email</dt>
-            <dd>
-              {company.contactEmail ? (
-                <a href={`mailto:${company.contactEmail}`}>{company.contactEmail}</a>
-              ) : (
-                'Not provided'
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt>Contact phone</dt>
-            <dd>{valueOrFallback(company.contactPhone)}</dd>
-          </div>
-          <div className="company-details-notes">
-            <dt>Administrative notes</dt>
-            <dd>{valueOrFallback(company.notes)}</dd>
-          </div>
-        </dl>
-        <div className="modal-actions">
-          {company.active ? (
-            <Button onClick={onDeactivate} variant="secondary">
-              Deactivate company
-            </Button>
-          ) : null}
-          <Button onClick={onEdit}>
-            {company.active ? 'Edit company' : 'Edit and reactivate'}
-          </Button>
+        <div>
+          <dt>Corporate Website URL</dt>
+          <dd>{company.websiteUrl ?? 'Not provided'}</dd>
         </div>
+        <div>
+          <dt>HR Representative Name</dt>
+          <dd>{company.contactPerson ?? 'Not provided'}</dd>
+        </div>
+        <div>
+          <dt>Office / HR Email Address</dt>
+          <dd>{company.contactEmail ?? 'Not provided'}</dd>
+        </div>
+        <div>
+          <dt>Direct Line Phone</dt>
+          <dd>{company.contactPhone ?? 'Not provided'}</dd>
+        </div>
+      </dl>
+      <div className="modal-actions">
+        <Button onClick={onClose} variant="secondary">
+          Close
+        </Button>
+        <Button onClick={onDeactivate} variant="secondary">
+          Delete
+        </Button>
+        <Button icon={<span className="material-symbols-outlined">edit</span>} onClick={onEdit}>
+          Edit
+        </Button>
       </div>
     </Modal>
   )

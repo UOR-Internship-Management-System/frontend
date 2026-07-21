@@ -1,25 +1,21 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
-import { SelectField } from '../../../shared/components/forms/SelectField'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
-import { Chip } from '../../../shared/components/ui/Chip'
-import { clampPage } from '../../../shared/utils/clampPage'
 import { CompanyDeactivateDialog } from '../components/CompanyDeactivateDialog'
 import { CompanyDetailsModal } from '../components/CompanyDetailsModal'
 import { CompanyForm, mapCompanyToForm } from '../components/CompanyForm'
 import { CompanyTable } from '../components/CompanyTable'
 import { InternshipRequestWorkspace } from '../components/InternshipRequestWorkspace'
+import { WireframePagination } from '../components/WireframePagination'
 import {
   getCompanyMutationErrorMessage,
   useCompanies,
@@ -31,47 +27,34 @@ import {
 import { useCompaniesUrlState } from '../hooks/useCompaniesUrlState'
 import type { CompanyFormSubmission } from '../types/internshipManagementTypes'
 
-type CompanyOverlay = 'create' | 'details' | 'edit' | 'deactivate' | null
-
-const sortOptions = [
-  { value: 'name,asc', label: 'Company name · A–Z' },
-  { value: 'name,desc', label: 'Company name · Z–A' },
-  { value: 'updatedAt,desc', label: 'Recently updated' },
-] as const
+type CompanyOverlay = 'create' | 'details' | 'edit' | 'delete' | null
 
 export function InternshipManagementPage() {
   const { notify } = useNotifications()
   const { searchInput, setSearchInput, state, updateState } = useCompaniesUrlState()
   const [overlay, setOverlay] = useState<CompanyOverlay>(null)
-  const [deactivationError, setDeactivationError] = useState<string>()
-  const companies = useCompanies(state)
+  const [deleteError, setDeleteError] = useState<string>()
+  const companies = useCompanies({
+    ...state,
+    page: 0,
+    size: 20,
+    sort: 'name,asc',
+    active: undefined,
+  })
   const selected = useCompany(state.selectedCompanyId ?? null)
   const createMutation = useCreateCompany()
   const updateMutation = useUpdateCompany()
-  const deactivateMutation = useDeactivateCompany()
-
-  useEffect(() => {
-    if (!companies.data) return
-    const page = clampPage(state.page, companies.data.page.totalElements, state.size)
-    if (page !== state.page) updateState({ page })
-  }, [companies.data, state.page, state.size, updateState])
-
-  const hasFilters = Boolean(state.search || state.active !== undefined)
-  const mappedListError = companies.error ? mapApiError(companies.error, 'protected') : null
-  const selectedFormValues = useMemo(
+  const deleteMutation = useDeactivateCompany()
+  const items = companies.data?.items ?? []
+  const page = Math.min(state.page, Math.max(0, Math.ceil(items.length / 3) - 1))
+  const pageItems = items.slice(page * 3, page * 3 + 3)
+  const formValues = useMemo(
     () => (selected.data ? mapCompanyToForm(selected.data) : undefined),
     [selected.data],
   )
-
-  const clearCompanyContext = () => {
+  const close = () => {
     setOverlay(null)
-    setDeactivationError(undefined)
-    updateState({ selectedCompanyId: undefined })
-  }
-
-  const closeOverlay = () => {
-    setOverlay(null)
-    setDeactivationError(undefined)
+    setDeleteError(undefined)
   }
 
   const createCompany = async (values: CompanyFormSubmission) => {
@@ -83,260 +66,147 @@ export function InternshipManagementPage() {
       contactPhone: values.contactPhone,
       notes: values.notes,
     })
-    notify({
-      tone: 'success',
-      title: 'Company added',
-      message: `${created.name} is ready for internship requests.`,
-    })
+    notify({ tone: 'success', title: 'Company created', message: `${created.name} was saved.` })
     updateState({ selectedCompanyId: created.companyId })
+    close()
+  }
+  const updateCompany = async (values: CompanyFormSubmission) => {
+    if (!selected.data) throw new TypeError('Load the company before updating it.')
+    const saved = await updateMutation.mutateAsync({
+      companyId: selected.data.companyId,
+      version: selected.data.version,
+      body: values,
+    })
+    notify({ tone: 'success', title: 'Company updated', message: `${saved.name} was saved.` })
     setOverlay('details')
   }
-
-  const updateCompany = async (values: CompanyFormSubmission) => {
-    const current = selected.data
-    if (!current) throw new TypeError('Load the company before updating it.')
+  const deleteCompany = async () => {
+    if (!selected.data) return
+    setDeleteError(undefined)
     try {
-      const body = {
-        name: values.name,
-        websiteUrl: values.websiteUrl,
-        contactPerson: values.contactPerson,
-        contactEmail: values.contactEmail,
-        contactPhone: values.contactPhone,
-        notes: values.notes,
-        ...(values.active !== current.active ? { active: values.active } : {}),
-      }
-      const saved = await updateMutation.mutateAsync({
-        companyId: current.companyId,
-        version: current.version,
-        body,
+      await deleteMutation.mutateAsync({
+        companyId: selected.data.companyId,
+        version: selected.data.version,
       })
       notify({
         tone: 'success',
-        title: saved.active && !current.active ? 'Company reactivated' : 'Company updated',
-        message: `${saved.name} was saved.`,
+        title: 'Company deleted',
+        message: `${selected.data.name} was removed.`,
       })
-      setOverlay('details')
+      updateState({ selectedCompanyId: undefined })
+      close()
     } catch (reason) {
-      const status = mapApiError(reason, 'protected').status
-      if (status === 404) {
-        clearCompanyContext()
-        await companies.refetch()
-      } else if (status === 412 || status === 428) {
-        await Promise.all([selected.refetch(), companies.refetch()])
-      }
-      throw reason
-    }
-  }
-
-  const deactivateCompany = async () => {
-    const current = selected.data
-    if (!current) return
-    setDeactivationError(undefined)
-    try {
-      await deactivateMutation.mutateAsync({
-        companyId: current.companyId,
-        version: current.version,
-      })
-      notify({
-        tone: 'success',
-        title: 'Company deactivated',
-        message: `${current.name} is no longer available for new internship requests.`,
-      })
-      clearCompanyContext()
-    } catch (reason) {
-      const status = mapApiError(reason, 'protected').status
-      setDeactivationError(getCompanyMutationErrorMessage(reason))
-      if (status === 412 || status === 428) {
-        await Promise.all([selected.refetch(), companies.refetch()])
-      }
-      if (status === 404) {
-        clearCompanyContext()
-        await companies.refetch()
-      }
+      setDeleteError(getCompanyMutationErrorMessage(reason))
     }
   }
 
   return (
-    <div className="content-stack internship-management-page">
+    <div className="internship-wireframe-page">
       <PageHeader
-        description="Maintain external company records and company-scoped internship requests with deterministic taxonomy requirements."
-        eyebrow="Administration"
         title="Internship Requests Management"
+        description="Unified intake pipeline natively capturing corporate CRM records and placement matching parameters. Configured technical profiles compile context-aware logic keys for the deterministic candidate filtering panels directly."
       />
-
-      <SectionCard aria-labelledby="company-directory-title" className="company-workspace">
-        <div className="company-workspace-heading">
-          <div>
-            <h2 id="company-directory-title">Registered corporate clients</h2>
-            <p>Select a company to manage only its internship requests.</p>
-          </div>
-          <Chip>{companies.data?.page.totalElements ?? 0} companies</Chip>
+      <SectionCard className="internship-wireframe-card">
+        <div className="internship-section-heading">
+          <h2>Registered Corporate Clients</h2>
         </div>
-
-        <div className="company-toolbar wireframe-toolbar">
-          <label className="wireframe-toolbar-search">
-            <span className="visually-hidden">Search companies</span>
-            <SearchInput
-              aria-label="Search companies"
-              maxLength={120}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search companies by name or contact"
-              value={searchInput}
-            />
-          </label>
-          <label>
-            <span>Company status</span>
-            <SelectField
-              aria-label="Company status"
-              onChange={(event) =>
-                updateState({
-                  active:
-                    event.target.value === 'active'
-                      ? true
-                      : event.target.value === 'inactive'
-                        ? false
-                        : undefined,
-                })
-              }
-              value={state.active === true ? 'active' : state.active === false ? 'inactive' : 'all'}
-            >
-              <option value="all">All companies</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </SelectField>
-          </label>
-          <label>
-            <span>Sort</span>
-            <SortSelect
-              onChange={(event) => updateState({ sort: event.target.value as typeof state.sort })}
-              value={state.sort}
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SortSelect>
-          </label>
-          <Button icon={<span className="material-symbols-outlined">add_business</span>} onClick={() => setOverlay('create')}>Create a company</Button>
+        <div className="internship-company-toolbar">
+          <SearchInput
+            aria-label="Search companies by name"
+            maxLength={120}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search companies by name..."
+            value={searchInput}
+          />
+          <Button
+            icon={<span className="material-symbols-outlined">add_business</span>}
+            onClick={() => setOverlay('create')}
+          >
+            Create a Company
+          </Button>
         </div>
-
-        <p aria-live="polite" className="company-updating">
-          {companies.isFetching && !companies.isPending ? 'Updating companies…' : ''}
-        </p>
-
         <LoadingBoundary
           isLoading={companies.isPending}
-          label="Loading company directory"
-          minHeight={420}
-          skeleton={<SkeletonBlock height={320} lines={0} variant="card" />}
+          label="Loading corporate clients"
+          minHeight={300}
+          skeleton={<SkeletonBlock height={260} lines={0} variant="card" />}
         >
-          {mappedListError ? (
+          {companies.error ? (
             <ErrorState
-              correlationId={mappedListError.correlationId}
-              message={mappedListError.message}
+              message={mapApiError(companies.error, 'protected').message}
               onAction={() => void companies.refetch()}
               title="Companies unavailable"
             />
-          ) : companies.data?.items.length ? (
+          ) : pageItems.length ? (
             <>
               <CompanyTable
-                companies={companies.data.items}
-                onSelect={(companyId) => updateState({ selectedCompanyId: companyId })}
-                onView={(companyId) => {
-                  updateState({ selectedCompanyId: companyId })
+                companies={pageItems}
+                onDelete={(id) => {
+                  updateState({ selectedCompanyId: id })
+                  setOverlay('delete')
+                }}
+                onSelect={(id) => updateState({ selectedCompanyId: id })}
+                onView={(id) => {
+                  updateState({ selectedCompanyId: id })
                   setOverlay('details')
                 }}
                 selectedCompanyId={state.selectedCompanyId}
               />
-              <PaginationBar
-                label="Company pages"
-                onPageChange={(page) => updateState({ page })}
-                onPageSizeChange={(size) => updateState({ size: size as 20 | 50 | 100 })}
-                page={companies.data.page.page}
-                pageSizeOptions={[20, 50, 100]}
-                size={companies.data.page.size}
-                totalElements={companies.data.page.totalElements}
-                totalPages={companies.data.page.totalPages}
+              <WireframePagination
+                kind="companies"
+                label="Company list pagination"
+                onPageChange={(next) => updateState({ page: next })}
+                page={page}
+                pageSize={3}
+                total={items.length}
               />
             </>
           ) : (
             <EmptyState
-              action={
-                hasFilters ? (
-                  <Button
-                    onClick={() => {
-                      setSearchInput('')
-                      updateState({ search: '', active: undefined })
-                    }}
-                    variant="secondary"
-                  >
-                    Clear search and filters
-                  </Button>
-                ) : (
-                  <Button onClick={() => setOverlay('create')}>Add first company</Button>
-                )
-              }
               message={
-                hasFilters
-                  ? 'No companies match the current search and status filter.'
-                  : 'Add approved company metadata before creating internship requests.'
+                state.search
+                  ? 'No matching registered corporate clients were found.'
+                  : 'No registered corporate clients are available.'
               }
-              title={hasFilters ? 'No matching companies' : 'No companies yet'}
+              title={state.search ? 'No matching companies' : 'No companies yet'}
             />
           )}
         </LoadingBoundary>
       </SectionCard>
-
       <InternshipRequestWorkspace
-        onClearCompany={clearCompanyContext}
         selectedCompany={selected.data}
         selectedCompanyId={state.selectedCompanyId}
       />
-
       {overlay === 'create' ? (
-        <CompanyForm mode="create" onCancel={closeOverlay} onSubmit={createCompany} />
+        <CompanyForm mode="create" onCancel={close} onSubmit={createCompany} />
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
-        <Modal onClose={closeOverlay} title="Company details">
-          <SkeletonBlock height={300} lines={0} variant="card" />
-        </Modal>
-      ) : null}
-      {overlay && overlay !== 'create' && selected.error ? (
-        <Modal onClose={closeOverlay} title="Company unavailable">
-          <ErrorState
-            message={mapApiError(selected.error, 'protected').message}
-            onAction={() => void selected.refetch()}
-            title="Unable to load company details"
-          />
+        <Modal onClose={close} title="Corporate CRM Details Panel">
+          <SkeletonBlock height={260} lines={0} variant="card" />
         </Modal>
       ) : null}
       {overlay === 'details' && selected.data ? (
         <CompanyDetailsModal
           company={selected.data}
-          onClose={closeOverlay}
-          onDeactivate={() => {
-            setDeactivationError(undefined)
-            setOverlay('deactivate')
-          }}
+          onClose={close}
+          onDeactivate={() => setOverlay('delete')}
           onEdit={() => setOverlay('edit')}
         />
       ) : null}
-      {overlay === 'edit' && selected.data && selectedFormValues ? (
+      {overlay === 'edit' && selected.data && formValues ? (
         <CompanyForm
-          initialValues={selectedFormValues}
+          initialValues={formValues}
           mode="edit"
           onCancel={() => setOverlay('details')}
           onSubmit={updateCompany}
         />
       ) : null}
-      {overlay === 'deactivate' && selected.data ? (
+      {overlay === 'delete' && selected.data ? (
         <CompanyDeactivateDialog
-          company={selected.data}
-          error={deactivationError}
-          isPending={deactivateMutation.isPending}
-          onClose={() => setOverlay('details')}
-          onConfirm={() => void deactivateCompany()}
+          error={deleteError}
+          isPending={deleteMutation.isPending}
+          onClose={close}
+          onConfirm={() => void deleteCompany()}
         />
       ) : null}
     </div>

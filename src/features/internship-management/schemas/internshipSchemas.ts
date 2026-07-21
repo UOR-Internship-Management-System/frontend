@@ -63,10 +63,10 @@ export const companySortSchema = z.enum(['name,asc', 'name,desc', 'updatedAt,des
 export const companyFormSchema = z
   .object({
     name: z.string().trim().min(1, 'Company name is required.').max(200),
-    websiteUrl: nullableFormWebsiteSchema,
-    contactPerson: nullableFormTextSchema(150),
-    contactEmail: nullableFormEmailSchema,
-    contactPhone: nullableFormTextSchema(30),
+    websiteUrl: nullableFormWebsiteSchema.refine(Boolean, 'Corporate website is required.'),
+    contactPerson: nullableFormTextSchema(150).refine(Boolean, 'HR representative is required.'),
+    contactEmail: nullableFormEmailSchema.refine(Boolean, 'HR email address is required.'),
+    contactPhone: nullableFormTextSchema(30).refine(Boolean, 'Direct line phone is required.'),
     notes: nullableFormTextSchema(4000),
     active: z.boolean(),
   })
@@ -219,12 +219,10 @@ export const internshipRequestFormValuesSchema = z
     shortlistGuidanceValue: z
       .string()
       .trim()
+      .min(1, 'Maximum shortlist limit is required.')
+      .refine((value) => /^\d+$/.test(value), 'Enter a whole number from 1 to 100.')
       .refine(
-        (value) => !value || /^\d+$/.test(value),
-        'Enter a whole number from 1 to 100.',
-      )
-      .refine(
-        (value) => !value || (Number(value) >= 1 && Number(value) <= 100),
+        (value) => Number(value) >= 1 && Number(value) <= 100,
         'Enter a whole number from 1 to 100.',
       ),
     notes: z.string().trim().max(4000, 'Notes cannot exceed 4000 characters.'),

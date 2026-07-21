@@ -102,9 +102,12 @@ export function CompanyForm({
   return (
     <Modal
       closeDisabled={isPending}
-      description="Maintain approved company contact metadata for internship requests."
       onClose={onCancel}
-      title={mode === 'create' ? 'Add company' : 'Edit company'}
+      title={
+        mode === 'create'
+          ? 'Create Corporate CRM Profile Parameters'
+          : 'Modify Corporate Profile Parameters'
+      }
     >
       <form className="company-form" noValidate onSubmit={submit}>
         {formError ? (
@@ -213,43 +216,12 @@ export function CompanyForm({
           </FormField>
         </div>
 
-        <FormField
-          error={errors.notes}
-          errorId="company-notes-error"
-          htmlFor="company-notes"
-          label="Administrative notes"
-        >
-          <textarea
-            aria-describedby={describedBy('notes')}
-            aria-invalid={Boolean(errors.notes)}
-            className="input"
-            disabled={isPending}
-            id="company-notes"
-            maxLength={4000}
-            onChange={(event) => update('notes', event.target.value)}
-            rows={4}
-            value={values.notes}
-          />
-        </FormField>
-
-        {mode === 'edit' && !initialValues.active ? (
-          <label className="company-reactivate-option">
-            <input
-              checked={values.active}
-              disabled={isPending}
-              onChange={(event) => update('active', event.target.checked)}
-              type="checkbox"
-            />
-            <span>Reactivate this company for new internship requests</span>
-          </label>
-        ) : null}
-
         <div className="modal-actions">
           <Button disabled={isPending} onClick={onCancel} variant="secondary">
-            Cancel
+            Close
           </Button>
           <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
-            {mode === 'create' ? 'Add company' : 'Save changes'}
+            {mode === 'create' ? 'Save Profile' : 'Save Changes'}
           </Button>
         </div>
       </form>
