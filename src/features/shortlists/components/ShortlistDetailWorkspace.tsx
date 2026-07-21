@@ -23,6 +23,7 @@ import type { ShortlistCandidate, ShortlistsUrlState } from '../types/shortlistT
 import { FinalizeShortlistDialog } from './FinalizeShortlistDialog'
 import { ShortlistGuidanceWarning } from './ShortlistGuidanceWarning'
 import { ShortlistReviewTable } from './ShortlistReviewTable'
+import { ShortlistExportPanel } from './ShortlistExportPanel'
 
 type ShortlistDetailQuery = ReturnType<typeof useShortlistDetail>
 
@@ -313,6 +314,12 @@ export function ShortlistDetailWorkspace({
                 }
               />
             )}
+
+            <ShortlistExportPanel
+              onStateChange={onStateChange}
+              shortlist={shortlist}
+              state={state}
+            />
 
             {finalizeOpen && shortlist.status === 'DRAFT' ? (
               <FinalizeShortlistDialog

@@ -16,4 +16,5 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     route: routePaths.adminCandidateFiltering,
     icon: 'filter_alt',
   },
+  { label: 'Shortlists', route: routePaths.adminShortlists, icon: 'assignment_turned_in' },
 ]

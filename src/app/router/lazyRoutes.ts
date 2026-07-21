@@ -119,3 +119,9 @@ export const CandidateFilteringPage = lazy(() =>
     default: module.CandidateFilteringPage,
   })),
 )
+
+export const ShortlistsPage = lazy(() =>
+  import('../../features/shortlists/pages/ShortlistsPage').then((module) => ({
+    default: module.ShortlistsPage,
+  })),
+)

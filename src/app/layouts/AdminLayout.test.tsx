@@ -66,6 +66,7 @@ function renderAdminLayout(initialPath: string = routePaths.adminDashboard) {
                   path={routePaths.adminCandidateFiltering}
                   element={<h1>Candidate Filtering</h1>}
                 />
+                <Route path={routePaths.adminShortlists} element={<h1>Shortlists</h1>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -86,7 +87,7 @@ describe('AdminLayout', () => {
     renderAdminLayout(routePaths.adminAcademicLedger)
     const navigation = screen.getByRole('navigation', { name: 'Admin navigation' })
 
-    expect(within(navigation).getAllByRole('link')).toHaveLength(5)
+    expect(within(navigation).getAllByRole('link')).toHaveLength(6)
     expect(screen.getByRole('link', { name: 'Academic Ledger' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -102,6 +103,10 @@ describe('AdminLayout', () => {
     expect(screen.getByRole('link', { name: 'Candidate Filtering' })).toHaveAttribute(
       'href',
       routePaths.adminCandidateFiltering,
+    )
+    expect(screen.getByRole('link', { name: 'Shortlists' })).toHaveAttribute(
+      'href',
+      routePaths.adminShortlists,
     )
   })
 

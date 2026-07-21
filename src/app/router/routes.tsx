@@ -23,6 +23,7 @@ import {
   StudentDeepDivePage,
   InternshipManagementPage,
   CandidateFilteringPage,
+  ShortlistsPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
@@ -58,6 +59,7 @@ import {
   StudentProjectsSkeleton,
   StudentSkillsSkeleton,
   InternshipManagementSkeleton,
+  ShortlistExportSkeleton,
 } from '../../shared/skeletons'
 
 const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
@@ -264,6 +266,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminCandidateFiltering,
             element: withSuspense(<CandidateFilteringPage />, <CandidateFilteringSkeleton />),
+          },
+          {
+            path: routePaths.adminShortlists,
+            element: withSuspense(<ShortlistsPage />, <ShortlistExportSkeleton />),
           },
         ],
       },
