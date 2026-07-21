@@ -1,3 +1,14 @@
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --font-size-xs: 0.75rem;
+  --font-size-lg: 1.125rem;
+}
+
 /* Sprint 7–8 wireframe alignment.
  * Scoped to the Internship Management and Candidate Filtering workspaces so
  * it does not alter unrelated pages or shared component behavior.
@@ -1095,6 +1106,488 @@
   .logic-switch-axis,
   .logic-switch-axis span,
   .gpa-range-track span {
+    transition: none;
+  }
+}
+/* Shared Sprint 7–8 Admin page geometry from the approved wireframes. */
+.student-deep-dive-page,
+.shortlists-page {
+  width: 100%;
+  min-width: 0;
+}
+
+.internship-management-page,
+.candidate-filtering-page,
+.student-deep-dive-page,
+.shortlists-page {
+  gap: var(--space-6);
+}
+
+.internship-management-page .page-header,
+.candidate-filtering-page .page-header,
+.student-deep-dive-page .page-header,
+.shortlists-page .page-header {
+  margin-bottom: 0;
+}
+
+.internship-management-page .page-header h1,
+.candidate-filtering-page .page-header h1,
+.student-deep-dive-page .page-header h1,
+.shortlists-page .page-header h1 {
+  max-width: 960px;
+  font-size: 1.85rem;
+  line-height: 1.2;
+}
+
+.student-deep-dive-page .section-card,
+.shortlists-page .section-card {
+  min-width: 0;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  animation: sprint78-panel-enter 280ms var(--motion-standard) both;
+}
+
+.student-deep-dive-page .student-deep-dive-layout {
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.student-deep-dive-page .student-deep-dive-content {
+  gap: var(--space-6);
+}
+
+.student-deep-dive-page .student-identity-panel {
+  top: var(--space-5);
+  gap: var(--space-5);
+}
+
+.student-deep-dive-page .deep-dive-detail,
+.student-deep-dive-page .deep-dive-skill-card,
+.student-deep-dive-page .deep-dive-record-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+}
+
+/* The reference filtering page keeps the controls stacked in its left rail.
+ * Collapse the whole workspace before the Admin shell leaves either column cramped. */
+@media (max-width: 1280px) {
+  .candidate-filtering-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .candidate-filtering-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.candidate-filtering-page .candidate-filtering-layout,
+.candidate-filtering-page .candidate-filtering-sidebar,
+.candidate-filtering-page .candidate-criteria-card,
+.candidate-filtering-page .filtering-gpa-panel,
+.candidate-filtering-page .declared-skill-filter-panel,
+.candidate-filtering-page .filtering-match-mode {
+  min-width: 0;
+}
+
+.candidate-filtering-page .filtering-criteria-actions {
+  position: static;
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  background: transparent;
+}
+
+.candidate-filtering-page .gpa-preset-row .button {
+  flex: 1 1 120px;
+  white-space: nowrap;
+}
+
+.candidate-filtering-page .candidate-results-workspace {
+  overflow: hidden;
+}
+
+/* Shortlist directory follows the wireframe's full-width request matrix, with
+ * the selected shortlist review rendered as the next operational card. */
+.shortlists-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.shortlist-directory,
+.shortlist-detail-workspace {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+}
+
+.shortlist-directory-heading,
+.shortlist-detail-heading,
+.shortlist-candidate-heading,
+.shortlist-export-heading,
+.shortlist-export-card-heading,
+.shortlist-finalization-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.shortlist-directory-heading h2,
+.shortlist-directory-heading p,
+.shortlist-detail-heading h2,
+.shortlist-detail-heading p,
+.shortlist-candidate-heading h3,
+.shortlist-candidate-heading p,
+.shortlist-export-heading h3,
+.shortlist-export-heading p,
+.shortlist-export-card-heading h4,
+.shortlist-export-card-heading p,
+.shortlist-finalization-actions h3,
+.shortlist-finalization-actions p {
+  margin: 0;
+}
+
+.shortlist-directory-toolbar,
+.shortlist-candidate-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.5fr) repeat(3, minmax(150px, 0.7fr));
+  gap: var(--space-4);
+  align-items: end;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.shortlist-candidate-toolbar {
+  grid-template-columns: minmax(260px, 1fr) minmax(190px, 0.45fr);
+}
+
+.shortlist-directory-toolbar label,
+.shortlist-candidate-toolbar label {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.shortlist-directory-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shortlist-directory-item {
+  display: grid;
+  gap: var(--space-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--motion-standard),
+    border-color 180ms var(--motion-standard),
+    box-shadow 180ms var(--motion-standard),
+    background-color 180ms var(--motion-standard);
+}
+
+.shortlist-directory-item:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--color-card));
+  box-shadow: var(--shadow-hover);
+}
+
+.shortlist-directory-item.is-selected {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, var(--color-card));
+  box-shadow: inset 4px 0 0 var(--color-primary);
+}
+
+.shortlist-directory-item-heading,
+.shortlist-directory-item-heading > span:first-child,
+.shortlist-directory-item-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.shortlist-directory-item-heading {
+  justify-content: space-between;
+}
+
+.shortlist-directory-item-heading > span:first-child {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.shortlist-directory-item-heading strong {
+  overflow-wrap: anywhere;
+  font-size: var(--font-size-lg);
+}
+
+.shortlist-directory-item-heading small,
+.shortlist-directory-item-summary,
+.shortlist-directory-item-updated,
+.shortlist-secondary,
+.shortlist-updating,
+.shortlist-filter-message,
+.shortlist-download-message,
+.shortlist-export-live-region {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.shortlist-directory-item-summary {
+  flex-wrap: wrap;
+}
+
+.shortlist-directory-item-summary span:not(:last-child)::after {
+  content: '·';
+  margin-left: var(--space-3);
+  color: var(--color-border-strong);
+}
+
+.shortlist-summary-grid,
+.shortlist-export-job dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.shortlist-summary-grid > div,
+.shortlist-export-job dl > div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.shortlist-summary-grid dt,
+.shortlist-export-job dt {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.shortlist-summary-grid dd,
+.shortlist-export-job dd {
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.shortlist-guidance-warning,
+.shortlist-finalization-actions,
+.shortlist-readonly-notice,
+.shortlist-export-locked {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.shortlist-readonly-notice,
+.shortlist-export-locked {
+  color: var(--color-text-muted);
+}
+
+.shortlist-review-table-wrapper {
+  border-radius: var(--radius-lg);
+}
+
+.shortlist-review-table {
+  min-width: 980px;
+  table-layout: auto;
+}
+
+.shortlist-review-table th,
+.shortlist-review-table td {
+  padding: var(--space-4);
+  vertical-align: middle;
+}
+
+.shortlist-review-table td:first-child,
+.shortlist-cv-action {
+  display: grid;
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.shortlist-cv-action .button {
+  width: fit-content;
+}
+
+.shortlist-export-panel {
+  display: grid;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.shortlist-export-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.shortlist-export-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-card-muted);
+}
+
+.shortlist-export-job {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.shortlist-export-job dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.shortlist-export-warnings,
+.shortlist-missing-cvs {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 45%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-card));
+  color: var(--color-text);
+}
+
+.shortlist-export-warnings,
+.shortlist-missing-cvs ul {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.shortlist-missing-cvs ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.shortlist-export-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.shortlist-export-empty {
+  margin: 0;
+  padding: var(--space-4);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+  text-align: center;
+}
+
+.shortlist-export-error {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
+  background: var(--danger-bg);
+  color: var(--color-danger);
+}
+
+@media (max-width: 1100px) {
+  .student-deep-dive-page .student-deep-dive-layout,
+  .shortlist-export-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .student-deep-dive-page .student-identity-panel {
+    position: static;
+  }
+
+  .shortlist-directory-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .internship-management-page .page-header h1,
+  .candidate-filtering-page .page-header h1,
+  .student-deep-dive-page .page-header h1,
+  .shortlists-page .page-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .student-deep-dive-page .section-card,
+  .shortlists-page .section-card {
+    padding: var(--space-5);
+  }
+
+  .shortlist-directory-heading,
+  .shortlist-detail-heading,
+  .shortlist-candidate-heading,
+  .shortlist-export-heading,
+  .shortlist-export-card-heading,
+  .shortlist-finalization-actions,
+  .shortlist-directory-item-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .shortlist-directory-toolbar,
+  .shortlist-candidate-toolbar,
+  .shortlist-summary-grid,
+  .shortlist-export-job dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shortlist-directory-item-summary {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .shortlist-directory-item-summary span::after {
+    display: none;
+  }
+
+  .shortlist-export-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .shortlist-export-actions .button,
+  .shortlist-cv-action .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-deep-dive-page .section-card,
+  .shortlists-page .section-card,
+  .shortlist-directory-item {
+    animation: none;
     transition: none;
   }
 }

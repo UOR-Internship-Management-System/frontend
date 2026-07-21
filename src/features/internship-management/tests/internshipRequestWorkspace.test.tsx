@@ -123,7 +123,7 @@ describe('InternshipRequestWorkspace', () => {
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
 
     const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
-    const title = within(edit).getByLabelText('Internship role title')
+    const title = within(edit).getByLabelText(/Internship role title/i)
     await user.clear(title)
     await user.type(title, 'Platform Engineering Intern')
     await user.click(within(edit).getByRole('button', { name: 'Save request' }))
@@ -183,7 +183,7 @@ describe('InternshipRequestWorkspace', () => {
     const details = await screen.findByRole('dialog', { name: 'Internship request details' })
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
     const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
-    const title = within(edit).getByLabelText('Internship role title')
+    const title = within(edit).getByLabelText(/Internship role title/i)
     await user.clear(title)
     await user.type(title, 'Preserved role title')
     await user.click(within(edit).getByRole('button', { name: 'Save request' }))

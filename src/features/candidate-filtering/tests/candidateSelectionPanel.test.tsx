@@ -178,7 +178,9 @@ describe('CandidateSelectionPanel', () => {
     })
     await user.click(within(skillDialog).getByRole('checkbox', { name: /Python/ }))
     await user.click(within(skillDialog).getByRole('button', { name: 'Apply selected skills' }))
-    await user.click(screen.getByRole('switch', { name: 'Matching logic' }))
+    await user.click(
+      screen.getByRole('switch', { name: 'Toggle technical skill matching logic mode' }),
+    )
     await user.click(screen.getByRole('button', { name: 'Run filtering' }))
 
     await waitFor(() => expect(onRun).toHaveBeenCalledOnce())

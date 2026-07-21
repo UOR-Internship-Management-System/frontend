@@ -128,7 +128,7 @@ describe('InternshipManagementPage company workspace', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Add company' }))
     expect(await within(dialog).findByText('Company name is required.')).toBeInTheDocument()
 
-    await user.type(within(dialog).getByLabelText('Company name'), '  New Partner  ')
+    await user.type(within(dialog).getByLabelText(/Company legal name/i), '  New Partner  ')
     await user.click(within(dialog).getByRole('button', { name: 'Add company' }))
     await waitFor(() => expect(submittedBody).toBeDefined())
     expect(submittedBody).toEqual({

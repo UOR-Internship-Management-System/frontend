@@ -63,13 +63,13 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Candidate Filtering',
+      name: 'Interactive Candidate Filtering Dashboard',
     }),
   ).toBeVisible()
 
   await expect(
     page.getByText(
-      'Apply runtime official GPA and declared-skill criteria, then select candidates manually.',
+      'Select an active placement request, apply runtime official GPA and declared-skill criteria, and manually review candidates.',
     ),
   ).toBeVisible()
 
@@ -83,7 +83,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
 
   await expect(
     page.getByText(
-      'Choose runtime criteria and run filtering to view deterministic candidate results.',
+      'Select an active internship request, adjust runtime criteria, and run filtering. Results remain factual and require explicit manual selection.',
     ),
   ).toBeVisible()
 
