@@ -5,6 +5,7 @@ import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryClient } from '../../../app/config/queryClient'
+import { NotificationProvider } from '../../../app/providers/NotificationProvider'
 import { server } from '../../../mocks/server'
 import { CandidateResultsWorkspace } from '../components/CandidateResultsWorkspace'
 import { useCandidateSelection } from '../hooks/useCandidateSelection'
@@ -14,6 +15,7 @@ const requestId = '11111111-1111-4111-8111-111111111111'
 const companyId = '22222222-2222-4222-8222-222222222222'
 const runId = '33333333-3333-4333-8333-333333333333'
 const studentId = '44444444-4444-4444-8444-444444444444'
+const shortlistId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
 const now = '2026-07-20T09:30:00Z'
 
 const matchingDeclaredSkills = Array.from({ length: 4 }, (_, index) => ({
@@ -106,9 +108,11 @@ function renderWorkspace(updateState = vi.fn()) {
 
   render(
     <QueryClientProvider client={createQueryClient()}>
-      <MemoryRouter>
-        <WorkspaceHarness />
-      </MemoryRouter>
+      <NotificationProvider>
+        <MemoryRouter>
+          <WorkspaceHarness />
+        </MemoryRouter>
+      </NotificationProvider>
     </QueryClientProvider>,
   )
   return updateState
@@ -164,5 +168,87 @@ describe('CandidateResultsWorkspace', () => {
     await screen.findByText('Ayesha Perera')
     await user.selectOptions(screen.getByLabelText('Sort'), 'fullName,asc')
     expect(updateState).toHaveBeenCalledWith({ candidateSort: 'fullName,asc' })
+  })
+
+  it('creates one draft and batch-adds only the explicitly selected Students', async () => {
+    const user = userEvent.setup()
+    const createCall = vi.fn()
+    const addCall = vi.fn()
+    renderWorkspace()
+    server.use(
+      http.post('/api/v1/admin/shortlists', async ({ request }) => {
+        createCall(await request.json())
+        return HttpResponse.json(
+          {
+            shortlistId,
+            request: {
+              requestId,
+              companyId,
+              companyName: 'Example Technologies',
+              title: 'Software Engineering Intern',
+              status: 'ACTIVE',
+              shortlistGuidanceValue: 10,
+            },
+            filterRunId: runId,
+            name: null,
+            status: 'DRAFT',
+            guidanceValue: 10,
+            selectedCandidateCount: 0,
+            guidanceExceeded: false,
+            guidanceWarning: null,
+            version: 3,
+            createdAt: now,
+            updatedAt: now,
+            finalizedAt: null,
+          },
+          { status: 201 },
+        )
+      }),
+      http.post('/api/v1/admin/shortlists/:shortlistId/candidates', async ({ request }) => {
+        addCall(request.headers.get('If-Match'), await request.json())
+        return HttpResponse.json({
+          shortlistId,
+          addedCount: 1,
+          alreadyPresentCount: 0,
+          removedCount: 0,
+          selectedCandidateCount: 1,
+          guidanceExceeded: false,
+          version: 4,
+        })
+      }),
+    )
+
+    await user.click(
+      await screen.findByRole('checkbox', { name: 'Select Ayesha Perera (SC/2022/12345)' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Review selected (1)' }))
+    await user.click(
+      within(await screen.findByRole('dialog', { name: 'Selected candidates' })).getByRole(
+        'button',
+        { name: 'Create draft shortlist' },
+      ),
+    )
+
+    await waitFor(() => expect(addCall).toHaveBeenCalledOnce())
+    expect(createCall).toHaveBeenCalledWith({ requestId, filterRunId: runId })
+    expect(addCall).toHaveBeenCalledWith('"3"', { studentIds: [studentId] })
+  })
+
+  it('shows a safe navigation choice when the request already has a shortlist', async () => {
+    const user = userEvent.setup()
+    renderWorkspace()
+    server.use(
+      http.post('/api/v1/admin/shortlists', () =>
+        HttpResponse.json({ title: 'Conflict', status: 409 }, { status: 409 }),
+      ),
+    )
+    await user.click(
+      await screen.findByRole('checkbox', { name: 'Select Ayesha Perera (SC/2022/12345)' }),
+    )
+    await user.click(screen.getByRole('button', { name: 'Review selected (1)' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Selected candidates' })
+    await user.click(within(dialog).getByRole('button', { name: 'Create draft shortlist' }))
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('already exists')
+    expect(within(dialog).getByRole('button', { name: 'Open Shortlists' })).toBeInTheDocument()
   })
 })

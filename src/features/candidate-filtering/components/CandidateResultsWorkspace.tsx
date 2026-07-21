@@ -197,7 +197,12 @@ export function CandidateResultsWorkspace({
         />
       ) : null}
       {reviewOpen ? (
-        <SelectedCandidatesReviewModal onClose={() => setReviewOpen(false)} selection={selection} />
+        <SelectedCandidatesReviewModal
+          onClose={() => setReviewOpen(false)}
+          requestId={state.requestId ?? run.data?.request.requestId ?? ''}
+          runId={state.runId}
+          selection={selection}
+        />
       ) : null}
     </SectionCard>
   )
