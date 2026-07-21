@@ -136,8 +136,8 @@ describe('CandidateResultsWorkspace', () => {
     const student = await screen.findByRole('link', { name: 'Ayesha Perera' })
     expect(student).toHaveAttribute('href', `/admin/students/${studentId}`)
     expect(screen.getByText('Not available')).toBeInTheDocument()
-    expect(screen.getByText('7')).toBeInTheDocument()
-    expect(screen.getByText('2 existing')).toBeInTheDocument()
+    expect(screen.getByText('7 declared skills')).toBeInTheDocument()
+    expect(screen.getByText('2 active shortlists')).toBeInTheDocument()
 
     const checkbox = screen.getByRole('checkbox', {
       name: 'Select Ayesha Perera (SC/2022/12345)',
@@ -160,6 +160,28 @@ describe('CandidateResultsWorkspace', () => {
     await user.click(screen.getByRole('button', { name: 'View all 4' }))
     const dialog = await screen.findByRole('dialog', { name: 'Matching declared skills' })
     expect(within(dialog).getByText('SQL')).toBeInTheDocument()
+  })
+
+  it('selects and clears every candidate on the current page explicitly', async () => {
+    const user = userEvent.setup()
+    renderWorkspace()
+    const candidateCheckbox = await screen.findByRole('checkbox', {
+      name: 'Select Ayesha Perera (SC/2022/12345)',
+    })
+    const pageCheckbox = screen.getByRole('checkbox', {
+      name: 'Select all candidates on this page',
+    })
+    const row = candidateCheckbox.closest('tr')
+
+    await user.click(pageCheckbox)
+    expect(pageCheckbox).toBeChecked()
+    expect(candidateCheckbox).toBeChecked()
+    expect(row).toHaveClass('candidate-row-selected')
+
+    await user.click(pageCheckbox)
+    expect(pageCheckbox).not.toBeChecked()
+    expect(candidateCheckbox).not.toBeChecked()
+    expect(row).not.toHaveClass('candidate-row-selected')
   })
 
   it('delegates server sort changes to URL state', async () => {
@@ -250,5 +272,214 @@ describe('CandidateResultsWorkspace', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Create draft shortlist' }))
     expect(await within(dialog).findByRole('alert')).toHaveTextContent('already exists')
     expect(within(dialog).getByRole('button', { name: 'Open Shortlists' })).toBeInTheDocument()
+  })
+
+  it('retries candidate addition without creating another draft after a transient failure', async () => {
+    const user = userEvent.setup()
+    const createCall = vi.fn()
+    const addCall = vi.fn()
+    let addAttempt = 0
+
+    renderWorkspace()
+
+    server.use(
+      http.post('/api/v1/admin/shortlists', async ({ request }) => {
+        createCall(await request.json())
+
+        return HttpResponse.json(
+          {
+            shortlistId,
+            request: {
+              requestId,
+              companyId,
+              companyName: 'Example Technologies',
+              title: 'Software Engineering Intern',
+              status: 'ACTIVE',
+              shortlistGuidanceValue: 10,
+            },
+            filterRunId: runId,
+            name: null,
+            status: 'DRAFT',
+            guidanceValue: 10,
+            selectedCandidateCount: 0,
+            guidanceExceeded: false,
+            guidanceWarning: null,
+            version: 3,
+            createdAt: now,
+            updatedAt: now,
+            finalizedAt: null,
+          },
+          { status: 201 },
+        )
+      }),
+
+      http.post('/api/v1/admin/shortlists/:shortlistId/candidates', async ({ request }) => {
+        addAttempt += 1
+
+        addCall(request.headers.get('If-Match'), await request.json())
+
+        if (addAttempt === 1) {
+          return HttpResponse.json(
+            {
+              title: 'Service unavailable',
+              status: 503,
+            },
+            { status: 503 },
+          )
+        }
+
+        return HttpResponse.json({
+          shortlistId,
+          addedCount: 1,
+          alreadyPresentCount: 0,
+          removedCount: 0,
+          selectedCandidateCount: 1,
+          guidanceExceeded: false,
+          version: 4,
+        })
+      }),
+    )
+
+    await user.click(
+      await screen.findByRole('checkbox', {
+        name: 'Select Ayesha Perera (SC/2022/12345)',
+      }),
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Review selected (1)',
+      }),
+    )
+
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Selected candidates',
+    })
+
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: 'Create draft shortlist',
+      }),
+    )
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The draft shortlist was created, but the selected candidates were not added.',
+    )
+
+    /*
+     * Failed candidate addition must not clear the Admin's selection.
+     */
+    expect(within(dialog).getByText('1 candidate selected.')).toBeInTheDocument()
+
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: 'Retry adding candidates',
+      }),
+    )
+
+    await waitFor(() => {
+      expect(addCall).toHaveBeenCalledTimes(2)
+    })
+
+    /*
+     * The retry must reuse the created shortlist instead of creating
+     * another one.
+     */
+    expect(createCall).toHaveBeenCalledTimes(1)
+
+    expect(addCall).toHaveBeenNthCalledWith(1, '"3"', {
+      studentIds: [studentId],
+    })
+
+    expect(addCall).toHaveBeenNthCalledWith(2, '"3"', {
+      studentIds: [studentId],
+    })
+  })
+
+  it('requires reopening a changed draft instead of retrying with a stale version', async () => {
+    const user = userEvent.setup()
+
+    renderWorkspace()
+
+    server.use(
+      http.post('/api/v1/admin/shortlists', () =>
+        HttpResponse.json(
+          {
+            shortlistId,
+            request: {
+              requestId,
+              companyId,
+              companyName: 'Example Technologies',
+              title: 'Software Engineering Intern',
+              status: 'ACTIVE',
+              shortlistGuidanceValue: 10,
+            },
+            filterRunId: runId,
+            name: null,
+            status: 'DRAFT',
+            guidanceValue: 10,
+            selectedCandidateCount: 0,
+            guidanceExceeded: false,
+            guidanceWarning: null,
+            version: 3,
+            createdAt: now,
+            updatedAt: now,
+            finalizedAt: null,
+          },
+          { status: 201 },
+        ),
+      ),
+
+      http.post('/api/v1/admin/shortlists/:shortlistId/candidates', () =>
+        HttpResponse.json(
+          {
+            title: 'Precondition failed',
+            status: 412,
+          },
+          { status: 412 },
+        ),
+      ),
+    )
+
+    await user.click(
+      await screen.findByRole('checkbox', {
+        name: 'Select Ayesha Perera (SC/2022/12345)',
+      }),
+    )
+
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Review selected (1)',
+      }),
+    )
+
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Selected candidates',
+    })
+
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: 'Create draft shortlist',
+      }),
+    )
+
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'The draft shortlist changed after it was created.',
+    )
+
+    expect(
+      within(dialog).getByRole('button', {
+        name: 'Open Shortlists',
+      }),
+    ).toBeInTheDocument()
+
+    /*
+     * Retrying with the same stale If-Match version must not be offered.
+     */
+    expect(
+      within(dialog).queryByRole('button', {
+        name: 'Retry adding candidates',
+      }),
+    ).not.toBeInTheDocument()
   })
 })

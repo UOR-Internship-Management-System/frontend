@@ -1,5 +1,4 @@
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { CandidateResultsWorkspace } from '../components/CandidateResultsWorkspace'
 import { CandidateSelectionPanel } from '../components/CandidateSelectionPanel'
 import { useCandidateFilteringUrlState } from '../hooks/useCandidateFilteringUrlState'
@@ -11,16 +10,15 @@ export function CandidateFilteringPage() {
   const selection = useCandidateSelection(state.runId)
 
   return (
-    <main className="content-stack candidate-filtering-page">
+    <div className="content-stack candidate-filtering-page">
       <PageHeader
-        description="Apply runtime official GPA and declared-skill criteria, then select candidates manually."
+        description="Select an active placement request, apply runtime official GPA and declared-skill criteria, and manually review candidates."
         eyebrow="Administration"
-        title="Candidate Filtering"
+        title="Interactive Candidate Filtering Dashboard"
       />
-      <div className="candidate-filtering-layout">
-        <SectionCard aria-label="Candidate filtering criteria">
-          <CandidateSelectionPanel state={state} updateState={updateState} />
-        </SectionCard>
+
+      <div className="candidate-filtering-layout split-dashboard-pane">
+        <CandidateSelectionPanel state={state} updateState={updateState} />
         <CandidateResultsWorkspace
           candidateSearchInput={candidateSearchInput}
           selection={selection}
@@ -29,6 +27,6 @@ export function CandidateFilteringPage() {
           updateState={updateState}
         />
       </div>
-    </main>
+    </div>
   )
 }

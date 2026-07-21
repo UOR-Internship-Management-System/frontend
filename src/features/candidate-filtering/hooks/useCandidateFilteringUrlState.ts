@@ -123,6 +123,7 @@ export function useCandidateFilteringUrlState() {
   const updateState = useCallback(
     (patch: Partial<CandidateFilteringUrlState>) => {
       const requestChanged = 'requestId' in patch && patch.requestId !== state.requestId
+      if (requestChanged) setCandidateSearchInput('')
       const resetsCandidatePage = Object.keys(patch).some((key) =>
         ['candidateSearch', 'candidateSort', 'candidateSize'].includes(key),
       )
@@ -130,7 +131,17 @@ export function useCandidateFilteringUrlState() {
         ...state,
         ...patch,
         ...(requestChanged
-          ? { runId: undefined, requestSkillIds: [], candidatePage: 0 }
+          ? {
+              minGpa: undefined,
+              maxGpa: undefined,
+              requestSkillIds: [],
+              additionalSkillIds: [],
+              matchMode: 'AND' as const,
+              runId: undefined,
+              candidateSearch: '',
+              candidateSort: 'officialGpa,desc' as const,
+              candidatePage: 0,
+            }
           : resetsCandidatePage
             ? { candidatePage: 0 }
             : {}),

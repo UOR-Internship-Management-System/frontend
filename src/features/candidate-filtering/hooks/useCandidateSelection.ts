@@ -9,6 +9,8 @@ type SelectionState = {
 type SelectionAction =
   | { type: 'activate'; runId?: string }
   | { type: 'toggle'; candidate: CandidateFilteringCandidate }
+  | { type: 'selectMany'; candidates: CandidateFilteringCandidate[] }
+  | { type: 'removeMany'; studentIds: string[] }
   | { type: 'remove'; studentId: string }
   | { type: 'clear' }
 
@@ -20,8 +22,16 @@ function reducer(state: SelectionState, action: SelectionAction): SelectionState
 
   const candidates = new Map(state.candidates)
   if (action.type === 'remove') candidates.delete(action.studentId)
-  else if (candidates.has(action.candidate.studentId)) candidates.delete(action.candidate.studentId)
-  else candidates.set(action.candidate.studentId, action.candidate)
+  else if (action.type === 'removeMany') {
+    for (const studentId of action.studentIds) candidates.delete(studentId)
+  } else if (action.type === 'selectMany') {
+    for (const candidate of action.candidates) candidates.set(candidate.studentId, candidate)
+  } else if (candidates.has(action.candidate.studentId)) {
+    candidates.delete(action.candidate.studentId)
+  } else {
+    candidates.set(action.candidate.studentId, action.candidate)
+  }
+
   return { ...state, candidates }
 }
 
@@ -34,6 +44,9 @@ export function useCandidateSelection(runId?: string) {
       candidates: state.candidates,
       clear: () => dispatch({ type: 'clear' }),
       remove: (studentId: string) => dispatch({ type: 'remove', studentId }),
+      removeMany: (studentIds: string[]) => dispatch({ type: 'removeMany', studentIds }),
+      selectMany: (candidates: CandidateFilteringCandidate[]) =>
+        dispatch({ type: 'selectMany', candidates }),
       toggle: (candidate: CandidateFilteringCandidate) => dispatch({ type: 'toggle', candidate }),
     }),
     [state.candidates],

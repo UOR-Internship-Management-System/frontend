@@ -78,117 +78,133 @@ export function CandidateResultsWorkspace({
     if (page !== state.candidatePage) updateState({ candidatePage: page })
   }, [candidates.data, state.candidatePage, state.candidateSize, updateState])
 
-  if (!state.runId) {
-    return (
-      <SectionCard
-        aria-labelledby="candidate-results-title"
-        className="candidate-results-workspace"
-      >
-        <EmptyState
-          message="Choose runtime criteria and run filtering to view deterministic candidate results."
-          title="No filtering run selected"
-        />
-      </SectionCard>
-    )
-  }
-
   const error = run.error ?? candidates.error
   const mappedError = error ? mapApiError(error, 'protected') : null
+  const pageItems = candidates.data?.items ?? []
+  const selectedCount = selection.candidates.size
 
   return (
     <SectionCard aria-labelledby="candidate-results-title" className="candidate-results-workspace">
       <div className="candidate-results-heading">
         <div>
-          <h2 id="candidate-results-title">Candidate results</h2>
+          <h2 id="candidate-results-title">Matching students</h2>
           <p>
             {run.data
               ? `${run.data.request.companyName} · ${run.data.request.title}`
-              : 'Loading filtering run context…'}
+              : state.runId
+                ? 'Loading filtering run context…'
+                : 'Run deterministic filtering to populate this workspace.'}
           </p>
         </div>
-        <div className="candidate-results-heading-actions">
-          <Chip>
-            {candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} candidates
-          </Chip>
-          {selection.candidates.size ? (
-            <Button onClick={() => setReviewOpen(true)} variant="secondary">
-              Review selected ({selection.candidates.size})
-            </Button>
-          ) : null}
-        </div>
+        <Chip>{candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} records</Chip>
       </div>
 
-      <div className="candidate-results-toolbar">
-        <label>
-          <span>Search candidates</span>
-          <SearchInput
-            aria-label="Search candidate results"
-            onChange={(event) => setCandidateSearchInput(event.target.value)}
-            placeholder="Student name or index number"
-            value={candidateSearchInput}
-          />
-        </label>
-        <label>
-          <span>Sort candidates</span>
-          <SortSelect
-            onChange={(event) =>
-              updateState({ candidateSort: event.target.value as typeof state.candidateSort })
-            }
-            value={state.candidateSort}
-          >
-            {sortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </SortSelect>
-        </label>
-      </div>
+      {state.runId ? (
+        <div className="candidate-results-toolbar wireframe-toolbar">
+          <label className="wireframe-toolbar-search">
+            <span className="visually-hidden">Search candidates</span>
+            <SearchInput
+              aria-label="Search candidate results"
+              onChange={(event) => setCandidateSearchInput(event.target.value)}
+              placeholder="Search student name or index number"
+              value={candidateSearchInput}
+            />
+          </label>
+          <label>
+            <span>Sort candidates</span>
+            <SortSelect
+              onChange={(event) =>
+                updateState({ candidateSort: event.target.value as typeof state.candidateSort })
+              }
+              value={state.candidateSort}
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </SortSelect>
+          </label>
+        </div>
+      ) : null}
+
       <p aria-live="polite" className="company-updating">
         {candidates.isFetching && !candidates.isPending ? 'Updating candidate results…' : ''}
       </p>
 
-      <LoadingBoundary
-        isLoading={run.isPending || candidates.isPending}
-        label="Loading candidate results"
-        minHeight={440}
-        skeleton={<SkeletonBlock height={340} lines={0} variant="card" />}
-      >
-        {mappedError ? (
-          <ErrorState
-            correlationId={mappedError.correlationId}
-            message={mappedError.message}
-            onAction={() => void Promise.all([run.refetch(), candidates.refetch()])}
-            title="Candidate results unavailable"
-          />
-        ) : candidates.data?.items.length ? (
-          <>
-            <CandidateResultsTable
-              candidates={candidates.data.items}
-              onShowSkills={setSkillsCandidate}
-              onToggle={selection.toggle}
-              selectedIds={new Set(selection.candidates.keys())}
-            />
-            <PaginationBar
-              label="Candidate result pages"
-              onPageChange={(candidatePage) => updateState({ candidatePage })}
-              onPageSizeChange={(candidateSize) =>
-                updateState({ candidateSize: candidateSize as 20 | 50 | 100 })
-              }
-              page={candidates.data.page.page}
-              pageSizeOptions={[20, 50, 100]}
-              size={candidates.data.page.size}
-              totalElements={candidates.data.page.totalElements}
-              totalPages={candidates.data.page.totalPages}
-            />
-          </>
-        ) : (
+      {!state.runId ? (
+        <div className="candidate-results-empty-canvas">
           <EmptyState
-            message="No candidates satisfy the current runtime GPA and declared-skill criteria."
-            title="No candidates found"
+            message="Select an active internship request, adjust runtime criteria, and run filtering. Results remain factual and require explicit manual selection."
+            title="No filtering run selected"
           />
-        )}
-      </LoadingBoundary>
+        </div>
+      ) : (
+        <LoadingBoundary
+          isLoading={run.isPending || candidates.isPending}
+          label="Loading candidate results"
+          minHeight={440}
+          skeleton={<SkeletonBlock height={340} lines={0} variant="card" />}
+        >
+          {mappedError ? (
+            <ErrorState
+              correlationId={mappedError.correlationId}
+              message={mappedError.message}
+              onAction={() => void Promise.all([run.refetch(), candidates.refetch()])}
+              title="Candidate results unavailable"
+            />
+          ) : candidates.data?.items.length ? (
+            <>
+              <CandidateResultsTable
+                candidates={candidates.data.items}
+                onShowSkills={setSkillsCandidate}
+                onToggle={selection.toggle}
+                onTogglePage={(select) => {
+                  if (select) selection.selectMany(pageItems)
+                  else selection.removeMany(pageItems.map((candidate) => candidate.studentId))
+                }}
+                selectedIds={new Set(selection.candidates.keys())}
+              />
+              <PaginationBar
+                label="Candidate result pages"
+                onPageChange={(candidatePage) => updateState({ candidatePage })}
+                onPageSizeChange={(candidateSize) =>
+                  updateState({ candidateSize: candidateSize as 20 | 50 | 100 })
+                }
+                page={candidates.data.page.page}
+                pageSizeOptions={[20, 50, 100]}
+                size={candidates.data.page.size}
+                totalElements={candidates.data.page.totalElements}
+                totalPages={candidates.data.page.totalPages}
+              />
+            </>
+          ) : (
+            <EmptyState
+              message="No candidates satisfy the current runtime GPA and declared-skill criteria."
+              title="No candidates found"
+            />
+          )}
+        </LoadingBoundary>
+      )}
+
+      <footer className="global-actions-toolbar" role="status">
+        <div>
+          <strong>{selectedCount} selected</strong>
+          <span>Selections persist across result pages for this filtering run.</span>
+        </div>
+        <div>
+          <Button disabled={selectedCount === 0} onClick={selection.clear} variant="secondary">
+            Clear selection
+          </Button>
+          <Button
+            disabled={selectedCount === 0 || !state.runId}
+            onClick={() => setReviewOpen(true)}
+            variant="secondary"
+          >
+            Review selected ({selectedCount})
+          </Button>
+        </div>
+      </footer>
 
       {skillsCandidate ? (
         <CandidateSkillsModal
@@ -196,7 +212,7 @@ export function CandidateResultsWorkspace({
           onClose={() => setSkillsCandidate(undefined)}
         />
       ) : null}
-      {reviewOpen ? (
+      {reviewOpen && state.runId ? (
         <SelectedCandidatesReviewModal
           onClose={() => setReviewOpen(false)}
           requestId={state.requestId ?? run.data?.request.requestId ?? ''}

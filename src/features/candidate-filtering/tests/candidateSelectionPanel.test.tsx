@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
@@ -63,6 +63,12 @@ function Harness() {
 
 function renderPanel(onRun: ReturnType<typeof vi.fn>) {
   server.use(
+    http.get('/api/v1/admin/companies', () =>
+      HttpResponse.json({
+        items: [company],
+        page: { page: 0, size: 100, totalElements: 1, totalPages: 1, sort: 'name,asc' },
+      }),
+    ),
     http.get('/api/v1/admin/internship-requests', () =>
       HttpResponse.json({
         items: [internshipRequest],
@@ -133,17 +139,46 @@ function renderPanel(onRun: ReturnType<typeof vi.fn>) {
 }
 
 describe('CandidateSelectionPanel', () => {
-  it('uses active request requirements and submits explicit runtime criteria', async () => {
+  async function selectRequest(user: ReturnType<typeof userEvent.setup>) {
+    expect(screen.queryByText('Software Engineering Intern')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Select internship request' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Select an internship request' })
+    await user.selectOptions(
+      within(dialog).getByLabelText('Select company for candidate filtering'),
+      companyId,
+    )
+    await waitFor(() =>
+      expect(
+        within(dialog).getByLabelText('Select internship request for candidate filtering'),
+      ).not.toBeDisabled(),
+    )
+    await user.selectOptions(
+      within(dialog).getByLabelText('Select internship request for candidate filtering'),
+      requestId,
+    )
+    await user.click(within(dialog).getByRole('button', { name: 'Select request' }))
+    expect(await screen.findByText('Software Engineering Intern')).toBeInTheDocument()
+  }
+
+  it('uses an explicitly selected active request and submits runtime criteria', async () => {
     const user = userEvent.setup()
     const onRun = vi.fn()
     renderPanel(onRun)
 
-    expect(await screen.findByText('Software Engineering Intern')).toBeInTheDocument()
-    expect(await screen.findByRole('checkbox', { name: /TypeScript/ })).toBeChecked()
+    await selectRequest(user)
+    expect(await screen.findByRole('button', { name: /TypeScript/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
     await user.type(screen.getByLabelText('Minimum GPA'), '2.75')
     await user.type(screen.getByLabelText('Maximum GPA'), '4')
-    await user.click(await screen.findByRole('button', { name: /Python/ }))
-    await user.click(screen.getByRole('radio', { name: 'Match any selected skill' }))
+    await user.click(screen.getByRole('button', { name: 'Browse custom skills' }))
+    const skillDialog = await screen.findByRole('dialog', {
+      name: 'Select additional declared skills',
+    })
+    await user.click(within(skillDialog).getByRole('checkbox', { name: /Python/ }))
+    await user.click(within(skillDialog).getByRole('button', { name: 'Apply selected skills' }))
+    await user.click(screen.getByRole('switch', { name: 'Matching logic' }))
     await user.click(screen.getByRole('button', { name: 'Run filtering' }))
 
     await waitFor(() => expect(onRun).toHaveBeenCalledOnce())
@@ -161,7 +196,7 @@ describe('CandidateSelectionPanel', () => {
     const user = userEvent.setup()
     const onRun = vi.fn()
     renderPanel(onRun)
-    await screen.findByText('Software Engineering Intern')
+    await selectRequest(user)
     await user.type(screen.getByLabelText('Minimum GPA'), '3.5')
     await user.type(screen.getByLabelText('Maximum GPA'), '3.25')
     await user.click(screen.getByRole('button', { name: 'Run filtering' }))
