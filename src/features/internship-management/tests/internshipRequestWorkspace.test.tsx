@@ -122,11 +122,11 @@ describe('InternshipRequestWorkspace', () => {
     expect(within(details).getByText('Intermediate')).toBeInTheDocument()
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
 
-    const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
+    const edit = await screen.findByRole('dialog', { name: 'Modify Placement Criteria Settings' })
     const title = within(edit).getByLabelText(/Internship role title/i)
     await user.clear(title)
     await user.type(title, 'Platform Engineering Intern')
-    await user.click(within(edit).getByRole('button', { name: 'Save request' }))
+    await user.click(within(edit).getByRole('button', { name: 'Save changes' }))
 
     await waitFor(() => expect(patch).toHaveBeenCalled())
     expect(patch).toHaveBeenCalledWith(
@@ -182,11 +182,11 @@ describe('InternshipRequestWorkspace', () => {
     await user.click(await screen.findByRole('button', { name: 'View request' }))
     const details = await screen.findByRole('dialog', { name: 'Internship request details' })
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
-    const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
+    const edit = await screen.findByRole('dialog', { name: 'Modify Placement Criteria Settings' })
     const title = within(edit).getByLabelText(/Internship role title/i)
     await user.clear(title)
     await user.type(title, 'Preserved role title')
-    await user.click(within(edit).getByRole('button', { name: 'Save request' }))
+    await user.click(within(edit).getByRole('button', { name: 'Save changes' }))
 
     expect(await within(edit).findByRole('alert')).toBeInTheDocument()
     expect(title).toHaveValue('Preserved role title')

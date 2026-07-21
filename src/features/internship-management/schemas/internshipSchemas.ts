@@ -212,16 +212,22 @@ export const internshipRequestFormValuesSchema = z
   .object({
     companyId: z.string().uuid('Select an active company.'),
     title: z.string().trim().min(1, 'Role title is required.').max(200),
-    description: z.string().trim().max(10000),
-    location: z.string().trim().max(150),
+    description: z.string().trim().max(10000, 'Description cannot exceed 10000 characters.'),
+    location: z.string().trim().max(150, 'Location cannot exceed 150 characters.'),
     workMode: z.union([internshipWorkModeSchema, z.literal('')]),
     status: internshipRequestStatusSchema,
     shortlistGuidanceValue: z
       .string()
       .trim()
-      .refine((value) => !value || /^\d+$/.test(value), 'Enter a whole number from 0 to 10000.')
-      .refine((value) => !value || Number(value) <= 10000, 'Enter a whole number from 0 to 10000.'),
-    notes: z.string().trim().max(4000),
+      .refine(
+        (value) => !value || /^\d+$/.test(value),
+        'Enter a whole number from 1 to 100.',
+      )
+      .refine(
+        (value) => !value || (Number(value) >= 1 && Number(value) <= 100),
+        'Enter a whole number from 1 to 100.',
+      ),
+    notes: z.string().trim().max(4000, 'Notes cannot exceed 4000 characters.'),
     requiredSkills: z
       .array(
         z
@@ -232,6 +238,7 @@ export const internshipRequestFormValuesSchema = z
           })
           .strict(),
       )
+      .min(1, 'Select at least one required skill.')
       .max(100)
       .refine(
         (skills) => new Set(skills.map((skill) => skill.skillId)).size === skills.length,

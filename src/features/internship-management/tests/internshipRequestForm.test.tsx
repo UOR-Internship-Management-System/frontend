@@ -73,47 +73,54 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
 }
 
 describe('InternshipRequestForm', () => {
-  it('queries only active companies and reports required lower-level fields', async () => {
+  it('queries only active companies and reports required company, title, and skill fields', async () => {
     const user = userEvent.setup()
     const companyQuery = vi.fn()
     installHandlers(companyQuery)
     renderForm()
-    const dialog = screen.getByRole('dialog', { name: 'Create internship request' })
+    const dialog = screen.getByRole('dialog', { name: 'Create Candidate Selection Criteria' })
     await screen.findByRole('option', { name: 'Example Technologies' })
-    await user.click(within(dialog).getByRole('button', { name: 'Create request' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Add request' }))
     expect(await within(dialog).findByText('Select an active company.')).toBeInTheDocument()
     expect(within(dialog).getByText('Role title is required.')).toBeInTheDocument()
+    expect(within(dialog).getByText('Select at least one required skill.')).toBeInTheDocument()
     expect(companyQuery).toHaveBeenCalled()
     expect(companyQuery.mock.calls[0]?.[0].searchParams.get('active')).toBe('true')
   })
 
-  it('selects canonical skills once, sets optional competency, and submits normalized metadata', async () => {
+  it('stages canonical skills, sets competency, and submits complete normalized metadata', async () => {
     const user = userEvent.setup()
     installHandlers()
     const onSubmit = renderForm()
-    const dialog = screen.getByRole('dialog', { name: 'Create internship request' })
+    const dialog = screen.getByRole('dialog', { name: 'Create Candidate Selection Criteria' })
     await screen.findByRole('option', { name: 'Example Technologies' })
     await user.selectOptions(within(dialog).getByLabelText('Active company'), companyId)
     await user.type(within(dialog).getByLabelText(/Internship role title/i), '  Platform Intern  ')
-    await user.type(within(dialog).getByLabelText(/Maximum shortlist limit/i), '8')
-    const skillButton = await within(dialog).findByRole('option', { name: /TypeScript/ })
-    await user.click(skillButton)
-    expect(within(dialog).getAllByText('TypeScript')).toHaveLength(2)
+    await user.type(within(dialog).getByLabelText(/Role description/i), 'Build platform features.')
+    await user.type(within(dialog).getByLabelText(/^Location$/i), 'Colombo')
+    await user.selectOptions(within(dialog).getByLabelText(/Work mode/i), 'HYBRID')
+    await user.selectOptions(within(dialog).getByLabelText(/Lifecycle status/i), 'ACTIVE')
+    await user.type(within(dialog).getByLabelText(/Shortlist guidance value/i), '8')
+    await user.type(within(dialog).getByLabelText(/Administrative notes/i), 'Internal note.')
+
+    await user.click(await within(dialog).findByLabelText('Select TypeScript'))
+    await user.click(within(dialog).getByRole('button', { name: 'Add selected skills' }))
     await user.selectOptions(
       within(dialog).getByLabelText('Required competency for TypeScript'),
       'ADVANCED',
     )
-    await user.click(within(dialog).getByRole('button', { name: 'Create request' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Add request' }))
+
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit).toHaveBeenCalledWith({
       companyId,
       title: 'Platform Intern',
-      description: null,
-      location: null,
-      workMode: null,
-      status: 'DRAFT',
+      description: 'Build platform features.',
+      location: 'Colombo',
+      workMode: 'HYBRID',
+      status: 'ACTIVE',
       shortlistGuidanceValue: 8,
-      notes: null,
+      notes: 'Internal note.',
       requiredSkills: [{ skillId, requiredCompetencyLevel: 'ADVANCED' }],
     })
   })

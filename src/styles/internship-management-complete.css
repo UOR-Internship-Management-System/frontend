@@ -1,0 +1,179 @@
+/* Complete company-first internship request workflow additions. */
+
+.internship-request-form .request-form-section {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card-muted);
+}
+
+.internship-request-form .request-form-section-heading h3,
+.internship-request-form .request-form-section-heading p {
+  margin: 0;
+}
+
+.internship-request-form .request-form-section-heading p,
+.request-field-help,
+.taxonomy-context-line,
+.selected-skills-empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.internship-request-form .request-form-section-heading p {
+  margin-top: var(--space-1);
+}
+
+.request-field-help {
+  margin: var(--space-2) 0 0;
+  line-height: 1.45;
+}
+
+.request-textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: vertical;
+}
+
+.taxonomy-context-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 24px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.hierarchy-skill-panel {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+}
+
+.hierarchy-skill-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-card-muted);
+}
+
+.hierarchy-skill-title,
+.hierarchy-skill-subtitle {
+  display: block;
+}
+
+.hierarchy-skill-title {
+  color: var(--color-text);
+}
+
+.hierarchy-skill-subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.hierarchy-skill-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.hierarchy-skill-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  min-height: 78px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: var(--space-3);
+  background: var(--color-card);
+  scrollbar-gutter: stable;
+}
+
+.hierarchy-skill-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  cursor: pointer;
+  transition:
+    transform var(--motion-duration-fast) var(--motion-standard),
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    background-color var(--motion-duration-fast) var(--motion-standard);
+}
+
+.hierarchy-skill-option:hover:not(.hierarchy-skill-option-disabled) {
+  transform: translateY(-1px);
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 7%, var(--color-card));
+}
+
+.hierarchy-skill-option input[type='checkbox'] {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+}
+
+.hierarchy-skill-option-main {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.hierarchy-skill-option-name {
+  color: var(--color-text);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.hierarchy-skill-option-meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+}
+
+.hierarchy-skill-option-disabled {
+  cursor: not-allowed;
+  opacity: 0.66;
+}
+
+.selected-skills-empty {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .hierarchy-skill-panel-header,
+  .hierarchy-skill-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hierarchy-skill-actions .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .hierarchy-skill-list {
+    grid-template-columns: 1fr;
+  }
+}

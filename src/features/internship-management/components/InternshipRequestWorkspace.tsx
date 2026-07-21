@@ -131,11 +131,14 @@ export function InternshipRequestWorkspace({
   const updateRequest = async (body: InternshipRequestCreateInput) => {
     const current = selected.data
     if (!current) throw new TypeError('Load the internship request before updating it.')
+    if (body.companyId !== current.company.companyId) {
+      throw new TypeError('An internship request cannot be reassigned to another company.')
+    }
     try {
       const saved = await updateMutation.mutateAsync({
         requestId: current.requestId,
         version: current.version,
-        body,
+        body: { ...body, companyId: undefined },
       })
       notify({
         tone: 'success',
@@ -400,6 +403,7 @@ export function InternshipRequestWorkspace({
         <InternshipRequestForm
           currentCompany={selected.data.company}
           initialValues={selectedFormValues}
+          lockCompany
           mode="edit"
           onCancel={() => setOverlay('details')}
           onSubmit={updateRequest}
