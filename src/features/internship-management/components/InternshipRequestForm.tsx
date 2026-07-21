@@ -102,18 +102,21 @@ function toSubmission(values: InternshipRequestFormValues): InternshipRequestCre
 export function InternshipRequestForm({
   currentCompany,
   initialValues = emptyInternshipRequestForm,
+  lockCompany = false,
   mode,
   onCancel,
   onSubmit,
 }: {
   currentCompany?: Company
   initialValues?: InternshipRequestFormValues
+  lockCompany?: boolean
   mode: 'create' | 'edit'
   onCancel: () => void
   onSubmit: (values: InternshipRequestCreateInput) => Promise<void>
 }) {
   const [values, setValues] = useState<InternshipRequestFormValues>(() => ({
     ...initialValues,
+    companyId: lockCompany && currentCompany ? currentCompany.companyId : initialValues.companyId,
     requiredSkills: initialValues.requiredSkills.map((skill) => ({ ...skill })),
   }))
   const [errors, setErrors] = useState<RequestFormErrors>({})
@@ -135,7 +138,6 @@ export function InternshipRequestForm({
     for (const company of companies.data?.items ?? []) byId.set(company.companyId, company)
     return [...byId.values()]
   }, [companies.data?.items, currentCompany])
-  const statuses = allowedRequestStatuses(mode, initialValues.status)
   const isDirty = JSON.stringify(values) !== JSON.stringify(initialValues)
 
   const update = <Field extends RequestFormField>(
@@ -202,7 +204,19 @@ export function InternshipRequestForm({
           </div>
         ) : null}
 
-        <div className="internship-request-form-grid">
+        {lockCompany && currentCompany ? (
+          <div className="locked-company-context" role="status">
+            <div>
+              <span>Selected corporate client</span>
+              <strong>{currentCompany.name}</strong>
+            </div>
+            <div>
+              <span>Status</span>
+              <strong>{currentCompany.active ? 'Active' : 'Inactive'}</strong>
+            </div>
+            <input name="companyId" type="hidden" value={values.companyId} />
+          </div>
+        ) : (
           <FormField
             error={errors.companyId}
             errorId="request-companyId-error"
@@ -241,11 +255,14 @@ export function InternshipRequestForm({
               </SelectField>
             </div>
           </FormField>
+        )}
+
+        <div className="internship-request-form-grid">
           <FormField
             error={errors.title}
             errorId="request-title-error"
             htmlFor="request-title"
-            label="Role title"
+            label="Internship Role Title"
           >
             <TextInput
               aria-describedby={describedBy('title')}
@@ -254,75 +271,16 @@ export function InternshipRequestForm({
               id="request-title"
               maxLength={200}
               onChange={(event) => update('title', event.target.value)}
+              placeholder="e.g. Software Engineering Intern"
               ref={titleRef}
               value={values.title}
             />
           </FormField>
           <FormField
-            error={errors.location}
-            errorId="request-location-error"
-            htmlFor="request-location"
-            label="Location"
-          >
-            <TextInput
-              aria-describedby={describedBy('location')}
-              aria-invalid={Boolean(errors.location)}
-              disabled={isPending}
-              id="request-location"
-              maxLength={150}
-              onChange={(event) => update('location', event.target.value)}
-              value={values.location}
-            />
-          </FormField>
-          <FormField
-            error={errors.workMode}
-            errorId="request-workMode-error"
-            htmlFor="request-work-mode"
-            label="Work mode"
-          >
-            <SelectField
-              aria-describedby={describedBy('workMode')}
-              aria-invalid={Boolean(errors.workMode)}
-              disabled={isPending}
-              id="request-work-mode"
-              onChange={(event) =>
-                update('workMode', event.target.value as InternshipRequestFormValues['workMode'])
-              }
-              value={values.workMode}
-            >
-              <option value="">Not specified</option>
-              <option value="ONSITE">On-site</option>
-              <option value="HYBRID">Hybrid</option>
-              <option value="REMOTE">Remote</option>
-            </SelectField>
-          </FormField>
-          <FormField
-            error={errors.status}
-            errorId="request-status-error"
-            htmlFor="request-status"
-            label="Lifecycle status"
-          >
-            <SelectField
-              aria-describedby={describedBy('status')}
-              disabled={isPending}
-              id="request-status"
-              onChange={(event) =>
-                update('status', event.target.value as ApiInternshipRequestStatus)
-              }
-              value={values.status}
-            >
-              {statuses.map((status) => (
-                <option key={status} value={status}>
-                  {status.charAt(0) + status.slice(1).toLowerCase()}
-                </option>
-              ))}
-            </SelectField>
-          </FormField>
-          <FormField
             error={errors.shortlistGuidanceValue}
             errorId="request-shortlistGuidanceValue-error"
             htmlFor="request-guidance"
-            label="Shortlist guidance value"
+            label="Maximum Shortlist Limit"
           >
             <TextInput
               aria-describedby={describedBy('shortlistGuidanceValue')}
@@ -333,51 +291,12 @@ export function InternshipRequestForm({
               max={10000}
               min={0}
               onChange={(event) => update('shortlistGuidanceValue', event.target.value)}
+              placeholder="e.g. 10"
               type="number"
               value={values.shortlistGuidanceValue}
             />
           </FormField>
         </div>
-
-        <FormField
-          error={errors.description}
-          errorId="request-description-error"
-          htmlFor="request-description"
-          label="Description"
-        >
-          <textarea
-            aria-describedby={describedBy('description')}
-            aria-invalid={Boolean(errors.description)}
-            className="input"
-            disabled={isPending}
-            id="request-description"
-            maxLength={10000}
-            onChange={(event) => update('description', event.target.value)}
-            rows={4}
-            value={values.description}
-          />
-        </FormField>
-        <FormField
-          error={errors.notes}
-          errorId="request-notes-error"
-          htmlFor="request-notes"
-          label="Administrative notes"
-        >
-          <textarea
-            aria-describedby={describedBy('notes')}
-            aria-invalid={Boolean(errors.notes)}
-            className="input"
-            disabled={isPending}
-            id="request-notes"
-            maxLength={4000}
-            onChange={(event) => update('notes', event.target.value)}
-            rows={3}
-            value={values.notes}
-          />
-        </FormField>
-        <p className="request-guidance-note">
-          The shortlist guidance value is advisory and does not block shortlist finalization.
-        </p>
 
         <RequiredSkillPicker
           disabled={isPending}

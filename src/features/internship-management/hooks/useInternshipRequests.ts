@@ -18,10 +18,19 @@ export function shouldRetryInternshipRequestQuery(failureCount: number, error: u
   return failureCount < 1
 }
 
-export function useInternshipRequests(query: InternshipRequestsQuery) {
+export function useInternshipRequests(query: InternshipRequestsQuery | null) {
+  const fallbackQuery: InternshipRequestsQuery = {
+    page: 0,
+    size: 20,
+    sort: 'createdAt,desc',
+    search: '',
+  }
+  const resolvedQuery = query ?? fallbackQuery
+
   return useQuery({
-    queryKey: internshipManagementKeys.requestList(query),
-    queryFn: ({ signal }) => internshipManagementApi.listInternshipRequests(query, signal),
+    enabled: Boolean(query),
+    queryKey: internshipManagementKeys.requestList(resolvedQuery),
+    queryFn: ({ signal }) => internshipManagementApi.listInternshipRequests(resolvedQuery, signal),
     placeholderData: keepPreviousData,
     retry: shouldRetryInternshipRequestQuery,
   })

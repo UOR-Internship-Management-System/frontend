@@ -80,7 +80,11 @@ function renderWorkspace(initialEntry = '/admin/internships') {
     <QueryClientProvider client={createQueryClient()}>
       <NotificationProvider>
         <MemoryRouter initialEntries={[initialEntry]}>
-          <InternshipRequestWorkspace />
+          <InternshipRequestWorkspace
+            onClearCompany={() => undefined}
+            selectedCompany={company}
+            selectedCompanyId={company.companyId}
+          />
           <LocationProbe />
         </MemoryRouter>
       </NotificationProvider>
@@ -93,7 +97,7 @@ describe('InternshipRequestWorkspace', () => {
     const user = userEvent.setup()
     renderWorkspace('/admin/internships?companyActive=false')
     expect(await screen.findByText('Software Engineering Intern')).toBeInTheDocument()
-    expect(screen.getByText('1 required skill')).toBeInTheDocument()
+    expect(screen.getByText('TypeScript')).toBeInTheDocument()
 
     await user.selectOptions(screen.getByLabelText('Filter requests by lifecycle status'), 'ACTIVE')
     expect(screen.getByTestId('location')).toHaveTextContent('companyActive=false')
@@ -119,7 +123,7 @@ describe('InternshipRequestWorkspace', () => {
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
 
     const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
-    const title = within(edit).getByLabelText('Role title')
+    const title = within(edit).getByLabelText('Internship role title')
     await user.clear(title)
     await user.type(title, 'Platform Engineering Intern')
     await user.click(within(edit).getByRole('button', { name: 'Save request' }))
@@ -179,7 +183,7 @@ describe('InternshipRequestWorkspace', () => {
     const details = await screen.findByRole('dialog', { name: 'Internship request details' })
     await user.click(within(details).getByRole('button', { name: 'Edit request' }))
     const edit = await screen.findByRole('dialog', { name: 'Edit internship request' })
-    const title = within(edit).getByLabelText('Role title')
+    const title = within(edit).getByLabelText('Internship role title')
     await user.clear(title)
     await user.type(title, 'Preserved role title')
     await user.click(within(edit).getByRole('button', { name: 'Save request' }))

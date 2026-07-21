@@ -93,9 +93,11 @@ describe('InternshipManagementPage company workspace', () => {
     const user = userEvent.setup()
     renderPage(`${routePaths.adminInternships}?requestStatus=ACTIVE`)
     expect(await screen.findByText('Acme Lanka')).toBeInTheDocument()
-    const inactiveRow = screen.getByText('Legacy Systems').closest('tr')
-    expect(inactiveRow).toHaveClass('company-row-inactive')
-    expect(within(inactiveRow as HTMLTableRowElement).getByText('Inactive')).toBeInTheDocument()
+    const inactiveRow = screen
+      .getByRole('heading', { name: 'Legacy Systems', level: 3 })
+      .closest('article')
+    expect(inactiveRow).toHaveClass('management-row-inactive')
+    expect(within(inactiveRow as HTMLElement).getByText('Inactive')).toBeInTheDocument()
 
     await user.selectOptions(screen.getByLabelText('Company status'), 'inactive')
     expect(screen.getByTestId('location')).toHaveTextContent('companyActive=false')
@@ -121,7 +123,7 @@ describe('InternshipManagementPage company workspace', () => {
     )
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Add company' }))
+    await user.click(screen.getByRole('button', { name: 'Create a company' }))
     const dialog = screen.getByRole('dialog', { name: 'Add company' })
     await user.click(within(dialog).getByRole('button', { name: 'Add company' }))
     expect(await within(dialog).findByText('Company name is required.')).toBeInTheDocument()
@@ -149,6 +151,12 @@ describe('InternshipManagementPage company workspace', () => {
       }),
     )
     renderPage(`${routePaths.adminInternships}?companyId=${inactiveCompany.companyId}`)
+    const inactiveCard = (
+      await screen.findByRole('heading', { name: 'Legacy Systems', level: 3 })
+    ).closest('article')
+    await user.click(
+      within(inactiveCard as HTMLElement).getByRole('button', { name: 'View details' }),
+    )
     await screen.findByText(/unavailable for new internship requests/i)
     const details = screen.getByRole('dialog', { name: 'Company details' })
     await user.click(within(details).getByRole('button', { name: 'Edit and reactivate' }))
@@ -169,6 +177,12 @@ describe('InternshipManagementPage company workspace', () => {
       }),
     )
     renderPage(`${routePaths.adminInternships}?companyId=${activeCompany.companyId}`)
+    const activeCard = (
+      await screen.findByRole('heading', { name: 'Acme Lanka', level: 3 })
+    ).closest('article')
+    await user.click(
+      within(activeCard as HTMLElement).getByRole('button', { name: 'View details' }),
+    )
     const deactivateButton = await screen.findByRole('button', { name: 'Deactivate company' })
     await user.click(deactivateButton)
     const confirmation = await screen.findByRole('dialog', { name: 'Deactivate company' })

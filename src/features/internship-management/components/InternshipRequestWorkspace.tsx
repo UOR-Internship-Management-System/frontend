@@ -13,9 +13,9 @@ import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
+import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import { clampPage } from '../../../shared/utils/clampPage'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
-import { useCompanies } from '../hooks/useCompanies'
 import {
   getInternshipRequestMutationErrorMessage,
   useCancelInternshipRequest,
@@ -25,7 +25,7 @@ import {
   useUpdateInternshipRequest,
 } from '../hooks/useInternshipRequests'
 import { useInternshipRequestsUrlState } from '../hooks/useInternshipRequestsUrlState'
-import type { InternshipRequestCreateInput } from '../types/internshipManagementTypes'
+import type { Company, InternshipRequestCreateInput } from '../types/internshipManagementTypes'
 import { InternshipRequestCancelDialog } from './InternshipRequestCancelDialog'
 import { InternshipRequestDetailsModal } from './InternshipRequestDetailsModal'
 import { InternshipRequestForm, mapInternshipRequestToForm } from './InternshipRequestForm'
@@ -36,7 +36,6 @@ type RequestOverlay = 'create' | 'details' | 'edit' | 'cancel' | null
 const requestSortOptions = [
   { value: 'createdAt,desc', label: 'Recently created' },
   { value: 'title,asc', label: 'Role title · A–Z' },
-  { value: 'companyName,asc', label: 'Company · A–Z' },
   { value: 'status,asc', label: 'Lifecycle status' },
 ] as const
 
@@ -48,21 +47,45 @@ const requestStatuses: Array<{ value: ApiInternshipRequestStatus | 'ALL'; label:
   { value: 'CANCELLED', label: 'Cancelled' },
 ]
 
-export function InternshipRequestWorkspace() {
+export function InternshipRequestWorkspace({
+  onClearCompany,
+  selectedCompany,
+  selectedCompanyId,
+}: {
+  onClearCompany: () => void
+  selectedCompany?: Company
+  selectedCompanyId?: string
+}) {
   const { notify } = useNotifications()
   const { searchInput, setSearchInput, state, updateState } = useInternshipRequestsUrlState()
   const [overlay, setOverlay] = useState<RequestOverlay>(() =>
     state.selectedRequestId ? 'details' : null,
   )
   const [cancellationError, setCancellationError] = useState<string>()
-  const requests = useInternshipRequests(state)
+
+  useEffect(() => {
+    if (state.companyId === selectedCompanyId) return
+    setOverlay(null)
+    updateState({ companyId: selectedCompanyId, selectedRequestId: undefined })
+  }, [selectedCompanyId, state.companyId, updateState])
+
+  const requestQuery = useMemo(
+    () =>
+      selectedCompanyId
+        ? {
+            page: state.page,
+            size: state.size,
+            sort: state.sort,
+            search: state.search,
+            status: state.status,
+            companyId: selectedCompanyId,
+          }
+        : null,
+    [selectedCompanyId, state.page, state.search, state.size, state.sort, state.status],
+  )
+
+  const requests = useInternshipRequests(requestQuery)
   const selected = useInternshipRequest(state.selectedRequestId ?? null)
-  const companyOptions = useCompanies({
-    page: 0,
-    size: 100,
-    sort: 'name,asc',
-    search: '',
-  })
   const createMutation = useCreateInternshipRequest()
   const updateMutation = useUpdateInternshipRequest()
   const cancelMutation = useCancelInternshipRequest()
@@ -73,12 +96,12 @@ export function InternshipRequestWorkspace() {
   }, [overlay, state.selectedRequestId])
 
   useEffect(() => {
-    if (!requests.data) return
+    if (!requests.data || !requestQuery) return
     const page = clampPage(state.page, requests.data.page.totalElements, state.size)
     if (page !== state.page) updateState({ page })
-  }, [requests.data, state.page, state.size, updateState])
+  }, [requestQuery, requests.data, state.page, state.size, updateState])
 
-  const hasFilters = Boolean(state.search || state.status || state.companyId)
+  const hasFilters = Boolean(state.search || state.status)
   const mappedListError = requests.error ? mapApiError(requests.error, 'protected') : null
   const selectedFormValues = useMemo(
     () => (selected.data ? mapInternshipRequestToForm(selected.data) : undefined),
@@ -92,6 +115,9 @@ export function InternshipRequestWorkspace() {
   }
 
   const createRequest = async (body: InternshipRequestCreateInput) => {
+    if (!selectedCompany || body.companyId !== selectedCompany.companyId) {
+      throw new TypeError('Select an active company before creating an internship request.')
+    }
     const created = await createMutation.mutateAsync(body)
     notify({
       tone: 'success',
@@ -157,150 +183,189 @@ export function InternshipRequestWorkspace() {
     }
   }
 
+  const canCreate = Boolean(selectedCompany?.active)
+
   return (
     <>
       <SectionCard aria-labelledby="internship-request-title" className="request-workspace">
-        <div className="company-workspace-heading">
+        <div className="company-workspace-heading request-workspace-heading">
           <div>
-            <h2 id="internship-request-title">Internship requests</h2>
-            <p>Create and maintain request metadata and deterministic skill requirements.</p>
+            <h2 id="internship-request-title">Internship requests created</h2>
+            <p>
+              {selectedCompany
+                ? `Showing requests for ${selectedCompany.name}.`
+                : 'Select a corporate client above to manage its placement requests.'}
+            </p>
           </div>
           <div className="request-heading-actions">
+            {selectedCompany ? (
+              <StatusBadge tone={selectedCompany.active ? 'success' : 'neutral'}>
+                {selectedCompany.active ? 'Active company' : 'Inactive company'}
+              </StatusBadge>
+            ) : null}
             <Chip>{requests.data?.page.totalElements ?? 0} requests</Chip>
-            <Button onClick={() => setOverlay('create')}>Create request</Button>
+            <Button disabled={!canCreate} icon={<span className="material-symbols-outlined">playlist_add</span>} onClick={() => setOverlay('create')}>
+              Create internship request
+            </Button>
           </div>
         </div>
 
-        <div className="request-toolbar">
-          <label>
-            <span>Search requests</span>
-            <SearchInput
-              aria-label="Search internship requests"
-              maxLength={120}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Role title or request details"
-              value={searchInput}
-            />
-          </label>
-          <label>
-            <span>Company</span>
-            <SelectField
-              aria-label="Filter requests by company"
-              disabled={companyOptions.isPending}
-              onChange={(event) => updateState({ companyId: event.target.value || undefined })}
-              value={state.companyId ?? ''}
-            >
-              <option value="">All companies</option>
-              {(companyOptions.data?.items ?? []).map((company) => (
-                <option key={company.companyId} value={company.companyId}>
-                  {company.name}
-                  {company.active ? '' : ' — Inactive'}
-                </option>
-              ))}
-            </SelectField>
-          </label>
-          <label>
-            <span>Lifecycle status</span>
-            <SelectField
-              aria-label="Filter requests by lifecycle status"
-              onChange={(event) =>
-                updateState({
-                  status:
-                    event.target.value === 'ALL'
-                      ? undefined
-                      : (event.target.value as ApiInternshipRequestStatus),
-                })
-              }
-              value={state.status ?? 'ALL'}
-            >
-              {requestStatuses.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </SelectField>
-          </label>
-          <label>
-            <span>Sort requests</span>
-            <SortSelect
-              onChange={(event) => updateState({ sort: event.target.value as typeof state.sort })}
-              value={state.sort}
-            >
-              {requestSortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SortSelect>
-          </label>
-        </div>
-        <p aria-live="polite" className="company-updating">
-          {requests.isFetching && !requests.isPending ? 'Updating internship requests…' : ''}
-        </p>
+        {selectedCompany ? (
+          <div className="selected-company-context" role="status">
+            <div>
+              <span>Selected corporate client</span>
+              <strong>{selectedCompany.name}</strong>
+            </div>
+            <div>
+              <span>Primary contact</span>
+              <strong>
+                {selectedCompany.contactPerson || selectedCompany.contactEmail || 'Not provided'}
+              </strong>
+            </div>
+            <Button onClick={onClearCompany} variant="secondary">
+              Change company
+            </Button>
+          </div>
+        ) : null}
 
-        <LoadingBoundary
-          isLoading={requests.isPending}
-          label="Loading internship requests"
-          minHeight={420}
-          skeleton={<SkeletonBlock height={320} lines={0} variant="card" />}
-        >
-          {mappedListError ? (
-            <ErrorState
-              correlationId={mappedListError.correlationId}
-              message={mappedListError.message}
-              onAction={() => void requests.refetch()}
-              title="Internship requests unavailable"
-            />
-          ) : requests.data?.items.length ? (
-            <>
-              <InternshipRequestTable
-                onSelect={(requestId) => {
-                  updateState({ selectedRequestId: requestId })
-                  setOverlay('details')
-                }}
-                requests={requests.data.items}
-              />
-              <PaginationBar
-                label="Internship request pages"
-                onPageChange={(page) => updateState({ page })}
-                onPageSizeChange={(size) => updateState({ size: size as 20 | 50 | 100 })}
-                page={requests.data.page.page}
-                pageSizeOptions={[20, 50, 100]}
-                size={requests.data.page.size}
-                totalElements={requests.data.page.totalElements}
-                totalPages={requests.data.page.totalPages}
-              />
-            </>
-          ) : (
-            <EmptyState
-              action={
-                hasFilters ? (
-                  <Button
-                    onClick={() => {
-                      setSearchInput('')
-                      updateState({ search: '', status: undefined, companyId: undefined })
+        {!selectedCompanyId ? (
+          <EmptyState
+            message="Select a corporate client profile from the list above to explore and create its internship placement requests."
+            title="Select a company first"
+          />
+        ) : !selectedCompany ? (
+          <LoadingBoundary
+            isLoading
+            label="Loading selected company"
+            minHeight={220}
+            skeleton={<SkeletonBlock height={180} lines={0} variant="card" />}
+          >
+            <div />
+          </LoadingBoundary>
+        ) : (
+          <>
+            <div className="request-toolbar wireframe-toolbar">
+              <label className="wireframe-toolbar-search">
+                <span className="visually-hidden">Search requests</span>
+                <SearchInput
+                  aria-label="Search internship requests"
+                  maxLength={120}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder="Search role title or request details"
+                  value={searchInput}
+                />
+              </label>
+              <label>
+                <span>Lifecycle status</span>
+                <SelectField
+                  aria-label="Filter requests by lifecycle status"
+                  onChange={(event) =>
+                    updateState({
+                      status:
+                        event.target.value === 'ALL'
+                          ? undefined
+                          : (event.target.value as ApiInternshipRequestStatus),
+                    })
+                  }
+                  value={state.status ?? 'ALL'}
+                >
+                  {requestStatuses.map((status) => (
+                    <option key={status.value} value={status.value}>
+                      {status.label}
+                    </option>
+                  ))}
+                </SelectField>
+              </label>
+              <label>
+                <span>Sort</span>
+                <SortSelect
+                  onChange={(event) =>
+                    updateState({ sort: event.target.value as typeof state.sort })
+                  }
+                  value={state.sort}
+                >
+                  {requestSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </SortSelect>
+              </label>
+            </div>
+
+            <p aria-live="polite" className="company-updating">
+              {requests.isFetching && !requests.isPending ? 'Updating internship requests…' : ''}
+            </p>
+
+            <LoadingBoundary
+              isLoading={requests.isPending}
+              label="Loading internship requests"
+              minHeight={360}
+              skeleton={<SkeletonBlock height={280} lines={0} variant="card" />}
+            >
+              {mappedListError ? (
+                <ErrorState
+                  correlationId={mappedListError.correlationId}
+                  message={mappedListError.message}
+                  onAction={() => void requests.refetch()}
+                  title="Internship requests unavailable"
+                />
+              ) : requests.data?.items.length ? (
+                <>
+                  <InternshipRequestTable
+                    onSelect={(requestId) => {
+                      updateState({ selectedRequestId: requestId })
+                      setOverlay('details')
                     }}
-                    variant="secondary"
-                  >
-                    Clear request filters
-                  </Button>
-                ) : (
-                  <Button onClick={() => setOverlay('create')}>Create first request</Button>
-                )
-              }
-              message={
-                hasFilters
-                  ? 'No internship requests match the selected filters.'
-                  : 'Create a request after adding approved company metadata.'
-              }
-              title={hasFilters ? 'No matching requests' : 'No internship requests yet'}
-            />
-          )}
-        </LoadingBoundary>
+                    requests={requests.data.items}
+                  />
+                  <PaginationBar
+                    label="Internship request pages"
+                    onPageChange={(page) => updateState({ page })}
+                    onPageSizeChange={(size) => updateState({ size: size as 20 | 50 | 100 })}
+                    page={requests.data.page.page}
+                    pageSizeOptions={[20, 50, 100]}
+                    size={requests.data.page.size}
+                    totalElements={requests.data.page.totalElements}
+                    totalPages={requests.data.page.totalPages}
+                  />
+                </>
+              ) : (
+                <EmptyState
+                  action={
+                    hasFilters ? (
+                      <Button
+                        onClick={() => {
+                          setSearchInput('')
+                          updateState({ search: '', status: undefined })
+                        }}
+                        variant="secondary"
+                      >
+                        Clear request filters
+                      </Button>
+                    ) : canCreate ? (
+                      <Button onClick={() => setOverlay('create')}>Create first request</Button>
+                    ) : undefined
+                  }
+                  message={
+                    hasFilters
+                      ? 'No internship requests match the selected filters.'
+                      : selectedCompany.active
+                        ? `Create the first internship request for ${selectedCompany.name}.`
+                        : 'Inactive companies retain historical requests but cannot receive new ones.'
+                  }
+                  title={hasFilters ? 'No matching requests' : 'No internship requests yet'}
+                />
+              )}
+            </LoadingBoundary>
+          </>
+        )}
       </SectionCard>
 
-      {overlay === 'create' ? (
+      {overlay === 'create' && selectedCompany?.active ? (
         <InternshipRequestForm
+          currentCompany={selectedCompany}
+          lockCompany
           mode="create"
           onCancel={() => setOverlay(null)}
           onSubmit={createRequest}

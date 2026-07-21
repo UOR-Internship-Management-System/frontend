@@ -118,7 +118,7 @@ export function CompanyForm({
           error={errors.name}
           errorId="company-name-error"
           htmlFor="company-name"
-          label="Company name"
+          label="Company Legal Name"
         >
           <TextInput
             aria-describedby={describedBy('name')}
@@ -128,6 +128,7 @@ export function CompanyForm({
             id="company-name"
             maxLength={200}
             onChange={(event) => update('name', event.target.value)}
+            placeholder="e.g., WSO2 Lanka (Pvt) Ltd"
             ref={nameRef}
             value={values.name}
           />
@@ -137,7 +138,7 @@ export function CompanyForm({
           error={errors.websiteUrl}
           errorId="company-websiteUrl-error"
           htmlFor="company-website"
-          label="Website URL"
+          label="Corporate Website URL"
         >
           <TextInput
             aria-describedby={describedBy('websiteUrl')}
@@ -147,7 +148,7 @@ export function CompanyForm({
             inputMode="url"
             maxLength={500}
             onChange={(event) => update('websiteUrl', event.target.value)}
-            placeholder="https://example.com"
+            placeholder="e.g., https://wso2.com"
             type="url"
             value={values.websiteUrl}
           />
@@ -158,7 +159,7 @@ export function CompanyForm({
             error={errors.contactPerson}
             errorId="company-contactPerson-error"
             htmlFor="company-contact-person"
-            label="Contact person"
+            label="HR Representative Name"
           >
             <TextInput
               aria-describedby={describedBy('contactPerson')}
@@ -168,6 +169,7 @@ export function CompanyForm({
               id="company-contact-person"
               maxLength={150}
               onChange={(event) => update('contactPerson', event.target.value)}
+              placeholder="e.g., Jane Public"
               value={values.contactPerson}
             />
           </FormField>
@@ -175,7 +177,7 @@ export function CompanyForm({
             error={errors.contactEmail}
             errorId="company-contactEmail-error"
             htmlFor="company-contact-email"
-            label="Contact email"
+            label="Office / HR Email Address"
           >
             <TextInput
               aria-describedby={describedBy('contactEmail')}
@@ -185,6 +187,7 @@ export function CompanyForm({
               id="company-contact-email"
               maxLength={254}
               onChange={(event) => update('contactEmail', event.target.value)}
+              placeholder="e.g., careers@corporate.com"
               type="email"
               value={values.contactEmail}
             />
@@ -193,7 +196,7 @@ export function CompanyForm({
             error={errors.contactPhone}
             errorId="company-contactPhone-error"
             htmlFor="company-contact-phone"
-            label="Contact phone"
+            label="Direct Line Phone"
           >
             <TextInput
               aria-describedby={describedBy('contactPhone')}
@@ -203,42 +206,14 @@ export function CompanyForm({
               id="company-contact-phone"
               maxLength={30}
               onChange={(event) => update('contactPhone', event.target.value)}
+              placeholder="e.g., +94 11 234 5678"
               type="tel"
               value={values.contactPhone}
             />
           </FormField>
         </div>
 
-        <FormField
-          error={errors.notes}
-          errorId="company-notes-error"
-          htmlFor="company-notes"
-          label="Administrative notes"
-        >
-          <textarea
-            aria-describedby={describedBy('notes')}
-            aria-invalid={Boolean(errors.notes)}
-            className="input"
-            disabled={isPending}
-            id="company-notes"
-            maxLength={4000}
-            onChange={(event) => update('notes', event.target.value)}
-            rows={4}
-            value={values.notes}
-          />
-        </FormField>
 
-        {mode === 'edit' && !initialValues.active ? (
-          <label className="company-reactivate-option">
-            <input
-              checked={values.active}
-              disabled={isPending}
-              onChange={(event) => update('active', event.target.checked)}
-              type="checkbox"
-            />
-            <span>Reactivate this company for new internship requests</span>
-          </label>
-        ) : null}
 
         <div className="modal-actions">
           <Button disabled={isPending} onClick={onCancel} variant="secondary">

@@ -42,20 +42,13 @@ const sortOptions = [
 export function InternshipManagementPage() {
   const { notify } = useNotifications()
   const { searchInput, setSearchInput, state, updateState } = useCompaniesUrlState()
-  const [overlay, setOverlay] = useState<CompanyOverlay>(() =>
-    state.selectedCompanyId ? 'details' : null,
-  )
+  const [overlay, setOverlay] = useState<CompanyOverlay>(null)
   const [deactivationError, setDeactivationError] = useState<string>()
   const companies = useCompanies(state)
   const selected = useCompany(state.selectedCompanyId ?? null)
   const createMutation = useCreateCompany()
   const updateMutation = useUpdateCompany()
   const deactivateMutation = useDeactivateCompany()
-
-  useEffect(() => {
-    if (state.selectedCompanyId && !overlay) setOverlay('details')
-    if (!state.selectedCompanyId && overlay && overlay !== 'create') setOverlay(null)
-  }, [overlay, state.selectedCompanyId])
 
   useEffect(() => {
     if (!companies.data) return
@@ -70,10 +63,15 @@ export function InternshipManagementPage() {
     [selected.data],
   )
 
-  const closeSelected = () => {
+  const clearCompanyContext = () => {
     setOverlay(null)
     setDeactivationError(undefined)
     updateState({ selectedCompanyId: undefined })
+  }
+
+  const closeOverlay = () => {
+    setOverlay(null)
+    setDeactivationError(undefined)
   }
 
   const createCompany = async (values: CompanyFormSubmission) => {
@@ -121,7 +119,7 @@ export function InternshipManagementPage() {
     } catch (reason) {
       const status = mapApiError(reason, 'protected').status
       if (status === 404) {
-        closeSelected()
+        clearCompanyContext()
         await companies.refetch()
       } else if (status === 412 || status === 428) {
         await Promise.all([selected.refetch(), companies.refetch()])
@@ -144,44 +142,45 @@ export function InternshipManagementPage() {
         title: 'Company deactivated',
         message: `${current.name} is no longer available for new internship requests.`,
       })
-      closeSelected()
+      clearCompanyContext()
     } catch (reason) {
       const status = mapApiError(reason, 'protected').status
       setDeactivationError(getCompanyMutationErrorMessage(reason))
-      if (status === 412 || status === 428)
+      if (status === 412 || status === 428) {
         await Promise.all([selected.refetch(), companies.refetch()])
+      }
       if (status === 404) {
-        closeSelected()
+        clearCompanyContext()
         await companies.refetch()
       }
     }
   }
 
   return (
-    <main className="content-stack internship-management-page">
+    <div className="content-stack internship-management-page">
       <PageHeader
-        actions={<Button onClick={() => setOverlay('create')}>Add company</Button>}
-        description="Maintain company metadata and deterministic internship request requirements."
+        description="Maintain external company records and company-scoped internship requests with deterministic taxonomy requirements."
         eyebrow="Administration"
-        title="Internship Management"
+        title="Internship Requests Management"
       />
 
       <SectionCard aria-labelledby="company-directory-title" className="company-workspace">
         <div className="company-workspace-heading">
           <div>
-            <h2 id="company-directory-title">Companies</h2>
-            <p>Manage the organizations available to internship requests.</p>
+            <h2 id="company-directory-title">Registered corporate clients</h2>
+            <p>Select a company to manage only its internship requests.</p>
           </div>
           <Chip>{companies.data?.page.totalElements ?? 0} companies</Chip>
         </div>
-        <div className="company-toolbar">
-          <label>
-            <span>Search companies</span>
+
+        <div className="company-toolbar wireframe-toolbar">
+          <label className="wireframe-toolbar-search">
+            <span className="visually-hidden">Search companies</span>
             <SearchInput
               aria-label="Search companies"
               maxLength={120}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Company or contact details"
+              placeholder="Search companies by name or contact"
               value={searchInput}
             />
           </label>
@@ -207,7 +206,7 @@ export function InternshipManagementPage() {
             </SelectField>
           </label>
           <label>
-            <span>Sort companies</span>
+            <span>Sort</span>
             <SortSelect
               onChange={(event) => updateState({ sort: event.target.value as typeof state.sort })}
               value={state.sort}
@@ -219,7 +218,9 @@ export function InternshipManagementPage() {
               ))}
             </SortSelect>
           </label>
+          <Button icon={<span className="material-symbols-outlined">add_business</span>} onClick={() => setOverlay('create')}>Create a company</Button>
         </div>
+
         <p aria-live="polite" className="company-updating">
           {companies.isFetching && !companies.isPending ? 'Updating companies…' : ''}
         </p>
@@ -227,8 +228,8 @@ export function InternshipManagementPage() {
         <LoadingBoundary
           isLoading={companies.isPending}
           label="Loading company directory"
-          minHeight={480}
-          skeleton={<SkeletonBlock height={360} lines={0} variant="card" />}
+          minHeight={420}
+          skeleton={<SkeletonBlock height={320} lines={0} variant="card" />}
         >
           {mappedListError ? (
             <ErrorState
@@ -241,10 +242,12 @@ export function InternshipManagementPage() {
             <>
               <CompanyTable
                 companies={companies.data.items}
-                onSelect={(companyId) => {
+                onSelect={(companyId) => updateState({ selectedCompanyId: companyId })}
+                onView={(companyId) => {
                   updateState({ selectedCompanyId: companyId })
                   setOverlay('details')
                 }}
+                selectedCompanyId={state.selectedCompanyId}
               />
               <PaginationBar
                 label="Company pages"
@@ -285,18 +288,22 @@ export function InternshipManagementPage() {
         </LoadingBoundary>
       </SectionCard>
 
-      <InternshipRequestWorkspace />
+      <InternshipRequestWorkspace
+        onClearCompany={clearCompanyContext}
+        selectedCompany={selected.data}
+        selectedCompanyId={state.selectedCompanyId}
+      />
 
       {overlay === 'create' ? (
-        <CompanyForm mode="create" onCancel={() => setOverlay(null)} onSubmit={createCompany} />
+        <CompanyForm mode="create" onCancel={closeOverlay} onSubmit={createCompany} />
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
-        <Modal onClose={closeSelected} title="Company details">
+        <Modal onClose={closeOverlay} title="Company details">
           <SkeletonBlock height={300} lines={0} variant="card" />
         </Modal>
       ) : null}
       {overlay && overlay !== 'create' && selected.error ? (
-        <Modal onClose={closeSelected} title="Company unavailable">
+        <Modal onClose={closeOverlay} title="Company unavailable">
           <ErrorState
             message={mapApiError(selected.error, 'protected').message}
             onAction={() => void selected.refetch()}
@@ -307,7 +314,7 @@ export function InternshipManagementPage() {
       {overlay === 'details' && selected.data ? (
         <CompanyDetailsModal
           company={selected.data}
-          onClose={closeSelected}
+          onClose={closeOverlay}
           onDeactivate={() => {
             setDeactivationError(undefined)
             setOverlay('deactivate')
@@ -332,6 +339,6 @@ export function InternshipManagementPage() {
           onConfirm={() => void deactivateCompany()}
         />
       ) : null}
-    </main>
+    </div>
   )
 }

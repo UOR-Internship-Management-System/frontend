@@ -4,7 +4,6 @@ import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SelectField } from '../../../shared/components/forms/SelectField'
-import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import {
   useIndividualSkills,
@@ -13,7 +12,7 @@ import {
 } from '../../../shared/skill-taxonomy'
 import type { RequiredSkillSelection } from '../types/internshipManagementTypes'
 
-const pageSize = 6
+const pageSize = 20
 
 export function RequiredSkillPicker({
   disabled,
@@ -31,12 +30,15 @@ export function RequiredSkillPicker({
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
   const selectedIds = new Set(value.map((skill) => skill.skillId))
   const clusters = useSkillClusters({ page: 0, size: 100, sort: 'name,asc' })
-  const categories = useSkillCategories({
-    page: 0,
-    size: 100,
-    sort: 'name,asc',
-    clusterId: clusterId || undefined,
-  })
+  const categories = useSkillCategories(
+    {
+      page: 0,
+      size: 100,
+      sort: 'name,asc',
+      clusterId: clusterId || undefined,
+    },
+    Boolean(clusterId),
+  )
   const skills = useIndividualSkills({
     page,
     size: pageSize,
@@ -53,11 +55,15 @@ export function RequiredSkillPicker({
 
   return (
     <fieldset className="request-skill-picker" disabled={disabled}>
-      <legend>Required skills</legend>
-      <p>Select canonical taxonomy skills and optionally set the required competency.</p>
+      <legend>Required technical skills</legend>
+      <p>
+        Browse the canonical taxonomy, add one or more skills, and optionally set the required
+        competency level.
+      </p>
+
       <div className="request-skill-filters">
         <label>
-          <span>Core Cluster</span>
+          <span>Core cluster</span>
           <SelectField
             aria-label="Required skill core cluster"
             disabled={disabled || clusters.isPending}
@@ -76,14 +82,14 @@ export function RequiredSkillPicker({
           </SelectField>
         </label>
         <label>
-          <span>Skill Category</span>
+          <span>Skill category</span>
           <SelectField
             aria-label="Required skill category"
-            disabled={disabled || categories.isPending}
+            disabled={disabled || !clusterId || categories.isPending}
             onChange={(event) => setCategoryId(event.target.value)}
             value={categoryId}
           >
-            <option value="">All categories</option>
+            <option value="">{clusterId ? 'All categories' : 'Select a cluster first'}</option>
             {categories.data?.items.map((category) => (
               <option key={category.categoryId} value={category.categoryId}>
                 {category.name}
@@ -91,8 +97,8 @@ export function RequiredSkillPicker({
             ))}
           </SelectField>
         </label>
-        <label>
-          <span>Individual Skill</span>
+        <label className="request-skill-search-field">
+          <span>Search individual skills</span>
           <SearchInput
             aria-label="Search required skills"
             disabled={disabled}
@@ -115,40 +121,45 @@ export function RequiredSkillPicker({
       ) : (
         <div
           aria-label="Required skill search results"
-          className="request-skill-results"
-          role="list"
+          className="request-skill-results-compact"
+          role="listbox"
         >
           {skills.data?.items.map((skill) => {
             const selected = selectedIds.has(skill.skillId)
             return (
-              <div key={skill.skillId} role="listitem">
-                <button
-                  className="request-skill-result"
-                  disabled={disabled || selected}
-                  onClick={() =>
-                    onChange([
-                      ...value,
-                      {
-                        skillId: skill.skillId,
-                        skillName: skill.name,
-                        requiredCompetencyLevel: null,
-                      },
-                    ])
-                  }
-                  type="button"
-                >
-                  <span>
-                    <strong>{skill.name}</strong>
-                    {skill.description ? <small>{skill.description}</small> : null}
-                  </span>
-                  <span>{selected ? 'Selected' : 'Add skill'}</span>
-                </button>
-              </div>
+              <button
+                aria-selected={selected}
+                className={`taxonomy-option-row ${selected ? 'taxonomy-option-selected' : ''}`}
+                disabled={disabled || selected}
+                key={skill.skillId}
+                onClick={() =>
+                  onChange([
+                    ...value,
+                    {
+                      skillId: skill.skillId,
+                      skillName: skill.name,
+                      requiredCompetencyLevel: null,
+                    },
+                  ])
+                }
+                role="option"
+                type="button"
+              >
+                <span>
+                  <strong>{skill.name}</strong>
+                  {skill.description ? <small>{skill.description}</small> : null}
+                </span>
+                <span>{selected ? 'Selected' : 'Add'}</span>
+              </button>
             )
           })}
+          {skills.data?.items.length === 0 ? (
+            <p className="taxonomy-empty-result">No taxonomy skills match these controls.</p>
+          ) : null}
         </div>
       )}
-      {skills.data && skills.data.page.totalPages > 0 ? (
+
+      {skills.data && skills.data.page.totalPages > 1 ? (
         <PaginationBar
           label="Required skill pages"
           onPageChange={setPage}
@@ -159,43 +170,55 @@ export function RequiredSkillPicker({
         />
       ) : null}
 
-      <div aria-label="Selected required skills" className="request-selected-skills" role="list">
-        {value.map((skill) => (
-          <div className="request-selected-skill" key={skill.skillId} role="listitem">
-            <strong>{skill.skillName}</strong>
-            <SelectField
-              aria-label={`Required competency for ${skill.skillName}`}
-              disabled={disabled}
-              onChange={(event) =>
-                onChange(
-                  value.map((item) =>
-                    item.skillId === skill.skillId
-                      ? {
-                          ...item,
-                          requiredCompetencyLevel: (event.target.value ||
-                            null) as RequiredSkillSelection['requiredCompetencyLevel'],
-                        }
-                      : item,
-                  ),
-                )
-              }
-              value={skill.requiredCompetencyLevel ?? ''}
-            >
-              <option value="">Any competency</option>
-              <option value="BEGINNER">Beginner</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="ADVANCED">Advanced</option>
-            </SelectField>
-            <Button
-              disabled={disabled}
-              onClick={() => onChange(value.filter((item) => item.skillId !== skill.skillId))}
-              variant="secondary"
-            >
-              Remove
-            </Button>
-          </div>
-        ))}
-        {value.length === 0 ? <p>No required skills selected.</p> : null}
+      <div className="selected-skill-token-field">
+        <div className="selected-skill-token-heading">
+          <strong>Selected skills</strong>
+          <span>{value.length} selected</span>
+        </div>
+        <div
+          aria-label="Selected required skills"
+          className="selected-skill-token-list"
+          role="list"
+        >
+          {value.map((skill) => (
+            <div className="selected-skill-token" key={skill.skillId} role="listitem">
+              <strong>{skill.skillName}</strong>
+              <SelectField
+                aria-label={`Required competency for ${skill.skillName}`}
+                disabled={disabled}
+                onChange={(event) =>
+                  onChange(
+                    value.map((item) =>
+                      item.skillId === skill.skillId
+                        ? {
+                            ...item,
+                            requiredCompetencyLevel: (event.target.value ||
+                              null) as RequiredSkillSelection['requiredCompetencyLevel'],
+                          }
+                        : item,
+                    ),
+                  )
+                }
+                value={skill.requiredCompetencyLevel ?? ''}
+              >
+                <option value="">Any competency</option>
+                <option value="BEGINNER">Beginner</option>
+                <option value="INTERMEDIATE">Intermediate</option>
+                <option value="ADVANCED">Advanced</option>
+              </SelectField>
+              <button
+                aria-label={`Remove ${skill.skillName}`}
+                className="skill-token-remove"
+                disabled={disabled}
+                onClick={() => onChange(value.filter((item) => item.skillId !== skill.skillId))}
+                type="button"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+          {value.length === 0 ? <p>No required skills selected.</p> : null}
+        </div>
       </div>
     </fieldset>
   )

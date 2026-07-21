@@ -94,9 +94,9 @@ describe('InternshipRequestForm', () => {
     const dialog = screen.getByRole('dialog', { name: 'Create internship request' })
     await screen.findByRole('option', { name: 'Example Technologies' })
     await user.selectOptions(within(dialog).getByLabelText('Active company'), companyId)
-    await user.type(within(dialog).getByLabelText('Role title'), '  Platform Intern  ')
+    await user.type(within(dialog).getByLabelText('Internship role title'), '  Platform Intern  ')
     await user.type(within(dialog).getByLabelText('Shortlist guidance value'), '8')
-    const skillButton = await within(dialog).findByRole('button', { name: /TypeScript/ })
+    const skillButton = await within(dialog).findByRole('option', { name: /TypeScript/ })
     await user.click(skillButton)
     expect(within(dialog).getAllByText('TypeScript')).toHaveLength(2)
     await user.selectOptions(
