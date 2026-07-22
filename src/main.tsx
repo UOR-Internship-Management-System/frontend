@@ -6,6 +6,7 @@ import './index.css'
 import './styles/skeleton-system.css'
 import './styles/sprint78-wireframe-alignment.css'
 import './styles/internship-management-complete.css'
+import './styles/shortlisted-page.css'
 
 const rootElement = document.getElementById('root')
 

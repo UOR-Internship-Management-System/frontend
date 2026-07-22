@@ -17,7 +17,7 @@ import type {
 export type ShortlistStatus = ApiShortlistStatus
 export type ShortlistSort = ApiShortlistSort
 export type ShortlistCandidateSort = ApiCandidateSort
-export type ShortlistPageSize = 20 | 50 | 100
+export type ShortlistPageSize = 5 | 20 | 50 | 100
 export type ShortlistCandidatePageSize = 20 | 50 | 100
 
 export type ShortlistCreateInput = ApiShortlistCreateRequest

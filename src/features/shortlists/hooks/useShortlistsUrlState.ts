@@ -13,7 +13,7 @@ import type {
   ShortlistsUrlState,
 } from '../types/shortlistTypes'
 
-const allowedSizes = [20, 50, 100] as const
+const allowedSizes = [5, 20, 50, 100] as const
 
 const shortlistUrlKeys = [
   'shortlistSearch',
@@ -37,12 +37,12 @@ export const defaultShortlistsUrlState: ShortlistsUrlState = {
   companyId: undefined,
   sort: 'updatedAt,desc',
   page: 0,
-  size: 20,
+  size: 5,
   selectedShortlistId: undefined,
   candidateSearch: '',
   candidateSort: 'officialGpa,desc',
   candidatePage: 0,
-  candidateSize: 20,
+  candidateSize: 100,
   summaryExportJobId: undefined,
   bulkCvExportJobId: undefined,
 }
@@ -53,10 +53,13 @@ function optionalUuid(value: string | null) {
 
 function pageSize<TSize extends ShortlistPageSize | ShortlistCandidatePageSize>(
   value: string | null,
+  fallback: TSize,
 ): TSize {
-  const parsed = readNonnegativeInteger(value, 20)
+  const parsed = readNonnegativeInteger(value, fallback)
 
-  return (allowedSizes.includes(parsed as (typeof allowedSizes)[number]) ? parsed : 20) as TSize
+  return (
+    allowedSizes.includes(parsed as (typeof allowedSizes)[number]) ? parsed : fallback
+  ) as TSize
 }
 
 export function parseShortlistsUrlState(parameters: URLSearchParams): ShortlistsUrlState {
@@ -79,7 +82,7 @@ export function parseShortlistsUrlState(parameters: URLSearchParams): Shortlists
 
     page: readNonnegativeInteger(parameters.get('shortlistPage'), 0),
 
-    size: pageSize<ShortlistPageSize>(parameters.get('shortlistSize')),
+    size: pageSize<ShortlistPageSize>(parameters.get('shortlistSize'), 5),
 
     selectedShortlistId: optionalUuid(parameters.get('shortlistId')),
 
@@ -89,7 +92,10 @@ export function parseShortlistsUrlState(parameters: URLSearchParams): Shortlists
 
     candidatePage: readNonnegativeInteger(parameters.get('shortlistCandidatePage'), 0),
 
-    candidateSize: pageSize<ShortlistCandidatePageSize>(parameters.get('shortlistCandidateSize')),
+    candidateSize: pageSize<ShortlistCandidatePageSize>(
+      parameters.get('shortlistCandidateSize'),
+      100,
+    ),
 
     summaryExportJobId: optionalUuid(parameters.get('summaryExportJobId')),
 
@@ -120,7 +126,7 @@ export function serializeShortlistsUrlState(state: ShortlistsUrlState) {
     parameters.set('shortlistPage', String(state.page))
   }
 
-  if (state.size !== 20) {
+  if (state.size !== 5) {
     parameters.set('shortlistSize', String(state.size))
   }
 
@@ -140,7 +146,7 @@ export function serializeShortlistsUrlState(state: ShortlistsUrlState) {
     parameters.set('shortlistCandidatePage', String(state.candidatePage))
   }
 
-  if (state.candidateSize !== 20) {
+  if (state.candidateSize !== 100) {
     parameters.set('shortlistCandidateSize', String(state.candidateSize))
   }
 
@@ -262,7 +268,7 @@ export function useShortlistsUrlState() {
               candidateSearch: '',
               candidateSort: 'officialGpa,desc' as const,
               candidatePage: 0,
-              candidateSize: 20 as const,
+              candidateSize: 100 as const,
               summaryExportJobId: undefined,
               bulkCvExportJobId: undefined,
             }

@@ -1,48 +1,32 @@
-import { useEffect, useState } from 'react'
-import { useNotifications } from '../../../app/providers/NotificationProvider'
+import { useEffect, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
-import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
-import { Button } from '../../../shared/components/ui/Button'
-import { Chip } from '../../../shared/components/ui/Chip'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
-import { clampPage } from '../../../shared/utils/clampPage'
+import { Modal } from '../../../shared/components/overlays/Modal'
 import {
-  getShortlistMutationErrorMessage,
-  useRemoveShortlistCandidate,
-  type useShortlistDetail,
-} from '../hooks/useShortlists'
-import type { ShortlistCandidate, ShortlistsUrlState } from '../types/shortlistTypes'
-import { FinalizeShortlistDialog } from './FinalizeShortlistDialog'
-import { ShortlistGuidanceWarning } from './ShortlistGuidanceWarning'
-import { ShortlistReviewTable } from './ShortlistReviewTable'
-import { ShortlistExportPanel } from './ShortlistExportPanel'
+  getExportDownloadErrorMessage,
+  useCandidateCvDownload,
+  useDownloadExportFile,
+} from '../../exports/hooks/useDownloadFile'
+import { useStartBulkCvExport, useStartSummaryExport } from '../../exports/hooks/useBulkCvExport'
+import { useExportJob } from '../../exports/hooks/useExportJob'
+import { candidateCvFallbackFilename } from '../../exports/utils/fileDownload'
+import type { useShortlistDetail } from '../hooks/useShortlists'
+import type { ShortlistsUrlState } from '../types/shortlistTypes'
 
 type ShortlistDetailQuery = ReturnType<typeof useShortlistDetail>
+type Notice = { title: string; message: string; icon: string }
 
-const dateFormatter = new Intl.DateTimeFormat('en-LK', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
-
-const candidateSortOptions = [
-  { value: 'officialGpa,desc', label: 'Official GPA · High to low' },
-  { value: 'officialGpa,asc', label: 'Official GPA · Low to high' },
-  { value: 'fullName,asc', label: 'Student name · A–Z' },
-  { value: 'indexNumber,asc', label: 'Index number · A–Z' },
-] as const
+function jobIsReady(job: ReturnType<typeof useExportJob>['data']) {
+  return Boolean(job?.status === 'COMPLETED' && job.downloadReady && job.downloadUrl)
+}
 
 export function ShortlistDetailWorkspace({
   candidateSearchInput,
   detail,
   onCandidateSearchInputChange,
+  onClose,
   onMissingShortlist,
   onStateChange,
   selectedShortlistId,
@@ -51,334 +35,321 @@ export function ShortlistDetailWorkspace({
   candidateSearchInput: string
   detail: ShortlistDetailQuery
   onCandidateSearchInputChange: (value: string) => void
+  onClose: () => void
   onMissingShortlist: () => void
   onStateChange: (patch: Partial<ShortlistsUrlState>) => void
-  selectedShortlistId?: string
+  selectedShortlistId: string
   state: ShortlistsUrlState
 }) {
-  const { notify } = useNotifications()
-  const removeCandidate = useRemoveShortlistCandidate()
-  const [candidateToRemove, setCandidateToRemove] = useState<ShortlistCandidate>()
-  const [finalizeOpen, setFinalizeOpen] = useState(false)
-  const [mutationError, setMutationError] = useState<string>()
+  const startSummary = useStartSummaryExport()
+  const startBulk = useStartBulkCvExport()
+  const summary = useExportJob(state.summaryExportJobId)
+  const bulk = useExportJob(state.bulkCvExportJobId)
+  const summaryDownload = useDownloadExportFile()
+  const bulkDownload = useDownloadExportFile()
+  const candidateCvDownload = useCandidateCvDownload()
+  const handledJobs = useRef(new Set<string>())
+  const [downloadingStudentId, setDownloadingStudentId] = useState<string>()
+  const [notice, setNotice] = useState<Notice>()
 
   const resolvedDetail =
     detail.data?.shortlist.shortlistId === selectedShortlistId ? detail.data : undefined
+  const mappedError = detail.isError ? mapApiError(detail.error, 'protected') : null
 
   useEffect(() => {
-    const page = resolvedDetail?.candidates.page
-    if (!page) return
-    const nextPage = clampPage(state.candidatePage, page.totalElements, state.candidateSize)
-    if (nextPage !== state.candidatePage) {
-      onStateChange({ candidatePage: nextPage })
+    if (!mappedError || mappedError.status !== 404) return
+    onMissingShortlist()
+  }, [mappedError, onMissingShortlist])
+
+  useEffect(() => {
+    const job = summary.data
+    if (!job || !jobIsReady(job) || handledJobs.current.has(job.exportJobId)) return
+    handledJobs.current.add(job.exportJobId)
+    void summaryDownload
+      .mutateAsync({ exportJobId: job.exportJobId, contentType: 'text/csv' })
+      .then(() =>
+        setNotice({
+          title: 'Export Successful',
+          message: 'The final shortlist spreadsheet download has started.',
+          icon: 'assignment_turned_in',
+        }),
+      )
+      .catch((error) =>
+        setNotice({
+          title: 'Export Failed',
+          message: getExportDownloadErrorMessage(error),
+          icon: 'error',
+        }),
+      )
+  }, [summary.data, summaryDownload])
+
+  useEffect(() => {
+    const job = bulk.data
+    if (!job || !jobIsReady(job) || handledJobs.current.has(job.exportJobId)) return
+    handledJobs.current.add(job.exportJobId)
+    void bulkDownload
+      .mutateAsync({ exportJobId: job.exportJobId, contentType: 'application/zip' })
+      .then(() =>
+        setNotice({
+          title: 'CV Archive Ready',
+          message:
+            'The archive of available latest saved ATS-compliant CVs has started downloading.',
+          icon: 'download_done',
+        }),
+      )
+      .catch((error) =>
+        setNotice({
+          title: 'CV Archive Failed',
+          message: getExportDownloadErrorMessage(error),
+          icon: 'error',
+        }),
+      )
+  }, [bulk.data, bulkDownload])
+
+  const closeModal = () => {
+    if (notice) {
+      setNotice(undefined)
+      return
     }
-  }, [onStateChange, resolvedDetail?.candidates.page, state.candidatePage, state.candidateSize])
-
-  useEffect(() => {
-    if (!detail.isError) return
-    const mapped = mapApiError(detail.error, 'protected')
-    if (mapped.status === 404) onMissingShortlist()
-  }, [detail.error, detail.isError, onMissingShortlist])
-
-  if (!selectedShortlistId) {
-    return (
-      <SectionCard aria-labelledby="shortlist-detail-title" className="shortlist-detail-workspace">
-        <EmptyState
-          message="Select a shortlist from the directory to review its request context and candidates."
-          title="No shortlist selected"
-        />
-      </SectionCard>
-    )
+    onCandidateSearchInputChange('')
+    onStateChange({
+      candidateSearch: '',
+      candidateSort: 'officialGpa,desc',
+      summaryExportJobId: undefined,
+      bulkCvExportJobId: undefined,
+    })
+    onClose()
   }
 
-  const mappedError = detail.isError ? mapApiError(detail.error, 'protected') : null
+  const downloadCandidateCv = async (
+    candidate: NonNullable<typeof resolvedDetail>['candidates']['items'][number],
+  ) => {
+    setDownloadingStudentId(candidate.studentId)
+    try {
+      await candidateCvDownload.mutateAsync({
+        studentId: candidate.studentId,
+        fallbackFilename: candidateCvFallbackFilename(candidate.indexNumber),
+      })
+      setNotice({
+        title: 'CV File Download',
+        message: `The latest saved ATS-compliant CV for ${candidate.fullName} has started downloading.`,
+        icon: 'download',
+      })
+    } catch (error) {
+      setNotice({
+        title: 'CV Download Failed',
+        message: getExportDownloadErrorMessage(error),
+        icon: 'error',
+      })
+    } finally {
+      setDownloadingStudentId(undefined)
+    }
+  }
+
+  const beginExport = async (type: 'summary' | 'bulk') => {
+    const shortlist = resolvedDetail?.shortlist
+    if (!shortlist || shortlist.status !== 'FINALIZED') return
+
+    try {
+      const result =
+        type === 'summary'
+          ? await startSummary.mutateAsync(shortlist.shortlistId)
+          : await startBulk.mutateAsync(shortlist.shortlistId)
+      onStateChange(
+        type === 'summary'
+          ? { summaryExportJobId: result.job.exportJobId }
+          : { bulkCvExportJobId: result.job.exportJobId },
+      )
+      setNotice({
+        title: 'Compiling Pipeline',
+        message:
+          type === 'summary'
+            ? 'Compiling the finalized shortlist spreadsheet for download…'
+            : 'Compiling available latest saved ATS-compliant CVs into a single archive…',
+        icon: type === 'summary' ? 'assignment_turned_in' : 'download_zip',
+      })
+    } catch (error) {
+      setNotice({
+        title: 'Export Failed',
+        message: mapApiError(error, 'protected').message,
+        icon: 'error',
+      })
+    }
+  }
+
   const shortlist = resolvedDetail?.shortlist
   const candidates = resolvedDetail?.candidates
-  const isDraft = shortlist?.status === 'DRAFT'
-
-  const confirmRemoval = async () => {
-    if (!shortlist || !candidateToRemove || shortlist.status !== 'DRAFT') return
-
-    setMutationError(undefined)
-    try {
-      const result = await removeCandidate.mutateAsync({
-        shortlistId: shortlist.shortlistId,
-        studentId: candidateToRemove.studentId,
-        version: shortlist.version,
-      })
-      notify({
-        tone: 'success',
-        title: 'Candidate removed',
-        message: `${candidateToRemove.fullName} was removed. ${result.selectedCandidateCount} candidates remain.`,
-      })
-      setCandidateToRemove(undefined)
-    } catch (reason) {
-      setMutationError(getShortlistMutationErrorMessage(reason))
-      const status = mapApiError(reason, 'protected').status
-      if (status === 404) onMissingShortlist()
-      if (status === 409 || status === 412 || status === 428) {
-        await detail.refetch()
-      }
-    }
-  }
+  const exportPending =
+    startSummary.isPending ||
+    startBulk.isPending ||
+    summary.data?.status === 'QUEUED' ||
+    summary.data?.status === 'PROCESSING' ||
+    bulk.data?.status === 'QUEUED' ||
+    bulk.data?.status === 'PROCESSING'
 
   return (
-    <SectionCard aria-labelledby="shortlist-detail-title" className="shortlist-detail-workspace">
-      <LoadingBoundary
-        isLoading={detail.isPending || (detail.isFetching && !resolvedDetail)}
-        label="Loading shortlist details"
-        minHeight={620}
-        skeleton={<SkeletonBlock height={520} lines={0} variant="card" />}
-      >
-        {mappedError ? (
-          <ErrorState
-            correlationId={mappedError.correlationId}
-            message={mappedError.message}
-            onAction={() => void detail.refetch()}
-            title="Shortlist details unavailable"
-          />
-        ) : shortlist && candidates ? (
-          <>
-            <div className="shortlist-detail-heading">
-              <div>
-                <p className="shortlist-detail-eyebrow">{shortlist.request.companyName}</p>
-                <h2 id="shortlist-detail-title">{shortlist.name || shortlist.request.title}</h2>
-                <p>{shortlist.request.title}</p>
-              </div>
-              <StatusBadge tone={shortlist.status === 'FINALIZED' ? 'success' : 'neutral'}>
-                {shortlist.status === 'FINALIZED' ? 'Finalized' : 'Draft'}
-              </StatusBadge>
-            </div>
-
-            <dl className="shortlist-summary-grid">
-              <div>
-                <dt>Selected candidates</dt>
-                <dd>{shortlist.selectedCandidateCount}</dd>
-              </div>
-              <div>
-                <dt>Guidance value</dt>
-                <dd>{shortlist.guidanceValue ?? 'Not provided'}</dd>
-              </div>
-              <div>
-                <dt>Request status</dt>
-                <dd>{shortlist.request.status}</dd>
-              </div>
-              <div>
-                <dt>Last updated</dt>
-                <dd>{dateFormatter.format(new Date(shortlist.updatedAt))}</dd>
-              </div>
-            </dl>
-
-            <ShortlistGuidanceWarning shortlist={shortlist} />
-
-            {shortlist.status === 'DRAFT' ? (
-              <div className="shortlist-finalization-actions">
-                <div>
-                  <h3>Finalize manual selection</h3>
-                  <p>
-                    Finalization makes candidate membership read-only. Guidance remains advisory.
-                  </p>
-                  {shortlist.selectedCandidateCount === 0 ? (
-                    <p id="shortlist-finalization-disabled-reason">
-                      Add at least one candidate before finalizing.
-                    </p>
-                  ) : null}
-                </div>
-                <Button
-                  aria-describedby={
-                    shortlist.selectedCandidateCount === 0
-                      ? 'shortlist-finalization-disabled-reason'
-                      : undefined
-                  }
-                  disabled={shortlist.selectedCandidateCount === 0}
-                  onClick={() => setFinalizeOpen(true)}
-                >
-                  Finalize shortlist
-                </Button>
-              </div>
-            ) : null}
-
-            {shortlist.status === 'FINALIZED' ? (
-              <div className="shortlist-readonly-notice" role="status">
-                This shortlist was finalized
-                {shortlist.finalizedAt
-                  ? ` on ${dateFormatter.format(new Date(shortlist.finalizedAt))}`
-                  : ''}
-                . Candidate membership is read-only.
-              </div>
-            ) : null}
-
-            <div className="shortlist-candidate-heading">
-              <div>
-                <h3>Selected candidates</h3>
-                <p>
-                  Candidate membership is controlled manually. Ordering follows the selected table
-                  sort.
-                </p>
-              </div>
-              <Chip>{candidates.page.totalElements} candidates</Chip>
-            </div>
-
-            <div className="shortlist-candidate-toolbar">
-              <label>
-                <span>Search candidates</span>
-                <SearchInput
-                  aria-label="Search shortlist candidates"
-                  maxLength={120}
-                  onChange={(event) => onCandidateSearchInputChange(event.target.value)}
-                  placeholder="Student name or index number"
-                  value={candidateSearchInput}
-                />
-              </label>
-              <label>
-                <span>Sort candidates</span>
-                <SortSelect
-                  aria-label="Sort shortlist candidates"
-                  onChange={(event) =>
-                    onStateChange({
-                      candidateSort: event.target.value as ShortlistsUrlState['candidateSort'],
-                    })
-                  }
-                  value={state.candidateSort}
-                >
-                  {candidateSortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </SortSelect>
-              </label>
-            </div>
-
-            <p aria-live="polite" className="shortlist-updating">
-              {detail.isFetching && !detail.isPending ? 'Updating shortlist candidates…' : ''}
-            </p>
-
-            {candidates.items.length ? (
-              <>
-                <ShortlistReviewTable
-                  candidates={candidates.items}
-                  isDraft={Boolean(isDraft)}
-                  onRemove={(candidate) => {
-                    setMutationError(undefined)
-                    setCandidateToRemove(candidate)
-                  }}
-                  removingStudentId={
-                    removeCandidate.isPending ? candidateToRemove?.studentId : undefined
-                  }
-                />
-                <PaginationBar
-                  label="Shortlist candidate pages"
-                  onPageChange={(candidatePage) => onStateChange({ candidatePage })}
-                  onPageSizeChange={(candidateSize) =>
-                    onStateChange({
-                      candidateSize: candidateSize as ShortlistsUrlState['candidateSize'],
-                    })
-                  }
-                  page={candidates.page.page}
-                  pageSizeOptions={[20, 50, 100]}
-                  size={candidates.page.size}
-                  totalElements={candidates.page.totalElements}
-                  totalPages={candidates.page.totalPages}
-                />
-              </>
-            ) : (
-              <EmptyState
-                action={
-                  state.candidateSearch ? (
-                    <Button
-                      onClick={() => {
-                        onCandidateSearchInputChange('')
-                        onStateChange({
-                          candidateSearch: '',
-                          candidatePage: 0,
-                        })
-                      }}
-                      variant="secondary"
-                    >
-                      Clear candidate search
-                    </Button>
-                  ) : undefined
-                }
-                message={
-                  state.candidateSearch
-                    ? 'No selected candidates match the current search.'
-                    : isDraft
-                      ? 'This draft shortlist does not contain any candidates yet.'
-                      : 'This finalized shortlist contains no candidates.'
-                }
-                title={
-                  state.candidateSearch
-                    ? 'No matching candidates'
-                    : 'No candidates in this shortlist'
-                }
-              />
-            )}
-
-            <ShortlistExportPanel
-              onStateChange={onStateChange}
-              shortlist={shortlist}
-              state={state}
+    <Modal
+      description={shortlist?.request.title}
+      onClose={closeModal}
+      size="wide"
+      title={shortlist?.request.companyName ?? 'Shortlist details'}
+    >
+      <div className="shortlist-modal-content" inert={notice ? true : undefined}>
+        <LoadingBoundary
+          isLoading={detail.isPending || (detail.isFetching && !resolvedDetail)}
+          label="Loading shortlisted candidates"
+          minHeight={420}
+          skeleton={<SkeletonBlock height={380} lines={0} variant="card" />}
+        >
+          {mappedError ? (
+            <ErrorState
+              correlationId={mappedError.correlationId}
+              message={mappedError.message}
+              onAction={() => void detail.refetch()}
+              title="Shortlist details unavailable"
             />
+          ) : shortlist && candidates ? (
+            <>
+              <div className="shortlist-modal-toolbar">
+                <label className="shortlist-control shortlist-search-control">
+                  <span>Search Candidates</span>
+                  <span className="shortlist-search-input">
+                    <span aria-hidden="true" className="material-symbols-outlined">
+                      search
+                    </span>
+                    <input
+                      aria-label="Search Candidates"
+                      maxLength={120}
+                      onChange={(event) => onCandidateSearchInputChange(event.target.value)}
+                      placeholder="Search by name or index..."
+                      type="search"
+                      value={candidateSearchInput}
+                    />
+                  </span>
+                </label>
 
-            {finalizeOpen && shortlist.status === 'DRAFT' ? (
-              <FinalizeShortlistDialog
-                onClose={() => setFinalizeOpen(false)}
-                onMissingShortlist={() => {
-                  setFinalizeOpen(false)
-                  onMissingShortlist()
-                }}
-                onRecover={() => detail.refetch()}
-                shortlist={shortlist}
-              />
-            ) : null}
+                <label className="shortlist-control">
+                  <span>Sort Rules</span>
+                  <select
+                    aria-label="Sort Rules"
+                    onChange={(event) =>
+                      onStateChange({
+                        candidateSort:
+                          event.target.value === 'officialGpa,asc'
+                            ? 'officialGpa,asc'
+                            : 'officialGpa,desc',
+                      })
+                    }
+                    value={state.candidateSort}
+                  >
+                    <option value="officialGpa,desc">GPA (High to Low)</option>
+                    <option value="officialGpa,asc">GPA (Low to High)</option>
+                  </select>
+                </label>
 
-            {candidateToRemove && shortlist.status === 'DRAFT' ? (
-              <ConfirmDialog
-                closeDisabled={removeCandidate.isPending}
-                onClose={() => {
-                  if (!removeCandidate.isPending) {
-                    setCandidateToRemove(undefined)
-                    setMutationError(undefined)
-                  }
-                }}
-                title="Remove candidate from draft"
-              >
-                <div className="shortlist-remove-dialog">
-                  <p>
-                    Remove <strong>{candidateToRemove.fullName}</strong> (
-                    {candidateToRemove.indexNumber}) from this draft shortlist?
-                  </p>
-                  <p>This changes only shortlist membership. Student-owned data is not modified.</p>
-                  {mutationError ? (
-                    <p className="inline-alert" role="alert">
-                      {mutationError}
-                    </p>
-                  ) : null}
-                  <div className="modal-actions">
-                    <Button
-                      disabled={removeCandidate.isPending}
-                      onClick={() => {
-                        setCandidateToRemove(undefined)
-                        setMutationError(undefined)
-                      }}
-                      variant="secondary"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      isLoading={removeCandidate.isPending}
-                      onClick={() => void confirmRemoval()}
-                    >
-                      Remove candidate
-                    </Button>
-                  </div>
+                <button
+                  className="shortlist-outlined-button shortlist-modal-download"
+                  disabled={exportPending || shortlist.status !== 'FINALIZED'}
+                  onClick={() => void beginExport('bulk')}
+                  type="button"
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">
+                    download_zip
+                  </span>
+                  Download All CVs
+                </button>
+              </div>
+
+              <p aria-live="polite" className="shortlist-live-region">
+                {detail.isFetching && !detail.isPending ? 'Updating candidates…' : ''}
+              </p>
+
+              {candidates.items.length ? (
+                <div className="shortlist-candidate-list">
+                  {candidates.items.map((candidate) => (
+                    <article className="shortlist-matrix-row" key={candidate.studentId}>
+                      <div>
+                        <h3>{candidate.fullName}</h3>
+                        <p>
+                          Index: {candidate.indexNumber} • GPA:{' '}
+                          {candidate.officialGpa === null
+                            ? 'Not available'
+                            : candidate.officialGpa.toFixed(2)}
+                        </p>
+                      </div>
+                      <button
+                        className="shortlist-outlined-button"
+                        disabled={!candidate.hasLatestSavedCv || candidateCvDownload.isPending}
+                        onClick={() => void downloadCandidateCv(candidate)}
+                        title={
+                          candidate.hasLatestSavedCv
+                            ? undefined
+                            : 'No latest saved CV is available for this Student.'
+                        }
+                        type="button"
+                      >
+                        <span aria-hidden="true" className="material-symbols-outlined">
+                          download
+                        </span>
+                        {downloadingStudentId === candidate.studentId ? 'Downloading…' : 'CV'}
+                      </button>
+                    </article>
+                  ))}
                 </div>
-              </ConfirmDialog>
-            ) : null}
-          </>
-        ) : null}
-      </LoadingBoundary>
-    </SectionCard>
+              ) : (
+                <div className="shortlist-modal-empty" role="status">
+                  No shortlisted candidates match the current search.
+                </div>
+              )}
+
+              <footer className="shortlist-modal-actions">
+                <button className="shortlist-outlined-button" onClick={closeModal} type="button">
+                  Cancel
+                </button>
+                <button
+                  className="shortlist-filled-button"
+                  disabled={exportPending || shortlist.status !== 'FINALIZED'}
+                  onClick={() => void beginExport('summary')}
+                  type="button"
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">
+                    assignment_turned_in
+                  </span>
+                  Download Final Shortlist
+                </button>
+              </footer>
+            </>
+          ) : null}
+        </LoadingBoundary>
+      </div>
+
+      {notice ? (
+        <div
+          aria-label={notice.title}
+          aria-modal="true"
+          className="shortlist-notice-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setNotice(undefined)
+          }}
+          role="alertdialog"
+        >
+          <div className="shortlist-notice-card">
+            <span aria-hidden="true" className="shortlist-notice-icon material-symbols-outlined">
+              {notice.icon}
+            </span>
+            <h3>{notice.title}</h3>
+            <p>{notice.message}</p>
+            <button
+              autoFocus
+              className="shortlist-filled-button"
+              onClick={() => setNotice(undefined)}
+              type="button"
+            >
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </Modal>
   )
 }

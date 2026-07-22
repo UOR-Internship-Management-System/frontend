@@ -39,7 +39,7 @@ export function useShortlistDetail(query: ShortlistDetailQuery | null) {
   const fallbackQuery: ShortlistDetailQuery = {
     shortlistId: '',
     candidatePage: 0,
-    candidateSize: 20,
+    candidateSize: 100,
     candidateSearch: '',
     candidateSort: 'officialGpa,desc',
   }

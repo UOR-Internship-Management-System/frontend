@@ -2,7 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
-import { MemoryRouter, useLocation } from 'react-router-dom'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { createQueryClient } from '../../../app/config/queryClient'
 import { NotificationProvider } from '../../../app/providers/NotificationProvider'
@@ -13,6 +13,7 @@ const shortlistId = '11111111-1111-4111-8111-111111111111'
 const requestId = '22222222-2222-4222-8222-222222222222'
 const companyId = '33333333-3333-4333-8333-333333333333'
 const studentId = '44444444-4444-4444-8444-444444444444'
+const exportJobId = '55555555-5555-4555-8555-555555555555'
 const now = '2026-07-21T09:30:00Z'
 
 const company = {
@@ -29,7 +30,7 @@ const company = {
   updatedAt: now,
 }
 
-const draftShortlist = {
+const shortlist = {
   shortlistId,
   request: {
     requestId,
@@ -41,15 +42,15 @@ const draftShortlist = {
   },
   filterRunId: null,
   name: null,
-  status: 'DRAFT' as const,
+  status: 'FINALIZED' as const,
   guidanceValue: 10,
   selectedCandidateCount: 1,
   guidanceExceeded: false,
   guidanceWarning: null,
-  version: 7,
+  version: 8,
   createdAt: now,
   updatedAt: now,
-  finalizedAt: null,
+  finalizedAt: now,
 }
 
 const candidate = {
@@ -59,13 +60,13 @@ const candidate = {
   officialGpa: 3.42,
   gpaAvailabilityStatus: 'AVAILABLE' as const,
   hasLatestSavedCv: true,
-  hasExistingActiveShortlist: true,
-  existingActiveShortlistCount: 1,
+  hasExistingActiveShortlist: false,
+  existingActiveShortlistCount: 0,
   selectedAt: now,
   selectionNote: null,
 }
 
-function paged<T>(items: T[], sort: string, size = 20) {
+function paged<T>(items: T[], sort: string, size = 5) {
   return {
     items,
     page: {
@@ -78,423 +79,203 @@ function paged<T>(items: T[], sort: string, size = 20) {
   }
 }
 
-function LocationProbe() {
-  return <output data-testid="location">{useLocation().search}</output>
-}
-
-function installHandlers({
-  finalized = false,
-  removed = false,
-}: {
-  finalized?: boolean
-  removed?: boolean
-} = {}) {
-  let candidateRemoved = removed
-
+function installHandlers(onList = vi.fn(), onDetail = vi.fn()) {
   server.use(
     http.get('/api/v1/admin/companies', () => HttpResponse.json(paged([company], 'name,asc', 100))),
-    http.get('/api/v1/admin/shortlists', () => {
-      const shortlist = finalized
-        ? {
-            ...draftShortlist,
-            status: 'FINALIZED' as const,
-            finalizedAt: now,
-          }
-        : draftShortlist
+    http.get('/api/v1/admin/shortlists', ({ request }) => {
+      onList(new URL(request.url))
       return HttpResponse.json(paged([shortlist], 'updatedAt,desc'))
     }),
-    http.get('/api/v1/admin/shortlists/:shortlistId', () => {
-      const shortlist = finalized
-        ? {
-            ...draftShortlist,
-            status: 'FINALIZED' as const,
-            finalizedAt: now,
-          }
-        : candidateRemoved
-          ? {
-              ...draftShortlist,
-              selectedCandidateCount: 0,
-              version: 8,
-            }
-          : draftShortlist
-
+    http.get('/api/v1/admin/shortlists/:shortlistId', ({ request }) => {
+      onDetail(new URL(request.url))
       return HttpResponse.json({
         shortlist,
-        candidates: paged(candidateRemoved ? [] : [candidate], 'officialGpa,desc'),
+        candidates: paged([candidate], 'officialGpa,desc', 100),
       })
-    }),
-    http.delete('/api/v1/admin/shortlists/:shortlistId/candidates/:studentId', ({ request }) => {
-      candidateRemoved = true
-      return HttpResponse.json(
-        {
-          shortlistId,
-          addedCount: 0,
-          alreadyPresentCount: 0,
-          removedCount: 1,
-          selectedCandidateCount: 0,
-          guidanceExceeded: false,
-          version: 8,
-        },
-        {
-          headers: {
-            'x-observed-if-match': request.headers.get('If-Match') ?? '',
-          },
-        },
-      )
     }),
   )
 }
 
-function renderPage(initialEntry = `/admin/shortlists?shortlistId=${shortlistId}`) {
+function renderPage(initialEntry = '/admin/shortlists') {
   return render(
     <QueryClientProvider client={createQueryClient()}>
       <NotificationProvider>
         <MemoryRouter initialEntries={[initialEntry]}>
           <ShortlistsPage />
-          <LocationProbe />
         </MemoryRouter>
       </NotificationProvider>
     </QueryClientProvider>,
   )
 }
 
-describe('ShortlistsPage', () => {
-  it('renders the selected shortlist and factual candidate data', async () => {
-    installHandlers()
+describe('ShortlistsPage wireframe', () => {
+  it('renders the finalized active request matrix and its exact filters', async () => {
+    const onList = vi.fn()
+    installHandlers(onList)
     renderPage()
 
     expect(
-      await screen.findByRole('heading', {
-        level: 2,
-        name: 'Software Engineering Intern',
-      }),
+      await screen.findByRole('heading', { level: 1, name: 'Shortlisted Candidates' }),
     ).toBeInTheDocument()
-
-    expect(screen.getAllByText('Example Technologies').length).toBeGreaterThan(0)
-    expect(screen.getByText('3.42')).toBeInTheDocument()
-    expect(screen.getByText('Available')).toBeInTheDocument()
-    expect(screen.getByText('1 existing')).toBeInTheDocument()
-
+    expect(screen.getByRole('heading', { level: 2, name: 'Active Request Matrix' })).toBeVisible()
+    expect(screen.getByLabelText('Search Company')).toHaveAttribute(
+      'placeholder',
+      'Search by company name...',
+    )
     expect(
-      screen.getByRole('link', {
-        name: 'Ayesha Perera',
-      }),
-    ).toHaveAttribute('href', `/admin/students/${studentId}`)
+      await screen.findByText(
+        (_, element) =>
+          element?.tagName === 'P' &&
+          Boolean(element.textContent?.includes('Company: Example Technologies')),
+      ),
+    ).toHaveTextContent('1 Candidates Shortlisted')
+    expect(screen.getByRole('button', { name: 'Details' })).toBeEnabled()
+    expect(screen.getByText('Showing 1 to 1 of 1 active records')).toBeVisible()
 
-    expect(
-      screen.getByRole('button', {
-        name: 'Remove Ayesha Perera',
-      }),
-    ).toBeInTheDocument()
-
-    expect(screen.getByTestId('location')).toHaveTextContent(`shortlistId=${shortlistId}`)
+    const listUrl = onList.mock.calls[0]?.[0] as URL
+    expect(listUrl.searchParams.get('status')).toBe('FINALIZED')
+    expect(listUrl.searchParams.get('size')).toBe('5')
   })
 
-  it('removes a draft candidate with the current quoted version', async () => {
-    const removeCall = vi.fn()
+  it('opens the wireframe detail modal with candidate search, GPA sorting, and downloads', async () => {
     installHandlers()
-
-    server.use(
-      http.delete('/api/v1/admin/shortlists/:shortlistId/candidates/:studentId', ({ request }) => {
-        removeCall(request.headers.get('If-Match'))
-        return HttpResponse.json({
-          shortlistId,
-          addedCount: 0,
-          alreadyPresentCount: 0,
-          removedCount: 1,
-          selectedCandidateCount: 0,
-          guidanceExceeded: false,
-          version: 8,
-        })
-      }),
-      http.get('/api/v1/admin/shortlists/:shortlistId', () =>
-        HttpResponse.json({
-          shortlist: {
-            ...draftShortlist,
-            selectedCandidateCount: removeCall.mock.calls.length ? 0 : 1,
-            version: removeCall.mock.calls.length ? 8 : 7,
-          },
-          candidates: paged(removeCall.mock.calls.length ? [] : [candidate], 'officialGpa,desc'),
-        }),
-      ),
-    )
-
     const user = userEvent.setup()
     renderPage()
 
-    await user.click(
-      await screen.findByRole('button', {
-        name: 'Remove Ayesha Perera',
-      }),
-    )
+    await user.click(await screen.findByRole('button', { name: 'Details' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Example Technologies' })
 
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Remove candidate from draft',
-    })
-
-    await user.click(
-      within(dialog).getByRole('button', {
-        name: 'Remove candidate',
-      }),
-    )
-
-    await waitFor(() => expect(removeCall).toHaveBeenCalledWith('"7"'))
-
+    expect(within(dialog).getByText('Software Engineering Intern')).toBeVisible()
+    expect(within(dialog).getByLabelText('Search Candidates')).toBeVisible()
+    expect(within(dialog).getByLabelText('Sort Rules')).toHaveValue('officialGpa,desc')
+    expect(within(dialog).getByText('Ayesha Perera')).toBeVisible()
+    expect(within(dialog).getByText(/SC[/]2022[/]12345/)).toHaveTextContent('GPA: 3.42')
+    expect(within(dialog).getByRole('button', { name: 'CV' })).toBeEnabled()
+    expect(within(dialog).getByRole('button', { name: 'Download All CVs' })).toBeEnabled()
+    expect(within(dialog).getByRole('button', { name: 'Download Final Shortlist' })).toBeEnabled()
     expect(
-      await screen.findByText('This draft shortlist does not contain any candidates yet.'),
-    ).toBeInTheDocument()
-
-    expect(await screen.findByText('Candidate removed')).toBeInTheDocument()
-  })
-
-  it('keeps finalized shortlist membership read-only', async () => {
-    installHandlers({ finalized: true })
-    renderPage()
-
-    expect(await screen.findByText(/Candidate membership is read-only/)).toBeInTheDocument()
-
-    expect(
-      screen.queryByRole('button', {
-        name: 'Remove Ayesha Perera',
-      }),
+      within(dialog).queryByRole('button', { name: /Finalize shortlist/i }),
     ).not.toBeInTheDocument()
-
-    expect(screen.getAllByText('Finalized').length).toBeGreaterThan(0)
+    expect(within(dialog).queryByRole('button', { name: /Remove /i })).not.toBeInTheDocument()
   })
-  it('finalizes a shortlist within guidance without acknowledgement', async () => {
-    const finalizeCall = vi.fn()
-    let finalized = false
 
-    installHandlers()
-
-    server.use(
-      http.get('/api/v1/admin/shortlists', () =>
-        HttpResponse.json(
-          paged(
-            [
-              finalized
-                ? {
-                    ...draftShortlist,
-                    status: 'FINALIZED' as const,
-                    version: 8,
-                    finalizedAt: now,
-                  }
-                : draftShortlist,
-            ],
-            'updatedAt,desc',
-          ),
-        ),
-      ),
-      http.get('/api/v1/admin/shortlists/:shortlistId', () =>
-        HttpResponse.json({
-          shortlist: finalized
-            ? {
-                ...draftShortlist,
-                status: 'FINALIZED' as const,
-                version: 8,
-                finalizedAt: now,
-              }
-            : draftShortlist,
-          candidates: paged([candidate], 'officialGpa,desc'),
-        }),
-      ),
-      http.post('/api/v1/admin/shortlists/:shortlistId/finalize', async ({ request }) => {
-        finalizeCall(request.headers.get('If-Match'), await request.json())
-        finalized = true
-
-        return HttpResponse.json({
-          shortlistId,
-          status: 'FINALIZED',
-          selectedCandidateCount: 1,
-          guidanceValue: 10,
-          guidanceExceeded: false,
-          guidanceAcknowledged: false,
-          version: 8,
-          finalizedAt: now,
-        })
-      }),
-    )
-
+  it('sends candidate search and GPA sort through the shortlist detail contract', async () => {
+    const onDetail = vi.fn()
+    installHandlers(vi.fn(), onDetail)
     const user = userEvent.setup()
     renderPage()
 
-    await user.click(
-      await screen.findByRole('button', {
-        name: 'Finalize shortlist',
-      }),
-    )
+    await user.click(await screen.findByRole('button', { name: 'Details' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Example Technologies' })
+    await user.type(within(dialog).getByLabelText('Search Candidates'), 'Ayesha')
+    await user.selectOptions(within(dialog).getByLabelText('Sort Rules'), 'officialGpa,asc')
 
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Finalize shortlist',
+    await waitFor(() => {
+      const urls = onDetail.mock.calls.map(([url]) => url as URL)
+      expect(urls.some((url) => url.searchParams.get('candidateSearch') === 'Ayesha')).toBe(true)
+      expect(urls.some((url) => url.searchParams.get('sort') === 'officialGpa,asc')).toBe(true)
     })
-
-    expect(within(dialog).queryByRole('checkbox')).not.toBeInTheDocument()
-
-    await user.type(
-      within(dialog).getByLabelText('Finalization note (optional)'),
-      'Confirmed after manual review.',
-    )
-
-    await user.click(
-      within(dialog).getByRole('button', {
-        name: 'Finalize shortlist',
-      }),
-    )
-
-    await waitFor(() =>
-      expect(finalizeCall).toHaveBeenCalledWith('"7"', {
-        acknowledgeGuidanceWarning: false,
-        finalizationNote: 'Confirmed after manual review.',
-      }),
-    )
-
-    expect(await screen.findByText(/Candidate membership is read-only/)).toBeInTheDocument()
-    expect(await screen.findByText('Shortlist finalized')).toBeInTheDocument()
-    expect(
-      screen.queryByRole('button', {
-        name: 'Finalize shortlist',
-      }),
-    ).not.toBeInTheDocument()
   })
 
-  it('requires explicit acknowledgement when advisory guidance is exceeded', async () => {
-    const finalizeCall = vi.fn()
-    const exceededShortlist = {
-      ...draftShortlist,
-      guidanceValue: 1,
-      selectedCandidateCount: 2,
-      guidanceExceeded: true,
-      guidanceWarning:
-        'The selected count exceeds the request guidance value. Review and acknowledge before finalizing.',
-    }
-
+  it('starts the wireframe bulk and final shortlist export actions', async () => {
+    const bulkCall = vi.fn()
+    const summaryCall = vi.fn()
     installHandlers()
-
     server.use(
-      http.get('/api/v1/admin/shortlists', () =>
-        HttpResponse.json(paged([exceededShortlist], 'updatedAt,desc')),
-      ),
-      http.get('/api/v1/admin/shortlists/:shortlistId', () =>
-        HttpResponse.json({
-          shortlist: exceededShortlist,
-          candidates: paged([candidate], 'officialGpa,desc'),
-        }),
-      ),
-      http.post('/api/v1/admin/shortlists/:shortlistId/finalize', async ({ request }) => {
-        finalizeCall(request.headers.get('If-Match'), await request.json())
-
-        return HttpResponse.json({
-          shortlistId,
-          status: 'FINALIZED',
-          selectedCandidateCount: 2,
-          guidanceValue: 1,
-          guidanceExceeded: true,
-          guidanceAcknowledged: true,
-          version: 8,
-          finalizedAt: now,
-        })
-      }),
-    )
-
-    const user = userEvent.setup()
-    renderPage()
-
-    expect(await screen.findByText('Guidance exceeded')).toBeInTheDocument()
-
-    await user.click(
-      screen.getByRole('button', {
-        name: 'Finalize shortlist',
-      }),
-    )
-
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Finalize shortlist',
-    })
-
-    const submit = within(dialog).getByRole('button', {
-      name: 'Finalize shortlist',
-    })
-
-    expect(submit).toBeDisabled()
-
-    const acknowledgement = within(dialog).getByRole('checkbox', {
-      name: /I acknowledge that the selected count exceeds the advisory guidance value/i,
-    })
-
-    await user.click(acknowledgement)
-    expect(submit).toBeEnabled()
-
-    await user.click(submit)
-
-    await waitFor(() =>
-      expect(finalizeCall).toHaveBeenCalledWith('"7"', {
-        acknowledgeGuidanceWarning: true,
-        finalizationNote: null,
-      }),
-    )
-  })
-
-  it('refetches and renders the current immutable state after concurrent finalization', async () => {
-    let finalizeAttempted = false
-
-    installHandlers()
-
-    server.use(
-      http.get('/api/v1/admin/shortlists/:shortlistId', () =>
-        HttpResponse.json({
-          shortlist: finalizeAttempted
-            ? {
-                ...draftShortlist,
-                status: 'FINALIZED' as const,
-                version: 8,
-                finalizedAt: now,
-              }
-            : draftShortlist,
-          candidates: paged([candidate], 'officialGpa,desc'),
-        }),
-      ),
-      http.post('/api/v1/admin/shortlists/:shortlistId/finalize', () => {
-        finalizeAttempted = true
-
+      http.post('/api/v1/admin/exports/shortlists/:shortlistId/bulk-cvs', () => {
+        bulkCall()
         return HttpResponse.json(
           {
-            type: 'https://uor-cv-system/errors/shortlist-state-conflict',
-            title: 'Shortlist state conflict',
-            status: 409,
-            code: 'SHORTLIST_STATE_CONFLICT',
-            message: 'The shortlist was already finalized.',
-            correlationId: 'req-concurrent-finalization',
+            exportJobId,
+            shortlistId,
+            exportType: 'BULK_LATEST_CV_ZIP',
+            format: 'ZIP',
+            status: 'QUEUED',
+            totalCandidateCount: 1,
+            includedFileCount: 0,
+            missingCvCount: 0,
+            missingCvStudents: [],
+            warnings: [],
+            downloadReady: false,
+            downloadUrl: null,
+            failureCode: null,
+            failureMessage: null,
+            createdAt: now,
+            startedAt: null,
+            completedAt: null,
+            expiresAt: null,
           },
-          { status: 409 },
+          { status: 202 },
         )
       }),
+      http.post('/api/v1/admin/exports/shortlists/:shortlistId', () => {
+        summaryCall()
+        return HttpResponse.json(
+          {
+            exportJobId,
+            shortlistId,
+            exportType: 'SHORTLIST_SUMMARY_CSV',
+            format: 'CSV',
+            status: 'QUEUED',
+            totalCandidateCount: 1,
+            includedFileCount: 0,
+            missingCvCount: 0,
+            missingCvStudents: [],
+            warnings: [],
+            downloadReady: false,
+            downloadUrl: null,
+            failureCode: null,
+            failureMessage: null,
+            createdAt: now,
+            startedAt: null,
+            completedAt: null,
+            expiresAt: null,
+          },
+          { status: 202 },
+        )
+      }),
+      http.get('/api/v1/admin/exports/:exportJobId', () =>
+        HttpResponse.json({
+          exportJobId,
+          shortlistId,
+          exportType: 'SHORTLIST_SUMMARY_CSV',
+          format: 'CSV',
+          status: 'QUEUED',
+          totalCandidateCount: 1,
+          includedFileCount: 0,
+          missingCvCount: 0,
+          missingCvStudents: [],
+          warnings: [],
+          downloadReady: false,
+          downloadUrl: null,
+          failureCode: null,
+          failureMessage: null,
+          createdAt: now,
+          startedAt: null,
+          completedAt: null,
+          expiresAt: null,
+        }),
+      ),
     )
 
     const user = userEvent.setup()
+    const bulkView = renderPage()
+    await user.click(await screen.findByRole('button', { name: 'Details' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Example Technologies' })
+
+    await user.click(within(dialog).getByRole('button', { name: 'Download All CVs' }))
+    expect(await screen.findByRole('alertdialog', { name: 'Compiling Pipeline' })).toBeVisible()
+    expect(bulkCall).toHaveBeenCalledOnce()
+    await user.click(screen.getByRole('button', { name: 'Acknowledge' }))
+    bulkView.unmount()
+
     renderPage()
-
+    await user.click(await screen.findByRole('button', { name: 'Details' }))
+    const summaryDialog = await screen.findByRole('dialog', { name: 'Example Technologies' })
     await user.click(
-      await screen.findByRole('button', {
-        name: 'Finalize shortlist',
-      }),
+      within(summaryDialog).getByRole('button', { name: 'Download Final Shortlist' }),
     )
-
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Finalize shortlist',
-    })
-
-    await user.click(
-      within(dialog).getByRole('button', {
-        name: 'Finalize shortlist',
-      }),
-    )
-
-    expect(await screen.findByText(/Candidate membership is read-only/)).toBeInTheDocument()
-    expect(
-      screen.queryByRole('dialog', {
-        name: 'Finalize shortlist',
-      }),
-    ).not.toBeInTheDocument()
-    expect(screen.queryByText('Shortlist finalized')).not.toBeInTheDocument()
+    expect(await screen.findByRole('alertdialog', { name: 'Compiling Pipeline' })).toBeVisible()
+    expect(summaryCall).toHaveBeenCalledOnce()
   })
 })

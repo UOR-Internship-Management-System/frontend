@@ -1,41 +1,24 @@
+import { useEffect, useMemo } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
-import { SelectField } from '../../../shared/components/forms/SelectField'
-import { Button } from '../../../shared/components/ui/Button'
-import { Chip } from '../../../shared/components/ui/Chip'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { Company } from '../../internship-management/types/internshipManagementTypes'
 import type { useShortlists } from '../hooks/useShortlists'
 import type { ShortlistsUrlState } from '../types/shortlistTypes'
 
 type ShortlistListQuery = ReturnType<typeof useShortlists>
 
-const dateFormatter = new Intl.DateTimeFormat('en-LK', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
-
-const shortlistSortOptions = [
-  { value: 'updatedAt,desc', label: 'Recently updated' },
-  { value: 'createdAt,desc', label: 'Recently created' },
-  { value: 'companyName,asc', label: 'Company name · A–Z' },
-  { value: 'roleTitle,asc', label: 'Role title · A–Z' },
-] as const
-
 export function ShortlistDirectory({
   companies,
   companyError,
   companyLoading,
   onSearchInputChange,
+  onSelectedTrackChange,
   onStateChange,
   searchInput,
-  selectedShortlistId,
+  selectedTrack,
   shortlists,
   state,
 }: {
@@ -43,220 +26,193 @@ export function ShortlistDirectory({
   companyError?: unknown
   companyLoading: boolean
   onSearchInputChange: (value: string) => void
+  onSelectedTrackChange: (value: string) => void
   onStateChange: (patch: Partial<ShortlistsUrlState>) => void
   searchInput: string
-  selectedShortlistId?: string
+  selectedTrack: string
   shortlists: ShortlistListQuery
   state: ShortlistsUrlState
 }) {
   const listError = shortlists.isError ? mapApiError(shortlists.error, 'protected') : null
   const companyLoadError = companyError ? mapApiError(companyError, 'protected') : null
-  const hasFilters = Boolean(state.search || state.status || state.companyId)
-  const selectedCompanyExists = companies.some((company) => company.companyId === state.companyId)
+  const tracks = useMemo(
+    () =>
+      [...new Set((shortlists.data?.items ?? []).map((shortlist) => shortlist.request.title))].sort(
+        (left, right) => left.localeCompare(right),
+      ),
+    [shortlists.data?.items],
+  )
+  const visibleShortlists = useMemo(
+    () =>
+      (shortlists.data?.items ?? []).filter(
+        (shortlist) => !selectedTrack || shortlist.request.title === selectedTrack,
+      ),
+    [selectedTrack, shortlists.data?.items],
+  )
+  const page = shortlists.data?.page
 
-  const clearFilters = () => {
-    onSearchInputChange('')
-    onStateChange({
-      search: '',
-      status: undefined,
-      companyId: undefined,
-    })
-  }
+  useEffect(() => {
+    if (!page || page.totalPages === 0 || state.page < page.totalPages) return
+    onStateChange({ page: page.totalPages - 1 })
+  }, [onStateChange, page, state.page])
 
   return (
-    <section
-      aria-labelledby="shortlist-directory-title"
-      className="section-card shortlist-directory"
-    >
-      <div className="shortlist-directory-heading">
-        <div>
-          <h2 id="shortlist-directory-title">Shortlists</h2>
-          <p>Choose one shortlist to review its manually selected candidates.</p>
-        </div>
-        <Chip>{shortlists.data?.page.totalElements ?? 0} shortlists</Chip>
+    <section aria-labelledby="active-request-matrix-title" className="shortlist-matrix-card">
+      <div className="shortlist-section-header">
+        <h2 id="active-request-matrix-title">Active Request Matrix</h2>
       </div>
 
-      <div className="shortlist-directory-toolbar">
-        <label>
-          <span>Search shortlists</span>
-          <SearchInput
-            aria-label="Search shortlists"
-            maxLength={120}
-            onChange={(event) => onSearchInputChange(event.target.value)}
-            placeholder="Company, role, or shortlist name"
-            value={searchInput}
-          />
+      <div className="shortlist-matrix-toolbar">
+        <label className="shortlist-control shortlist-search-control">
+          <span>Search Company</span>
+          <span className="shortlist-search-input">
+            <span aria-hidden="true" className="material-symbols-outlined">
+              search
+            </span>
+            <input
+              aria-label="Search Company"
+              maxLength={120}
+              onChange={(event) => onSearchInputChange(event.target.value)}
+              placeholder="Search by company name..."
+              type="search"
+              value={searchInput}
+            />
+          </span>
         </label>
 
-        <label>
-          <span>Company</span>
-          <SelectField
-            aria-describedby={companyLoadError ? 'shortlist-company-filter-error' : undefined}
-            aria-label="Filter shortlists by company"
+        <label className="shortlist-control">
+          <span>Select Company</span>
+          <select
+            aria-describedby={companyLoadError ? 'shortlist-company-error' : undefined}
             disabled={companyLoading}
-            onChange={(event) =>
-              onStateChange({
-                companyId: event.target.value || undefined,
-              })
-            }
+            onChange={(event) => onStateChange({ companyId: event.target.value || undefined })}
             value={state.companyId ?? ''}
           >
-            <option value="">All companies</option>
-            {state.companyId && !selectedCompanyExists ? (
-              <option value={state.companyId}>Selected company</option>
-            ) : null}
+            <option value="">All Companies</option>
             {companies.map((company) => (
               <option key={company.companyId} value={company.companyId}>
                 {company.name}
               </option>
             ))}
-          </SelectField>
+          </select>
         </label>
 
-        <label>
-          <span>Status</span>
-          <SelectField
-            aria-label="Filter shortlists by status"
-            onChange={(event) =>
-              onStateChange({
-                status:
-                  event.target.value === 'DRAFT' || event.target.value === 'FINALIZED'
-                    ? event.target.value
-                    : undefined,
-              })
-            }
-            value={state.status ?? ''}
+        <label className="shortlist-control">
+          <span>Internship Track</span>
+          <select
+            onChange={(event) => onSelectedTrackChange(event.target.value)}
+            value={selectedTrack}
           >
-            <option value="">All statuses</option>
-            <option value="DRAFT">Draft</option>
-            <option value="FINALIZED">Finalized</option>
-          </SelectField>
-        </label>
-
-        <label>
-          <span>Sort</span>
-          <SortSelect
-            aria-label="Sort shortlists"
-            onChange={(event) =>
-              onStateChange({
-                sort: event.target.value as ShortlistsUrlState['sort'],
-              })
-            }
-            value={state.sort}
-          >
-            {shortlistSortOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
+            <option value="">All Placement Rows</option>
+            {tracks.map((track) => (
+              <option key={track} value={track}>
+                {track}
               </option>
             ))}
-          </SortSelect>
+          </select>
         </label>
       </div>
 
       {companyLoadError ? (
-        <p className="shortlist-filter-message" id="shortlist-company-filter-error" role="alert">
-          Company options are unavailable. Existing shortlist results can still be reviewed.
+        <p className="shortlist-inline-message" id="shortlist-company-error" role="alert">
+          Company options are unavailable. Search and shortlisted records remain available.
         </p>
       ) : null}
-
-      <p aria-live="polite" className="shortlist-updating">
-        {shortlists.isFetching && !shortlists.isPending ? 'Updating shortlists…' : ''}
+      <p aria-live="polite" className="shortlist-live-region">
+        {shortlists.isFetching && !shortlists.isPending ? 'Updating active records…' : ''}
       </p>
 
       <LoadingBoundary
         isLoading={shortlists.isPending}
-        label="Loading shortlist directory"
-        minHeight={520}
-        skeleton={<SkeletonBlock height={420} lines={0} variant="card" />}
+        label="Loading active shortlist records"
+        minHeight={430}
+        skeleton={<SkeletonBlock height={390} lines={0} variant="card" />}
       >
         {listError ? (
           <ErrorState
             correlationId={listError.correlationId}
             message={listError.message}
             onAction={() => void shortlists.refetch()}
-            title="Shortlists unavailable"
+            title="Shortlisted records unavailable"
           />
-        ) : shortlists.data?.items.length ? (
-          <>
-            <ul className="shortlist-directory-list">
-              {shortlists.data.items.map((shortlist) => {
-                const selected = shortlist.shortlistId === selectedShortlistId
-                return (
-                  <li key={shortlist.shortlistId}>
-                    <button
-                      aria-pressed={selected}
-                      className={`shortlist-directory-item ${selected ? 'is-selected' : ''}`.trim()}
-                      onClick={() =>
-                        onStateChange({
-                          selectedShortlistId: shortlist.shortlistId,
-                        })
-                      }
-                      type="button"
-                    >
-                      <span className="shortlist-directory-item-heading">
-                        <span>
-                          <strong>{shortlist.name || shortlist.request.title}</strong>
-                          <small>{shortlist.request.companyName}</small>
-                        </span>
-                        <StatusBadge
-                          tone={shortlist.status === 'FINALIZED' ? 'success' : 'neutral'}
-                        >
-                          {shortlist.status === 'FINALIZED' ? 'Finalized' : 'Draft'}
-                        </StatusBadge>
-                      </span>
-
-                      <span className="shortlist-directory-item-summary">
-                        <span>{shortlist.selectedCandidateCount} selected</span>
-                        <span>
-                          Guidance:{' '}
-                          {shortlist.guidanceValue === null
-                            ? 'Not provided'
-                            : shortlist.guidanceValue}
-                        </span>
-                      </span>
-
-                      <span className="shortlist-directory-item-updated">
-                        Updated {dateFormatter.format(new Date(shortlist.updatedAt))}
-                      </span>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-
-            <PaginationBar
-              label="Shortlist pages"
-              onPageChange={(page) => onStateChange({ page })}
-              onPageSizeChange={(size) =>
-                onStateChange({
-                  size: size as ShortlistsUrlState['size'],
-                })
-              }
-              page={shortlists.data.page.page}
-              pageSizeOptions={[20, 50, 100]}
-              size={shortlists.data.page.size}
-              totalElements={shortlists.data.page.totalElements}
-              totalPages={shortlists.data.page.totalPages}
-            />
-          </>
+        ) : visibleShortlists.length ? (
+          <div className="shortlist-matrix-list">
+            {visibleShortlists.map((shortlist) => (
+              <article className="shortlist-matrix-row" key={shortlist.shortlistId}>
+                <div>
+                  <h3>{shortlist.request.title}</h3>
+                  <p>
+                    Company: {shortlist.request.companyName} • {shortlist.selectedCandidateCount}{' '}
+                    Candidates Shortlisted
+                  </p>
+                </div>
+                <button
+                  className="shortlist-outlined-button"
+                  onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
+                  type="button"
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined">
+                    visibility
+                  </span>
+                  Details
+                </button>
+              </article>
+            ))}
+          </div>
         ) : (
           <EmptyState
-            action={
-              hasFilters ? (
-                <Button onClick={clearFilters} variant="secondary">
-                  Clear search and filters
-                </Button>
-              ) : undefined
-            }
             message={
-              hasFilters
-                ? 'No shortlists match the current search and filters.'
-                : 'Create a draft shortlist from Candidate Filtering to review selected candidates here.'
+              selectedTrack
+                ? 'No shortlisted records on this page match the selected internship track.'
+                : 'No finalized shortlisted records match the current company filters.'
             }
-            title={hasFilters ? 'No matching shortlists' : 'No shortlists yet'}
+            title="No shortlisted records"
           />
         )}
       </LoadingBoundary>
+
+      {page && page.totalPages > 0 ? (
+        <nav aria-label="Active request pages" className="shortlist-pagination">
+          <p>
+            Showing {page.page * page.size + 1} to{' '}
+            {Math.min((page.page + 1) * page.size, page.totalElements)} of {page.totalElements}{' '}
+            active records
+          </p>
+          <div>
+            <button
+              aria-label="Previous page"
+              disabled={page.page === 0}
+              onClick={() => onStateChange({ page: page.page - 1 })}
+              type="button"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_left
+              </span>
+            </button>
+            {Array.from({ length: page.totalPages }, (_, index) => (
+              <button
+                aria-current={index === page.page ? 'page' : undefined}
+                className={index === page.page ? 'is-active' : undefined}
+                key={index}
+                onClick={() => onStateChange({ page: index })}
+                type="button"
+              >
+                {index + 1}
+              </button>
+            ))}
+            <button
+              aria-label="Next page"
+              disabled={page.page >= page.totalPages - 1}
+              onClick={() => onStateChange({ page: page.page + 1 })}
+              type="button"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                chevron_right
+              </span>
+            </button>
+          </div>
+        </nav>
+      ) : null}
     </section>
   )
 }

@@ -234,50 +234,44 @@ test('anonymous Shortlists access redirects to Admin login', async ({ page }) =>
   await expect(page.getByRole('heading', { name: 'Admin Login' })).toBeVisible()
 })
 
-test('Admin opens finalized shortlist review and export controls', async ({ page }) => {
+test('Admin opens the finalized shortlist wireframe and export controls', async ({ page }) => {
   await authenticateAdmin(page)
   await mockFinalizedShortlist(page)
 
-  await page.goto(`/admin/shortlists?shortlistId=${shortlistId}`, {
+  await page.goto('/admin/shortlists', {
     waitUntil: 'domcontentloaded',
   })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Shortlists' })).toBeVisible()
   await expect(
-    page.getByRole('heading', { level: 2, name: 'Software Engineering Intern' }),
+    page.getByRole('heading', { level: 1, name: 'Shortlisted Candidates' }),
   ).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Active Request Matrix' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Shortlists' })).toHaveAttribute(
     'aria-current',
     'page',
   )
-  await expect(page.getByRole('button', { name: 'Generate CSV' })).toBeEnabled()
-  await expect(page.getByRole('button', { name: 'Generate ZIP' })).toBeEnabled()
-  await expect(page.getByText(/Candidate membership is read-only/)).toBeVisible()
+  await page.getByRole('button', { name: 'Details' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Example Technologies' })
+  await expect(dialog.getByText('Software Engineering Intern')).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Download All CVs' })).toBeEnabled()
+  await expect(dialog.getByRole('button', { name: 'Download Final Shortlist' })).toBeEnabled()
+  await expect(dialog.getByRole('button', { name: 'CV', exact: true })).toBeEnabled()
   await expect(page.getByRole('heading', { name: 'Not Found' })).toHaveCount(0)
 })
 
-test('Admin removes a draft candidate and finalizes the shortlist', async ({ page }) => {
+test('the shortlist wireframe does not expose draft membership or finalization controls', async ({
+  page,
+}) => {
   await authenticateAdmin(page)
   await mockDraftShortlistLifecycle(page)
-  await page.goto(`/admin/shortlists?shortlistId=${shortlistId}`, {
+  await page.goto('/admin/shortlists', {
     waitUntil: 'domcontentloaded',
   })
 
-  await expect(page.getByText('Ayesha Perera', { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'Remove Ayesha Perera' }).click()
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Remove candidate', exact: true })
-    .click()
-  await expect(page.getByText('Ayesha Perera', { exact: true })).toHaveCount(0)
-  await expect(page.getByText('1 selected', { exact: true })).toBeVisible()
-
-  await page.getByRole('button', { name: 'Finalize shortlist' }).click()
-  await page
-    .getByRole('dialog')
-    .getByRole('button', { name: 'Finalize shortlist', exact: true })
-    .click()
-  await expect(page.getByRole('button', { name: 'Finalize shortlist' })).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /Remove / })).toHaveCount(0)
-  await expect(page.getByText(/Candidate membership is read-only/)).toBeVisible()
+  await page.getByRole('button', { name: 'Details' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Example Technologies' })
+  await expect(dialog.getByText('Ayesha Perera', { exact: true })).toBeVisible()
+  await expect(dialog.getByRole('button', { name: /Remove / })).toHaveCount(0)
+  await expect(dialog.getByRole('button', { name: /Finalize shortlist/i })).toHaveCount(0)
+  await expect(dialog.getByRole('button', { name: 'Download Final Shortlist' })).toBeDisabled()
 })
