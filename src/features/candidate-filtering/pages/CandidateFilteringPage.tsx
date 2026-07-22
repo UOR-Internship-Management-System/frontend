@@ -5,24 +5,20 @@ import { useCandidateFilteringUrlState } from '../hooks/useCandidateFilteringUrl
 import { useCandidateSelection } from '../hooks/useCandidateSelection'
 
 export function CandidateFilteringPage() {
-  const { candidateSearchInput, setCandidateSearchInput, state, updateState } =
-    useCandidateFilteringUrlState()
+  const { state, updateState } = useCandidateFilteringUrlState()
   const selection = useCandidateSelection(state.runId)
 
   return (
     <div className="content-stack candidate-filtering-page">
       <PageHeader
-        description="Select an active placement request, apply runtime official GPA and declared-skill criteria, and manually review candidates."
-        eyebrow="Administration"
+        description="Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually lock the final shortlist."
         title="Interactive Candidate Filtering Dashboard"
       />
 
       <div className="candidate-filtering-layout split-dashboard-pane">
         <CandidateSelectionPanel state={state} updateState={updateState} />
         <CandidateResultsWorkspace
-          candidateSearchInput={candidateSearchInput}
           selection={selection}
-          setCandidateSearchInput={setCandidateSearchInput}
           state={state}
           updateState={updateState}
         />

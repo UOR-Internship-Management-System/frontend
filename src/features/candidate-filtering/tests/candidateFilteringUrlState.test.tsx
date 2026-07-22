@@ -61,7 +61,7 @@ describe('Candidate Filtering URL state', () => {
         maxGpa: undefined,
         requestSkillIds: [],
         additionalSkillIds: [],
-        matchMode: 'AND',
+        matchMode: 'OR',
         runId: undefined,
         candidateSearch: '',
         candidateSort: 'officialGpa,desc',

@@ -9,6 +9,7 @@ import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import {
   useAddShortlistCandidates,
   useCreateDraftShortlist,
+  useFinalizeShortlist,
 } from '../../shortlists/hooks/useShortlists'
 import type { CandidateSelectionState } from '../hooks/useCandidateSelection'
 
@@ -34,11 +35,13 @@ function shortlistLocation(shortlistId?: string) {
 }
 
 export function SelectedCandidatesReviewModal({
+  guidanceValue,
   onClose,
   requestId,
   runId,
   selection,
 }: {
+  guidanceValue: number | null
   onClose: () => void
   requestId: string
   runId: string
@@ -48,6 +51,7 @@ export function SelectedCandidatesReviewModal({
   const { notify } = useNotifications()
   const createDraft = useCreateDraftShortlist()
   const addCandidates = useAddShortlistCandidates()
+  const finalizeShortlist = useFinalizeShortlist()
 
   /*
    * This checkpoint is intentionally retained after draft creation.
@@ -58,9 +62,11 @@ export function SelectedCandidatesReviewModal({
   const [draftCheckpoint, setDraftCheckpoint] = useState<DraftCheckpoint>()
   const [handoffError, setHandoffError] = useState<HandoffError>()
   const [requiresShortlistReview, setRequiresShortlistReview] = useState(false)
+  const [guidanceAcknowledged, setGuidanceAcknowledged] = useState(false)
 
   const candidates = [...selection.candidates.values()]
-  const isPending = createDraft.isPending || addCandidates.isPending
+  const guidanceExceeded = guidanceValue !== null && candidates.length > guidanceValue
+  const isPending = createDraft.isPending || addCandidates.isPending || finalizeShortlist.isPending
   const hasValidContext = Boolean(requestId && runId)
 
   const openShortlists = () => {
@@ -78,6 +84,21 @@ export function SelectedCandidatesReviewModal({
         body: { studentIds },
       })
 
+      const finalizedCheckpoint = {
+        shortlistId: checkpoint.shortlistId,
+        version: result.version,
+      }
+      setDraftCheckpoint(finalizedCheckpoint)
+
+      const finalized = await finalizeShortlist.mutateAsync({
+        shortlistId: finalizedCheckpoint.shortlistId,
+        version: finalizedCheckpoint.version,
+        body: {
+          acknowledgeGuidanceWarning: guidanceExceeded ? guidanceAcknowledged : false,
+          finalizationNote: null,
+        },
+      })
+
       /*
        * Selections are cleared only after both operations have succeeded.
        * They remain available when candidate addition fails.
@@ -86,8 +107,8 @@ export function SelectedCandidatesReviewModal({
 
       notify({
         tone: 'success',
-        title: 'Draft shortlist created',
-        message: `${result.addedCount} added · ${result.alreadyPresentCount} already present.`,
+        title: 'Shortlist allocation finalized',
+        message: `${finalized.selectedCandidateCount} manually selected candidate${finalized.selectedCandidateCount === 1 ? '' : 's'} locked.`,
       })
 
       navigate(shortlistLocation(checkpoint.shortlistId))
@@ -132,7 +153,7 @@ export function SelectedCandidatesReviewModal({
          * creating another shortlist.
          */
         setHandoffError({
-          message: `The draft shortlist was created, but the selected candidates were not added. Retry adding them. ${mapped.message}`,
+          message: `The shortlist could not be finalized. Your manual selection is retained; retry the operation. ${mapped.message}`,
           correlationId: mapped.correlationId,
         })
       }
@@ -201,10 +222,10 @@ export function SelectedCandidatesReviewModal({
   return (
     <Modal
       closeDisabled={isPending}
-      description="Review explicit selections from every result page in this filtering run."
+      description="Review the manually selected candidates before permanently locking shortlist membership."
       onClose={onClose}
       size="wide"
-      title="Selected candidates"
+      title="Review Selected Shortlist"
     >
       <div className="selected-candidates-review">
         <p aria-live="polite">
@@ -250,6 +271,21 @@ export function SelectedCandidatesReviewModal({
           </div>
         ) : null}
 
+        {guidanceExceeded ? (
+          <label className="shortlist-guidance-acknowledgement">
+            <input
+              checked={guidanceAcknowledged}
+              disabled={isPending}
+              onChange={(event) => setGuidanceAcknowledged(event.target.checked)}
+              type="checkbox"
+            />
+            <span>
+              The selected count exceeds the advisory guidance of {guidanceValue}. I acknowledge
+              this warning and want to continue with the manual selection.
+            </span>
+          </label>
+        ) : null}
+
         {handoffError ? (
           <div className="inline-alert" role="alert">
             <span>{handoffError.message}</span>
@@ -275,11 +311,15 @@ export function SelectedCandidatesReviewModal({
             </Button>
           ) : (
             <Button
-              disabled={!candidates.length || !hasValidContext}
+              disabled={
+                !candidates.length ||
+                !hasValidContext ||
+                (guidanceExceeded && !guidanceAcknowledged)
+              }
               isLoading={isPending}
               onClick={() => void createDraftShortlist()}
             >
-              {draftCheckpoint ? 'Retry adding candidates' : 'Create draft shortlist'}
+              {draftCheckpoint ? 'Retry and lock shortlist' : 'Confirm & Lock Final Shortlist'}
             </Button>
           )}
 

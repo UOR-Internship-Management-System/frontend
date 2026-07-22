@@ -16,7 +16,7 @@ export type CandidateFilteringRun = ApiCandidateFilteringRunResponse
 export type CandidateFilteringCandidate = ApiCandidateFilteringCandidateResponse
 export type PagedCandidateFilteringCandidates = ApiPagedCandidateFilteringCandidateResponse
 
-export type CandidatePageSize = 20 | 50 | 100
+export type CandidatePageSize = 5 | 20 | 50 | 100
 export type CandidateResultsQuery = {
   filterRunId: string
   page: number

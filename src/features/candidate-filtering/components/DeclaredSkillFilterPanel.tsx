@@ -45,8 +45,7 @@ export function DeclaredSkillFilterPanel({
   return (
     <div className="declared-skill-filter-panel">
       <fieldset disabled={disabled}>
-        <legend>Requested skills</legend>
-        <p>Toggle the request requirements that should apply to this filtering run.</p>
+        <legend>Requested Skills</legend>
         <div aria-label="Request-required skills" className="filtering-request-skill-chips">
           {requestSkills.map((skill) => {
             const selected = requestSkillIds.includes(skill.skillId)
@@ -71,8 +70,7 @@ export function DeclaredSkillFilterPanel({
       </fieldset>
 
       <fieldset disabled={disabled}>
-        <legend>Additional declared skills</legend>
-        <p>Add canonical taxonomy skills for this filtering run only.</p>
+        <legend>Add Custom Skills Selector</legend>
 
         {mappedError ? (
           <ErrorState
@@ -87,7 +85,7 @@ export function DeclaredSkillFilterPanel({
             onClick={() => setModalOpen(true)}
             variant="secondary"
           >
-            Browse custom skills
+            Custom Skills
           </Button>
         )}
 

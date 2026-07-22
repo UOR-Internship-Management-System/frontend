@@ -122,7 +122,7 @@ describe('candidate filtering API and URL state', () => {
       parseCandidateFilteringUrlState(
         new URLSearchParams('minGpa=2.555&maxGpa=9&matchMode=NOT&candidateSize=4'),
       ),
-    ).toEqual(expect.objectContaining({ minGpa: undefined, maxGpa: undefined, candidateSize: 20 }))
+    ).toEqual(expect.objectContaining({ minGpa: undefined, maxGpa: undefined, candidateSize: 5 }))
   })
 
   it('clears stale run context when the selected request changes', () => {

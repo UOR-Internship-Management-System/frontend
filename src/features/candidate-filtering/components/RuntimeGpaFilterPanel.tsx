@@ -35,8 +35,7 @@ export function RuntimeGpaFilterPanel({
 
   return (
     <fieldset className="filtering-gpa-panel" disabled={disabled}>
-      <legend>Official GPA filtering</legend>
-      <p>Optional runtime bounds use the latest committed academic ledger only.</p>
+      <legend>GPA Filtering</legend>
 
       <div className="gpa-range-output" aria-live="polite">
         <span>Min GPA: {visualMin.toFixed(2)}</span>
@@ -76,7 +75,7 @@ export function RuntimeGpaFilterPanel({
       </div>
 
       <div className="filtering-gpa-fields">
-        <FormField htmlFor="filter-min-gpa" label="Minimum GPA">
+        <FormField htmlFor="filter-min-gpa" label="Min Bound">
           <TextInput
             aria-describedby={error ? 'filter-gpa-error' : undefined}
             aria-invalid={Boolean(error)}
@@ -86,10 +85,10 @@ export function RuntimeGpaFilterPanel({
             onChange={(event) => update(event.target.value, onMinGpaChange)}
             step="0.01"
             type="number"
-            value={minGpa ?? ''}
+            value={visualMin}
           />
         </FormField>
-        <FormField htmlFor="filter-max-gpa" label="Maximum GPA">
+        <FormField htmlFor="filter-max-gpa" label="Max Bound">
           <TextInput
             aria-describedby={error ? 'filter-gpa-error' : undefined}
             aria-invalid={Boolean(error)}
@@ -99,23 +98,20 @@ export function RuntimeGpaFilterPanel({
             onChange={(event) => update(event.target.value, onMaxGpaChange)}
             step="0.01"
             type="number"
-            value={maxGpa ?? ''}
+            value={visualMax}
           />
         </FormField>
       </div>
 
       <div aria-label="GPA quick presets" className="gpa-preset-row">
         <Button onClick={() => setPreset(3, 4)} variant="secondary">
-          3.00–4.00
+          GPA &gt; 3.0
         </Button>
         <Button onClick={() => setPreset(3.5, 4)} variant="secondary">
-          3.50–4.00
+          GPA &gt; 3.5
         </Button>
         <Button onClick={() => setPreset(0, 2)} variant="secondary">
-          0.00–2.00
-        </Button>
-        <Button onClick={() => setPreset(undefined, undefined)} variant="secondary">
-          All GPA
+          GPA &lt; 2.0
         </Button>
       </div>
 

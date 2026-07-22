@@ -78,7 +78,7 @@ export function CandidateResultsTable({
             <th scope="col">Candidate profile details</th>
             <th scope="col">Official GPA</th>
             <th scope="col">Skills inventory display</th>
-            <th scope="col">CV and shortlist history</th>
+            <th scope="col">Shortlisted History</th>
           </tr>
         </thead>
         <tbody>
@@ -139,19 +139,16 @@ export function CandidateResultsTable({
                     <span className="candidate-profile-subline">No matching declared skills</span>
                   )}
                 </td>
-                <td data-label="CV and shortlist history">
+                <td data-label="Shortlisted history">
                   <div className="candidate-history-stack">
-                    <StatusBadge tone={candidate.hasLatestSavedCv ? 'success' : 'neutral'}>
-                      {candidate.hasLatestSavedCv ? 'Latest CV available' : 'No saved CV'}
-                    </StatusBadge>
                     <StatusBadge
                       tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}
                     >
                       {candidate.hasExistingActiveShortlist
-                        ? `${candidate.existingActiveShortlistCount} active shortlist${
+                        ? `${candidate.existingActiveShortlistCount} Previous Shortlist${
                             candidate.existingActiveShortlistCount === 1 ? '' : 's'
                           }`
-                        : 'No active shortlists'}
+                        : '0 Previous Shortlists'}
                     </StatusBadge>
                   </div>
                 </td>

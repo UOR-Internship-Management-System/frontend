@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
@@ -24,23 +22,14 @@ import { CandidateResultsTable } from './CandidateResultsTable'
 import { CandidateSkillsModal } from './CandidateSkillsModal'
 import { SelectedCandidatesReviewModal } from './SelectedCandidatesReviewModal'
 
-const sortOptions = [
-  { value: 'officialGpa,desc', label: 'Official GPA · High to low' },
-  { value: 'officialGpa,asc', label: 'Official GPA · Low to high' },
-  { value: 'fullName,asc', label: 'Student name · A–Z' },
-  { value: 'indexNumber,asc', label: 'Index number · A–Z' },
-] as const
-
 export function CandidateResultsWorkspace({
-  candidateSearchInput,
   selection,
-  setCandidateSearchInput,
   state,
   updateState,
 }: {
-  candidateSearchInput: string
+  candidateSearchInput?: string
   selection: CandidateSelectionState
-  setCandidateSearchInput: (value: string) => void
+  setCandidateSearchInput?: (value: string) => void
   state: CandidateFilteringUrlState
   updateState: (patch: Partial<CandidateFilteringUrlState>) => void
 }) {
@@ -87,46 +76,19 @@ export function CandidateResultsWorkspace({
     <SectionCard aria-labelledby="candidate-results-title" className="candidate-results-workspace">
       <div className="candidate-results-heading">
         <div>
-          <h2 id="candidate-results-title">Matching students</h2>
+          <h2 id="candidate-results-title">Matching Students</h2>
           <p>
             {run.data
               ? `${run.data.request.companyName} · ${run.data.request.title}`
               : state.runId
                 ? 'Loading filtering run context…'
-                : 'Run deterministic filtering to populate this workspace.'}
+                : 'Select an internship request to populate this workspace.'}
           </p>
         </div>
-        <Chip>{candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} records</Chip>
+        <Chip>
+          {candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} Student Records Match
+        </Chip>
       </div>
-
-      {state.runId ? (
-        <div className="candidate-results-toolbar wireframe-toolbar">
-          <label className="wireframe-toolbar-search">
-            <span className="visually-hidden">Search candidates</span>
-            <SearchInput
-              aria-label="Search candidate results"
-              onChange={(event) => setCandidateSearchInput(event.target.value)}
-              placeholder="Search student name or index number"
-              value={candidateSearchInput}
-            />
-          </label>
-          <label>
-            <span>Sort candidates</span>
-            <SortSelect
-              onChange={(event) =>
-                updateState({ candidateSort: event.target.value as typeof state.candidateSort })
-              }
-              value={state.candidateSort}
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SortSelect>
-          </label>
-        </div>
-      ) : null}
 
       <p aria-live="polite" className="company-updating">
         {candidates.isFetching && !candidates.isPending ? 'Updating candidate results…' : ''}
@@ -135,8 +97,8 @@ export function CandidateResultsWorkspace({
       {!state.runId ? (
         <div className="candidate-results-empty-canvas">
           <EmptyState
-            message="Select an active internship request, adjust runtime criteria, and run filtering. Results remain factual and require explicit manual selection."
-            title="No filtering run selected"
+            message="Select an active internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically."
+            title="No internship request selected"
           />
         </div>
       ) : (
@@ -168,11 +130,9 @@ export function CandidateResultsWorkspace({
               <PaginationBar
                 label="Candidate result pages"
                 onPageChange={(candidatePage) => updateState({ candidatePage })}
-                onPageSizeChange={(candidateSize) =>
-                  updateState({ candidateSize: candidateSize as 20 | 50 | 100 })
-                }
+                onPageSizeChange={() => undefined}
                 page={candidates.data.page.page}
-                pageSizeOptions={[20, 50, 100]}
+                pageSizeOptions={[5]}
                 size={candidates.data.page.size}
                 totalElements={candidates.data.page.totalElements}
                 totalPages={candidates.data.page.totalPages}
@@ -193,15 +153,17 @@ export function CandidateResultsWorkspace({
           <span>Selections persist across result pages for this filtering run.</span>
         </div>
         <div>
-          <Button disabled={selectedCount === 0} onClick={selection.clear} variant="secondary">
-            Clear selection
+          <Button
+            onClick={() => setReviewOpen(true)}
+            variant="secondary"
+          >
+            Review Selected Shortlist
           </Button>
           <Button
             disabled={selectedCount === 0 || !state.runId}
             onClick={() => setReviewOpen(true)}
-            variant="secondary"
           >
-            Review selected ({selectedCount})
+            Confirm &amp; Lock Final Shortlist
           </Button>
         </div>
       </footer>
@@ -215,6 +177,7 @@ export function CandidateResultsWorkspace({
       {reviewOpen && state.runId ? (
         <SelectedCandidatesReviewModal
           onClose={() => setReviewOpen(false)}
+          guidanceValue={run.data?.request.shortlistGuidanceValue ?? null}
           requestId={state.requestId ?? run.data?.request.requestId ?? ''}
           runId={state.runId}
           selection={selection}

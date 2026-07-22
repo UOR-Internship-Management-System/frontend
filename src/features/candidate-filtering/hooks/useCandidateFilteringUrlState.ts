@@ -11,7 +11,7 @@ import type {
   CandidatePageSize,
 } from '../types/candidateFilteringTypes'
 
-const allowedSizes = [20, 50, 100] as const
+const allowedSizes: readonly number[] = [5, 20, 50, 100]
 const filteringUrlKeys = [
   'requestId',
   'minGpa',
@@ -32,12 +32,12 @@ export const defaultCandidateFilteringUrlState: CandidateFilteringUrlState = {
   maxGpa: undefined,
   requestSkillIds: [],
   additionalSkillIds: [],
-  matchMode: 'AND',
+  matchMode: 'OR',
   runId: undefined,
   candidateSearch: '',
   candidateSort: 'officialGpa,desc',
   candidatePage: 0,
-  candidateSize: 20,
+  candidateSize: 5,
 }
 
 function optionalUuid(value: string | null) {
@@ -61,7 +61,7 @@ function optionalGpa(value: string | null) {
 export function parseCandidateFilteringUrlState(
   parameters: URLSearchParams,
 ): CandidateFilteringUrlState {
-  const candidateSize = readNonnegativeInteger(parameters.get('candidateSize'), 20)
+  const candidateSize = readNonnegativeInteger(parameters.get('candidateSize'), 5)
   const matchMode = filterSkillMatchModeSchema.safeParse(parameters.get('matchMode'))
   const candidateSort = candidateSortSchema.safeParse(parameters.get('candidateSort'))
   return {
@@ -70,14 +70,14 @@ export function parseCandidateFilteringUrlState(
     maxGpa: optionalGpa(parameters.get('maxGpa')),
     requestSkillIds: uuidList(parameters, 'requestSkillIds'),
     additionalSkillIds: uuidList(parameters, 'additionalSkillIds'),
-    matchMode: matchMode.success ? matchMode.data : 'AND',
+    matchMode: matchMode.success ? matchMode.data : 'OR',
     runId: optionalUuid(parameters.get('runId')),
     candidateSearch: (parameters.get('candidateSearch') ?? '').trim().slice(0, 120),
     candidateSort: candidateSort.success ? candidateSort.data : 'officialGpa,desc',
     candidatePage: readNonnegativeInteger(parameters.get('candidatePage'), 0),
     candidateSize: allowedSizes.includes(candidateSize as CandidatePageSize)
       ? (candidateSize as CandidatePageSize)
-      : 20,
+      : 5,
   }
 }
 
@@ -88,14 +88,14 @@ export function serializeCandidateFilteringUrlState(state: CandidateFilteringUrl
   if (state.maxGpa !== undefined) parameters.set('maxGpa', String(state.maxGpa))
   for (const skillId of state.requestSkillIds) parameters.append('requestSkillIds', skillId)
   for (const skillId of state.additionalSkillIds) parameters.append('additionalSkillIds', skillId)
-  if (state.matchMode !== 'AND') parameters.set('matchMode', state.matchMode)
+  if (state.matchMode !== 'OR') parameters.set('matchMode', state.matchMode)
   if (state.runId) parameters.set('runId', state.runId)
   if (state.candidateSearch) parameters.set('candidateSearch', state.candidateSearch)
   if (state.candidateSort !== 'officialGpa,desc') {
     parameters.set('candidateSort', state.candidateSort)
   }
   if (state.candidatePage > 0) parameters.set('candidatePage', String(state.candidatePage))
-  if (state.candidateSize !== 20) parameters.set('candidateSize', String(state.candidateSize))
+  if (state.candidateSize !== 5) parameters.set('candidateSize', String(state.candidateSize))
   return parameters
 }
 
@@ -136,7 +136,7 @@ export function useCandidateFilteringUrlState() {
               maxGpa: undefined,
               requestSkillIds: [],
               additionalSkillIds: [],
-              matchMode: 'AND' as const,
+              matchMode: 'OR' as const,
               runId: undefined,
               candidateSearch: '',
               candidateSort: 'officialGpa,desc' as const,

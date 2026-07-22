@@ -39,7 +39,7 @@ export function useCandidateFilteringCandidates(query: CandidateResultsQuery | n
   const fallback: CandidateResultsQuery = {
     filterRunId: '',
     page: 0,
-    size: 20,
+    size: 5,
     search: '',
     sort: 'officialGpa,desc',
   }

@@ -139,6 +139,7 @@ async function mockCandidateFilteringWorkflow(page: Page) {
             },
           ],
           'officialGpa,desc',
+          5,
         ),
       }),
   )
@@ -178,7 +179,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
 
   await expect(
     page.getByText(
-      'Select an active placement request, apply runtime official GPA and declared-skill criteria, and manually review candidates.',
+      'Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually lock the final shortlist.',
     ),
   ).toBeVisible()
 
@@ -188,11 +189,11 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
     }),
   ).toHaveAttribute('aria-current', 'page')
 
-  await expect(page.getByText('No filtering run selected')).toBeVisible()
+  await expect(page.getByText('No internship request selected')).toBeVisible()
 
   await expect(
     page.getByText(
-      'Select an active internship request, adjust runtime criteria, and run filtering. Results remain factual and require explicit manual selection.',
+      'Select an active internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically.',
     ),
   ).toBeVisible()
 
@@ -221,7 +222,6 @@ test('Admin selects a request and runs deterministic candidate filtering', async
   await expect(page.getByText('Example Technologies', { exact: true })).toBeVisible()
   await expect(page.getByText('Selected request unavailable')).toHaveCount(0)
 
-  await page.getByRole('button', { name: 'Run filtering' }).click()
   await expect(page).toHaveURL(/runId=55555555-5555-4555-8555-555555555555/)
   await expect(page.getByText('Ayesha Perera', { exact: true })).toBeVisible()
   await expect(page.getByText(/rank|score/i)).toHaveCount(0)

@@ -24,6 +24,18 @@ export function CandidateSelectionPanel({
   const initializedRequestRef = useRef<string | undefined>(undefined)
   const selectedRequest = useInternshipRequest(state.requestId ?? null)
   const createRun = useCreateCandidateFilteringRun()
+  const filteringRequestRef = useRef(0)
+  const filteringTimeoutRef = useRef<number | undefined>(undefined)
+  const lastCriteriaRef = useRef<string | undefined>(undefined)
+
+  useEffect(
+    () => () => {
+      if (filteringTimeoutRef.current !== undefined) {
+        window.clearTimeout(filteringTimeoutRef.current)
+      }
+    },
+    [],
+  )
 
   useEffect(() => {
     const request = selectedRequest.data
@@ -32,40 +44,64 @@ export function CandidateSelectionPanel({
     updateState({ requestSkillIds: request.requiredSkills.map((skill) => skill.skillId) })
   }, [selectedRequest.data, updateState])
 
-  const runFiltering = async () => {
-    setFormError(undefined)
-    const parsed = candidateFilteringCriteriaRequestSchema.safeParse({
+  useEffect(() => {
+    if (!selectedRequest.data || initializedRequestRef.current !== selectedRequest.data.requestId) {
+      return
+    }
+
+    const criteria = {
       requestId: state.requestId,
       runtimeGpaLowerBound: state.minGpa,
       runtimeGpaUpperBound: state.maxGpa,
       requestSkillIds: state.requestSkillIds,
       additionalSkillIds: state.additionalSkillIds,
       skillMatchMode: state.matchMode,
-    })
+    }
+    const criteriaKey = JSON.stringify(criteria)
+    if (lastCriteriaRef.current === criteriaKey) return
+    lastCriteriaRef.current = criteriaKey
+    if (filteringTimeoutRef.current !== undefined) {
+      window.clearTimeout(filteringTimeoutRef.current)
+      filteringTimeoutRef.current = undefined
+    }
+
+    const parsed = candidateFilteringCriteriaRequestSchema.safeParse(criteria)
+
     if (!parsed.success) {
       setFormError(parsed.error.issues[0]?.message ?? 'Review the filtering criteria.')
       return
     }
-    try {
-      const run = await createRun.mutateAsync(parsed.data)
-      updateState({ runId: run.filterRunId, candidatePage: 0 })
-    } catch (reason) {
-      setFormError(mapApiError(reason, 'protected').message)
-    }
-  }
 
-  const resetCriteria = () => {
-    setFormError(undefined)
-    updateState({
-      minGpa: undefined,
-      maxGpa: undefined,
-      requestSkillIds: selectedRequest.data?.requiredSkills.map((skill) => skill.skillId) ?? [],
-      additionalSkillIds: [],
-      matchMode: 'AND',
-      runId: undefined,
-      candidatePage: 0,
-    })
-  }
+    const requestNumber = filteringRequestRef.current + 1
+    filteringRequestRef.current = requestNumber
+    filteringTimeoutRef.current = window.setTimeout(() => {
+      filteringTimeoutRef.current = undefined
+      setFormError(undefined)
+      void createRun
+        .mutateAsync(parsed.data)
+        .then((run) => {
+          if (filteringRequestRef.current === requestNumber) {
+            updateState({ runId: run.filterRunId, candidatePage: 0 })
+          }
+        })
+        .catch((reason: unknown) => {
+          if (filteringRequestRef.current === requestNumber) {
+            setFormError(mapApiError(reason, 'protected').message)
+          }
+        })
+    }, 250)
+
+  }, [
+    createRun,
+    selectedRequest.data,
+    state.additionalSkillIds,
+    state.matchMode,
+    state.maxGpa,
+    state.minGpa,
+    state.requestId,
+    state.requestSkillIds,
+    updateState,
+  ])
 
   const requestError = selectedRequest.error
   const mappedRequestError = requestError ? mapApiError(requestError, 'protected') : null
@@ -75,13 +111,13 @@ export function CandidateSelectionPanel({
       <SectionCard aria-labelledby="request-context-title" className="candidate-request-card">
         <div className="candidate-sidebar-heading">
           <div>
-            <h2 id="request-context-title">Select internship request</h2>
+            <h2 id="request-context-title">Internship Request Context</h2>
             <p>Choose the active placement context before defining runtime criteria.</p>
           </div>
           {selectedRequest.data ? <StatusBadge tone="success">Active</StatusBadge> : null}
         </div>
 
-        <Button className="btn-full-sidebar" icon={<span className="material-symbols-outlined">assignment_ind</span>} onClick={() => setRequestSelectorOpen(true)}>Select internship request</Button>
+        <Button className="btn-full-sidebar" icon={<span className="material-symbols-outlined">assignment_ind</span>} onClick={() => setRequestSelectorOpen(true)}>Select Internship Request</Button>
 
         {mappedRequestError ? (
           <ErrorState
@@ -117,17 +153,10 @@ export function CandidateSelectionPanel({
       </SectionCard>
 
       <SectionCard aria-labelledby="filtering-panel-title" className="candidate-criteria-card">
-        <form
-          className="candidate-selection-panel"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void runFiltering()
-          }}
-        >
+        <div className="candidate-selection-panel">
           <div className="candidate-sidebar-heading">
             <div>
-              <h2 id="filtering-panel-title">Filtering panel</h2>
-              <p>Apply deterministic official GPA and declared-skill criteria.</p>
+              <h2 id="filtering-panel-title">Filtering Panel</h2>
             </div>
           </div>
 
@@ -186,15 +215,10 @@ export function CandidateSelectionPanel({
             </div>
           ) : null}
 
-          <div className="filtering-criteria-actions">
-            <Button disabled={createRun.isPending} onClick={resetCriteria} variant="secondary">
-              Reset criteria
-            </Button>
-            <Button disabled={!selectedRequest.data} isLoading={createRun.isPending} type="submit">
-              Run filtering
-            </Button>
-          </div>
-        </form>
+          <p aria-live="polite" className="candidate-filtering-live-status">
+            {createRun.isPending ? 'Updating deterministic results…' : ''}
+          </p>
+        </div>
       </SectionCard>
 
       {requestSelectorOpen ? (
