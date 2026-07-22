@@ -236,6 +236,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  min-height: 91px;
   padding: 20px 24px;
   border: 1px solid var(--color-border);
   border-radius: 18px;
@@ -260,6 +261,49 @@
   display: grid;
   gap: 4px;
   min-width: 0;
+}
+
+.internship-list-skeleton {
+  display: grid;
+  gap: 0;
+}
+
+.internship-details-skeleton {
+  display: grid;
+  gap: 24px;
+}
+
+.internship-list-skeleton .skeleton-block,
+.internship-details-skeleton .skeleton-block {
+  display: inline-grid;
+  padding: 0;
+  border: 0;
+}
+
+.internship-details-skeleton dt .skeleton-empty,
+.internship-details-skeleton dd .skeleton-empty {
+  max-width: 100%;
+}
+
+.internship-details-skeleton-actions {
+  min-height: 42px;
+}
+
+.wireframe-skeleton-meta {
+  flex: 1 1 auto;
+}
+
+.wireframe-skeleton-meta .skeleton-empty {
+  max-width: 100%;
+}
+
+.wireframe-skeleton-actions {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+}
+
+.wireframe-skeleton-pagination > div {
+  flex-wrap: nowrap;
 }
 
 .wireframe-row-meta h3,
@@ -404,6 +448,18 @@
   }
   .wireframe-row-actions .button {
     flex: 1;
+  }
+  .wireframe-skeleton-actions,
+  .wireframe-skeleton-pagination > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wireframe-skeleton-actions .skeleton-empty,
+  .wireframe-skeleton-pagination > div .skeleton-empty {
+    width: 100% !important;
+  }
+  .wireframe-skeleton-pagination > div .skeleton-empty:first-child {
+    grid-column: 1 / -1;
   }
   .wireframe-form-grid,
   .wireframe-details-grid {

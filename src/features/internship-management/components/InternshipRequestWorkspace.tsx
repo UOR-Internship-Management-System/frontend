@@ -4,7 +4,6 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
@@ -22,6 +21,10 @@ import { InternshipRequestCancelDialog } from './InternshipRequestCancelDialog'
 import { InternshipRequestDetailsModal } from './InternshipRequestDetailsModal'
 import { InternshipRequestForm, mapInternshipRequestToForm } from './InternshipRequestForm'
 import { InternshipRequestTable } from './InternshipRequestTable'
+import {
+  InternshipManagementDetailsSkeleton,
+  InternshipManagementListSkeleton,
+} from './InternshipManagementListSkeleton'
 import { WireframePagination } from './WireframePagination'
 
 type RequestOverlay = 'create' | 'details' | 'edit' | 'delete' | null
@@ -132,13 +135,12 @@ export function InternshipRequestWorkspace({
           title="Select a company first"
         />
       ) : !selectedCompany ? (
-        <SkeletonBlock height={180} lines={0} variant="card" />
+        <InternshipManagementListSkeleton rows={4} variant="requests" />
       ) : (
         <LoadingBoundary
           isLoading={requests.isPending}
           label="Loading internship requests"
-          minHeight={260}
-          skeleton={<SkeletonBlock height={220} lines={0} variant="card" />}
+          skeleton={<InternshipManagementListSkeleton rows={4} variant="requests" />}
         >
           {requests.error ? (
             <ErrorState
@@ -181,7 +183,7 @@ export function InternshipRequestWorkspace({
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
         <Modal onClose={close} title="Candidate Selection Criteria">
-          <SkeletonBlock height={260} lines={0} variant="card" />
+          <InternshipManagementDetailsSkeleton variant="request" />
         </Modal>
       ) : null}
       {overlay === 'details' && selected.data ? (

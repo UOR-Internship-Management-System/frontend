@@ -5,7 +5,6 @@ import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
@@ -15,6 +14,10 @@ import { CompanyDetailsModal } from '../components/CompanyDetailsModal'
 import { CompanyForm, mapCompanyToForm } from '../components/CompanyForm'
 import { CompanyTable } from '../components/CompanyTable'
 import { InternshipRequestWorkspace } from '../components/InternshipRequestWorkspace'
+import {
+  InternshipManagementDetailsSkeleton,
+  InternshipManagementListSkeleton,
+} from '../components/InternshipManagementListSkeleton'
 import { WireframePagination } from '../components/WireframePagination'
 import {
   getCompanyMutationErrorMessage,
@@ -128,8 +131,7 @@ export function InternshipManagementPage() {
         <LoadingBoundary
           isLoading={companies.isPending}
           label="Loading corporate clients"
-          minHeight={300}
-          skeleton={<SkeletonBlock height={260} lines={0} variant="card" />}
+          skeleton={<InternshipManagementListSkeleton rows={3} variant="companies" />}
         >
           {companies.error ? (
             <ErrorState
@@ -182,7 +184,7 @@ export function InternshipManagementPage() {
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
         <Modal onClose={close} title="Corporate CRM Details Panel">
-          <SkeletonBlock height={260} lines={0} variant="card" />
+          <InternshipManagementDetailsSkeleton variant="company" />
         </Modal>
       ) : null}
       {overlay === 'details' && selected.data ? (

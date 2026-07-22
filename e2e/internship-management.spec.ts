@@ -179,3 +179,73 @@ test('Admin creates company metadata and a taxonomy-backed internship request', 
   await expect(page.getByText('Mapped Skills: TypeScript', { exact: true })).toBeVisible()
   await expect(page.getByText(/GPA/i)).toHaveCount(0)
 })
+
+test('Company loading skeleton preserves the loaded row and pagination geometry', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await authenticateAdmin(page)
+  await mockInternshipManagement(page)
+
+  let releaseCompanies = () => undefined
+  const companyGate = new Promise<void>((resolve) => {
+    releaseCompanies = resolve
+  })
+
+  await page.route('**/api/v1/admin/companies**', async (route) => {
+    const url = new URL(route.request().url())
+    if (url.pathname !== '/api/v1/admin/companies') return route.fallback()
+    await companyGate
+    return route.fulfill({
+      json: paged([
+        {
+          companyId,
+          name: 'Example Technologies',
+          websiteUrl: 'https://example.test',
+          contactPerson: 'Nimali Perera',
+          contactEmail: 'nimali@example.test',
+          contactPhone: '+94 11 234 5678',
+          notes: null,
+          active: true,
+          version: 1,
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]),
+    })
+  })
+
+  await gotoApp(page, '/admin/internships')
+  const skeleton = page.getByTestId('companies-list-skeleton')
+  await expect(skeleton).toBeVisible()
+  await expect(skeleton.locator('.wireframe-management-row')).toHaveCount(3)
+  await expect(skeleton.locator('.wireframe-pagination')).toHaveCount(1)
+  const skeletonRowHeight = await skeleton
+    .locator('.wireframe-management-row')
+    .first()
+    .evaluate((element) => element.getBoundingClientRect().height)
+  await page.setViewportSize({ height: 844, width: 390 })
+  await expect
+    .poll(() =>
+      page.evaluate(() => ({
+        direction: getComputedStyle(
+          document.querySelector(
+            '[data-testid="companies-list-skeleton"] .wireframe-management-row',
+          )!,
+        ).flexDirection,
+        overflows: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      })),
+    )
+    .toEqual({ direction: 'column', overflows: false })
+  await page.setViewportSize({ height: 720, width: 1280 })
+
+  releaseCompanies()
+  await expect(page.getByText('Example Technologies', { exact: true })).toBeVisible()
+  const loadedRowHeight = await page
+    .getByLabel('Company metadata directory')
+    .locator('.wireframe-management-row')
+    .first()
+    .evaluate((element) => element.getBoundingClientRect().height)
+
+  expect(skeletonRowHeight).toBe(loadedRowHeight)
+})
