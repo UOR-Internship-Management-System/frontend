@@ -1145,7 +1145,6 @@
 }
 
 .internship-management-page .page-header h1,
-.candidate-filtering-page .page-header h1,
 .student-deep-dive-page .page-header h1,
 .shortlists-page .page-header h1 {
   max-width: 960px;
@@ -1548,7 +1547,6 @@
 
 @media (max-width: 760px) {
   .internship-management-page .page-header h1,
-  .candidate-filtering-page .page-header h1,
   .student-deep-dive-page .page-header h1,
   .shortlists-page .page-header h1 {
     font-size: 1.65rem;
