@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Portfolio Repository | Student Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script type="importmap">
+    {
+        "imports": {
+            "@material/web/": "https://esm.run/@material/web/"
+        }
+    }
+    </script>
+    <script type="module">import '@material/web/all.js';</script>
+    <style>
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UaGrENHsxJLFrFcQF1jOSg3NHXB.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 500;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UabrENHsxJLFrFcQF1jO_p_Gv7-Yw6V.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UabrENHsxJLFrFcQF1jO_p_g77-Yw6V.woff2) format('woff2');
+        }
+        :root {
+            --primary: #6750A4;
+            --on-primary: #FFFFFF;
+            --surface-container: #F3EDF7;
+            --surface-container-high: #ECE6F0;
+            --canvas: #FFFFFF;
+            --input-bg: #FDFBFF;
+            --text: #1D1B20;
+            --muted: #49454F;
+            --outline: #79747E;
+            --border: #E1DFFF;
+            --danger: #B3261E;
+            --danger-bg: #F9DEDC;
+            --success: #00875A;
+            --shadow-card: 0 4px 12px rgba(0,0,0,.05);
+            --shadow-hover: 0 8px 22px rgba(103,80,164,.12);
+            --shadow-modal: 0 18px 48px rgba(0,0,0,.22);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --motion-standard: cubic-bezier(.4,0,.2,1);
+            --motion-emphasized: cubic-bezier(.34,1.56,.64,1);
+            --md-sys-color-primary: var(--primary);
+            --md-sys-color-on-primary: var(--on-primary);
+            --md-sys-color-surface-container: var(--surface-container);
+            --md-ref-typeface-brand: 'Google Sans', sans-serif;
+            --md-ref-typeface-plain: 'Google Sans', sans-serif;
+        }
+        body.dark-mode {
+            --surface-container: #15121C;
+            --surface-container-high: #24202D;
+            --canvas: #211D29;
+            --input-bg: #2B2633;
+            --text: #F4EFF7;
+            --muted: #CAC4D0;
+            --outline: #948F99;
+            --border: #494453;
+            --danger-bg: #5F1B15;
+            --shadow-card: 0 6px 18px rgba(0,0,0,.35);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,.45);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Google Sans', sans-serif !important; }
+        .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; }
+        body {
+            background: var(--surface-container); color: var(--text); min-height: 100vh; padding: 40px;
+            display: flex; justify-content: center; align-items: flex-start;
+            transition: background-color .25s var(--motion-standard), color .25s var(--motion-standard);
+        }
+        .container { width: 100%; max-width: 1340px; display: flex; flex-direction: column; gap: 32px; }
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+        .page-header h1 { font-size: 1.85rem; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 8px; }
+        .page-header p { font-size: .95rem; color: var(--muted); line-height: 1.55; max-width: 840px; }
+        .header-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .theme-toggle {
+            border: 1px solid var(--border); background: var(--canvas); color: var(--text); border-radius: 999px;
+            padding: 10px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;
+            box-shadow: var(--shadow-card); transition: transform .2s var(--motion-standard), background-color .2s, border-color .2s;
+        }
+        .theme-toggle:hover { transform: translateY(-2px); }
+        .repository-card {
+            border-radius: var(--radius-xl); background: var(--canvas); padding: 32px; box-shadow: var(--shadow-card);
+            display: flex; flex-direction: column; gap: 24px; transition: background-color .25s, box-shadow .25s;
+        }
+        .toolbar-row { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; }
+        .search-control-box { width: 100%; max-width: 460px; }
+        md-outlined-text-field {
+            width: 100%;
+            --md-outlined-text-field-container-shape: 12px;
+            --md-outlined-text-field-input-text-font: 'Google Sans', sans-serif;
+            --md-outlined-text-field-label-text-font: 'Google Sans', sans-serif;
+            --md-outlined-text-field-input-text-color: var(--text);
+            --md-outlined-text-field-label-text-color: var(--muted);
+            --md-outlined-text-field-outline-color: var(--outline);
+            --md-outlined-text-field-hover-outline-color: var(--primary);
+            --md-outlined-text-field-focus-outline-color: var(--primary);
+            --md-outlined-text-field-container-color: var(--canvas);
+        }
+        md-filled-button, md-outlined-button {
+            min-width: 130px;
+            --md-filled-button-container-shape: 12px;
+            --md-outlined-button-container-shape: 12px;
+            --md-filled-button-label-text-font: 'Google Sans', sans-serif;
+            --md-outlined-button-label-text-font: 'Google Sans', sans-serif;
+        }
+        .button-danger-outline { --md-outlined-button-outline-color: var(--danger); --md-outlined-button-label-text-color: var(--danger); }
+        .project-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+        .project-item-row {
+            display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center;
+            background: var(--input-bg); border: 1px solid var(--border); border-radius: 18px; padding: 20px 24px;
+            transition: transform .22s var(--motion-standard), box-shadow .22s var(--motion-standard), background-color .2s, border-color .2s;
+            animation: rowIntro .32s var(--motion-standard) both;
+        }
+        .project-item-row:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); border-color: color-mix(in srgb, var(--primary) 44%, var(--border)); }
+        .project-title-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .project-title-line h3 { font-size: 1.08rem; color: var(--text); }
+        .project-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--muted); font-size: .88rem; line-height: 1.45; margin-bottom: 12px; }
+        .project-abstract { color: var(--muted); font-size: .92rem; line-height: 1.5; max-width: 900px; margin-bottom: 14px; }
+        .project-chip-row, .skills-chips-wrapper { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .project-chip, .skill-capsule-tag {
+            display: inline-flex; align-items: center; gap: 8px; border-radius: 999px;
+            background: color-mix(in srgb, var(--primary) 12%, var(--canvas)); color: var(--primary);
+            border: 1px solid color-mix(in srgb, var(--primary) 32%, transparent); padding: 6px 12px;
+            font-size: .8rem; font-weight: 700; line-height: 1; animation: chipPop .22s var(--motion-emphasized) both;
+        }
+        .project-chip.empty { color: var(--muted); background: transparent; border-style: dashed; }
+        .skill-capsule-close { cursor: pointer; color: var(--danger); border-radius: 50%; width: 18px; height: 18px; display: inline-grid; place-items: center; font-weight: 700; }
+        .skill-capsule-close:hover { background: color-mix(in srgb, var(--danger) 14%, transparent); }
+        .status-pill {
+            display: inline-flex; border-radius: 999px; padding: 5px 10px; font-size: .75rem; font-weight: 700;
+            color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--canvas)); border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+        }
+        .empty-state { padding: 36px 20px; text-align: center; color: var(--muted); border: 2px dashed var(--border); border-radius: 18px; background: var(--input-bg); font-style: italic; }
+        .pagination-container { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+        .page-counter-group { display: flex; gap: 7px; align-items: center; background: var(--input-bg); padding: 6px; border-radius: 999px; border: 1px solid var(--border); }
+        .page-index {
+            border: none; min-width: 36px; height: 36px; border-radius: 999px; background: transparent; color: var(--muted);
+            font-weight: 700; cursor: pointer; transition: background-color .2s, color .2s, transform .2s;
+        }
+        .page-index:hover:not(.active) { background: color-mix(in srgb, var(--primary) 12%, transparent); color: var(--text); transform: translateY(-1px); }
+        .page-index.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(103,80,164,.25); }
+        .page-summary { color: var(--muted); font-size: .88rem; font-weight: 500; margin-right: auto; }
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.38); display: none; justify-content: center; align-items: center;
+            padding: 24px; z-index: 1000; opacity: 0; overflow-y: auto; transition: opacity .2s var(--motion-standard);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-window-card {
+            width: min(880px, 100%); max-height: 82vh; background: var(--canvas); border-radius: 28px; padding: 32px;
+            box-shadow: var(--shadow-modal); display: flex; flex-direction: column; overflow: hidden;
+            transform: translateY(12px) scale(.98); animation: modalIn .25s var(--motion-emphasized) forwards;
+        }
+        .modal-window-card.small { width: min(460px, 100%); max-height: none; }
+        .modal-header-section { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--border); flex: 0 0 auto; }
+        .modal-header-section h2 { color: var(--text); font-size: 1.32rem; }
+        .close-modal-x { background: transparent; border: 0; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+        .close-modal-x span { font-size: 28px; }
+        .modal-scroll-body { overflow-y: auto; padding: 24px 6px 4px 0; flex: 1 1 auto; }
+        .form-grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .form-span-full { grid-column: span 2; }
+        .field-input-group { position: relative; display: flex; flex-direction: column; }
+        .field-input-group label {
+            position: absolute; top: -10px; left: 12px; background: var(--canvas); color: var(--muted); padding: 0 7px;
+            z-index: 3; font-size: .85rem; font-weight: 700; pointer-events: none; transition: color .2s, background-color .2s;
+        }
+        .field-input-group:focus-within label { color: var(--primary); }
+        .field-input-group select {
+            width: 100%; height: 56px; border-radius: 12px; border: 1px solid var(--outline); background: var(--canvas); color: var(--text);
+            padding: 0 46px 0 16px; outline: none; cursor: pointer; appearance: none; font-size: 1rem; font-weight: 500;
+            background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+            background-position: calc(100% - 22px) 23px, calc(100% - 16px) 23px; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+            transition: border-color .2s, border-width .1s, background-color .2s, transform .2s, box-shadow .2s;
+        }
+        .field-input-group select:hover { border-color: var(--primary); box-shadow: var(--shadow-hover); }
+        .field-input-group select:focus { border-color: var(--primary); border-width: 2px; }
+        .field-input-group select:disabled, md-outlined-text-field[disabled] { opacity: .75; }
+        .timeline-pill-badge {
+            height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 12px; border: 1px solid var(--outline);
+            background: var(--input-bg); color: var(--muted); font-weight: 700; cursor: pointer; transition: transform .2s, box-shadow .2s, border-color .2s;
+        }
+        .timeline-pill-badge:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); border-color: var(--primary); }
+        .timeline-expanded-panel { grid-column: span 2; display: none; background: var(--input-bg); border: 1px dashed var(--outline); border-radius: 16px; padding: 20px; animation: rowIntro .25s var(--motion-standard) both; }
+        .timeline-fields-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; align-items: center; }
+        .checkbox-label { display: flex; align-items: center; gap: 10px; color: var(--text); font-size: .95rem; font-weight: 500; }
+        .dynamic-evidence-container { grid-column: span 2; display: flex; flex-direction: column; gap: 14px; }
+        .skills-chips-wrapper { grid-column: span 2; padding: 8px 0 0; min-height: 42px; }
+        .modal-footer-controls { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 22px; margin-top: 22px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+        .readonly-note { color: var(--muted); font-size: .86rem; line-height: 1.45; }
+        .modal-body-message { color: var(--muted); line-height: 1.55; padding-top: 18px; }
+        @keyframes rowIntro { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modalIn { to { transform: translateY(0) scale(1); } }
+        @keyframes chipPop { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+        @media (max-width: 900px) {
+            body { padding: 24px 14px; }
+            .page-header, .toolbar-row { flex-direction: column; align-items: flex-start; }
+            .project-item-row { grid-template-columns: 1fr; }
+            .form-grid-layout, .timeline-fields-grid { grid-template-columns: 1fr; }
+            .form-span-full, .timeline-expanded-panel, .dynamic-evidence-container, .skills-chips-wrapper { grid-column: span 1; }
+            .modal-window-card { padding: 24px; max-height: 88vh; }
+            md-filled-button, md-outlined-button { width: 100%; }
+            .modal-footer-controls { align-items: stretch; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <header class="page-header">
+            <div>
+                <h1>Projects</h1>
+                <p>Project portfolio repository. These entries append to your compiled LaTeX document and can be managed with full CRUD operations.</p>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" type="button"><span class="material-symbols-outlined">dark_mode</span><span>Dark Mode</span></button>
+                <md-filled-button onclick="openCreateProjectModal()"><span class="material-symbols-outlined" slot="icon">add</span>Add</md-filled-button>
+            </div>
+        </header>
+
+        <section class="repository-card">
+            <div class="toolbar-row">
+                <div class="search-control-box">
+                    <md-outlined-text-field id="projectSearchInput" type="text" label="Search saved projects" autocomplete="off">
+                        <span class="material-symbols-outlined" slot="leading-icon">search</span>
+                    </md-outlined-text-field>
+                </div>
+                <span class="status-pill" id="projectCountPill">0 projects</span>
+            </div>
+            <div id="dynamicProjectsListTrack" class="project-list"></div>
+            <div id="projectsEmptyState" class="empty-state" style="display:none;">No projects match your search.</div>
+            <div class="pagination-container">
+                <span class="page-summary" id="projectPaginationSummary"></span>
+                <md-outlined-button id="projectPrevBtn" type="button" onclick="goProjectPage(projectCurrentPage - 1)">Previous</md-outlined-button>
+                <div class="page-counter-group" id="projectPageButtons"></div>
+                <md-outlined-button id="projectNextBtn" type="button" onclick="goProjectPage(projectCurrentPage + 1)">Next</md-outlined-button>
+            </div>
+        </section>
+    </main>
+
+    <div id="createProjectModal" class="modal-overlay">
+        <div class="modal-window-card">
+            <div class="modal-header-section">
+                <h2>Create New Project</h2>
+                <button class="close-modal-x" type="button" onclick="closeModal('createProjectModal')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form id="createNewProjectForm" onsubmit="pushProjectRecordToCollection(event)" class="modal-scroll-body">
+                <div class="form-grid-layout">
+                    <div class="field-input-group form-span-full">
+                        <md-outlined-text-field id="createTitle" type="text" label="Title" placeholder="Enter project title" required></md-outlined-text-field>
+                    </div>
+                    <div class="field-input-group">
+                        <label for="createType">Type</label>
+                        <select id="createType" required>
+                            <option value="" disabled selected hidden>Select project medium</option>
+                            <option>Web Application</option>
+                            <option>Mobile Application</option>
+                            <option>Desktop System</option>
+                            <option>Research Prototype</option>
+                            <option>API / Backend Service</option>
+                        </select>
+                    </div>
+                    <div class="timeline-pill-badge" onclick="toggleTimelineSelector('createTimelinePanel')"><span class="material-symbols-outlined">edit_note</span>Timeline</div>
+                    <div id="createTimelinePanel" class="timeline-expanded-panel">
+                        <div class="timeline-fields-grid">
+                            <md-outlined-text-field id="createStartDate" type="date" label="Start Date"></md-outlined-text-field>
+                            <md-outlined-text-field id="createEndDate" type="date" label="End Date"></md-outlined-text-field>
+                            <label class="checkbox-label"><md-checkbox id="createUnderDevCheckbox" onchange="handleDevelopmentCheckbox(this.checked, 'createEndDate')"></md-checkbox>Under Development</label>
+                        </div>
+                    </div>
+                    <md-outlined-text-field id="createLinkedIn" type="url" label="LinkedIn" placeholder="Add related LinkedIn link reference"></md-outlined-text-field>
+                    <md-outlined-text-field id="createGithub" type="url" label="GitHub" placeholder="Add source code repository reference link"></md-outlined-text-field>
+                    <div class="field-input-group form-span-full"><md-outlined-text-field id="createDocLink" type="url" label="Project Documentation link" placeholder="Add cloud documentation or platform report asset URL"></md-outlined-text-field></div>
+                    <div class="field-input-group form-span-full"><md-outlined-text-field id="createAbstract" type="textarea" rows="3" label="Project Abstract / High Level Description" placeholder="Provide system architectural layout description details"></md-outlined-text-field></div>
+                    <div class="field-input-group">
+                        <label for="createSkillSelect">Skills</label>
+                        <select id="createSkillSelect" onchange="handleSkillSelection(this, 'createEvidenceContainer')"></select>
+                    </div>
+                    <div style="display:flex; align-items:flex-end;"><md-outlined-button type="button" onclick="addSkillCapsuleTag('createSkillSelect', 'createSkillsChipsContainer')" style="width:100%; height:56px;">Add Skill</md-outlined-button></div>
+                    <div id="createEvidenceContainer" class="dynamic-evidence-container"></div>
+                    <div id="createSkillsChipsContainer" class="skills-chips-wrapper"></div>
+                </div>
+                <div class="modal-footer-controls">
+                    <label class="checkbox-label"><md-checkbox id="createInclusionCv" checked></md-checkbox>Include this project in the CV</label>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;"><md-outlined-button type="button" onclick="closeModal('createProjectModal')">Close</md-outlined-button><md-filled-button type="submit">Save</md-filled-button></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="detailsProjectModal" class="modal-overlay">
+        <div class="modal-window-card">
+            <div class="modal-header-section">
+                <div>
+                    <h2>Project Details</h2>
+                    <p class="readonly-note" id="detailsReadOnlyNote">Read-only mode. Click Edit to update this project.</p>
+                </div>
+                <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <md-outlined-button id="detailsEditTriggerBtn" type="button" onclick="unmaskReadOnlyEditState()">Edit</md-outlined-button>
+                    <button class="close-modal-x" type="button" onclick="closeModal('detailsProjectModal')"><span class="material-symbols-outlined">close</span></button>
+                </div>
+            </div>
+            <form id="detailsProjectForm" onsubmit="saveProjectEditsFromForm(event)" class="modal-scroll-body">
+                <div class="form-grid-layout">
+                    <div class="field-input-group form-span-full"><md-outlined-text-field id="detailsTitle" type="text" label="Title" required></md-outlined-text-field></div>
+                    <div class="field-input-group">
+                        <label for="detailsType">Type</label>
+                        <select id="detailsType" required>
+                            <option>Web Application</option>
+                            <option>Mobile Application</option>
+                            <option>Desktop System</option>
+                            <option>Research Prototype</option>
+                            <option>API / Backend Service</option>
+                        </select>
+                    </div>
+                    <div class="timeline-pill-badge" onclick="toggleTimelineSelector('detailsTimelinePanel')"><span class="material-symbols-outlined">edit_note</span>Timeline</div>
+                    <div id="detailsTimelinePanel" class="timeline-expanded-panel">
+                        <div class="timeline-fields-grid">
+                            <md-outlined-text-field id="detailsStartDate" type="date" label="Start Date"></md-outlined-text-field>
+                            <md-outlined-text-field id="detailsEndDate" type="date" label="End Date"></md-outlined-text-field>
+                            <label class="checkbox-label"><md-checkbox id="detailsUnderDevCheckbox" onchange="handleDevelopmentCheckbox(this.checked, 'detailsEndDate')"></md-checkbox>Under Development</label>
+                        </div>
+                    </div>
+                    <md-outlined-text-field id="detailsLinkedIn" type="url" label="LinkedIn"></md-outlined-text-field>
+                    <md-outlined-text-field id="detailsGithub" type="url" label="GitHub"></md-outlined-text-field>
+                    <div class="field-input-group form-span-full"><md-outlined-text-field id="detailsDocLink" type="url" label="Project Documentation link"></md-outlined-text-field></div>
+                    <div class="field-input-group form-span-full"><md-outlined-text-field id="detailsAbstract" type="textarea" rows="4" label="Project Abstract / High Level Description"></md-outlined-text-field></div>
+                    <div class="field-input-group">
+                        <label for="detailsSkillSelect">Skills</label>
+                        <select id="detailsSkillSelect" onchange="handleSkillSelection(this, 'detailsEvidenceContainer')"></select>
+                    </div>
+                    <div style="display:flex; align-items:flex-end;"><md-outlined-button id="detailsAddSkillBtn" type="button" onclick="addSkillCapsuleTag('detailsSkillSelect', 'detailsSkillsChipsContainer')" style="width:100%; height:56px;">Add Skill</md-outlined-button></div>
+                    <div id="detailsEvidenceContainer" class="dynamic-evidence-container"></div>
+                    <div id="detailsSkillsChipsContainer" class="skills-chips-wrapper"></div>
+                </div>
+                <div class="modal-footer-controls">
+                    <md-outlined-button id="detailsDeleteActionBtn" class="button-danger-outline" type="button" onclick="requestProjectDeletion()">Remove Project</md-outlined-button>
+                    <label class="checkbox-label"><md-checkbox id="detailsInclusionCv"></md-checkbox>Include this project in the CV</label>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;"><md-outlined-button type="button" onclick="closeModal('detailsProjectModal')">Close</md-outlined-button><md-filled-button id="detailsSaveActionBtn" type="submit">Save Changes</md-filled-button></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="appModal" class="modal-overlay">
+        <div class="modal-window-card small">
+            <div class="modal-header-section">
+                <h2 id="appModalTitle">Message</h2>
+                <button class="close-modal-x" type="button" onclick="closeAppModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div id="appModalMessage" class="modal-body-message"></div>
+            <div id="appModalActions" class="modal-footer-controls" style="justify-content:flex-end;"></div>
+        </div>
+    </div>
+
+    <script>
+        const projectSkillOptions = ['Flutter','Dart','React','Angular','Vue','Next.js','Tailwind CSS','HTML5','CSS3','JavaScript','TypeScript','Java','Spring Boot','Node.js','Express.js','Python','PostgreSQL','MySQL','MongoDB','Firebase','Supabase','Docker','Git','GitHub','REST APIs','GraphQL','Figma','Postman','JUnit','Selenium'];
+        let localProjectsCollection = [
+            { id: 'p1', title: 'Smart Auto Hub', type: 'Mobile Application', startDate: '2026-01-10', endDate: '2026-05-15', underDevelopment: false, includeCv: true, linkedin: 'https://www.linkedin.com/in/smart-auto-hub', github: 'https://github.com/demo/smart-auto-hub', docLink: 'https://drive.google.com/file/d/smart-auto-hub-report/view', abstract: 'Served as the lead mobile developer for a Flutter-based vehicle service and booking platform with synchronized mobile data endpoints.', skills: ['Flutter','Dart','REST APIs'] },
+            { id: 'p2', title: 'Portfolio Project', type: 'Web Application', startDate: '2025-08-20', endDate: '', underDevelopment: true, includeCv: true, linkedin: '', github: 'https://github.com/dev/portfolio', docLink: '', abstract: 'A responsive development profile platform highlighting academic milestones, skill taxonomies, and project showcases.', skills: ['React','Tailwind CSS','JavaScript'] },
+            { id: 'p3', title: 'POS Project', type: 'Desktop System', startDate: '2025-02-15', endDate: '2025-06-20', underDevelopment: false, includeCv: true, linkedin: '', github: '', docLink: '', abstract: 'A standalone point-of-sale management framework with local database transaction handling.', skills: ['Java','MySQL'] },
+            { id: 'p4', title: 'Internship Filtering Dashboard', type: 'Web Application', startDate: '2025-11-01', endDate: '2026-01-20', underDevelopment: false, includeCv: true, linkedin: '', github: 'https://github.com/demo/filtering-dashboard', docLink: '', abstract: 'Deterministic candidate filtering dashboard with search, skill matching, and shortlist state management.', skills: ['Spring Boot','React','PostgreSQL'] },
+            { id: 'p5', title: 'Academic Records Visualizer', type: 'Web Application', startDate: '2026-02-01', endDate: '', underDevelopment: true, includeCv: false, linkedin: '', github: '', docLink: '', abstract: 'A GPA and module records viewer built for clean student-side academic result interpretation.', skills: ['HTML5','CSS3','JavaScript'] }
+        ];
+        let projectSearchQuery = '';
+        let projectCurrentPage = 1;
+        const projectPageSize = 4;
+        let targetSelectedActiveProjectIndex = null;
+        let activeSkillContext = new Set();
+        let pendingDeletionId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyStoredTheme();
+            document.getElementById('themeToggle').addEventListener('click', toggleThemeMode);
+            hydrateProjectSkillSelects();
+            document.getElementById('projectSearchInput').addEventListener('input', event => {
+                projectSearchQuery = String(event.target.value || '').toLowerCase().trim();
+                projectCurrentPage = 1;
+                renderDynamicProjectsGrid();
+            });
+            renderDynamicProjectsGrid();
+        });
+
+        function hydrateProjectSkillSelects() {
+            ['createSkillSelect', 'detailsSkillSelect'].forEach(id => {
+                const select = document.getElementById(id);
+                select.innerHTML = '<option value="" disabled selected hidden>Select Skill from the list</option>' + projectSkillOptions.map(skill => `<option value="${escapeAttribute(skill)}">${escapeHtml(skill)}</option>`).join('');
+            });
+        }
+        function openModal(id) { document.getElementById(id).classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+            if (id === 'detailsProjectModal') targetSelectedActiveProjectIndex = null;
+        }
+        function openCreateProjectModal() {
+            document.getElementById('createNewProjectForm').reset();
+            document.getElementById('createSkillsChipsContainer').innerHTML = '';
+            document.getElementById('createEvidenceContainer').innerHTML = '';
+            document.getElementById('createTimelinePanel').style.display = 'none';
+            document.getElementById('createEndDate').disabled = false;
+            activeSkillContext = new Set();
+            openModal('createProjectModal');
+        }
+        function getFilteredProjects() {
+            if (!projectSearchQuery) return localProjectsCollection;
+            return localProjectsCollection.filter(p => `${p.title} ${p.type} ${p.abstract} ${(p.skills || []).join(' ')}`.toLowerCase().includes(projectSearchQuery));
+        }
+        function renderDynamicProjectsGrid() {
+            const track = document.getElementById('dynamicProjectsListTrack');
+            const empty = document.getElementById('projectsEmptyState');
+            const filtered = getFilteredProjects();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / projectPageSize));
+            projectCurrentPage = Math.min(projectCurrentPage, totalPages);
+            const start = (projectCurrentPage - 1) * projectPageSize;
+            const rows = filtered.slice(start, start + projectPageSize);
+            document.getElementById('projectCountPill').textContent = `${filtered.length} projects`;
+            track.innerHTML = rows.map((project, offset) => {
+                const originalIndex = localProjectsCollection.findIndex(item => item.id === project.id);
+                const timeline = project.underDevelopment ? `${project.startDate || 'Not set'} - Present` : `${project.startDate || 'Not set'} - ${project.endDate || 'Not set'}`;
+                return `<article class="project-item-row" style="animation-delay:${offset * 35}ms">
+                    <div>
+                        <div class="project-title-line"><h3>${escapeHtml(project.title)}</h3><span class="status-pill">${escapeHtml(project.type)}</span>${project.includeCv ? '<span class="status-pill">CV Included</span>' : ''}</div>
+                        <div class="project-meta"><span>${escapeHtml(timeline)}</span><span>${escapeHtml(project.underDevelopment ? 'Under Development' : 'Completed')}</span></div>
+                        <p class="project-abstract">${escapeHtml(project.abstract)}</p>
+                        <div class="project-chip-row">${renderSkillChips(project.skills)}</div>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;"><md-outlined-button type="button" onclick="initializeDetailsPane(${originalIndex})">Details</md-outlined-button></div>
+                </article>`;
+            }).join('');
+            empty.style.display = filtered.length ? 'none' : 'block';
+            renderProjectPagination(filtered.length, totalPages, start);
+        }
+        function renderSkillChips(skills) {
+            if (!skills || !skills.length) return '<span class="project-chip empty">No skills linked</span>';
+            return skills.map(skill => `<span class="project-chip">${escapeHtml(skill)}</span>`).join('');
+        }
+        function renderProjectPagination(total, totalPages, start) {
+            document.getElementById('projectPaginationSummary').textContent = total ? `Showing ${start + 1}-${Math.min(start + projectPageSize, total)} of ${total}` : 'No records';
+            document.getElementById('projectPrevBtn').disabled = projectCurrentPage === 1;
+            document.getElementById('projectNextBtn').disabled = projectCurrentPage === totalPages;
+            document.getElementById('projectPageButtons').innerHTML = Array.from({ length: totalPages }, (_, i) => `<button class="page-index ${i + 1 === projectCurrentPage ? 'active' : ''}" onclick="goProjectPage(${i + 1})">${i + 1}</button>`).join('');
+        }
+        function goProjectPage(page) {
+            const totalPages = Math.max(1, Math.ceil(getFilteredProjects().length / projectPageSize));
+            if (page < 1 || page > totalPages) return;
+            projectCurrentPage = page;
+            renderDynamicProjectsGrid();
+        }
+        function toggleTimelineSelector(panelId) {
+            const panel = document.getElementById(panelId);
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+        function handleDevelopmentCheckbox(isChecked, endDateId) {
+            const field = document.getElementById(endDateId);
+            field.disabled = isChecked;
+            if (isChecked) field.value = '';
+        }
+        function handleSkillSelection(select, containerId) {
+            const selectedSkill = select.value;
+            const container = document.getElementById(containerId);
+            container.innerHTML = selectedSkill ? `<md-outlined-text-field type="textarea" rows="2" label="Skill Usage Notes (${escapeAttribute(selectedSkill)})" placeholder="Describe how this project used ${escapeAttribute(selectedSkill)}"></md-outlined-text-field>` : '';
+        }
+        function addSkillCapsuleTag(selectId, wrapperId) {
+            const select = document.getElementById(selectId);
+            const token = select.value;
+            if (!token) { showAppModal('Select Skill First', 'Please select a skill from the list before adding it.'); return; }
+            if (activeSkillContext.has(token)) { showAppModal('Duplicate Skill', `${escapeHtml(token)} has already been added to this project.`); return; }
+            activeSkillContext.add(token);
+            appendSkillCapsule(token, wrapperId, true);
+        }
+        function appendSkillCapsule(token, wrapperId, removable) {
+            const wrapper = document.getElementById(wrapperId);
+            const chip = document.createElement('span');
+            chip.className = 'skill-capsule-tag';
+            chip.dataset.token = token;
+            chip.innerHTML = `${escapeHtml(token)}${removable ? `<span class="skill-capsule-close" onclick="removeSkillCapsule(this, '${escapeAttribute(token)}')">&times;</span>` : ''}`;
+            wrapper.appendChild(chip);
+        }
+        function removeSkillCapsule(node, token) { activeSkillContext.delete(token); node.closest('.skill-capsule-tag').remove(); }
+        function readForm(prefix) {
+            return {
+                title: document.getElementById(prefix + 'Title').value.trim(),
+                type: document.getElementById(prefix + 'Type').value,
+                startDate: document.getElementById(prefix + 'StartDate').value,
+                endDate: document.getElementById(prefix + 'EndDate').value,
+                underDevelopment: document.getElementById(prefix + 'UnderDevCheckbox').checked,
+                linkedin: document.getElementById(prefix + 'LinkedIn').value.trim(),
+                github: document.getElementById(prefix + 'Github').value.trim(),
+                docLink: document.getElementById(prefix + 'DocLink').value.trim(),
+                abstract: document.getElementById(prefix + 'Abstract').value.trim(),
+                includeCv: document.getElementById(prefix + 'InclusionCv').checked,
+                skills: Array.from(activeSkillContext)
+            };
+        }
+        function pushProjectRecordToCollection(event) {
+            event.preventDefault();
+            const data = readForm('create');
+            if (!data.title || !data.type) { showAppModal('Incomplete Project', 'Please provide at least a project title and project type.'); return; }
+            localProjectsCollection.unshift({ id: 'p_' + Date.now(), ...data });
+            projectCurrentPage = 1;
+            renderDynamicProjectsGrid();
+            closeModal('createProjectModal');
+            showAppModal('Project Saved', 'The project was created successfully.');
+        }
+        function initializeDetailsPane(index) {
+            targetSelectedActiveProjectIndex = index;
+            const project = localProjectsCollection[index];
+            activeSkillContext = new Set(project.skills || []);
+            document.getElementById('detailsTitle').value = project.title || '';
+            document.getElementById('detailsType').value = project.type || '';
+            document.getElementById('detailsStartDate').value = project.startDate || '';
+            document.getElementById('detailsEndDate').value = project.endDate || '';
+            document.getElementById('detailsUnderDevCheckbox').checked = !!project.underDevelopment;
+            document.getElementById('detailsLinkedIn').value = project.linkedin || '';
+            document.getElementById('detailsGithub').value = project.github || '';
+            document.getElementById('detailsDocLink').value = project.docLink || '';
+            document.getElementById('detailsAbstract').value = project.abstract || '';
+            document.getElementById('detailsInclusionCv').checked = !!project.includeCv;
+            document.getElementById('detailsSkillsChipsContainer').innerHTML = '';
+            activeSkillContext.forEach(skill => appendSkillCapsule(skill, 'detailsSkillsChipsContainer', false));
+            document.getElementById('detailsTimelinePanel').style.display = 'block';
+            setDetailsReadOnly(true);
+            openModal('detailsProjectModal');
+        }
+        function setDetailsReadOnly(isReadOnly) {
+            ['detailsTitle','detailsStartDate','detailsEndDate','detailsLinkedIn','detailsGithub','detailsDocLink','detailsAbstract'].forEach(id => document.getElementById(id).disabled = isReadOnly);
+            ['detailsType','detailsSkillSelect'].forEach(id => document.getElementById(id).disabled = isReadOnly);
+            document.getElementById('detailsUnderDevCheckbox').disabled = isReadOnly;
+            document.getElementById('detailsInclusionCv').disabled = isReadOnly;
+            document.getElementById('detailsAddSkillBtn').disabled = isReadOnly;
+            document.getElementById('detailsSaveActionBtn').disabled = isReadOnly;
+            document.getElementById('detailsReadOnlyNote').textContent = isReadOnly ? 'Read-only mode. Click Edit to update this project.' : 'Edit mode enabled. You can now update and save the project.';
+            document.getElementById('detailsSkillsChipsContainer').innerHTML = '';
+            activeSkillContext.forEach(skill => appendSkillCapsule(skill, 'detailsSkillsChipsContainer', !isReadOnly));
+        }
+        function unmaskReadOnlyEditState() { setDetailsReadOnly(false); }
+        function saveProjectEditsFromForm(event) {
+            event.preventDefault();
+            if (targetSelectedActiveProjectIndex === null) return;
+            const data = readForm('details');
+            if (!data.title || !data.type) { showAppModal('Incomplete Project', 'Please provide at least a project title and project type.'); return; }
+            localProjectsCollection[targetSelectedActiveProjectIndex] = { ...localProjectsCollection[targetSelectedActiveProjectIndex], ...data };
+            renderDynamicProjectsGrid();
+            setDetailsReadOnly(true);
+            showAppModal('Project Updated', 'The selected project was updated successfully.');
+        }
+        function requestProjectDeletion() {
+            if (targetSelectedActiveProjectIndex === null) return;
+            pendingDeletionId = localProjectsCollection[targetSelectedActiveProjectIndex].id;
+            showAppModal('Remove Project', 'Are you sure you want to remove this project from your portfolio?', [
+                { label: 'Close', type: 'outline', action: closeAppModal },
+                { label: 'Remove', type: 'danger', action: deletePendingProject }
+            ]);
+        }
+        function deletePendingProject() {
+            if (pendingDeletionId) localProjectsCollection = localProjectsCollection.filter(project => project.id !== pendingDeletionId);
+            pendingDeletionId = null;
+            closeAppModal();
+            closeModal('detailsProjectModal');
+            projectCurrentPage = 1;
+            renderDynamicProjectsGrid();
+            showAppModal('Project Removed', 'The project was removed successfully.');
+        }
+        function showAppModal(title, message, actions) {
+            document.getElementById('appModalTitle').textContent = title;
+            document.getElementById('appModalMessage').innerHTML = message;
+            const actionBox = document.getElementById('appModalActions');
+            actionBox.innerHTML = '';
+            (actions || [{ label: 'Close', type: 'filled', action: closeAppModal }]).forEach(action => {
+                const button = document.createElement(action.type === 'filled' ? 'md-filled-button' : 'md-outlined-button');
+                if (action.type === 'danger') button.classList.add('button-danger-outline');
+                button.type = 'button'; button.textContent = action.label; button.addEventListener('click', action.action); actionBox.appendChild(button);
+            });
+            openModal('appModal');
+        }
+        function closeAppModal() { closeModal('appModal'); }
+        document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', event => { if (event.target === overlay && overlay.id !== 'createProjectModal' && overlay.id !== 'detailsProjectModal') closeModal(overlay.id); }));
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => closeModal(m.id)); });
+        function applyStoredTheme() { if (localStorage.getItem('studentPortalDarkMode') === 'true') document.body.classList.add('dark-mode'); updateThemeButton(); }
+        function toggleThemeMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('studentPortalDarkMode', document.body.classList.contains('dark-mode')); updateThemeButton(); }
+        function updateThemeButton() {
+            const active = document.body.classList.contains('dark-mode');
+            document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined">${active ? 'light_mode' : 'dark_mode'}</span><span>${active ? 'Light Mode' : 'Dark Mode'}</span>`;
+        }
+        function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
+        function escapeAttribute(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
+    </script>
+</body>
+</html>

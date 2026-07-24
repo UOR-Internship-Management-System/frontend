@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LaTeX CV Builder | Internship Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script type="importmap">
+    {
+        "imports": {
+            "@material/web/": "https://esm.run/@material/web/"
+        }
+    }
+    </script>
+    <script type="module">import '@material/web/all.js';</script>
+    <style>
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UaGrENHsxJLFrFcQF1jOSg3NHXB.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 500;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UabrENHsxJLFrFcQF1jO_p_Gv7-Yw6V.woff2) format('woff2');
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: url(https://fonts.gstatic.com/s/googlesans/v51/4UabrENHsxJLFrFcQF1jO_p_g77-Yw6V.woff2) format('woff2');
+        }
+        :root {
+            --primary: #6750A4;
+            --on-primary: #FFFFFF;
+            --surface-container: #F3EDF7;
+            --surface-container-high: #ECE6F0;
+            --canvas: #FFFFFF;
+            --input-bg: #FDFBFF;
+            --text: #1D1B20;
+            --muted: #49454F;
+            --outline: #79747E;
+            --border: #E1DFFF;
+            --danger: #B3261E;
+            --danger-bg: #F9DEDC;
+            --success: #00875A;
+            --success-hover: #006644;
+            --code-bg: #1E1E1E;
+            --code-text: #D4D4D4;
+            --shadow-card: 0 4px 12px rgba(0,0,0,.05);
+            --shadow-hover: 0 8px 22px rgba(103,80,164,.12);
+            --shadow-modal: 0 18px 48px rgba(0,0,0,.22);
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --motion-standard: cubic-bezier(.4,0,.2,1);
+            --motion-emphasized: cubic-bezier(.34,1.56,.64,1);
+            --md-sys-color-primary: var(--primary);
+            --md-sys-color-on-primary: var(--on-primary);
+            --md-sys-color-surface-container: var(--surface-container);
+            --md-ref-typeface-brand: 'Google Sans', sans-serif;
+            --md-ref-typeface-plain: 'Google Sans', sans-serif;
+        }
+        body.dark-mode {
+            --surface-container: #15121C;
+            --surface-container-high: #24202D;
+            --canvas: #211D29;
+            --input-bg: #2B2633;
+            --text: #F4EFF7;
+            --muted: #CAC4D0;
+            --outline: #948F99;
+            --border: #494453;
+            --danger-bg: #5F1B15;
+            --code-bg: #111015;
+            --code-text: #E7E0EC;
+            --shadow-card: 0 6px 18px rgba(0,0,0,.35);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,.45);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Google Sans', sans-serif !important; }
+        .material-symbols-outlined { font-family: 'Material Symbols Outlined' !important; }
+        body {
+            background: var(--surface-container); color: var(--text); min-height: 100vh;
+            padding: 48px 24px; display: flex; justify-content: center; align-items: flex-start;
+            transition: background-color .25s var(--motion-standard), color .25s var(--motion-standard);
+        }
+        .main-workspace { width: 100%; max-width: 1340px; display: flex; flex-direction: column; gap: 36px; }
+        .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 4px; }
+        .page-header h1 { font-size: 1.85rem; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 10px; }
+        .notice-banner { font-size: .95rem; color: var(--muted); line-height: 1.6; max-width: 980px; }
+        .theme-toggle {
+            border: 1px solid var(--border); background: var(--canvas); color: var(--text); border-radius: 999px;
+            padding: 10px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 700;
+            box-shadow: var(--shadow-card); transition: transform .2s var(--motion-standard), background-color .2s, border-color .2s;
+        }
+        .theme-toggle:hover { transform: translateY(-2px); }
+        .state-alert-banner {
+            display: none; background: var(--danger-bg); color: var(--text); padding: 18px 24px; border-radius: 18px;
+            align-items: center; gap: 14px; font-weight: 700; box-shadow: var(--shadow-card); animation: slideDown .3s var(--motion-standard) both;
+            border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+        }
+        .state-alert-banner.active { display: flex; }
+        .simulation-console, .window-panel, .actions-control-bar {
+            background: var(--canvas); border-radius: var(--radius-xl); box-shadow: var(--shadow-card); border: 1px solid var(--border);
+            transition: background-color .25s, border-color .25s, box-shadow .25s;
+        }
+        .simulation-console { padding: 30px; display: flex; flex-direction: column; gap: 24px; }
+        .console-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; border-bottom: 1px solid var(--border); padding-bottom: 18px; }
+        .console-header h3 { font-size: 1.12rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .console-header p { font-size: .88rem; color: var(--muted); line-height: 1.5; max-width: 640px; }
+        .console-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
+        .simulation-control-group {
+            background: var(--input-bg); border: 1px solid var(--border); border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 12px;
+            min-height: 150px; overflow-x: auto;
+        }
+        .simulation-control-group h4 { font-size: .82rem; color: var(--primary); text-transform: uppercase; letter-spacing: .04em; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        .instance-item-row, .checkbox-container {
+            display: flex; align-items: center; gap: 10px; background: var(--canvas); border: 1px solid var(--border); border-radius: 10px;
+            padding: 10px 12px; min-width: max-content; color: var(--text); font-size: .86rem; font-weight: 500;
+            animation: rowIntro .28s var(--motion-standard) both;
+        }
+        .workspace-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; width: 100%; align-items: stretch; }
+        .window-panel { padding: 30px; display: flex; flex-direction: column; gap: 24px; min-height: 880px; }
+        .window-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 4px; flex-shrink: 0; }
+        .window-header h2 { font-size: 1.25rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+        .window-badge { font-size: .8rem; background: var(--surface-container-high); color: var(--muted); padding: 6px 12px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+        .cv-preview-scroll-frame {
+            flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 18px; padding: 42px; background: #FFFFFF;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,.03);
+        }
+        .cv-render-document { color: #000; line-height: 1.42; font-size: .83rem; }
+        .cv-render-header { text-align: center; margin-bottom: 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .cv-render-name { font-size: 1.55rem; font-weight: 700; letter-spacing: -.5px; }
+        .cv-render-academic-meta, .cv-render-contact-links { font-size: .78rem; color: #49454F; display: flex; justify-content: center; flex-wrap: wrap; gap: 4px 8px; }
+        .cv-render-section-title { font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; margin-top: 14px; color: #000; }
+        .cv-render-section-divider { border: none; height: 1px; background: #000; margin: 3px 0 8px; }
+        .cv-render-summary-text { text-align: justify; }
+        .cv-render-data-block { margin-bottom: 9px; }
+        .cv-render-data-row-header { display: flex; justify-content: space-between; gap: 14px; font-weight: 700; }
+        .cv-render-data-row-sub { display: flex; justify-content: space-between; gap: 14px; font-style: italic; color: #333; margin-bottom: 3px; }
+        .cv-render-bullet-list { padding-left: 16px; display: flex; flex-direction: column; gap: 2px; }
+        .cv-render-bullet-item { display: list-item; list-style-type: disc; text-align: justify; }
+        .latex-code-scroll-frame { flex: 1; overflow-y: auto; border: 1px solid var(--border); border-radius: 18px; background: var(--code-bg); position: relative; }
+        .latex-code-scroll-frame pre { padding: 72px 26px 26px; margin: 0; color: var(--code-text); line-height: 1.55; white-space: pre-wrap; word-break: break-word; font-size: .82rem; }
+        .latex-code-scroll-frame pre, .latex-code-scroll-frame pre * { font-family: 'Courier New', Courier, monospace !important; }
+        .btn-copy-code { position: absolute; top: 16px; right: 16px; z-index: 3; background: rgba(30,30,30,.85); --md-outlined-button-label-text-color: #fff; --md-outlined-button-outline-color: #5d5964; }
+        .actions-control-bar { padding: 26px 32px; display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .footer-spacer { flex: 1; color: var(--muted); font-size: .88rem; line-height: 1.45; min-width: 220px; }
+        md-filled-button, md-outlined-button {
+            --md-filled-button-container-shape: 999px;
+            --md-outlined-button-container-shape: 999px;
+            --md-filled-button-label-text-font: 'Google Sans', sans-serif;
+            --md-outlined-button-label-text-font: 'Google Sans', sans-serif;
+            min-width: 180px; height: 46px;
+        }
+        #downloadCvBtn { min-width: 240px; }
+        #submitCvBtn { min-width: 360px; }
+        #updateCvBtn { min-width: 150px; --md-filled-button-container-color: var(--success); --md-filled-button-hover-container-color: var(--success-hover); }
+        #updateCvBtn.pending { animation: pulseUpdate 1.4s ease-in-out infinite; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.38); display: none; justify-content: center; align-items: center; padding: 24px; z-index: 1000; opacity: 0; transition: opacity .2s var(--motion-standard); }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { width: min(460px, 100%); background: var(--canvas); border-radius: 28px; box-shadow: var(--shadow-modal); padding: 30px; transform: translateY(12px) scale(.98); animation: modalIn .25s var(--motion-emphasized) forwards; }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+        .modal-head h3 { color: var(--text); font-size: 1.2rem; }
+        .modal-close { border: 0; background: transparent; color: var(--muted); cursor: pointer; display: grid; place-items: center; }
+        .modal-body { color: var(--muted); line-height: 1.55; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes rowIntro { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes modalIn { to { transform: translateY(0) scale(1); } }
+        @keyframes pulseUpdate { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+        @media (max-width: 1060px) {
+            body { padding: 24px 14px; }
+            .workspace-grid { grid-template-columns: 1fr; gap: 28px; }
+            .window-panel { min-height: 720px; }
+        }
+        @media (max-width: 740px) {
+            .page-header, .console-header, .window-header, .actions-control-bar { flex-direction: column; align-items: stretch; }
+            .simulation-console, .window-panel, .actions-control-bar { padding: 22px; }
+            .cv-preview-scroll-frame { padding: 28px; }
+            md-filled-button, md-outlined-button, #downloadCvBtn, #submitCvBtn, #updateCvBtn { width: 100%; min-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <main class="main-workspace">
+        <header class="page-header">
+            <div>
+                <h1>LaTeX CV Builder</h1>
+                <p class="notice-banner">This CV is used for shortlisting candidates for internships. Review the selected components, update the compiled version, then copy, download, or submit the CV for admin review.</p>
+            </div>
+            <button class="theme-toggle" id="themeToggle" type="button"><span class="material-symbols-outlined">dark_mode</span><span>Dark Mode</span></button>
+        </header>
+
+        <div id="recentUpdateAlertBanner" class="state-alert-banner" role="alert">
+            <span class="material-symbols-outlined">info</span>
+            <span>Your CV selection changed. Click Update CV to refresh the visual preview and LaTeX code.</span>
+        </div>
+
+        <section class="simulation-console" aria-label="CV Structural Component Visibility Dashboard">
+            <div class="console-header">
+                <h3><span class="material-symbols-outlined">dashboard_customize</span>CV Component Inclusion Layout Dashboard</h3>
+                <p>Select individual instances to include or exclude them from the compiled resume document. Changes are staged until you click Update CV.</p>
+            </div>
+            <div class="console-grid">
+                <div class="simulation-control-group" id="chkGroupExperience"><h4>Work Experience</h4></div>
+                <div class="simulation-control-group" id="chkGroupProjects"><h4>Projects Portfolio</h4></div>
+                <div class="simulation-control-group" id="chkGroupCertificates"><h4>Certificates</h4></div>
+                <div class="simulation-control-group" id="chkGroupAwards"><h4>Awards &amp; Honors</h4></div>
+                <div class="simulation-control-group" id="chkGroupActivities"><h4>Extracurriculars</h4></div>
+            </div>
+        </section>
+
+        <div class="workspace-grid">
+            <section class="window-panel" aria-label="Visual CV Layout Renderer Panel">
+                <div class="window-header">
+                    <h2><span class="material-symbols-outlined">description</span>Visual Layout Render Frame</h2>
+                    <span class="window-badge">ATS Format Sheet</span>
+                </div>
+                <div class="cv-preview-scroll-frame">
+                    <div id="cvVisualRenderOutputDOM" class="cv-render-document"></div>
+                </div>
+            </section>
+
+            <section class="window-panel" aria-label="Production Code Exposer Engine Pane">
+                <div class="window-header">
+                    <h2><span class="material-symbols-outlined">code</span>Production Code (LaTeX Block)</h2>
+                    <span class="window-badge" style="background:#2D2D2D;color:#A6E22E;font-family:monospace!important;">Raw UTF-8 Stream</span>
+                </div>
+                <div class="latex-code-scroll-frame">
+                    <md-outlined-button class="btn-copy-code" onclick="executeClipboardCopyAction()">
+                        <span class="material-symbols-outlined" slot="leading-icon">content_copy</span>Copy Code
+                    </md-outlined-button>
+                    <pre id="latexCodeOutputDOM"></pre>
+                </div>
+            </section>
+        </div>
+
+        <footer class="actions-control-bar">
+            <div class="footer-spacer">The Update CV button is placed directly beside the submission action so staged checklist changes can be compiled before final review.</div>
+            <md-outlined-button id="downloadCvBtn" onclick="executeClientSideDownloadOperation()"><span class="material-symbols-outlined" slot="leading-icon">download</span>Download current CV version</md-outlined-button>
+            <md-filled-button id="submitCvBtn" onclick="executeAdminShortlistSubmission()"><span class="material-symbols-outlined" slot="leading-icon">assignment_turned_in</span>Submit the CV for Admin Review and Shortlist</md-filled-button>
+            <md-filled-button id="updateCvBtn" onclick="compileActiveStateSynchronization()"><span class="material-symbols-outlined" slot="leading-icon">sync</span>Update CV</md-filled-button>
+        </footer>
+    </main>
+
+    <div id="appModal" class="modal-overlay" role="dialog" aria-modal="true">
+        <div class="modal-card">
+            <div class="modal-head">
+                <h3 id="appModalTitle">Message</h3>
+                <button class="modal-close" type="button" onclick="closeAppModal()"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div id="appModalMessage" class="modal-body"></div>
+            <div id="appModalActions" class="modal-actions"></div>
+        </div>
+    </div>
+
+    <script>
+        const upstreamState = {
+            profile: {
+                name: "K. Kavindu Lakshan",
+                degree: "B.Sc. in Computer Science",
+                level: "Level 3 student",
+                index: "CS/2022/001",
+                batch: "2022 / 2023",
+                email: "kavindu@usci.ruh.ac.lk",
+                phone: "071-8594231",
+                location: "Matara, Southern Province",
+                linkedin: "https://linkedin.com/in/kavindu-lakshan",
+                github: "https://github.com/kavindu-lakshan",
+                summary: "Highly motivated Level 3 Computer Science student specializing in full-stack web architectures, responsive interface engineering, and practical backend integrations. Experienced in building academic projects with clear documentation, version control discipline, and internship-ready technical communication."
+            },
+            skills: [
+                { cluster: "Core Engineering", category: "Backend Development", skill: "Java", competency: "Advanced" },
+                { cluster: "Core Engineering", category: "Frontend Development", skill: "React", competency: "Advanced" },
+                { cluster: "Core Engineering", category: "Mobile Development", skill: "Flutter", competency: "Advanced" },
+                { cluster: "Data & Infrastructure", category: "Databases", skill: "PostgreSQL", competency: "Intermediate" },
+                { cluster: "Academic & Foundations", category: "Technical Writing", skill: "LaTeX", competency: "Intermediate" }
+            ],
+            experience: [
+                { id: "exp1", includeCv: true, jobTitle: "Student Software Developer", company: "Department Project Team", location: "University of Ruhuna", startDate: "2025", endDate: "Present", duties: ["Implemented frontend modules using Material-inspired layouts and reusable vanilla JavaScript components.", "Collaborated with teammates to document project milestones, deployment constraints, and testing evidence."] },
+                { id: "exp2", includeCv: false, jobTitle: "Freelance Web Developer", company: "Independent Client Work", location: "Remote", startDate: "2024", endDate: "2025", duties: ["Built responsive portfolio and dashboard pages using HTML, CSS, and JavaScript.", "Maintained client-requested revisions through structured version control workflows."] },
+                { id: "exp3", includeCv: true, jobTitle: "Academic Project Coordinator", company: "Computer Science Society", location: "Matara, Sri Lanka", startDate: "2024", endDate: "2025", duties: ["Organized project deliverables, presentation material, and technical documentation for student showcases."] }
+            ],
+            projects: [
+                { id: "proj1", includeCv: true, title: "Smart Auto Hub Platform", type: "Mobile Application", startDate: "2026-01", endDate: "2026-03", linkedin: "https://linkedin.com", github: "https://github.com", docLink: "https://drive.google.com", abstract: "A mobile-first vehicle service and booking platform designed with Flutter and a REST-oriented backend integration model.", skills: ["Flutter", "Dart", "REST APIs"], usageNotes: "Implemented Flutter screens, state handling, and endpoint synchronization for mobile workflows." },
+                { id: "proj2", includeCv: true, title: "Internship Filtering Dashboard", type: "Web Application", startDate: "2025-11", endDate: "2026-01", linkedin: "https://linkedin.com", github: "https://github.com", docLink: "https://drive.google.com", abstract: "A deterministic student filtering dashboard for shortlisting internship candidates using skills and academic profile data.", skills: ["React", "Spring Boot", "PostgreSQL"], usageNotes: "Designed list rendering, skill match indicators, and clean admin-facing state management." },
+                { id: "proj3", includeCv: false, title: "Academic Records Visualizer", type: "Web Application", startDate: "2026-02", endDate: "Present", linkedin: "", github: "https://github.com", docLink: "", abstract: "A GPA and module records visualization interface for student-side academic review.", skills: ["HTML5", "CSS3", "JavaScript"], usageNotes: "Implemented table filtering and GPA summary rendering using vanilla JavaScript." }
+            ],
+            certificates: [
+                { id: "cert1", includeCv: true, name: "Oracle Certified Foundations Associate", authority: "Oracle University", year: "2025", url: "https://credential-link.com/verify" },
+                { id: "cert2", includeCv: true, name: "Responsive Web Design Certification", authority: "freeCodeCamp", year: "2024", url: "https://freecodecamp.org" },
+                { id: "cert3", includeCv: false, name: "Introduction to Cloud Computing", authority: "Coursera", year: "2024", url: "https://coursera.org" }
+            ],
+            awards: [
+                { id: "award1", includeCv: true, title: "Best Innovative Project", institution: "University of Ruhuna", date: "October 2025" },
+                { id: "award2", includeCv: false, title: "Inter-University Hackathon Finalist", institution: "Sri Lanka Tech Forum", date: "December 2025" }
+            ],
+            activities: [
+                { id: "act1", includeCv: true, organization: "Computer Science Society", role: "Committee Member", description: "Coordinated student technology event workflows, speaker sessions, and project showcase logistics." },
+                { id: "act2", includeCv: true, organization: "University Coding Club", role: "Peer Mentor", description: "Supported junior students with Git, web fundamentals, and academic project planning." },
+                { id: "act3", includeCv: false, organization: "Sports Association", role: "Volunteer", description: "Assisted with inter-faculty sports event coordination and registration support." }
+            ]
+        };
+
+        let compiledSnapshotTrackingState = null;
+        let isDirty = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            applyStoredTheme();
+            document.getElementById('themeToggle').addEventListener('click', toggleThemeMode);
+            freezeCompiledSnapshot();
+            renderDashboardChecklists();
+            updateUIRenderedOutputs();
+            updateDirtyState(false);
+        });
+
+        function freezeCompiledSnapshot() { compiledSnapshotTrackingState = JSON.parse(JSON.stringify(upstreamState)); }
+        function updateDirtyState(dirty) {
+            isDirty = dirty;
+            document.getElementById('recentUpdateAlertBanner').classList.toggle('active', dirty);
+            document.getElementById('updateCvBtn').classList.toggle('pending', dirty);
+        }
+        function renderDashboardChecklists() {
+            const mappings = [
+                { key: 'experience', dom: 'chkGroupExperience', label: item => item.jobTitle },
+                { key: 'projects', dom: 'chkGroupProjects', label: item => item.title },
+                { key: 'certificates', dom: 'chkGroupCertificates', label: item => item.name },
+                { key: 'awards', dom: 'chkGroupAwards', label: item => item.title },
+                { key: 'activities', dom: 'chkGroupActivities', label: item => item.organization }
+            ];
+            mappings.forEach(map => {
+                const group = document.getElementById(map.dom);
+                const heading = group.querySelector('h4').outerHTML;
+                group.innerHTML = heading;
+                upstreamState[map.key].forEach((item, index) => {
+                    const row = document.createElement('label');
+                    row.className = 'instance-item-row';
+                    row.innerHTML = `<md-checkbox ${item.includeCv ? 'checked' : ''} onchange="dispatchToggleMutation('${map.key}', ${index}, this.checked)"></md-checkbox><span>${escapeHtml(map.label(item))}</span>`;
+                    group.appendChild(row);
+                });
+            });
+        }
+        function dispatchToggleMutation(sectionKey, index, checked) {
+            upstreamState[sectionKey][index].includeCv = checked;
+            updateDirtyState(JSON.stringify(upstreamState) !== JSON.stringify(compiledSnapshotTrackingState));
+        }
+        function compileActiveStateSynchronization() {
+            freezeCompiledSnapshot();
+            updateUIRenderedOutputs();
+            updateDirtyState(false);
+            showAppModal('CV Updated', 'The visual preview and LaTeX source code were synchronized successfully.');
+        }
+        function updateUIRenderedOutputs() {
+            document.getElementById('latexCodeOutputDOM').textContent = generateProductionLaTeXStringStream(compiledSnapshotTrackingState);
+            document.getElementById('cvVisualRenderOutputDOM').innerHTML = generateVisualLayoutDOMTree(compiledSnapshotTrackingState);
+        }
+        function generateProductionLaTeXStringStream(s) {
+            let latex = `% LATEX CV AUTOMATICALLY GENERATED BY STUDENT PORTAL\n\n`;
+            latex += `\\documentclass[letterpaper,11pt]{article}\n\\usepackage[empty]{fullpage}\n\\usepackage{titlesec}\n\\usepackage{enumitem}\n\\usepackage[hidelinks]{hyperref}\n\\usepackage{tabularx}\n\\urlstyle{same}\n\\begin{document}\n\n`;
+            latex += `\\begin{center}\n{\\Huge\\bfseries ${escapeLaTeX(s.profile.name)}} \\\\ \n`;
+            latex += `{\\small ${escapeLaTeX(s.profile.degree)} $\\cdot$ ${escapeLaTeX(s.profile.level)} $\\cdot$ Index: ${escapeLaTeX(s.profile.index)} $\\cdot$ Batch: ${escapeLaTeX(s.profile.batch)}} \\\\ \n`;
+            latex += `{\\small Email: \\href{mailto:${s.profile.email}}{${escapeLaTeX(s.profile.email)}} $\\cdot$ Phone: ${escapeLaTeX(s.profile.phone)} $\\cdot$ Location: ${escapeLaTeX(s.profile.location)}} \\\\ \n`;
+            latex += `{\\small \\href{${s.profile.linkedin}}{LinkedIn} $\\cdot$ \\href{${s.profile.github}}{GitHub}}\n\\end{center}\n\n`;
+            latex += `\\section*{Professional Summary}\n${escapeLaTeX(s.profile.summary)}\n\n`;
+            latex += `\\section*{Skills}\n${escapeLaTeX(s.skills.map(item => item.skill).join(', '))}\n\n`;
+            appendExperience(); appendProjects(); appendCertificates(); appendAwards(); appendActivities();
+            latex += `\\end{document}\n`;
+            return latex;
+            function appendExperience() {
+                const rows = s.experience.filter(item => item.includeCv);
+                if (!rows.length) return;
+                latex += `\\section*{Professional Work Experience}\n`;
+                rows.forEach(exp => {
+                    latex += `\\textbf{${escapeLaTeX(exp.jobTitle)}} \\hfill ${escapeLaTeX(exp.startDate)} -- ${escapeLaTeX(exp.endDate)} \\\\ \n`;
+                    latex += `\\textit{${escapeLaTeX(exp.company)}, ${escapeLaTeX(exp.location)}} \\\\ \n\\begin{itemize}[noitemsep,topsep=2pt,leftmargin=15pt]\n`;
+                    exp.duties.forEach(duty => latex += `    \\item ${escapeLaTeX(duty)}\n`);
+                    latex += `\\end{itemize}\n`;
+                });
+                latex += `\n`;
+            }
+            function appendProjects() {
+                const rows = s.projects.filter(item => item.includeCv);
+                if (!rows.length) return;
+                latex += `\\section*{Projects}\n`;
+                rows.forEach(project => {
+                    latex += `\\textbf{${escapeLaTeX(project.title)}} $\\cdot$ \\textit{${escapeLaTeX(project.type)}} \\hfill ${escapeLaTeX(project.startDate)} -- ${escapeLaTeX(project.endDate || 'Present')} \\\\ \n`;
+                    latex += `${escapeLaTeX(project.abstract)} \\\\ \n`;
+                    latex += `\\begin{itemize}[noitemsep,topsep=2pt,leftmargin=15pt]\n    \\item \\textbf{Skills:} ${escapeLaTeX((project.skills || []).join(', '))}\n    \\item ${escapeLaTeX(project.usageNotes || '')}\n\\end{itemize}\n`;
+                });
+                latex += `\n`;
+            }
+            function appendCertificates() {
+                const rows = s.certificates.filter(item => item.includeCv);
+                if (!rows.length) return;
+                latex += `\\section*{Certificates \\& Credentials}\n`;
+                rows.forEach(cert => latex += `\\textbf{${escapeLaTeX(cert.name)}} \\hfill ${escapeLaTeX(cert.year)} \\\\ \n\\textit{${escapeLaTeX(cert.authority)}} $\\cdot$ \\href{${cert.url}}{Verification URL} \\\\ \n`);
+                latex += `\n`;
+            }
+            function appendAwards() {
+                const rows = s.awards.filter(item => item.includeCv);
+                if (!rows.length) return;
+                latex += `\\section*{Awards \\& Achievements}\n`;
+                rows.forEach(award => latex += `\\textbf{${escapeLaTeX(award.title)}} \\hfill ${escapeLaTeX(award.date)} \\\\ \n\\textit{${escapeLaTeX(award.institution)}} \\\\ \n`);
+                latex += `\n`;
+            }
+            function appendActivities() {
+                const rows = s.activities.filter(item => item.includeCv);
+                if (!rows.length) return;
+                latex += `\\section*{Extracurricular Activities}\n`;
+                rows.forEach(act => latex += `\\textbf{${escapeLaTeX(act.organization)}} \\hfill ${escapeLaTeX(act.role)} \\\\ \n${escapeLaTeX(act.description)} \\\\ \n`);
+                latex += `\n`;
+            }
+        }
+        function generateVisualLayoutDOMTree(s) {
+            let html = `<div class="cv-render-header"><div class="cv-render-name">${escapeHtml(s.profile.name)}</div><div class="cv-render-academic-meta">${escapeHtml(s.profile.degree)} &middot; ${escapeHtml(s.profile.level)} &middot; Index: ${escapeHtml(s.profile.index)} &middot; Batch: ${escapeHtml(s.profile.batch)}</div><div class="cv-render-contact-links"><span>Email: <strong>${escapeHtml(s.profile.email)}</strong></span> | <span>Phone: <strong>${escapeHtml(s.profile.phone)}</strong></span> | <span>Location: <strong>${escapeHtml(s.profile.location)}</strong></span></div><div class="cv-render-contact-links" style="color:#6750A4;"><span>LinkedIn: ${escapeHtml(s.profile.linkedin)}</span> | <span>GitHub: ${escapeHtml(s.profile.github)}</span></div></div>`;
+            section('Professional Summary', `<p class="cv-render-summary-text">${escapeHtml(s.profile.summary)}</p>`);
+            section('Skills', `<p class="cv-render-summary-text">${escapeHtml(s.skills.map(item => item.skill).join(', '))}</p>`);
+            const exp = s.experience.filter(item => item.includeCv);
+            if (exp.length) section('Professional Work Experience', exp.map(item => `<div class="cv-render-data-block"><div class="cv-render-data-row-header"><span>${escapeHtml(item.jobTitle)}</span><span>${escapeHtml(item.startDate)} – ${escapeHtml(item.endDate)}</span></div><div class="cv-render-data-row-sub"><span>${escapeHtml(item.company)}, ${escapeHtml(item.location)}</span></div><ul class="cv-render-bullet-list">${item.duties.map(duty => `<li class="cv-render-bullet-item">${escapeHtml(duty)}</li>`).join('')}</ul></div>`).join(''));
+            const projects = s.projects.filter(item => item.includeCv);
+            if (projects.length) section('Projects', projects.map(item => `<div class="cv-render-data-block"><div class="cv-render-data-row-header"><span>${escapeHtml(item.title)}</span><span>${escapeHtml(item.startDate)} – ${escapeHtml(item.endDate || 'Present')}</span></div><div class="cv-render-data-row-sub"><span>${escapeHtml(item.type)} | Skills: ${escapeHtml((item.skills || []).join(', '))}</span></div><p class="cv-render-summary-text">${escapeHtml(item.abstract)}</p><ul class="cv-render-bullet-list"><li class="cv-render-bullet-item">${escapeHtml(item.usageNotes || '')}</li></ul></div>`).join(''));
+            const certs = s.certificates.filter(item => item.includeCv);
+            if (certs.length) section('Certificates & Credentials', certs.map(item => `<div class="cv-render-data-block"><div class="cv-render-data-row-header"><span>${escapeHtml(item.name)}</span><span>${escapeHtml(item.year)}</span></div><div class="cv-render-data-row-sub"><span>${escapeHtml(item.authority)}</span></div></div>`).join(''));
+            const awards = s.awards.filter(item => item.includeCv);
+            if (awards.length) section('Awards & Achievements', awards.map(item => `<div class="cv-render-data-block"><div class="cv-render-data-row-header"><span>${escapeHtml(item.title)}</span><span>${escapeHtml(item.date)}</span></div><div class="cv-render-data-row-sub"><span>${escapeHtml(item.institution)}</span></div></div>`).join(''));
+            const activities = s.activities.filter(item => item.includeCv);
+            if (activities.length) section('Extracurricular Activities', activities.map(item => `<div class="cv-render-data-block"><div class="cv-render-data-row-header"><span>${escapeHtml(item.organization)}</span><span>${escapeHtml(item.role)}</span></div><p class="cv-render-summary-text">${escapeHtml(item.description)}</p></div>`).join(''));
+            return html;
+            function section(title, content) { html += `<div class="cv-render-section-title">${title}</div><hr class="cv-render-section-divider">${content}`; }
+        }
+        function executeClipboardCopyAction() {
+            const code = document.getElementById('latexCodeOutputDOM').textContent;
+            if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => showAppModal('Code Copied', 'The LaTeX source code was copied to your clipboard.')).catch(fallbackCopy);
+            else fallbackCopy();
+            function fallbackCopy() {
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                textarea.remove();
+                showAppModal('Code Copied', 'The LaTeX source code was copied to your clipboard.');
+            }
+        }
+        function executeClientSideDownloadOperation() {
+            const blob = new Blob([document.getElementById('latexCodeOutputDOM').textContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'student-cv-latex.tex';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(link.href);
+            showAppModal('Download Prepared', 'The current LaTeX CV version was downloaded as a .tex file.');
+        }
+        function executeAdminShortlistSubmission() {
+            showAppModal('CV Submitted', 'The current compiled CV version has been submitted for admin review and internship shortlist consideration.');
+        }
+        function showAppModal(title, message, actions) {
+            document.getElementById('appModalTitle').textContent = title;
+            document.getElementById('appModalMessage').innerHTML = message;
+            const actionBox = document.getElementById('appModalActions');
+            actionBox.innerHTML = '';
+            (actions || [{ label: 'Close', type: 'filled', action: closeAppModal }]).forEach(action => {
+                const button = document.createElement(action.type === 'filled' ? 'md-filled-button' : 'md-outlined-button');
+                button.type = 'button'; button.textContent = action.label; button.addEventListener('click', action.action); actionBox.appendChild(button);
+            });
+            document.getElementById('appModal').classList.add('active');
+        }
+        function closeAppModal() { document.getElementById('appModal').classList.remove('active'); }
+        document.getElementById('appModal').addEventListener('click', event => { if (event.target.id === 'appModal') closeAppModal(); });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape') closeAppModal(); });
+        function escapeLaTeX(str) {
+            return String(str || '').replace(/\\/g, '\\textbackslash{}').replace(/&/g, '\\&').replace(/%/g, '\\%').replace(/\$/g, '\\$').replace(/#/g, '\\#').replace(/_/g, '\\_').replace(/{/g, '\\{').replace(/}/g, '\\}').replace(/~/g, '\\textasciitilde{}').replace(/\^/g, '\\textasciicircum{}');
+        }
+        function applyStoredTheme() { if (localStorage.getItem('studentPortalDarkMode') === 'true') document.body.classList.add('dark-mode'); updateThemeButton(); }
+        function toggleThemeMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('studentPortalDarkMode', document.body.classList.contains('dark-mode')); updateThemeButton(); }
+        function updateThemeButton() {
+            const active = document.body.classList.contains('dark-mode');
+            document.getElementById('themeToggle').innerHTML = `<span class="material-symbols-outlined">${active ? 'light_mode' : 'dark_mode'}</span><span>${active ? 'Light Mode' : 'Dark Mode'}</span>`;
+        }
+        function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char])); }
+    </script>
+</body>
+</html>
