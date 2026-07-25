@@ -3,9 +3,9 @@ import { ZodError } from 'zod'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { internshipManagementApi } from '../api/internshipManagementApi'
 import type {
-  InternshipRequestsQuery,
-  InternshipRequestCancelInput,
   InternshipRequestCreateInput,
+  InternshipRequestDeleteInput,
+  InternshipRequestsQuery,
   InternshipRequestUpdateInput,
   RequiredSkillsQuery,
 } from '../types/internshipManagementTypes'
@@ -26,7 +26,6 @@ export function useInternshipRequests(query: InternshipRequestsQuery | null) {
     search: '',
   }
   const resolvedQuery = query ?? fallbackQuery
-
   return useQuery({
     enabled: Boolean(query),
     queryKey: internshipManagementKeys.requestList(resolvedQuery),
@@ -81,27 +80,22 @@ export function useUpdateInternshipRequest() {
   })
 }
 
-export function useCancelInternshipRequest() {
+export function useDeleteInternshipRequest() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (input: InternshipRequestCancelInput) =>
-      internshipManagementApi.cancelInternshipRequest(input),
-    onSuccess: (_result, input) =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() }),
-        queryClient.invalidateQueries({
-          queryKey: internshipManagementKeys.requestDetail(input.requestId),
-        }),
-      ]),
+    mutationFn: (input: InternshipRequestDeleteInput) =>
+      internshipManagementApi.deleteInternshipRequest(input),
+    onSuccess: (_result, input) => {
+      queryClient.removeQueries({ queryKey: internshipManagementKeys.requestDetail(input.requestId) })
+      return queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() })
+    },
   })
 }
 
 export function getInternshipRequestMutationErrorMessage(error: unknown) {
   const mapped = mapApiError(error, 'protected')
-  if (mapped.status === 412) {
-    return 'This request changed. Reload the latest version and try again.'
-  }
-  if (mapped.status === 428) return 'Reload this request before saving the change.'
-  if (mapped.status === 409) return 'The request cannot make that lifecycle change.'
+  if (mapped.status === 412) return 'This request changed. Reload the latest version and try again.'
+  if (mapped.status === 428) return 'Reload this request before deleting it.'
+  if (mapped.status === 409) return 'This internship request cannot be deleted in its current state.'
   return mapped.message
 }

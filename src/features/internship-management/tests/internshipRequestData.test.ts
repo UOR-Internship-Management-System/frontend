@@ -31,18 +31,14 @@ const requiredSkill = {
   requiredSkillId,
   skillId,
   skillName: 'TypeScript',
-  requiredCompetencyLevel: 'INTERMEDIATE' as const,
 }
 const internshipRequest = internshipRequestResponseSchema.parse({
   requestId,
   company,
   title: 'Software Engineering Intern',
   description: null,
-  location: 'Matara',
-  workMode: 'HYBRID',
   status: 'DRAFT',
   shortlistGuidanceValue: 12,
-  notes: null,
   requiredSkills: [requiredSkill],
   version: 2,
   createdAt: now,
@@ -54,19 +50,20 @@ const page = <Item>(items: Item[], sort = 'createdAt,desc') => ({
   page: { page: 0, size: 20, totalElements: items.length, totalPages: items.length ? 1 : 0, sort },
 })
 
-describe('Internship request lifecycle data layer', () => {
-  it('validates strict create and partial update contracts with unique required skills', () => {
+describe('Internship request wireframe data layer', () => {
+  it('validates strict create/update contracts and rejects removed modal fields', () => {
     const create = {
       companyId,
       title: 'Software Engineering Intern',
       status: 'DRAFT' as const,
-      requiredSkills: [{ skillId, requiredCompetencyLevel: 'INTERMEDIATE' as const }],
+      requiredSkills: [{ skillId }],
     }
     expect(internshipRequestCreateSchema.parse(create)).toEqual(create)
     expect(internshipRequestUpdateSchema.parse({ title: 'Updated role' })).toEqual({
       title: 'Updated role',
     })
     expect(() => internshipRequestUpdateSchema.parse({})).toThrow()
+    expect(() => internshipRequestUpdateSchema.parse({ companyId })).toThrow()
     expect(() =>
       internshipRequestCreateSchema.parse({
         ...create,
@@ -75,10 +72,18 @@ describe('Internship request lifecycle data layer', () => {
     ).toThrow()
     expect(() => internshipRequestCreateSchema.parse({ ...create, unsupported: 3 })).toThrow()
     expect(() => internshipRequestCreateSchema.parse({ ...create, status: 'PUBLISHED' })).toThrow()
-    expect(() => internshipRequestCreateSchema.parse({ ...create, workMode: 'FLEXIBLE' })).toThrow()
+    expect(() => internshipRequestCreateSchema.parse({ ...create, location: 'Colombo' })).toThrow()
+    expect(() => internshipRequestCreateSchema.parse({ ...create, workMode: 'HYBRID' })).toThrow()
+    expect(() => internshipRequestCreateSchema.parse({ ...create, notes: 'Removed' })).toThrow()
+    expect(() =>
+      internshipRequestCreateSchema.parse({
+        ...create,
+        requiredSkills: [{ skillId, requiredCompetencyLevel: 'INTERMEDIATE' }],
+      }),
+    ).toThrow()
   })
 
-  it('constructs request list, detail, create, update, and cancellation calls', async () => {
+  it('constructs request list, detail, create, update, and delete calls', async () => {
     const calls: Array<{
       method: string
       search?: string
@@ -133,7 +138,7 @@ describe('Internship request lifecycle data layer', () => {
       version: 2,
       body: { title: 'Updated role' },
     })
-    await internshipManagementApi.cancelInternshipRequest({ requestId, version: 3 })
+    await internshipManagementApi.deleteInternshipRequest({ requestId, version: 3 })
     expect(calls).toEqual([
       {
         method: 'GET',
@@ -153,7 +158,7 @@ describe('Internship request lifecycle data layer', () => {
     ])
   })
 
-  it('supports paged nested skill reads and versioned incremental mutations', async () => {
+  it('supports paged taxonomy-skill reads and versioned incremental mutations', async () => {
     const calls: Array<{
       method: string
       search?: string

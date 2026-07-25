@@ -51,7 +51,6 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
     <QueryClientProvider client={createQueryClient()}>
       <InternshipRequestForm
         currentCompany={company}
-        lockCompany
         mode="create"
         onCancel={() => undefined}
         onSubmit={onSubmit}
@@ -61,37 +60,68 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   return onSubmit
 }
 
-describe('InternshipRequestForm wireframe behavior', () => {
-  it('requires the role, maximum shortlist limit and at least one taxonomy skill', async () => {
-    const user = userEvent.setup()
+describe('InternshipRequestForm wireframe contract', () => {
+  it('uses the same default modal width as Create Company and omits redundant fields', () => {
     renderForm()
-    const dialog = screen.getByRole('dialog', { name: 'Create Candidate Selection Criteria' })
-    await user.click(within(dialog).getByRole('button', { name: 'Add' }))
-    expect(await within(dialog).findByText('Role title is required.')).toBeInTheDocument()
-    expect(within(dialog).getByText('Maximum shortlist limit is required.')).toBeInTheDocument()
-    expect(within(dialog).getByText('Select at least one required skill.')).toBeInTheDocument()
+    const dialog = screen.getByRole('dialog', { name: 'Create Internship Request' })
+
+    expect(dialog).toHaveClass('modal-card-default')
+    expect(within(dialog).queryByLabelText('Company')).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/Work arrangement and notes/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByLabelText('Location')).not.toBeInTheDocument()
+    expect(within(dialog).queryByLabelText('Work Mode')).not.toBeInTheDocument()
+    expect(within(dialog).queryByLabelText('Administrative Notes')).not.toBeInTheDocument()
   })
 
-  it('submits only wireframe-entered criteria with safe API defaults', async () => {
+  it('requires the role title while keeping guidance and skill requirements optional', async () => {
     const user = userEvent.setup()
     const submit = renderForm()
-    const dialog = screen.getByRole('dialog', { name: 'Create Candidate Selection Criteria' })
+    const dialog = screen.getByRole('dialog', { name: 'Create Internship Request' })
+    await user.click(within(dialog).getByRole('button', { name: 'Create Request' }))
+    expect(await within(dialog).findByText('Role title is required.')).toBeInTheDocument()
+    expect(within(dialog).queryByText(/guidance value is required/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/select at least one required skill/i)).not.toBeInTheDocument()
+    expect(within(dialog).queryByText(/GPA/i)).not.toBeInTheDocument()
+
+    await user.type(within(dialog).getByLabelText('Internship Role Title'), 'General Intern')
+    await user.click(within(dialog).getByRole('button', { name: 'Create Request' }))
+    await waitFor(() =>
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          companyId,
+          title: 'General Intern',
+          shortlistGuidanceValue: null,
+          requiredSkills: [],
+        }),
+      ),
+    )
+  })
+
+  it('submits only wireframe-managed request fields and taxonomy skill identifiers', async () => {
+    const user = userEvent.setup()
+    const submit = renderForm()
+    const dialog = screen.getByRole('dialog', { name: 'Create Internship Request' })
+
     await user.type(within(dialog).getByLabelText('Internship Role Title'), 'Platform Intern')
-    await user.type(within(dialog).getByLabelText('Maximum Shortlist Limit'), '8')
+    await user.type(within(dialog).getByLabelText('Shortlist Guidance Value (Optional)'), '8')
+    await user.type(within(dialog).getByLabelText('Role Description'), 'Build platform features')
+    await user.selectOptions(within(dialog).getByLabelText('Request Status'), 'ACTIVE')
     await user.click(await within(dialog).findByLabelText('Select TypeScript'))
-    await user.click(within(dialog).getByRole('button', { name: 'Add selected skills' }))
-    await user.click(within(dialog).getByRole('button', { name: 'Add' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Add Selected Skills' }))
+
+    expect(
+      within(dialog).queryByLabelText('Required competency level for TypeScript'),
+    ).not.toBeInTheDocument()
+    await user.click(within(dialog).getByRole('button', { name: 'Create Request' }))
+
     await waitFor(() =>
       expect(submit).toHaveBeenCalledWith({
         companyId,
         title: 'Platform Intern',
-        description: null,
-        location: null,
-        workMode: null,
-        status: 'DRAFT',
+        description: 'Build platform features',
+        status: 'ACTIVE',
         shortlistGuidanceValue: 8,
-        notes: null,
-        requiredSkills: [{ skillId, requiredCompetencyLevel: null }],
+        requiredSkills: [{ skillId }],
       }),
     )
   })

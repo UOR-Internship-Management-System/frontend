@@ -107,19 +107,15 @@ export const pagedCompanyResponseSchema: z.ZodType<ApiPagedCompanyResponse> =
   createPagedResponseSchema(companyResponseSchema)
 
 export const internshipRequestStatusSchema = z.enum(['DRAFT', 'ACTIVE', 'CLOSED', 'CANCELLED'])
-export const internshipWorkModeSchema = z.enum(['ONSITE', 'HYBRID', 'REMOTE'])
 export const internshipRequestSortSchema = z.enum([
   'createdAt,desc',
   'title,asc',
   'companyName,asc',
   'status,asc',
 ])
-export const requiredCompetencyLevelSchema = z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'])
-
 export const internshipRequiredSkillRequestSchema: z.ZodType<ApiInternshipRequiredSkillRequest> = z
   .object({
     skillId: z.string().uuid(),
-    requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable().optional(),
   })
   .strict()
 
@@ -129,7 +125,6 @@ export const internshipRequiredSkillResponseSchema: z.ZodType<ApiInternshipRequi
       requiredSkillId: z.string().uuid(),
       skillId: z.string().uuid(),
       skillName: z.string().min(1),
-      requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable(),
     })
     .strict()
 
@@ -145,11 +140,8 @@ const internshipRequestFields = {
   companyId: z.string().uuid(),
   title: z.string().min(1).max(200),
   description: z.string().max(10000).nullable().optional(),
-  location: z.string().max(150).nullable().optional(),
-  workMode: internshipWorkModeSchema.nullable().optional(),
   status: internshipRequestStatusSchema,
   shortlistGuidanceValue: z.number().int().min(0).max(10000).nullable().optional(),
-  notes: z.string().max(4000).nullable().optional(),
   requiredSkills: requiredSkillsSchema,
 }
 
@@ -159,14 +151,10 @@ export const internshipRequestCreateSchema: z.ZodType<ApiInternshipRequestCreate
 
 export const internshipRequestUpdateSchema: z.ZodType<ApiInternshipRequestUpdateRequest> = z
   .object({
-    companyId: internshipRequestFields.companyId.optional(),
     title: internshipRequestFields.title.optional(),
     description: internshipRequestFields.description,
-    location: internshipRequestFields.location,
-    workMode: internshipRequestFields.workMode,
     status: internshipRequestFields.status.optional(),
     shortlistGuidanceValue: internshipRequestFields.shortlistGuidanceValue,
-    notes: internshipRequestFields.notes,
     requiredSkills: internshipRequestFields.requiredSkills.optional(),
   })
   .strict()
@@ -178,11 +166,8 @@ export const internshipRequestResponseSchema: z.ZodType<ApiInternshipRequestResp
     company: companyResponseSchema,
     title: z.string().min(1).max(200),
     description: z.string().max(10000).nullable(),
-    location: z.string().max(150).nullable(),
-    workMode: internshipWorkModeSchema.nullable(),
     status: internshipRequestStatusSchema,
     shortlistGuidanceValue: z.number().int().nonnegative().nullable(),
-    notes: z.string().max(4000).nullable(),
     requiredSkills: z.array(internshipRequiredSkillResponseSchema),
     version: z.number().int().nonnegative(),
     createdAt: z.string().datetime({ offset: true }),
@@ -213,30 +198,27 @@ export const internshipRequestFormValuesSchema = z
     companyId: z.string().uuid('Select an active company.'),
     title: z.string().trim().min(1, 'Role title is required.').max(200),
     description: z.string().trim().max(10000, 'Description cannot exceed 10000 characters.'),
-    location: z.string().trim().max(150, 'Location cannot exceed 150 characters.'),
-    workMode: z.union([internshipWorkModeSchema, z.literal('')]),
     status: internshipRequestStatusSchema,
     shortlistGuidanceValue: z
       .string()
       .trim()
-      .min(1, 'Maximum shortlist limit is required.')
-      .refine((value) => /^\d+$/.test(value), 'Enter a whole number from 1 to 100.')
       .refine(
-        (value) => Number(value) >= 1 && Number(value) <= 100,
-        'Enter a whole number from 1 to 100.',
+        (value) => !value || /^\d+$/.test(value),
+        'Enter a whole number from 0 to 10000.',
+      )
+      .refine(
+        (value) => !value || (Number(value) >= 0 && Number(value) <= 10000),
+        'Enter a whole number from 0 to 10000.',
       ),
-    notes: z.string().trim().max(4000, 'Notes cannot exceed 4000 characters.'),
     requiredSkills: z
       .array(
         z
           .object({
             skillId: z.string().uuid(),
             skillName: z.string().min(1),
-            requiredCompetencyLevel: requiredCompetencyLevelSchema.nullable(),
           })
           .strict(),
       )
-      .min(1, 'Select at least one required skill.')
       .max(100)
       .refine(
         (skills) => new Set(skills.map((skill) => skill.skillId)).size === skills.length,

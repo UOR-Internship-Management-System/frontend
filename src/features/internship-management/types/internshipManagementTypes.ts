@@ -10,13 +10,11 @@ import type {
   ApiInternshipRequestUpdateRequest,
   ApiInternshipRequiredSkillRequest,
   ApiInternshipRequiredSkillResponse,
-  ApiCompetencyLevel,
-  ApiInternshipWorkMode,
 } from '../../../shared/api/generated/cvManagementApi.types'
 import type { z } from 'zod'
 import type { companyFormSchema } from '../schemas/internshipSchemas'
 
-export type CompanyPageSize = 20 | 50 | 100
+export type CompanyPageSize = 3 | 20 | 50 | 100
 
 export type CompaniesQuery = {
   page: number
@@ -36,13 +34,13 @@ export type CompanyUpdateInput = {
   version: number
   body: ApiCompanyUpdateRequest
 }
-export type CompanyDeactivateInput = Pick<ApiCompanyResponse, 'companyId' | 'version'>
+export type CompanyDeleteInput = Pick<ApiCompanyResponse, 'companyId' | 'version'>
 
 export type Company = ApiCompanyResponse
 export type CompanyFormSubmission = z.output<typeof companyFormSchema>
 export type CompanyFormValues = z.input<typeof companyFormSchema>
 
-export type InternshipRequestPageSize = 20 | 50 | 100
+export type InternshipRequestPageSize = 4 | 20 | 50 | 100
 export type InternshipRequestsQuery = {
   page: number
   size: InternshipRequestPageSize
@@ -65,7 +63,7 @@ export type InternshipRequestUpdateInput = {
   version: number
   body: ApiInternshipRequestUpdateRequest
 }
-export type InternshipRequestCancelInput = { requestId: string; version: number }
+export type InternshipRequestDeleteInput = { requestId: string; version: number }
 export type RequiredSkillAddInput = {
   requestId: string
   version: number
@@ -82,16 +80,12 @@ export type InternshipRequiredSkill = ApiInternshipRequiredSkillResponse
 export type RequiredSkillSelection = {
   skillId: string
   skillName: string
-  requiredCompetencyLevel: ApiCompetencyLevel | null
 }
 export type InternshipRequestFormValues = {
   companyId: string
   title: string
   description: string
-  location: string
-  workMode: ApiInternshipWorkMode | ''
   status: ApiInternshipRequestStatus
   shortlistGuidanceValue: string
-  notes: string
   requiredSkills: RequiredSkillSelection[]
 }

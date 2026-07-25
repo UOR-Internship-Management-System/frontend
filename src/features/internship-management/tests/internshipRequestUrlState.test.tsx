@@ -33,11 +33,8 @@ const response = {
   },
   title: 'Software Engineering Intern',
   description: null,
-  location: null,
-  workMode: null,
   status: 'DRAFT',
   shortlistGuidanceValue: null,
-  notes: null,
   requiredSkills: [],
   version: 1,
   createdAt: now,
@@ -63,9 +60,9 @@ describe('Internship request URL and server list state', () => {
     expect(serializeInternshipRequestsUrlState(parsed).toString()).toContain('requestStatus=ACTIVE')
     expect(
       parseInternshipRequestsUrlState(
-        new URLSearchParams('requestStatus=UNKNOWN&requestCompanyId=bad&requestSize=4'),
+        new URLSearchParams('requestStatus=UNKNOWN&requestCompanyId=bad&requestSize=7'),
       ),
-    ).toEqual(expect.objectContaining({ status: undefined, companyId: undefined, size: 20 }))
+    ).toEqual(expect.objectContaining({ status: undefined, companyId: undefined, size: 4 }))
   })
 
   it('debounces search and resets the independent request page', async () => {

@@ -11,7 +11,7 @@ import type {
   InternshipRequestsUrlState,
 } from '../types/internshipManagementTypes'
 
-const allowedSizes = [20, 50, 100] as const
+const allowedSizes = [4, 20, 50, 100] as const
 const requestUrlKeys = [
   'requestSearch',
   'requestStatus',
@@ -24,7 +24,7 @@ const requestUrlKeys = [
 
 export const defaultInternshipRequestsUrlState: InternshipRequestsUrlState = {
   page: 0,
-  size: 20,
+  size: 4,
   sort: 'createdAt,desc',
   search: '',
   status: undefined,
@@ -39,7 +39,7 @@ function optionalUuid(value: string | null) {
 export function parseInternshipRequestsUrlState(
   parameters: URLSearchParams,
 ): InternshipRequestsUrlState {
-  const size = readNonnegativeInteger(parameters.get('requestSize'), 20)
+  const size = readNonnegativeInteger(parameters.get('requestSize'), 4)
   const sort = internshipRequestSortSchema.safeParse(parameters.get('requestSort'))
   const status = internshipRequestStatusSchema.safeParse(parameters.get('requestStatus'))
 
@@ -47,7 +47,7 @@ export function parseInternshipRequestsUrlState(
     page: readNonnegativeInteger(parameters.get('requestPage'), 0),
     size: allowedSizes.includes(size as InternshipRequestPageSize)
       ? (size as InternshipRequestPageSize)
-      : 20,
+      : 4,
     sort: sort.success ? sort.data : 'createdAt,desc',
     search: (parameters.get('requestSearch') ?? '').trim().slice(0, 120),
     status: status.success ? status.data : undefined,
@@ -63,7 +63,7 @@ export function serializeInternshipRequestsUrlState(state: InternshipRequestsUrl
   if (state.companyId) parameters.set('requestCompanyId', state.companyId)
   if (state.sort !== 'createdAt,desc') parameters.set('requestSort', state.sort)
   if (state.page > 0) parameters.set('requestPage', String(state.page))
-  if (state.size !== 20) parameters.set('requestSize', String(state.size))
+  if (state.size !== 4) parameters.set('requestSize', String(state.size))
   if (state.selectedRequestId) parameters.set('requestId', state.selectedRequestId)
   return parameters
 }
