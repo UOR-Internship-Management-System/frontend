@@ -17,8 +17,9 @@ import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { useStudentDeepDive } from '../hooks/useStudentDeepDive'
 
 type DeepDiveState = ReturnType<typeof useStudentDeepDive>
-type AllowedPageSize = 20 | 50 | 100
-const pageSizes = [20, 50, 100] as const
+type AllowedPageSize = 5 | 20 | 50 | 100
+const collectionPageSizes = [20, 50, 100] as const
+const academicPageSizes = [5, 20, 50, 100] as const
 
 export function StudentDeepDiveSections({
   supportingData,
@@ -43,7 +44,7 @@ export function StudentDeepDiveSections({
 function DeclaredSkillsSection({ state }: { state: DeepDiveState['declaredSkills'] }) {
   const { data } = state.result
   return (
-    <DeepDiveSection count={data?.page.totalElements} id="declared-skills" title="Declared skills">
+    <DeepDiveSection count={data?.page.totalElements} id="declared-skills" title="Declared Skills">
       <CollectionSearch
         label="Search declared skills"
         onSearch={(search) => state.updateQuery({ search })}
@@ -72,6 +73,7 @@ function DeclaredSkillsSection({ state }: { state: DeepDiveState['declaredSkills
           onPageSizeChange={(size) => state.updateQuery({ size })}
           page={state.query.page}
           pageSize={state.query.size}
+          pageSizeOptions={collectionPageSizes}
           totalElements={data?.page.totalElements}
           totalPages={data?.page.totalPages ?? 0}
         />
@@ -83,7 +85,11 @@ function DeclaredSkillsSection({ state }: { state: DeepDiveState['declaredSkills
 function ProjectsSection({ state }: { state: DeepDiveState['projects'] }) {
   const { data } = state.result
   return (
-    <DeepDiveSection count={data?.page.totalElements} id="projects" title="Project portfolio">
+    <DeepDiveSection
+      count={data?.page.totalElements}
+      id="projects"
+      title="Submitted Project Portfolio"
+    >
       <CollectionSearch
         label="Search project portfolio"
         onSearch={(search) => state.updateQuery({ search })}
@@ -108,6 +114,7 @@ function ProjectsSection({ state }: { state: DeepDiveState['projects'] }) {
           onPageSizeChange={(size) => state.updateQuery({ size })}
           page={state.query.page}
           pageSize={state.query.size}
+          pageSizeOptions={collectionPageSizes}
           totalElements={data?.page.totalElements}
           totalPages={data?.page.totalPages ?? 0}
         />
@@ -154,7 +161,7 @@ function AcademicRecordsSection({ state }: { state: DeepDiveState['academicRecor
     <DeepDiveSection
       count={data?.page.totalElements}
       id="academic-results"
-      title="Academic results"
+      title="Academic Results"
     >
       <CollectionSearch
         label="Search academic records"
@@ -174,24 +181,21 @@ function AcademicRecordsSection({ state }: { state: DeepDiveState['academicRecor
             <caption className="visually-hidden">Committed official academic records</caption>
             <thead>
               <tr>
-                <th scope="col">Course</th>
-                <th scope="col">Period</th>
+                <th scope="col">Subject Code</th>
+                <th scope="col">Subject Name</th>
                 <th scope="col">Credits</th>
-                <th scope="col">Grade</th>
-                <th scope="col">Grade point</th>
+                <th scope="col">Grade Earned</th>
+                <th scope="col">Calculated Grade Point</th>
               </tr>
             </thead>
             <tbody>
               {data?.items.map((record) => (
                 <tr key={record.academicRecordId}>
-                  <td data-label="Course">
-                    <strong>{record.courseCode}</strong>
-                    <span>{record.courseTitle}</span>
-                  </td>
-                  <td data-label="Period">{record.periodLabel}</td>
+                  <td data-label="Subject Code">{record.courseCode}</td>
+                  <td data-label="Subject Name">{record.courseTitle}</td>
                   <td data-label="Credits">{record.creditsLabel}</td>
-                  <td data-label="Grade">{record.letterGrade}</td>
-                  <td data-label="Grade point">{record.gradePointLabel}</td>
+                  <td data-label="Grade Earned">{record.letterGrade}</td>
+                  <td data-label="Calculated Grade Point">{record.gradePointLabel}</td>
                 </tr>
               ))}
             </tbody>
@@ -203,6 +207,7 @@ function AcademicRecordsSection({ state }: { state: DeepDiveState['academicRecor
           onPageSizeChange={(size) => state.updateQuery({ size })}
           page={state.query.page}
           pageSize={state.query.size}
+          pageSizeOptions={academicPageSizes}
           totalElements={data?.page.totalElements}
           totalPages={data?.page.totalPages ?? 0}
         />
@@ -217,7 +222,7 @@ function ExperienceSection({ items }: { items: ApiExperienceResponse[] }) {
       emptyMessage="No work experience has been added."
       id="experience"
       items={items}
-      title="Work experience"
+      title="Work Experience"
     >
       {(experience) => (
         <article className="deep-dive-record-card" key={experience.id}>
@@ -247,7 +252,7 @@ function CertificateSection({ items }: { items: ApiCertificateResponse[] }) {
       emptyMessage="No certificates have been added."
       id="certificates"
       items={items}
-      title="Credentials and certifications"
+      title="Credentials & Certifications"
     >
       {(certificate) => (
         <article className="deep-dive-record-card" key={certificate.id}>
@@ -283,7 +288,7 @@ function AwardSection({ items }: { items: ApiAwardResponse[] }) {
       emptyMessage="No awards have been added."
       id="awards"
       items={items}
-      title="Awards and achievements"
+      title="Awards & Achievements"
     >
       {(award) => (
         <article className="deep-dive-record-card" key={award.id}>
@@ -308,7 +313,7 @@ function ActivitySection({ items }: { items: ApiActivityResponse[] }) {
       emptyMessage="No extracurricular activities have been added."
       id="activities"
       items={items}
-      title="Extracurricular activities"
+      title="Extracurricular Activities"
     >
       {(activity) => (
         <article className="deep-dive-record-card" key={activity.id}>
@@ -365,17 +370,15 @@ function DeepDiveSection({
   return (
     <SectionCard aria-labelledby={`${id}-title`} className="deep-dive-section" id={id}>
       <header className="deep-dive-section-heading">
-        <div>
-          <p className="section-eyebrow">Administrative inspection</p>
-          <h2 id={`${id}-title`}>{title}</h2>
-        </div>
-        {count !== undefined ? (
-          <span className="deep-dive-count">
-            {count} {count === 1 ? 'record' : 'records'}
-          </span>
-        ) : (
+        <h2 id={`${id}-title`}>{title}</h2>
+        <div className="deep-dive-heading-meta">
           <span className="read-only-indicator">Read only</span>
-        )}
+          {count !== undefined ? (
+            <span className="deep-dive-count">
+              {count} {count === 1 ? 'record' : 'records'}
+            </span>
+          ) : null}
+        </div>
       </header>
       {children}
     </SectionCard>
@@ -458,20 +461,22 @@ function CollectionSearch({
   )
 }
 
-function CollectionPagination({
+function CollectionPagination<TPageSize extends AllowedPageSize>({
   label,
   onPageChange,
   onPageSizeChange,
   page,
   pageSize,
+  pageSizeOptions,
   totalElements,
   totalPages,
 }: {
   label: string
   onPageChange: (page: number) => void
-  onPageSizeChange: (size: AllowedPageSize) => void
+  onPageSizeChange: (size: TPageSize) => void
   page: number
-  pageSize: AllowedPageSize
+  pageSize: TPageSize
+  pageSizeOptions: readonly TPageSize[]
   totalElements?: number
   totalPages: number
 }) {
@@ -479,9 +484,9 @@ function CollectionPagination({
     <PaginationBar
       label={label}
       onPageChange={onPageChange}
-      onPageSizeChange={(size) => onPageSizeChange(size as AllowedPageSize)}
+      onPageSizeChange={(size) => onPageSizeChange(size as TPageSize)}
       page={page}
-      pageSizeOptions={pageSizes}
+      pageSizeOptions={pageSizeOptions}
       size={pageSize}
       totalElements={totalElements}
       totalPages={totalPages}

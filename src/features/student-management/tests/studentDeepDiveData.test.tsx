@@ -147,6 +147,13 @@ describe('Student Deep-Dive data layer', () => {
       expect(result.current.latestCv.isSuccess).toBe(true)
     })
     expect(spies.detail).toHaveBeenCalledWith(studentId, expect.any(AbortSignal))
+    expect(result.current.academicRecords.query).toEqual({
+      page: 0,
+      size: 5,
+      sort: 'academicYear,desc',
+      search: '',
+      courseCode: '',
+    })
 
     act(() => result.current.declaredSkills.updateQuery({ page: 3 }))
     expect(result.current.declaredSkills.query.page).toBe(3)

@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -21,23 +21,27 @@ import {
 describe('StudentDeepDivePage', () => {
   afterEach(() => vi.restoreAllMocks())
 
-  it('renders the approved stacked read-only inspection with safe external links', async () => {
+  it('renders the wireframe-aligned read-only inspection with contract-backed content', async () => {
     mockSuccessfulDeepDive()
     renderPage(buildAdminStudentDetailPath(deepDiveStudentId))
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Asha Silva' })).toBeInTheDocument()
-    expect(screen.getByText('Official Computer Science GPA')).toBeInTheDocument()
+    expect(
+      screen.getByText('Index Number: SC/2022/12345 | Last Synchronized: Current Session'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Official Ledger CGPA')).toBeInTheDocument()
     expect(screen.getAllByText('Not available').length).toBeGreaterThan(0)
+    expect(screen.getByText('asha@dcs.ruh.ac.lk')).toBeInTheDocument()
 
     for (const heading of [
       'Profile summary',
-      'Declared skills',
-      'Project portfolio',
-      'Academic results',
-      'Work experience',
-      'Credentials and certifications',
-      'Awards and achievements',
-      'Extracurricular activities',
+      'Declared Skills',
+      'Submitted Project Portfolio',
+      'Academic Results',
+      'Work Experience',
+      'Credentials & Certifications',
+      'Awards & Achievements',
+      'Extracurricular Activities',
     ]) {
       expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument()
     }
@@ -47,6 +51,25 @@ describe('StudentDeepDivePage', () => {
     expect(screen.getByText('Engineering Intern')).toBeInTheDocument()
     expect(screen.getByText('Faculty Project Award')).toBeInTheDocument()
     expect(screen.getByText('Latest saved CV')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Return to Student Roster' })).toHaveAttribute(
+      'href',
+      routePaths.adminStudents,
+    )
+
+    const academicSection = screen.getByRole('heading', { name: 'Academic Results' }).closest('section')
+    expect(academicSection).not.toBeNull()
+    const academicTable = within(academicSection as HTMLElement)
+    for (const column of [
+      'Subject Code',
+      'Subject Name',
+      'Credits',
+      'Grade Earned',
+      'Calculated Grade Point',
+    ]) {
+      expect(academicTable.getByRole('columnheader', { name: column })).toBeInTheDocument()
+    }
+    expect(academicTable.queryByRole('columnheader', { name: 'Period' })).not.toBeInTheDocument()
+    expect(academicTable.getByLabelText('Rows per page')).toHaveValue('5')
 
     expect(screen.getByRole('link', { name: /Repository/ })).toHaveAttribute(
       'rel',

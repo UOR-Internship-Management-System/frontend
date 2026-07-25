@@ -19,7 +19,7 @@ export const defaultDeepDiveCollectionQuery: AdminStudentCollectionQuery = {
 
 export const defaultDeepDiveAcademicQuery: AdminAcademicRecordsQuery = {
   page: 0,
-  size: 20,
+  size: 5,
   sort: 'academicYear,desc',
   search: '',
   courseCode: '',

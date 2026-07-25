@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
@@ -10,9 +11,22 @@ import { ReadOnlyStudentProfile } from '../components/ReadOnlyStudentProfile'
 import { StudentDeepDiveSections } from '../components/StudentDeepDiveSections'
 import { useStudentDeepDive } from '../hooks/useStudentDeepDive'
 
+const defaultPageTitle = 'Student Details Deep-Dive | Administrative Inspection Suite'
+
 export function StudentDeepDivePage() {
   const { studentId } = useParams()
   const deepDive = useStudentDeepDive(studentId)
+  const loadedStudentName = deepDive.detail.data?.student.fullName
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = loadedStudentName
+      ? `${loadedStudentName} | Student Details Deep-Dive`
+      : defaultPageTitle
+    return () => {
+      document.title = previousTitle
+    }
+  }, [loadedStudentName])
 
   if (deepDive.isNotFound) {
     return (
@@ -58,33 +72,23 @@ export function StudentDeepDivePage() {
   return (
     <div className="content-stack student-deep-dive-page">
       <PageHeader
-        actions={
-          <Link className="button button-secondary" to={routePaths.adminStudents}>
-            Back to roster
-          </Link>
-        }
-        description={`${student.indexNumber} · ${student.universityEmail}`}
-        eyebrow="Read-only administrative inspection"
+        description={`Index Number: ${student.indexNumber} | Last Synchronized: Current Session`}
         title={student.fullName}
       />
       <div className="student-deep-dive-layout">
         <aside className="section-card student-identity-panel">
           <StudentAvatar name={student.fullName} photoUrl={profile.profilePhoto?.url ?? null} />
-          <div className="student-identity-heading">
-            <h2>{student.fullName}</h2>
-            <p>{student.indexNumber}</p>
-          </div>
           <dl className="student-identity-details">
-            <IdentityDetail label="Degree programme" value={student.degreeProgram} />
-            <IdentityDetail label="Current level" value={`Level ${student.currentLevel}`} />
-            <IdentityDetail label="Academic batch" value={student.academicBatch} />
+            <IdentityDetail label="Degree Programme" value={student.degreeProgram} />
+            <IdentityDetail label="Current Level" value={`Level ${student.currentLevel}`} />
+            <IdentityDetail label="Batch" value={student.academicBatch} />
           </dl>
           <div className="student-gpa-panel">
-            <span>Official Computer Science GPA</span>
+            <span>Official Ledger CGPA</span>
             <strong>
               {student.officialGpa === null ? 'Not available' : student.officialGpa.toFixed(2)}
             </strong>
-            <small>Derived from committed academic records</small>
+            <small>Computer Science courses only · derived from committed academic records</small>
           </div>
           <LatestSavedCvPanel latestCv={deepDive.latestCv} studentId={deepDive.studentId} />
         </aside>
@@ -93,6 +97,11 @@ export function StudentDeepDivePage() {
           <StudentDeepDiveSections deepDive={deepDive} supportingData={cvSupportingData} />
         </div>
       </div>
+      <footer className="student-deep-dive-footer">
+        <Link className="button button-secondary" to={routePaths.adminStudents}>
+          Return to Student Roster
+        </Link>
+      </footer>
     </div>
   )
 }
