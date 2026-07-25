@@ -53,7 +53,6 @@ describe('Sprint 7-8 development handlers', () => {
       contactPerson: 'Test Contact',
       contactEmail: 'contact@lifecycle.example.test',
       contactPhone: null,
-      notes: null,
     })
     const updatedCompany = await internshipManagementApi.updateCompany({
       companyId: createdCompany.companyId,
@@ -66,24 +65,21 @@ describe('Sprint 7-8 development handlers', () => {
       companyId: createdCompany.companyId,
       title: 'Lifecycle Engineering Intern',
       description: null,
-      location: 'Matara',
-      workMode: 'HYBRID',
       status: 'ACTIVE',
       shortlistGuidanceValue: 2,
-      notes: null,
       requiredSkills: [],
     })
     expect(
       (await internshipManagementApi.getInternshipRequest(createdRequest.requestId)).title,
     ).toBe('Lifecycle Engineering Intern')
 
-    await internshipManagementApi.cancelInternshipRequest({
+    await internshipManagementApi.deleteInternshipRequest({
       requestId: createdRequest.requestId,
       version: createdRequest.version,
     })
-    expect(
-      (await internshipManagementApi.getInternshipRequest(createdRequest.requestId)).status,
-    ).toBe('CANCELLED')
+    await expect(
+      internshipManagementApi.getInternshipRequest(createdRequest.requestId),
+    ).rejects.toMatchObject({ status: 404 })
   })
 
   it('runs filtering and persists shortlist removal and finalization', async () => {

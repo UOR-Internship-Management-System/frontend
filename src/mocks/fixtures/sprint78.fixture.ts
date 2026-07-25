@@ -141,25 +141,20 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
       title: 'Frontend Engineering Intern',
       description:
         'Build accessible React interfaces for internal product teams.',
-      location: 'Colombo',
-      workMode: 'HYBRID',
       status: 'ACTIVE',
       shortlistGuidanceValue: 2,
-      notes: 'Manual candidate selection only.',
       requiredSkills: [
         {
           requiredSkillId:
             sprint78Ids.requiredSkills.frontendReact,
           skillId: skillIds.react,
           skillName: 'React',
-          requiredCompetencyLevel: 'INTERMEDIATE',
         },
         {
           requiredSkillId:
             sprint78Ids.requiredSkills.frontendTypeScript,
           skillId: skillIds.typescript,
           skillName: 'TypeScript',
-          requiredCompetencyLevel: 'INTERMEDIATE',
         },
       ],
       version: 3,
@@ -172,25 +167,20 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
       title: 'Backend Engineering Intern',
       description:
         'Contribute to Spring Boot services and API integrations.',
-      location: 'Galle',
-      workMode: 'REMOTE',
       status: 'ACTIVE',
       shortlistGuidanceValue: 3,
-      notes: null,
       requiredSkills: [
         {
           requiredSkillId:
             sprint78Ids.requiredSkills.backendJava,
           skillId: skillIds.java,
           skillName: 'Java',
-          requiredCompetencyLevel: 'INTERMEDIATE',
         },
         {
           requiredSkillId:
             sprint78Ids.requiredSkills.backendSpring,
           skillId: skillIds.springBoot,
           skillName: 'Spring Boot',
-          requiredCompetencyLevel: 'BEGINNER',
         },
       ],
       version: 1,
@@ -203,19 +193,14 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
       title: 'Data Platform Intern',
       description:
         'Support data ingestion, validation, and reporting workflows.',
-      location: 'Matara',
-      workMode: 'ONSITE',
       status: 'ACTIVE',
       shortlistGuidanceValue: 4,
-      notes:
-        'This request has no shortlist and can be used to test draft creation.',
       requiredSkills: [
         {
           requiredSkillId:
             sprint78Ids.requiredSkills.dataPython,
           skillId: skillIds.python,
           skillName: 'Python',
-          requiredCompetencyLevel: 'BEGINNER',
         },
       ],
       version: 1,

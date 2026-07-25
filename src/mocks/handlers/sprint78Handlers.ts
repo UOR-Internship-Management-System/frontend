@@ -86,6 +86,33 @@ function mockId(prefix: string, sequence: number) {
   return `${prefix}000000-0000-4000-8000-${String(sequence).padStart(12, '0')}`
 }
 
+function sortCompanies(items: ApiCompanyResponse[], sort: string) {
+  return [...items].sort((left, right) => {
+    if (sort === 'name,desc') return right.name.localeCompare(left.name)
+    if (sort === 'updatedAt,desc') return right.updatedAt.localeCompare(left.updatedAt)
+    return left.name.localeCompare(right.name)
+  })
+}
+
+function sortInternshipRequests(items: ApiInternshipRequestResponse[], sort: string) {
+  return [...items].sort((left, right) => {
+    if (sort === 'title,asc') return left.title.localeCompare(right.title)
+    if (sort === 'companyName,asc') return left.company.name.localeCompare(right.company.name)
+    if (sort === 'status,asc') return left.status.localeCompare(right.status)
+    return right.createdAt.localeCompare(left.createdAt)
+  })
+}
+
+function canTransitionRequestStatus(
+  current: ApiInternshipRequestResponse['status'],
+  next: ApiInternshipRequestResponse['status'],
+) {
+  if (current === next) return true
+  if (current === 'DRAFT') return next === 'ACTIVE'
+  if (current === 'ACTIVE') return next === 'CLOSED'
+  return false
+}
+
 function page<T>(items: T[], request: Request, defaultSort: string) {
   const url = new URL(request.url)
   const pageNumber = Number(
@@ -149,7 +176,6 @@ function requiredSkill(
     requiredSkillId: mockId('f9', requiredSkillSequence++),
     skillId: input.skillId,
     skillName: skill?.name ?? 'Declared skill',
-    requiredCompetencyLevel: input.requiredCompetencyLevel ?? null,
   }
 }
 
@@ -329,10 +355,13 @@ export const sprint78Handlers = [
     const items = companies.filter(
       (company) =>
         (!search ||
-          `${company.name} ${company.contactPerson ?? ''}`.toLowerCase().includes(search)) &&
+          `${company.name} ${company.contactPerson ?? ''} ${company.contactEmail ?? ''} ${company.contactPhone ?? ''}`
+            .toLowerCase()
+            .includes(search)) &&
         (!active || !['true', 'false'].includes(active) || String(company.active) === active),
     )
-    return HttpResponse.json(page(items, request, 'name,asc'))
+    const sort = url.searchParams.get('sort') ?? 'name,asc'
+    return HttpResponse.json(page(sortCompanies(items, sort), request, 'name,asc'))
   }),
 
   http.get(`${apiBase}/admin/companies/:companyId`, ({ params }) => {
@@ -344,6 +373,13 @@ export const sprint78Handlers = [
 
   http.post(`${apiBase}/admin/companies`, async ({ request }) => {
     const body = (await request.json()) as ApiCompanyRequest
+    if (
+      companies.some(
+        (company) => company.name.trim().toLowerCase() === body.name.trim().toLowerCase(),
+      )
+    ) {
+      return problem(409, 'DUPLICATE_COMPANY', 'A company with this name already exists.')
+    }
     const company: ApiCompanyResponse = {
       companyId: mockId('a9', companySequence++),
       name: body.name,
@@ -367,6 +403,16 @@ export const sprint78Handlers = [
     const precondition = versionProblem(request, companies[index].version)
     if (precondition) return precondition
     const body = (await request.json()) as ApiCompanyUpdateRequest
+    if (
+      body.name &&
+      companies.some(
+        (company, companyIndex) =>
+          companyIndex !== index &&
+          company.name.trim().toLowerCase() === body.name?.trim().toLowerCase(),
+      )
+    ) {
+      return problem(409, 'DUPLICATE_COMPANY', 'A company with this name already exists.')
+    }
     const company: ApiCompanyResponse = {
       ...companies[index],
       ...body,
@@ -393,12 +439,9 @@ export const sprint78Handlers = [
     if (index < 0) return problem(404, 'COMPANY_NOT_FOUND', 'The company was not found.')
     const precondition = versionProblem(request, companies[index].version)
     if (precondition) return precondition
-    companies[index] = {
-      ...companies[index],
-      active: false,
-      version: companies[index].version + 1,
-      updatedAt: mockTimestamp,
-    }
+    const companyId = companies[index].companyId
+    companies.splice(index, 1)
+    internshipRequests = internshipRequests.filter((item) => item.company.companyId !== companyId)
     return new HttpResponse(null, { status: 204 })
   }),
 
@@ -413,7 +456,10 @@ export const sprint78Handlers = [
         (!status || item.status === status) &&
         (!search || `${item.title} ${item.company.name}`.toLowerCase().includes(search)),
     )
-    return HttpResponse.json(page(items, request, 'createdAt,desc'))
+    const sort = url.searchParams.get('sort') ?? 'createdAt,desc'
+    return HttpResponse.json(
+      page(sortInternshipRequests(items, sort), request, 'createdAt,desc'),
+    )
   }),
 
   http.get(`${apiBase}/admin/internship-requests/:requestId`, ({ params }) => {
@@ -427,18 +473,21 @@ export const sprint78Handlers = [
 
   http.post(`${apiBase}/admin/internship-requests`, async ({ request }) => {
     const body = (await request.json()) as ApiInternshipRequestCreateRequest
-    const company = companies.find((item) => item.companyId === body.companyId && item.active)
-    if (!company) return problem(422, 'ACTIVE_COMPANY_REQUIRED', 'Select an active company.')
+    if (!['DRAFT', 'ACTIVE'].includes(body.status)) {
+      return problem(409, 'INVALID_REQUEST_STATUS_TRANSITION', 'Create requests as Draft or Active.')
+    }
+    const company = companies.find((item) => item.companyId === body.companyId)
+    if (!company) return problem(404, 'COMPANY_NOT_FOUND', 'The company was not found.')
+    if (!company.active) {
+      return problem(409, 'COMPANY_INACTIVE', 'Inactive companies cannot be selected for new requests.')
+    }
     const item: ApiInternshipRequestResponse = {
       requestId: mockId('b9', requestSequence++),
       company,
       title: body.title,
       description: body.description ?? null,
-      location: body.location ?? null,
-      workMode: body.workMode ?? null,
       status: body.status,
       shortlistGuidanceValue: body.shortlistGuidanceValue ?? null,
-      notes: body.notes ?? null,
       requiredSkills: body.requiredSkills.map(requiredSkill),
       version: 0,
       createdAt: mockTimestamp,
@@ -458,22 +507,21 @@ export const sprint78Handlers = [
     const precondition = versionProblem(request, current.version)
     if (precondition) return precondition
     const body = (await request.json()) as ApiInternshipRequestUpdateRequest
-    const company = body.companyId
-      ? companies.find((item) => item.companyId === body.companyId && item.active)
-      : current.company
-    if (!company) return problem(422, 'ACTIVE_COMPANY_REQUIRED', 'Select an active company.')
+    if (body.status && !canTransitionRequestStatus(current.status, body.status)) {
+      return problem(
+        409,
+        'INVALID_REQUEST_STATUS_TRANSITION',
+        'The internship request cannot make that lifecycle transition.',
+      )
+    }
     const updated: ApiInternshipRequestResponse = {
       ...current,
       ...body,
-      company,
       description: body.description === undefined ? current.description : body.description,
-      location: body.location === undefined ? current.location : body.location,
-      workMode: body.workMode === undefined ? current.workMode : body.workMode,
       shortlistGuidanceValue:
         body.shortlistGuidanceValue === undefined
           ? current.shortlistGuidanceValue
           : body.shortlistGuidanceValue,
-      notes: body.notes === undefined ? current.notes : body.notes,
       requiredSkills: body.requiredSkills
         ? body.requiredSkills.map(requiredSkill)
         : current.requiredSkills,
@@ -492,12 +540,7 @@ export const sprint78Handlers = [
       return problem(404, 'INTERNSHIP_REQUEST_NOT_FOUND', 'The internship request was not found.')
     const precondition = versionProblem(request, internshipRequests[index].version)
     if (precondition) return precondition
-    internshipRequests[index] = {
-      ...internshipRequests[index],
-      status: 'CANCELLED',
-      version: internshipRequests[index].version + 1,
-      updatedAt: mockTimestamp,
-    }
+    internshipRequests.splice(index, 1)
     return new HttpResponse(null, { status: 204 })
   }),
 
