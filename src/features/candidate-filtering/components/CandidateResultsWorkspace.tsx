@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
+import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { SelectField } from '../../../shared/components/forms/SelectField'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
@@ -17,19 +18,23 @@ import type { CandidateSelectionState } from '../hooks/useCandidateSelection'
 import type {
   CandidateFilteringCandidate,
   CandidateFilteringUrlState,
+  CandidatePageSize,
 } from '../types/candidateFilteringTypes'
+import { CandidateResultsSkeleton } from './CandidateResultsSkeleton'
 import { CandidateResultsTable } from './CandidateResultsTable'
 import { CandidateSkillsModal } from './CandidateSkillsModal'
 import { SelectedCandidatesReviewModal } from './SelectedCandidatesReviewModal'
 
 export function CandidateResultsWorkspace({
+  candidateSearchInput,
   selection,
+  setCandidateSearchInput,
   state,
   updateState,
 }: {
-  candidateSearchInput?: string
+  candidateSearchInput: string
   selection: CandidateSelectionState
-  setCandidateSearchInput?: (value: string) => void
+  setCandidateSearchInput: (value: string) => void
   state: CandidateFilteringUrlState
   updateState: (patch: Partial<CandidateFilteringUrlState>) => void
 }) {
@@ -71,6 +76,7 @@ export function CandidateResultsWorkspace({
   const mappedError = error ? mapApiError(error, 'protected') : null
   const pageItems = candidates.data?.items ?? []
   const selectedCount = selection.candidates.size
+  const resultCount = candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0
 
   return (
     <SectionCard aria-labelledby="candidate-results-title" className="candidate-results-workspace">
@@ -86,8 +92,40 @@ export function CandidateResultsWorkspace({
           </p>
         </div>
         <Chip>
-          {candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0} Student Records Match
+          {resultCount} matching student{resultCount === 1 ? '' : 's'}
         </Chip>
+      </div>
+
+      <div aria-label="Candidate result controls" className="candidate-results-toolbar">
+        <label>
+          Search candidates
+          <SearchInput
+            aria-label="Search candidates by name or index number"
+            disabled={!state.runId}
+            maxLength={120}
+            onChange={(event) => setCandidateSearchInput(event.target.value)}
+            placeholder="Search by name or index number"
+            value={candidateSearchInput}
+          />
+        </label>
+        <label>
+          Sort results
+          <SelectField
+            aria-label="Sort candidate results"
+            disabled={!state.runId}
+            onChange={(event) =>
+              updateState({
+                candidateSort: event.target.value as CandidateFilteringUrlState['candidateSort'],
+              })
+            }
+            value={state.candidateSort}
+          >
+            <option value="officialGpa,desc">Official GPA: high to low</option>
+            <option value="officialGpa,asc">Official GPA: low to high</option>
+            <option value="fullName,asc">Name: A to Z</option>
+            <option value="indexNumber,asc">Index number: ascending</option>
+          </SelectField>
+        </label>
       </div>
 
       <p aria-live="polite" className="company-updating">
@@ -106,7 +144,7 @@ export function CandidateResultsWorkspace({
           isLoading={run.isPending || candidates.isPending}
           label="Loading candidate results"
           minHeight={440}
-          skeleton={<SkeletonBlock height={340} lines={0} variant="card" />}
+          skeleton={<CandidateResultsSkeleton />}
         >
           {mappedError ? (
             <ErrorState
@@ -130,9 +168,11 @@ export function CandidateResultsWorkspace({
               <PaginationBar
                 label="Candidate result pages"
                 onPageChange={(candidatePage) => updateState({ candidatePage })}
-                onPageSizeChange={() => undefined}
+                onPageSizeChange={(candidateSize) =>
+                  updateState({ candidateSize: candidateSize as CandidatePageSize })
+                }
                 page={candidates.data.page.page}
-                pageSizeOptions={[5]}
+                pageSizeOptions={[5, 20, 50, 100]}
                 size={candidates.data.page.size}
                 totalElements={candidates.data.page.totalElements}
                 totalPages={candidates.data.page.totalPages}
@@ -140,20 +180,25 @@ export function CandidateResultsWorkspace({
             </>
           ) : (
             <EmptyState
-              message="No candidates satisfy the current runtime GPA and declared-skill criteria."
+              message={
+                state.candidateSearch
+                  ? 'No candidates match the current search and runtime filtering criteria.'
+                  : 'No candidates satisfy the current runtime GPA and declared-skill criteria.'
+              }
               title="No candidates found"
             />
           )}
         </LoadingBoundary>
       )}
 
-      <footer className="global-actions-toolbar" role="status">
+      <footer aria-label="Manual shortlist selection actions" className="candidate-selection-action-bar">
         <div>
           <strong>{selectedCount} selected</strong>
           <span>Selections persist across result pages for this filtering run.</span>
         </div>
         <div>
           <Button
+            disabled={selectedCount === 0 || !state.runId}
             onClick={() => setReviewOpen(true)}
             variant="secondary"
           >
@@ -163,7 +208,7 @@ export function CandidateResultsWorkspace({
             disabled={selectedCount === 0 || !state.runId}
             onClick={() => setReviewOpen(true)}
           >
-            Confirm &amp; Lock Final Shortlist
+            Finalize Shortlist
           </Button>
         </div>
       </footer>
@@ -176,8 +221,8 @@ export function CandidateResultsWorkspace({
       ) : null}
       {reviewOpen && state.runId ? (
         <SelectedCandidatesReviewModal
-          onClose={() => setReviewOpen(false)}
           guidanceValue={run.data?.request.shortlistGuidanceValue ?? null}
+          onClose={() => setReviewOpen(false)}
           requestId={state.requestId ?? run.data?.request.requestId ?? ''}
           runId={state.runId}
           selection={selection}

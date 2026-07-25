@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { buildAdminStudentDetailPath } from '../../../app/config/routePaths'
+import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { CandidateFilteringCandidate } from '../types/candidateFilteringTypes'
@@ -78,7 +79,7 @@ export function CandidateResultsTable({
             <th scope="col">Candidate profile details</th>
             <th scope="col">Official GPA</th>
             <th scope="col">Skills inventory display</th>
-            <th scope="col">Shortlisted History</th>
+            <th scope="col">Cross-shortlist status</th>
           </tr>
         </thead>
         <tbody>
@@ -125,30 +126,29 @@ export function CandidateResultsTable({
                       {visibleSkills.map((skill) => (
                         <Chip key={skill.declaredSkillId}>{skill.skillName}</Chip>
                       ))}
-                      {candidate.matchingDeclaredSkills.length > visibleSkills.length ? (
-                        <button
-                          className="button-link"
-                          onClick={() => onShowSkills(candidate)}
-                          type="button"
-                        >
-                          View all {candidate.matchingDeclaredSkills.length}
-                        </button>
-                      ) : null}
+                      <Button
+                        aria-label={`View skills for ${candidate.fullName}`}
+                        className="candidate-row-action"
+                        onClick={() => onShowSkills(candidate)}
+                        variant="secondary"
+                      >
+                        View Skills
+                      </Button>
                     </div>
                   ) : (
                     <span className="candidate-profile-subline">No matching declared skills</span>
                   )}
                 </td>
-                <td data-label="Shortlisted history">
+                <td data-label="Cross-shortlist status">
                   <div className="candidate-history-stack">
                     <StatusBadge
                       tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}
                     >
                       {candidate.hasExistingActiveShortlist
-                        ? `${candidate.existingActiveShortlistCount} Previous Shortlist${
+                        ? `Already shortlisted in ${candidate.existingActiveShortlistCount} active request${
                             candidate.existingActiveShortlistCount === 1 ? '' : 's'
                           }`
-                        : '0 Previous Shortlists'}
+                        : 'No other active shortlists'}
                     </StatusBadge>
                   </div>
                 </td>
