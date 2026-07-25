@@ -14,7 +14,7 @@ const companyId = '22222222-2222-4222-8222-222222222222'
 const runId = '33333333-3333-4333-8333-333333333333'
 const now = '2026-07-20T09:30:00Z'
 const company = { companyId, name: 'Example Technologies', websiteUrl: null, contactPerson: null, contactEmail: null, contactPhone: null, notes: null, active: true, version: 1, createdAt: now, updatedAt: now }
-const internshipRequest = { requestId, company, title: 'Software Engineering Intern', description: null, location: 'Matara', workMode: 'HYBRID', status: 'ACTIVE', shortlistGuidanceValue: 10, notes: null, requiredSkills: [], version: 2, createdAt: now, updatedAt: now }
+const internshipRequest = { requestId, company, title: 'Software Engineering Intern', description: null, status: 'ACTIVE', shortlistGuidanceValue: 10, requiredSkills: [], version: 2, createdAt: now, updatedAt: now }
 
 function Harness() {
   const { state, updateState } = useCandidateFilteringUrlState()
@@ -55,6 +55,31 @@ describe('CandidateSelectionPanel wireframe behavior', () => {
     await user.type(screen.getByLabelText('Min Bound'), '2.75')
     await waitFor(() => expect(onRun).toHaveBeenLastCalledWith(expect.objectContaining({ runtimeGpaLowerBound: 2.75, skillMatchMode: 'OR' })), { timeout: 3000 })
     expect(screen.queryByRole('button', { name: 'Run filtering' })).not.toBeInTheDocument()
+  })
+
+  it('uses a native disabled switch until a request is selected', async () => {
+    const user = userEvent.setup()
+    const onRun = vi.fn()
+    renderPanel(onRun)
+
+    const matchModeSwitch = screen.getByRole('switch', {
+      name: 'Toggle technical skill matching logic mode',
+    })
+    expect(matchModeSwitch).toBeDisabled()
+    expect(matchModeSwitch).toHaveAttribute('aria-checked', 'false')
+
+    await selectRequest(user)
+    await waitFor(() => expect(matchModeSwitch).toBeEnabled())
+    await user.click(matchModeSwitch)
+
+    expect(matchModeSwitch).toHaveAttribute('aria-checked', 'true')
+    await waitFor(
+      () =>
+        expect(onRun).toHaveBeenLastCalledWith(
+          expect.objectContaining({ skillMatchMode: 'AND' }),
+        ),
+      { timeout: 3000 },
+    )
   })
 
   it('blocks a reversed GPA range before creating a filtering run', async () => {

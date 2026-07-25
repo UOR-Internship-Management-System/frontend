@@ -3,7 +3,6 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Button } from '../../../shared/components/ui/Button'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import { useInternshipRequest } from '../../internship-management/hooks/useInternshipRequests'
 import { useCreateCandidateFilteringRun } from '../hooks/useCandidateFiltering'
 import { candidateFilteringCriteriaRequestSchema } from '../schemas/candidateFilteringSchemas'
@@ -110,14 +109,16 @@ export function CandidateSelectionPanel({
     <aside className="candidate-filtering-sidebar" aria-label="Candidate filtering controls">
       <SectionCard aria-labelledby="request-context-title" className="candidate-request-card">
         <div className="candidate-sidebar-heading">
-          <div>
-            <h2 id="request-context-title">Internship Request Context</h2>
-            <p>Choose the active placement context before defining runtime criteria.</p>
-          </div>
-          {selectedRequest.data ? <StatusBadge tone="success">Active</StatusBadge> : null}
+          <h2 id="request-context-title">Select Internship Request</h2>
         </div>
 
-        <Button className="btn-full-sidebar" icon={<span className="material-symbols-outlined">assignment_ind</span>} onClick={() => setRequestSelectorOpen(true)}>Select Internship Request</Button>
+        <Button
+          className="btn-full-sidebar"
+          icon={<span className="material-symbols-outlined">assignment_ind</span>}
+          onClick={() => setRequestSelectorOpen(true)}
+        >
+          Select Internship Request
+        </Button>
 
         {mappedRequestError ? (
           <ErrorState
@@ -169,6 +170,29 @@ export function CandidateSelectionPanel({
             onMinGpaChange={(minGpa) => updateState({ minGpa })}
           />
 
+          <fieldset className="filtering-match-mode">
+            <legend>Skill matching logic</legend>
+            <button
+              aria-checked={state.matchMode === 'AND'}
+              aria-label="Toggle technical skill matching logic mode"
+              className="logic-switch-wrapper"
+              disabled={createRun.isPending || !selectedRequest.data}
+              onClick={() => updateState({ matchMode: state.matchMode === 'AND' ? 'OR' : 'AND' })}
+              role="switch"
+              type="button"
+            >
+              <span style={{ fontSize: '14px', fontWeight: 500 }}>Matching logic</span>
+              <span aria-hidden="true" className="logic-switch-axis">
+                <span className="logic-switch-handle">{state.matchMode}</span>
+              </span>
+            </button>
+            <p className="active-logic-text">
+              {state.matchMode === 'AND'
+                ? 'All selected skills must be declared.'
+                : 'One or more selected skills may be declared.'}
+            </p>
+          </fieldset>
+
           <DeclaredSkillFilterPanel
             additionalSkillIds={state.additionalSkillIds}
             disabled={!selectedRequest.data || createRun.isPending}
@@ -177,37 +201,6 @@ export function CandidateSelectionPanel({
             requestSkillIds={state.requestSkillIds}
             requestSkills={selectedRequest.data?.requiredSkills ?? []}
           />
-
-          <fieldset
-            className="filtering-match-mode"
-            disabled={createRun.isPending || !selectedRequest.data}
-          >
-            <legend>Skill matching logic</legend>
-            <div
-              aria-checked={state.matchMode === 'AND'}
-              aria-label="Toggle technical skill matching logic mode"
-              className="logic-switch-wrapper"
-              onClick={() => updateState({ matchMode: state.matchMode === 'AND' ? 'OR' : 'AND' })}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  updateState({ matchMode: state.matchMode === 'AND' ? 'OR' : 'AND' })
-                }
-              }}
-              role="switch"
-              tabIndex={0}
-            >
-              <span style={{ fontSize: '14px', fontWeight: 500 }}>Matching logic</span>
-              <div className="logic-switch-axis" aria-hidden="true">
-                <div className="logic-switch-handle">{state.matchMode}</div>
-              </div>
-            </div>
-            <p className="active-logic-text">
-              {state.matchMode === 'AND'
-                ? 'All selected skills must be declared.'
-                : 'One or more selected skills may be declared.'}
-            </p>
-          </fieldset>
 
           {formError && !formError.includes('GPA') ? (
             <div className="inline-alert" role="alert">

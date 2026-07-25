@@ -7,9 +7,6 @@ import { indexSkillTaxonomy, useSkillTaxonomyTree } from '../../../shared/skill-
 import type { InternshipRequiredSkill } from '../../internship-management/types/internshipManagementTypes'
 import { AdditionalSkillsModal } from './AdditionalSkillsModal'
 
-function label(value: string | null) {
-  return value ? value.charAt(0) + value.slice(1).toLowerCase() : 'Any declared level'
-}
 
 export function DeclaredSkillFilterPanel({
   additionalSkillIds,
@@ -60,7 +57,6 @@ export function DeclaredSkillFilterPanel({
                 <span className="filter-skill-state-dot" />
                 <span>
                   <strong>{skill.skillName}</strong>
-                  <small>{label(skill.requiredCompetencyLevel)}</small>
                 </span>
               </button>
             )

@@ -21,6 +21,7 @@ const gpaFormatter = new Intl.NumberFormat('en-LK', {
 type DraftCheckpoint = {
   shortlistId: string
   version: number
+  phase: 'DRAFT_CREATED' | 'CANDIDATES_ADDED'
 }
 
 type HandoffError = {
@@ -52,13 +53,6 @@ export function SelectedCandidatesReviewModal({
   const createDraft = useCreateDraftShortlist()
   const addCandidates = useAddShortlistCandidates()
   const finalizeShortlist = useFinalizeShortlist()
-
-  /*
-   * This checkpoint is intentionally retained after draft creation.
-   *
-   * If candidate addition fails, retrying uses this existing shortlist
-   * instead of creating a second draft for the same internship request.
-   */
   const [draftCheckpoint, setDraftCheckpoint] = useState<DraftCheckpoint>()
   const [handoffError, setHandoffError] = useState<HandoffError>()
   const [requiresShortlistReview, setRequiresShortlistReview] = useState(false)
@@ -68,161 +62,159 @@ export function SelectedCandidatesReviewModal({
   const guidanceExceeded = guidanceValue !== null && candidates.length > guidanceValue
   const isPending = createDraft.isPending || addCandidates.isPending || finalizeShortlist.isPending
   const hasValidContext = Boolean(requestId && runId)
+  const selectionPersisted = draftCheckpoint?.phase === 'CANDIDATES_ADDED'
 
   const openShortlists = () => {
     navigate(shortlistLocation(draftCheckpoint?.shortlistId))
   }
 
+  const requireShortlistReview = (message: string, correlationId?: string) => {
+    setRequiresShortlistReview(true)
+    setHandoffError({ message, correlationId })
+  }
+
   const addSelectedCandidates = async (
     checkpoint: DraftCheckpoint,
     studentIds: string[],
-  ): Promise<boolean> => {
+  ): Promise<DraftCheckpoint | undefined> => {
     try {
       const result = await addCandidates.mutateAsync({
         shortlistId: checkpoint.shortlistId,
         version: checkpoint.version,
         body: { studentIds },
       })
-
-      const finalizedCheckpoint = {
+      const nextCheckpoint: DraftCheckpoint = {
         shortlistId: checkpoint.shortlistId,
         version: result.version,
+        phase: 'CANDIDATES_ADDED',
       }
-      setDraftCheckpoint(finalizedCheckpoint)
+      setDraftCheckpoint(nextCheckpoint)
+      return nextCheckpoint
+    } catch (reason) {
+      const mapped = mapApiError(reason, 'protected')
 
+      if (mapped.status === 409) {
+        requireShortlistReview(
+          'The draft shortlist can no longer accept these candidates. Open Shortlists to review its latest state.',
+          mapped.correlationId,
+        )
+      } else if (mapped.status === 412 || mapped.status === 428) {
+        requireShortlistReview(
+          'The draft shortlist changed after it was created. Open Shortlists to reload the latest version before changing candidates.',
+          mapped.correlationId,
+        )
+      } else if (mapped.status === 404) {
+        requireShortlistReview(
+          'The created draft shortlist could not be found. Open Shortlists to review the available records.',
+          mapped.correlationId,
+        )
+      } else {
+        setHandoffError({
+          message: `The selected candidates could not be added. Your manual selection is retained; retry the operation. ${mapped.message}`,
+          correlationId: mapped.correlationId,
+        })
+      }
+
+      return undefined
+    }
+  }
+
+  const finalizeDraftShortlist = async (checkpoint: DraftCheckpoint) => {
+    try {
       const finalized = await finalizeShortlist.mutateAsync({
-        shortlistId: finalizedCheckpoint.shortlistId,
-        version: finalizedCheckpoint.version,
+        shortlistId: checkpoint.shortlistId,
+        version: checkpoint.version,
         body: {
           acknowledgeGuidanceWarning: guidanceExceeded ? guidanceAcknowledged : false,
           finalizationNote: null,
         },
       })
 
-      /*
-       * Selections are cleared only after both operations have succeeded.
-       * They remain available when candidate addition fails.
-       */
       selection.clear()
-
       notify({
         tone: 'success',
         title: 'Shortlist allocation finalized',
-        message: `${finalized.selectedCandidateCount} manually selected candidate${finalized.selectedCandidateCount === 1 ? '' : 's'} locked.`,
+        message: `${finalized.selectedCandidateCount} manually selected candidate${finalized.selectedCandidateCount === 1 ? '' : 's'} finalized.`,
       })
-
       navigate(shortlistLocation(checkpoint.shortlistId))
-      return true
     } catch (reason) {
       const mapped = mapApiError(reason, 'protected')
 
-      /*
-       * A 409 during candidate addition is not necessarily the same as
-       * a duplicate-shortlist conflict during creation. The shortlist
-       * may have been finalized or otherwise changed.
-       */
       if (mapped.status === 409) {
-        setRequiresShortlistReview(true)
-        setHandoffError({
-          message:
-            'The draft shortlist can no longer accept these candidates. Open Shortlists to review its latest state.',
-          correlationId: mapped.correlationId,
-        })
+        requireShortlistReview(
+          'The shortlist can no longer be finalized from this dialog. Open Shortlists to review its latest state.',
+          mapped.correlationId,
+        )
       } else if (mapped.status === 412 || mapped.status === 428) {
-        /*
-         * Retrying with the same stale version would repeatedly fail.
-         * Require the Admin to reload the latest shortlist instead.
-         */
-        setRequiresShortlistReview(true)
-        setHandoffError({
-          message:
-            'The draft shortlist changed after it was created. Open Shortlists to reload the latest version before changing candidates.',
-          correlationId: mapped.correlationId,
-        })
+        requireShortlistReview(
+          'The shortlist changed before finalization. Open Shortlists to reload and review the latest version.',
+          mapped.correlationId,
+        )
       } else if (mapped.status === 404) {
-        setRequiresShortlistReview(true)
-        setHandoffError({
-          message:
-            'The created draft shortlist could not be found. Open Shortlists to review the available records.',
-          correlationId: mapped.correlationId,
-        })
+        requireShortlistReview(
+          'The shortlist could not be found. Open Shortlists to review the available records.',
+          mapped.correlationId,
+        )
       } else {
-        /*
-         * For network and transient server failures, retain the draft
-         * checkpoint and allow candidate addition to be retried without
-         * creating another shortlist.
-         */
         setHandoffError({
-          message: `The shortlist could not be finalized. Your manual selection is retained; retry the operation. ${mapped.message}`,
+          message: `The candidates were added to the draft, but finalization failed. Retry finalization without adding them again. ${mapped.message}`,
           correlationId: mapped.correlationId,
         })
       }
-
-      return false
     }
   }
 
-  const createDraftShortlist = async () => {
+  const submitShortlist = async () => {
     if (!candidates.length || !hasValidContext || isPending) return
 
     setHandoffError(undefined)
     setRequiresShortlistReview(false)
-
-    /*
-     * Snapshot the current explicit selection before starting the
-     * asynchronous operation.
-     */
     const studentIds = candidates.map((candidate) => candidate.studentId)
     let checkpoint = draftCheckpoint
 
-    /*
-     * Skip draft creation when a previous attempt already created it.
-     */
     if (!checkpoint) {
       try {
         const shortlist = await createDraft.mutateAsync({
           requestId,
           filterRunId: runId,
         })
-
         checkpoint = {
           shortlistId: shortlist.shortlistId,
           version: shortlist.version,
+          phase: 'DRAFT_CREATED',
         }
-
         setDraftCheckpoint(checkpoint)
       } catch (reason) {
         const mapped = mapApiError(reason, 'protected')
 
-        /*
-         * A 409 at this stage means the internship request already owns
-         * a shortlist. This is distinct from candidate-addition conflicts.
-         */
         if (mapped.status === 409) {
-          setRequiresShortlistReview(true)
-          setHandoffError({
-            message:
-              'A shortlist already exists for this internship request. Open Shortlists to review it.',
-            correlationId: mapped.correlationId,
-          })
+          requireShortlistReview(
+            'A shortlist already exists for this internship request. Open Shortlists to review it.',
+            mapped.correlationId,
+          )
         } else {
           setHandoffError({
             message: mapped.message,
             correlationId: mapped.correlationId,
           })
         }
-
         return
       }
     }
 
-    await addSelectedCandidates(checkpoint, studentIds)
+    if (checkpoint.phase === 'DRAFT_CREATED') {
+      const nextCheckpoint = await addSelectedCandidates(checkpoint, studentIds)
+      if (!nextCheckpoint) return
+      checkpoint = nextCheckpoint
+    }
+
+    await finalizeDraftShortlist(checkpoint)
   }
 
   return (
     <Modal
       closeDisabled={isPending}
-      description="Review the manually selected candidates before permanently locking shortlist membership."
+      description="Review the manually selected candidates before finalizing shortlist membership."
       onClose={onClose}
       size="wide"
       title="Review Selected Shortlist"
@@ -250,12 +242,14 @@ export function SelectedCandidatesReviewModal({
 
               {candidate.hasExistingActiveShortlist ? (
                 <StatusBadge tone="neutral">
-                  {`${candidate.existingActiveShortlistCount} existing`}
+                  {`Already shortlisted in ${candidate.existingActiveShortlistCount} active request${
+                    candidate.existingActiveShortlistCount === 1 ? '' : 's'
+                  }`}
                 </StatusBadge>
               ) : null}
 
               <Button
-                disabled={isPending}
+                disabled={isPending || selectionPersisted}
                 onClick={() => selection.remove(candidate.studentId)}
                 variant="secondary"
               >
@@ -268,6 +262,13 @@ export function SelectedCandidatesReviewModal({
         {!hasValidContext ? (
           <div className="inline-alert" role="alert">
             The filtering run context is unavailable. Close this dialog and run filtering again.
+          </div>
+        ) : null}
+
+        {selectionPersisted ? (
+          <div className="inline-alert" role="status">
+            Candidate membership is saved in the draft shortlist. Retry finalization or open
+            Shortlists to make further changes.
           </div>
         ) : null}
 
@@ -298,7 +299,7 @@ export function SelectedCandidatesReviewModal({
 
         <div className="modal-actions">
           <Button
-            disabled={!candidates.length || isPending}
+            disabled={!candidates.length || isPending || selectionPersisted}
             onClick={selection.clear}
             variant="secondary"
           >
@@ -317,9 +318,9 @@ export function SelectedCandidatesReviewModal({
                 (guidanceExceeded && !guidanceAcknowledged)
               }
               isLoading={isPending}
-              onClick={() => void createDraftShortlist()}
+              onClick={() => void submitShortlist()}
             >
-              {draftCheckpoint ? 'Retry and lock shortlist' : 'Confirm & Lock Final Shortlist'}
+              {selectionPersisted ? 'Retry finalization' : 'Finalize Shortlist'}
             </Button>
           )}
 
