@@ -249,7 +249,7 @@
 }
 
 .request-skill-filters {
-  grid-template-columns: minmax(160px, 0.8fr) minmax(160px, 0.8fr) minmax(240px, 1.4fr);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .request-skill-results-compact {
@@ -339,10 +339,10 @@
 
 .selected-skill-token {
   display: grid;
-  grid-template-columns: minmax(120px, auto) minmax(150px, 190px) 32px;
+  grid-template-columns: minmax(120px, 1fr) 32px;
   align-items: center;
   gap: var(--space-2);
-  min-width: min(100%, 360px);
+  min-width: min(100%, 240px);
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
@@ -714,6 +714,18 @@
   transform: translateX(34px);
 }
 
+.logic-switch-wrapper {
+  width: 100%;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+}
+
+.logic-switch-wrapper:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 .active-logic-text {
   color: var(--color-primary) !important;
   font-weight: 700;
@@ -890,6 +902,16 @@
   max-width: none;
 }
 
+.candidate-row-action {
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-xs);
+}
+
+.candidate-results-skeleton .skeleton-field {
+  flex: 1 1 220px;
+}
+
 .candidate-history-stack {
   display: flex;
   align-items: flex-start;
@@ -1025,11 +1047,6 @@
   .selected-skill-token {
     grid-template-columns: 1fr 32px;
     border-radius: var(--radius-lg);
-  }
-
-  .selected-skill-token select {
-    grid-column: 1 / -1;
-    grid-row: 2;
   }
 
   .candidate-results-table {
@@ -1601,5 +1618,119 @@
   .shortlist-directory-item {
     animation: none;
     transition: none;
+  }
+}
+
+
+/* Final alignment — Registered Students and Student Deep-Dive wireframes. */
+.registered-students-page {
+  width: 100%;
+  min-width: 0;
+  gap: var(--space-6);
+}
+
+.registered-students-page .page-header {
+  margin-bottom: 0;
+}
+
+.registered-students-page .registered-students-roster-card {
+  min-width: 0;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+}
+
+.registered-students-page .registered-students-controls {
+  grid-template-columns: minmax(280px, 1.35fr) minmax(220px, 0.65fr);
+}
+
+.registered-students-page .registered-students-levels {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.registered-students-page .registered-students-levels legend {
+  flex: 0 0 100%;
+}
+
+.registered-students-page .filter-button {
+  min-height: 42px;
+}
+
+.registered-students-page .registered-students-table th:last-child,
+.registered-students-page .registered-students-table td:last-child {
+  text-align: right;
+}
+
+.registered-students-page .roster-action-link {
+  justify-content: center;
+}
+
+.student-deep-dive-page .student-deep-dive-layout {
+  grid-template-columns: minmax(280px, 0.95fr) minmax(0, 2.2fr);
+}
+
+.student-deep-dive-page .student-identity-panel {
+  position: sticky;
+  top: 100px;
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+}
+
+.student-deep-dive-page .deep-dive-heading-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.student-deep-dive-page .deep-dive-academic-table table {
+  min-width: 860px;
+}
+
+.student-deep-dive-page .deep-dive-academic-table th:first-child,
+.student-deep-dive-page .deep-dive-academic-table td:first-child {
+  white-space: nowrap;
+}
+
+.student-deep-dive-page .student-deep-dive-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 1100px) {
+  .student-deep-dive-page .student-deep-dive-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .registered-students-page .registered-students-roster-card {
+    padding: var(--space-5);
+  }
+
+  .registered-students-page .registered-students-toolbar-heading,
+  .registered-students-page .registered-students-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .registered-students-page .registered-students-levels {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .registered-students-page .filter-button,
+  .student-deep-dive-page .student-deep-dive-footer .button {
+    width: 100%;
+  }
+
+  .student-deep-dive-page .deep-dive-heading-meta,
+  .student-deep-dive-page .student-deep-dive-footer {
+    justify-content: flex-start;
   }
 }

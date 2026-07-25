@@ -11,17 +11,22 @@ function IdentityPanelSkeleton() {
   return (
     <aside aria-hidden="true" className="section-card skeleton-admin-identity">
       <SkeletonShape height={92} radius="circle" width={92} />
-      <SkeletonShape height={28} width="78%" />
-      <SkeletonBlock decorative lineWidths={['88%', '72%', '64%']} lines={3} variant="inline" />
-      <div className="skeleton-admin-metric">
-        <SkeletonShape height={12} radius="pill" width="54%" />
-        <SkeletonShape height={34} width="42%" />
-      </div>
+      {Array.from({ length: 3 }, (_, index) => (
+        <div className="skeleton-admin-readonly-row" key={index}>
+          <SkeletonShape height={12} radius="pill" width="48%" />
+          <SkeletonShape height={18} width="84%" />
+        </div>
+      ))}
       <div className="skeleton-admin-metric">
         <SkeletonShape height={12} radius="pill" width="66%" />
-        <SkeletonShape height={28} radius="pill" width="48%" />
+        <SkeletonShape height={34} width="42%" />
+        <SkeletonShape height={12} radius="pill" width="88%" />
       </div>
-      <SkeletonShape height={42} radius="pill" width="100%" />
+      <div className="skeleton-admin-metric">
+        <SkeletonShape height={16} width="58%" />
+        <SkeletonShape height={12} radius="pill" width="86%" />
+        <SkeletonShape height={42} radius="pill" width="100%" />
+      </div>
     </aside>
   )
 }
@@ -31,7 +36,10 @@ function ReadOnlySectionSkeleton({ rows = 3 }: { rows?: number }) {
     <section aria-hidden="true" className="section-card skeleton-stack">
       <div className="skeleton-section-heading">
         <SkeletonShape height={26} width="min(260px, 68%)" />
-        <SkeletonShape height={28} radius="pill" width={94} />
+        <div className="skeleton-chip-row">
+          <SkeletonShape height={28} radius="pill" width={82} />
+          <SkeletonShape height={28} radius="pill" width={94} />
+        </div>
       </div>
       {Array.from({ length: rows }, (_, index) => (
         <div className="skeleton-admin-readonly-row" key={index}>
@@ -53,15 +61,21 @@ export function StudentDeepDiveSkeleton() {
       <div className="skeleton-admin-split" data-testid="student-deep-dive-skeleton">
         <IdentityPanelSkeleton />
         <div className="skeleton-stack">
-          <ReadOnlySectionSkeleton rows={2} />
+          <ReadOnlySectionSkeleton rows={6} />
           <ReadOnlySectionSkeleton rows={3} />
           <ReadOnlySectionSkeleton rows={3} />
           <section aria-hidden="true" className="section-card skeleton-stack">
-            <SkeletonShape height={26} width={220} />
+            <div className="skeleton-section-heading">
+              <SkeletonShape height={26} width={220} />
+              <div className="skeleton-chip-row">
+                <SkeletonShape height={28} radius="pill" width={82} />
+                <SkeletonShape height={28} radius="pill" width={94} />
+              </div>
+            </div>
             <SkeletonTableGrid
               columns={5}
-              gridTemplateColumns="minmax(120px,.8fr) minmax(220px,1.5fr) minmax(100px,.7fr) minmax(100px,.7fr) minmax(120px,.8fr)"
-              rows={4}
+              gridTemplateColumns="minmax(130px,.8fr) minmax(240px,1.6fr) minmax(90px,.6fr) minmax(120px,.7fr) minmax(160px,.9fr)"
+              rows={5}
               testId="student-academic-records-skeleton"
             />
             <SkeletonPagination />
@@ -70,6 +84,9 @@ export function StudentDeepDiveSkeleton() {
             <ReadOnlySectionSkeleton key={index} rows={2} />
           ))}
         </div>
+      </div>
+      <div aria-hidden="true" className="student-deep-dive-footer">
+        <SkeletonShape height={42} radius="pill" width={220} />
       </div>
     </SkeletonStatusRegion>
   )

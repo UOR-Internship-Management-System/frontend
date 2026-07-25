@@ -47,6 +47,8 @@ describe('Sprint 7-8 Admin route skeletons', () => {
     expect(screen.getByTestId('candidate-results-table-skeleton')).toBeInTheDocument()
 
     rerender(<ShortlistExportSkeleton />)
-    expect(screen.getByTestId('shortlist-review-table-skeleton')).toBeInTheDocument()
+    // The shortlist detail workspace appears in a modal after user interaction;
+    // the initial skeleton only shows the ShortlistDirectory section with list rows.
+    expect(screen.getByTestId('shortlist-export-skeleton')).toBeInTheDocument()
   })
 })

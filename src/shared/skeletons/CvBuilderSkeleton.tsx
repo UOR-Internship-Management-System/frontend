@@ -78,10 +78,26 @@ export function CvPreviewPaperSkeleton({ announce = true }: { announce?: boolean
 export function CvActionBarSkeleton() {
   return (
     <div aria-hidden="true" className="s5-cv-action-bar" data-testid="cv-action-buttons">
-      <SkeletonShape height={42} radius="pill" width={160} />
-      <SkeletonShape height={42} radius="pill" width={150} />
-      <SkeletonShape height={42} radius="pill" width={190} />
+      <SkeletonShape height={42} radius="pill" />
+      <SkeletonShape height={42} radius="pill" />
+      <SkeletonShape height={42} radius="pill" />
     </div>
+  )
+}
+
+export function CvOutputPanelSkeleton() {
+  return (
+    <section aria-hidden="true" className="section-card s5-cv-output-panel skeleton-stack">
+      <SkeletonShape height={28} width={220} />
+      <div className="skeleton-card skeleton-stack">
+        <SkeletonShape height={16} width="56%" />
+        <SkeletonShape height={12} radius="pill" width="82%" />
+        <SkeletonShape height={12} radius="pill" width="68%" />
+        <SkeletonShape height={12} radius="pill" width="74%" />
+      </div>
+      <CvActionBarSkeleton />
+      <SkeletonBlock decorative lineWidths={['94%', '76%']} lines={2} variant="inline" />
+    </section>
   )
 }
 
@@ -96,11 +112,13 @@ export function CvBuilderSkeleton() {
       <section aria-hidden="true" className="section-card">
         <CvConfigurationSkeleton announce={false} />
       </section>
-      <section aria-hidden="true" className="section-card skeleton-stack">
-        <SkeletonShape height={28} width={220} />
-        <CvPreviewPaperSkeleton announce={false} />
-      </section>
-      <CvActionBarSkeleton />
+      <div className="s5-cv-workspace-grid">
+        <section aria-hidden="true" className="section-card skeleton-stack">
+          <SkeletonShape height={28} width={220} />
+          <CvPreviewPaperSkeleton announce={false} />
+        </section>
+        <CvOutputPanelSkeleton />
+      </div>
     </SkeletonStatusRegion>
   )
 }

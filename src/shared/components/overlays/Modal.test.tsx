@@ -63,6 +63,23 @@ describe('Modal', () => {
     expect(trigger).toHaveFocus()
   })
 
+  it('closes from the backdrop only when the behavior is explicitly enabled', async () => {
+    const onClose = vi.fn()
+    const user = userEvent.setup()
+    render(
+      <Modal closeOnBackdrop onClose={onClose} title="Academic records">
+        <button type="button">Dialog action</button>
+      </Modal>,
+    )
+
+    const dialog = screen.getByRole('dialog', { name: 'Academic records' })
+    await user.click(dialog)
+    expect(onClose).not.toHaveBeenCalled()
+
+    await user.click(dialog.parentElement as HTMLElement)
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1))
+  })
+
   it('uses the wide variant and closes immediately when reduced motion is requested', async () => {
     vi.stubGlobal(
       'matchMedia',
