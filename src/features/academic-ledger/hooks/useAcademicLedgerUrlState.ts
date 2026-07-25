@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { readNonnegativeInteger, useUrlQueryState } from '../../../shared/hooks/useUrlQueryState'
+import type { RegisteredStudentsQuery } from '../../student-management/types/studentManagementTypes'
 import type { LedgerStagedRowsQuery, LedgerUploadsQuery } from '../types/academicLedgerTypes'
 
 export type AcademicLedgerUrlState = {
   uploadId: string | null
   uploads: LedgerUploadsQuery
   rows: LedgerStagedRowsQuery
+  students: RegisteredStudentsQuery
 }
 
 const sizes = [20, 50, 100] as const
@@ -62,6 +64,12 @@ export function parseAcademicLedgerUrlState(parameters: URLSearchParams): Academ
       search: (parameters.get('rowSearch') ?? '').trim().slice(0, 120),
       validationStatus: allowedValue(parameters.get('rowStatus'), rowStatuses),
     },
+    students: {
+      page: readNonnegativeInteger(parameters.get('studentPage'), 0),
+      size: 5,
+      sort: 'fullName,asc',
+      search: (parameters.get('studentSearch') ?? '').trim().slice(0, 120),
+    },
   }
 }
 
@@ -78,6 +86,8 @@ export function serializeAcademicLedgerUrlState(state: AcademicLedgerUrlState) {
   if (state.rows.sort !== 'rowNumber,asc') parameters.set('rowSort', state.rows.sort)
   if (state.rows.search) parameters.set('rowSearch', state.rows.search)
   if (state.rows.validationStatus) parameters.set('rowStatus', state.rows.validationStatus)
+  if (state.students.page) parameters.set('studentPage', String(state.students.page))
+  if (state.students.search) parameters.set('studentSearch', state.students.search)
   return parameters
 }
 
@@ -87,14 +97,27 @@ export function useAcademicLedgerUrlState() {
     serialize: serializeAcademicLedgerUrlState,
   })
   const [rowSearchInput, setRowSearchInput] = useState(state.rows.search)
+  const [studentSearchInput, setStudentSearchInput] = useState(state.students.search)
   const debouncedRowSearch = useDebouncedValue(rowSearchInput, 300)
+  const debouncedStudentSearch = useDebouncedValue(studentSearchInput, 300)
 
   useEffect(() => setRowSearchInput(state.rows.search), [state.rows.search])
+  useEffect(() => setStudentSearchInput(state.students.search), [state.students.search])
   useEffect(() => {
     const search = debouncedRowSearch.trim().slice(0, 120)
     if (rowSearchInput.trim().slice(0, 120) !== search || search === state.rows.search) return
     setState({ ...state, rows: { ...state.rows, page: 0, search } }, { replace: true })
   }, [debouncedRowSearch, rowSearchInput, setState, state])
+  useEffect(() => {
+    const search = debouncedStudentSearch.trim().slice(0, 120)
+    if (
+      studentSearchInput.trim().slice(0, 120) !== search ||
+      search === state.students.search
+    ) {
+      return
+    }
+    setState({ ...state, students: { ...state.students, page: 0, search } }, { replace: true })
+  }, [debouncedStudentSearch, setState, state, studentSearchInput])
 
   const updateUploads = useCallback(
     (patch: Partial<LedgerUploadsQuery>) => {
@@ -114,10 +137,29 @@ export function useAcademicLedgerUrlState() {
     },
     [setState, state],
   )
+  const updateStudents = useCallback(
+    (patch: Partial<RegisteredStudentsQuery>) => {
+      const page = Object.keys(patch).some((key) => key !== 'page')
+        ? 0
+        : (patch.page ?? state.students.page)
+      setState({ ...state, students: { ...state.students, ...patch, page } })
+    },
+    [setState, state],
+  )
   const selectUpload = useCallback(
     (uploadId: string | null) => setState({ ...state, uploadId, rows: { ...state.rows, page: 0 } }),
     [setState, state],
   )
 
-  return { state, rowSearchInput, setRowSearchInput, updateRows, updateUploads, selectUpload }
+  return {
+    state,
+    rowSearchInput,
+    studentSearchInput,
+    selectUpload,
+    setRowSearchInput,
+    setStudentSearchInput,
+    updateRows,
+    updateStudents,
+    updateUploads,
+  }
 }

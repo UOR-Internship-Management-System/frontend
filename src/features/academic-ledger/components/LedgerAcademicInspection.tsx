@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
+import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { Button } from '../../../shared/components/ui/Button'
-import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { LedgerInspectionTableSkeleton } from '../../../shared/skeletons'
 import { useRegisteredStudents } from '../../student-management/hooks/useRegisteredStudents'
 import type {
@@ -13,25 +13,24 @@ import type {
 } from '../../student-management/types/studentManagementTypes'
 import { LedgerRecordDetailsModal } from './LedgerRecordDetailsModal'
 
-export function LedgerAcademicInspection() {
-  const [query, setQuery] = useState<RegisteredStudentsQuery>({
-    page: 0,
-    size: 20,
-    sort: 'fullName,asc',
-    search: '',
-  })
-  const [searchInput, setSearchInput] = useState('')
+export function LedgerAcademicInspection({
+  onQueryChange,
+  onSearchChange,
+  query,
+  searchInput,
+}: {
+  query: RegisteredStudentsQuery
+  searchInput: string
+  onQueryChange: (patch: Partial<RegisteredStudentsQuery>) => void
+  onSearchChange: (value: string) => void
+}) {
   const [selected, setSelected] = useState<RegisteredStudentView | null>(null)
-  const debouncedSearch = useDebouncedValue(searchInput, 300)
   const students = useRegisteredStudents(query)
 
   useEffect(() => {
-    const search = debouncedSearch.trim().slice(0, 120)
-    setQuery((current) => (current.search === search ? current : { ...current, page: 0, search }))
-  }, [debouncedSearch])
-
-  const updateQuery = (patch: Partial<RegisteredStudentsQuery>) =>
-    setQuery((current) => ({ ...current, ...patch, page: 'page' in patch ? (patch.page ?? 0) : 0 }))
+    const totalPages = students.data?.page.totalPages ?? 0
+    if (totalPages > 0 && query.page >= totalPages) onQueryChange({ page: totalPages - 1 })
+  }, [onQueryChange, query.page, students.data?.page.totalPages])
 
   return (
     <section
@@ -39,41 +38,19 @@ export function LedgerAcademicInspection() {
       className="section-card ledger-inspection-panel"
     >
       <div className="ledger-section-heading">
-        <div>
-          <p className="section-kicker">Read-only directory</p>
-          <h2 id="ledger-academic-inspection-title">Inspect official Student records</h2>
-          <p>Review committed academic history without changing Student data.</p>
-        </div>
+        <h2 id="ledger-academic-inspection-title">Students Details</h2>
         {students.isFetching && !students.isPending ? <span role="status">Updating…</span> : null}
       </div>
-      <div className="ledger-toolbar">
-        <label>
-          Search Students
-          <input
-            aria-label="Search Students for academic inspection"
-            className="input"
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Name, index, email, or batch"
-            value={searchInput}
-          />
-        </label>
-        <label>
-          Current level
-          <select
-            className="select"
-            value={query.level ?? ''}
-            onChange={(event) =>
-              updateQuery({
-                level: event.target.value ? (Number(event.target.value) as 3 | 4) : undefined,
-              })
-            }
-          >
-            <option value="">All levels</option>
-            <option value="3">Level 3</option>
-            <option value="4">Level 4</option>
-          </select>
-        </label>
+
+      <div className="ledger-student-search">
+        <SearchInput
+          aria-label="Search Students by name or index number"
+          onChange={(event) => onSearchChange(event.target.value.slice(0, 120))}
+          placeholder="Search Students by name or index number"
+          value={searchInput}
+        />
       </div>
+
       {students.isPending ? <LedgerInspectionTableSkeleton /> : null}
       {students.isError ? (
         <ErrorState
@@ -83,33 +60,28 @@ export function LedgerAcademicInspection() {
         />
       ) : null}
       {students.data?.items.length ? (
-        <div className="table-responsive ledger-table-wrap">
+        <div className="table-responsive ledger-table-wrap" tabIndex={0}>
           <table className="ledger-table ledger-inspection-table">
             <caption>Students available for official academic record inspection</caption>
             <thead>
               <tr>
-                <th scope="col">Index</th>
-                <th scope="col">Student</th>
-                <th scope="col">Program</th>
-                <th scope="col">Level</th>
-                <th scope="col">Official GPA</th>
-                <th scope="col">Action</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Student Index Number</th>
+                <th scope="col">Computer Science GPA</th>
+                <th className="ledger-action-column" scope="col">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {students.data.items.map((student) => (
                 <tr key={student.studentId}>
-                  <td data-label="Index">{student.indexNumber}</td>
-                  <td data-label="Student">
-                    <strong>{student.fullName}</strong>
-                    <span className="ledger-secondary">{student.universityEmail}</span>
-                  </td>
-                  <td data-label="Program">{student.degreeProgram}</td>
-                  <td data-label="Level">{student.levelLabel}</td>
-                  <td data-label="Official GPA">{student.officialGpaLabel}</td>
-                  <td data-label="Action">
+                  <td data-label="Student Name">{student.fullName}</td>
+                  <td data-label="Student Index Number">{student.indexNumber}</td>
+                  <td data-label="Computer Science GPA">{student.officialGpaLabel}</td>
+                  <td className="ledger-action-cell" data-label="Actions">
                     <Button onClick={() => setSelected(student)} variant="secondary">
-                      View academic records
+                      View More
                     </Button>
                   </td>
                 </tr>
@@ -121,19 +93,17 @@ export function LedgerAcademicInspection() {
       {students.data && !students.data.items.length ? (
         <EmptyState
           title="No matching Students"
-          message="No Students match the current inspection controls."
+          message="No Students match the entered name or index number."
         />
       ) : null}
-      {students.data ? (
+      {students.data?.page.totalPages ? (
         <PaginationBar
-          label="Academic inspection Student pages"
+          label="Student academic directory pagination"
           page={students.data.page.page}
           size={students.data.page.size}
           totalElements={students.data.page.totalElements}
           totalPages={students.data.page.totalPages}
-          pageSizeOptions={[20, 50, 100]}
-          onPageChange={(page) => updateQuery({ page })}
-          onPageSizeChange={(size) => updateQuery({ size: size as 20 | 50 | 100 })}
+          onPageChange={(page) => onQueryChange({ page })}
         />
       ) : null}
       {selected ? (
