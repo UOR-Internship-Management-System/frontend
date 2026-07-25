@@ -3,6 +3,7 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
+import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { SelectField } from '../../../shared/components/forms/SelectField'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
@@ -82,7 +83,6 @@ export function RequiredSkillPicker({
             {
               skillId: skill.skillId,
               skillName: skill.name,
-              requiredCompetencyLevel: null,
             },
           ],
     )
@@ -95,7 +95,6 @@ export function RequiredSkillPicker({
         byId.set(skill.skillId, {
           skillId: skill.skillId,
           skillName: skill.name,
-          requiredCompetencyLevel: null,
         })
       }
       return [...byId.values()]
@@ -109,23 +108,24 @@ export function RequiredSkillPicker({
     setStagedSkills([])
   }
 
+
   return (
     <fieldset
       aria-describedby="required-skills-help"
       className="request-skill-picker"
       disabled={disabled}
     >
-      <legend>Skill requirement selector</legend>
+      <legend>Required skill selector</legend>
       <p id="required-skills-help">
-        Browse the developer-managed taxonomy. Select one or more results, then add them to the
-        compiled matching array.
+        Browse the developer-managed taxonomy and select the declared skills required for the
+        internship role.
       </p>
 
       <div className="request-skill-filters">
         <label>
-          <span>Target Core Cluster — Level 1</span>
+          <span>Skill Cluster</span>
           <SelectField
-            aria-label="Required skill core cluster"
+            aria-label="Required skill cluster"
             disabled={disabled || clusters.isPending}
             onChange={(event) => {
               setClusterId(event.target.value)
@@ -133,7 +133,7 @@ export function RequiredSkillPicker({
             }}
             value={clusterId}
           >
-            <option value="">All clusters — global search</option>
+            <option value="">All clusters</option>
             {clusters.data?.items.map((cluster) => (
               <option key={cluster.clusterId} value={cluster.clusterId}>
                 {cluster.name}
@@ -143,7 +143,7 @@ export function RequiredSkillPicker({
         </label>
 
         <label>
-          <span>Target Core Category — Level 2</span>
+          <span>Skill Category</span>
           <SelectField
             aria-label="Required skill category"
             disabled={disabled || !clusterId || categories.isPending}
@@ -160,7 +160,7 @@ export function RequiredSkillPicker({
         </label>
 
         <label className="request-skill-search-field">
-          <span>Search and add multiple skills</span>
+          <span>Search Skills</span>
           <SearchInput
             aria-label="Search required skills"
             disabled={disabled}
@@ -186,14 +186,20 @@ export function RequiredSkillPicker({
           }
           title="Skill taxonomy unavailable"
         />
+      ) : skills.isPending ? (
+        <div aria-hidden="true" className="hierarchy-skill-panel hierarchy-skill-loading">
+          {Array.from({ length: 4 }, (_, index) => (
+            <SkeletonBlock decorative height={64} key={index} lines={0} width="100%" />
+          ))}
+        </div>
       ) : (
         <div className="hierarchy-skill-panel">
           <div className="hierarchy-skill-panel-header">
             <div>
-              <strong className="hierarchy-skill-title">Available taxonomy skills</strong>
+              <strong className="hierarchy-skill-title">Available Skills</strong>
               <span className="hierarchy-skill-subtitle">
-                {stagedSkills.length} staged. Already-added skills are unavailable for duplicate
-                selection.
+                {stagedSkills.length} selected for addition. Skills already added cannot be selected
+                twice.
               </span>
             </div>
             <div className="hierarchy-skill-actions">
@@ -203,7 +209,7 @@ export function RequiredSkillPicker({
                 type="button"
                 variant="secondary"
               >
-                Select all shown
+                Select All Shown
               </Button>
               <Button
                 disabled={disabled || stagedSkills.length === 0}
@@ -211,14 +217,14 @@ export function RequiredSkillPicker({
                 type="button"
                 variant="secondary"
               >
-                Clear selection
+                Clear Selection
               </Button>
               <Button
                 disabled={disabled || stagedSkills.length === 0}
                 onClick={addSelectedSkills}
                 type="button"
               >
-                Add selected skills
+                Add Selected Skills
               </Button>
             </div>
           </div>
@@ -257,7 +263,7 @@ export function RequiredSkillPicker({
               )
             })}
             {skills.data?.items.length === 0 ? (
-              <p className="taxonomy-empty-result">No taxonomy skills match these controls.</p>
+              <p className="taxonomy-empty-result">No skills match the current controls.</p>
             ) : null}
           </div>
         </div>
@@ -276,7 +282,7 @@ export function RequiredSkillPicker({
 
       <div className="selected-skill-token-field">
         <div className="selected-skill-token-heading">
-          <strong>Required Technical Skills (Compiled Matching Array)</strong>
+          <strong>Selected Required Skills</strong>
           <span>{value.length} selected</span>
         </div>
         <div

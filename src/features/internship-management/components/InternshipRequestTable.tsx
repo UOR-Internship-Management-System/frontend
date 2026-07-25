@@ -1,5 +1,10 @@
 import { Button } from '../../../shared/components/ui/Button'
+import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { InternshipRequest } from '../types/internshipManagementTypes'
+import {
+  formatInternshipRequestStatus,
+  internshipRequestStatusTone,
+} from '../utils/internshipRequestPresentation'
 
 export function InternshipRequestTable({
   onDelete,
@@ -15,22 +20,31 @@ export function InternshipRequestTable({
       {requests.map((request) => (
         <article className="wireframe-management-row" key={request.requestId} role="listitem">
           <div className="wireframe-row-meta">
-            <h3>{request.title}</h3>
+            <div className="request-row-title">
+              <h3>{request.title}</h3>
+              <StatusBadge tone={internshipRequestStatusTone(request.status)}>
+                {formatInternshipRequestStatus(request.status)}
+              </StatusBadge>
+            </div>
             <p>
-              Required Shortlist Limit Count: Max {request.shortlistGuidanceValue ?? '—'} Candidates
+              Shortlist guidance:{' '}
+              {request.shortlistGuidanceValue === null
+                ? 'Not set'
+                : `${request.shortlistGuidanceValue} candidates`}{' '}
+              · Advisory only
             </p>
             <p>
-              Mapped Skills:{' '}
+              Required skills:{' '}
               {request.requiredSkills.map((skill) => skill.skillName).join(', ') || 'None'}
             </p>
           </div>
           <div className="wireframe-row-actions">
             <Button
-              icon={<span className="material-symbols-outlined">analytics</span>}
+              icon={<span className="material-symbols-outlined">visibility</span>}
               onClick={() => onSelect(request.requestId)}
               variant="secondary"
             >
-              Deep Dive
+              View Details
             </Button>
             <Button
               className="wireframe-danger-button"
@@ -38,7 +52,7 @@ export function InternshipRequestTable({
               onClick={() => onDelete(request.requestId)}
               variant="secondary"
             >
-              Delete
+              Delete Internship Request
             </Button>
           </div>
         </article>

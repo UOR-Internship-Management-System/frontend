@@ -1,6 +1,12 @@
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
+import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { InternshipRequest } from '../types/internshipManagementTypes'
+import {
+  canEditInternshipRequest,
+  formatInternshipRequestStatus,
+  internshipRequestStatusTone,
+} from '../utils/internshipRequestPresentation'
 
 export function InternshipRequestDetailsModal({
   onClose,
@@ -11,24 +17,47 @@ export function InternshipRequestDetailsModal({
   onEdit: () => void
   request: InternshipRequest
 }) {
-  const editable = request.status === 'DRAFT' || request.status === 'ACTIVE'
   return (
-    <Modal onClose={onClose} size="wide" title="Candidate Selection Criteria">
+    <Modal onClose={onClose} size="wide" title="Internship Request Details">
       <dl className="wireframe-details-grid">
-        <div>
+        <div className="wireframe-details-wide">
           <dt>Internship Role Title</dt>
           <dd>{request.title}</dd>
         </div>
+        <div className="wireframe-details-wide">
+          <dt>Company</dt>
+          <dd>{request.company.name}</dd>
+        </div>
         <div>
-          <dt>Maximum Shortlist Limit</dt>
-          <dd>{request.shortlistGuidanceValue ?? 'Not set'}</dd>
+          <dt>Status</dt>
+          <dd className="request-details-status">
+            <StatusBadge tone={internshipRequestStatusTone(request.status)}>
+              {formatInternshipRequestStatus(request.status)}
+            </StatusBadge>
+          </dd>
+        </div>
+        <div>
+          <dt>Shortlist Guidance Value</dt>
+          <dd>
+            {request.shortlistGuidanceValue === null
+              ? 'Not set'
+              : `${request.shortlistGuidanceValue} candidates (advisory only)`}
+          </dd>
         </div>
         <div className="wireframe-details-wide">
-          <dt>Required Technical Skills (Compiled Matching Array)</dt>
+          <dt>Role Description</dt>
+          <dd>{request.description ?? 'Not provided'}</dd>
+        </div>
+        <div className="wireframe-details-wide">
+          <dt>Required Declared Skills</dt>
           <dd className="wireframe-skill-tokens">
-            {request.requiredSkills.map((skill) => (
-              <span key={skill.requiredSkillId}>{skill.skillName}</span>
-            ))}
+            {request.requiredSkills.length ? (
+              request.requiredSkills.map((skill) => (
+                <span key={skill.requiredSkillId}>{skill.skillName}</span>
+              ))
+            ) : (
+              <span>No required skills</span>
+            )}
           </dd>
         </div>
       </dl>
@@ -36,7 +65,7 @@ export function InternshipRequestDetailsModal({
         <Button onClick={onClose} variant="secondary">
           Close
         </Button>
-        {editable ? (
+        {canEditInternshipRequest(request.status) ? (
           <Button icon={<span className="material-symbols-outlined">edit</span>} onClick={onEdit}>
             Edit
           </Button>

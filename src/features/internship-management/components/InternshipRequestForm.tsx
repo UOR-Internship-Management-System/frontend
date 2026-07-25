@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import type { ApiInternshipRequestStatus } from '../../../shared/api/generated/cvManagementApi.types'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { FormField } from '../../../shared/components/forms/FormField'
+import { SelectField } from '../../../shared/components/forms/SelectField'
 import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
@@ -11,6 +12,7 @@ import type {
   InternshipRequestCreateInput,
   InternshipRequestFormValues,
 } from '../types/internshipManagementTypes'
+import { formatInternshipRequestStatus } from '../utils/internshipRequestPresentation'
 import { RequiredSkillPicker } from './RequiredSkillPicker'
 
 type Field = keyof InternshipRequestFormValues
@@ -20,11 +22,8 @@ export const emptyInternshipRequestForm: InternshipRequestFormValues = {
   companyId: '',
   title: '',
   description: '',
-  location: '',
-  workMode: '',
   status: 'DRAFT',
   shortlistGuidanceValue: '',
-  notes: '',
   requiredSkills: [],
 }
 
@@ -41,34 +40,21 @@ export function mapInternshipRequestToForm(request: {
   company: Company
   title: string
   description: string | null
-  location: string | null
-  workMode: InternshipRequestFormValues['workMode'] | null
   status: ApiInternshipRequestStatus
   shortlistGuidanceValue: number | null
-  notes: string | null
-  requiredSkills: Array<{
-    skillId: string
-    skillName: string
-    requiredCompetencyLevel: InternshipRequestFormValues['requiredSkills'][number]['requiredCompetencyLevel']
-  }>
+  requiredSkills: Array<{ skillId: string; skillName: string }>
 }): InternshipRequestFormValues {
   return {
     companyId: request.company.companyId,
     title: request.title,
     description: request.description ?? '',
-    location: request.location ?? '',
-    workMode: request.workMode ?? '',
     status: request.status,
     shortlistGuidanceValue:
       request.shortlistGuidanceValue === null ? '' : String(request.shortlistGuidanceValue),
-    notes: request.notes ?? '',
-    requiredSkills: request.requiredSkills.map(
-      ({ skillId, skillName, requiredCompetencyLevel }) => ({
-        skillId,
-        skillName,
-        requiredCompetencyLevel,
-      }),
-    ),
+    requiredSkills: request.requiredSkills.map(({ skillId, skillName }) => ({
+      skillId,
+      skillName,
+    })),
   }
 }
 
@@ -77,15 +63,11 @@ function toSubmission(values: InternshipRequestFormValues): InternshipRequestCre
     companyId: values.companyId,
     title: values.title.trim(),
     description: values.description.trim() || null,
-    location: values.location.trim() || null,
-    workMode: values.workMode || null,
     status: values.status,
-    shortlistGuidanceValue: Number(values.shortlistGuidanceValue),
-    notes: values.notes.trim() || null,
-    requiredSkills: values.requiredSkills.map(({ skillId, requiredCompetencyLevel }) => ({
-      skillId,
-      requiredCompetencyLevel,
-    })),
+    shortlistGuidanceValue: values.shortlistGuidanceValue.trim()
+      ? Number(values.shortlistGuidanceValue)
+      : null,
+    requiredSkills: values.requiredSkills.map(({ skillId }) => ({ skillId })),
   }
 }
 
@@ -98,67 +80,83 @@ export function InternshipRequestForm({
 }: {
   currentCompany?: Company
   initialValues?: InternshipRequestFormValues
-  lockCompany?: boolean
   mode: 'create' | 'edit'
   onCancel: () => void
   onSubmit: (values: InternshipRequestCreateInput) => Promise<void>
 }) {
-  const [values, setValues] = useState<InternshipRequestFormValues>(() => ({
+  const resolvedInitialValues: InternshipRequestFormValues = {
     ...initialValues,
     companyId: currentCompany?.companyId ?? initialValues.companyId,
     requiredSkills: initialValues.requiredSkills.map((skill) => ({ ...skill })),
-  }))
+  }
+  const [values, setValues] = useState<InternshipRequestFormValues>(resolvedInitialValues)
   const [errors, setErrors] = useState<Errors>({})
   const [formError, setFormError] = useState<string>()
   const [pending, setPending] = useState(false)
   const titleRef = useRef<HTMLInputElement | null>(null)
+  const isDirty = JSON.stringify(values) !== JSON.stringify(resolvedInitialValues)
+  const statusOptions = allowedRequestStatuses(mode, initialValues.status)
+
   const update = <K extends Field>(field: K, value: InternshipRequestFormValues[K]) => {
     setValues((current) => ({ ...current, [field]: value }))
     setErrors((current) => ({ ...current, [field]: undefined }))
     setFormError(undefined)
   }
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setErrors({})
+    setFormError(undefined)
     const parsed = internshipRequestFormValuesSchema.safeParse(values)
     if (!parsed.success) {
       const next: Errors = {}
       for (const issue of parsed.error.issues) {
         const field = issue.path[0]
-        if (typeof field === 'string' && !next[field as Field]) next[field as Field] = issue.message
+        if (typeof field === 'string' && !next[field as Field]) {
+          next[field as Field] = issue.message
+        }
       }
       setErrors(next)
       if (next.title) requestAnimationFrame(() => titleRef.current?.focus())
       return
     }
+
     setPending(true)
-    setFormError(undefined)
     try {
       await onSubmit(toSubmission(parsed.data))
     } catch (reason) {
       const mapped = mapApiError(reason, 'protected')
+      const next: Errors = {}
+      for (const fieldError of mapped.fieldErrors) {
+        if (fieldError.field in values) next[fieldError.field as Field] = fieldError.message
+      }
+      setErrors(next)
       setFormError(mapped.message)
     } finally {
       setPending(false)
     }
   }
+
   return (
     <Modal
+      className="internship-request-modal"
       closeDisabled={pending}
       onClose={onCancel}
-      size="wide"
-      title={
-        mode === 'create'
-          ? 'Create Candidate Selection Criteria'
-          : 'Modify Placement Criteria Settings'
-      }
+      title={mode === 'create' ? 'Create Internship Request' : 'Edit Internship Request'}
     >
       <form className="internship-request-form wireframe-request-form" noValidate onSubmit={submit}>
         {formError ? (
           <div className="inline-alert" role="alert">
-            {formError}
+            <p>{formError}</p>
+            <p>Your entered values are preserved.</p>
           </div>
         ) : null}
-        <div className="wireframe-form-grid">
+
+        <section className="request-form-section" aria-labelledby="request-role-heading">
+          <div className="request-form-section-heading">
+            <h3 id="request-role-heading">Role and lifecycle</h3>
+            <p>Define the role and request state for the selected company.</p>
+          </div>
           <FormField
             error={errors.title}
             errorId="request-title-error"
@@ -176,41 +174,98 @@ export function InternshipRequestForm({
               value={values.title}
             />
           </FormField>
+          <div className="wireframe-form-grid">
+            <FormField
+              error={errors.status}
+              errorId="request-status-error"
+              htmlFor="request-status"
+              label="Request Status"
+            >
+              <SelectField
+                aria-invalid={Boolean(errors.status)}
+                disabled={pending}
+                id="request-status"
+                onChange={(event) =>
+                  update('status', event.target.value as ApiInternshipRequestStatus)
+                }
+                value={values.status}
+              >
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {formatInternshipRequestStatus(status)}
+                  </option>
+                ))}
+              </SelectField>
+            </FormField>
+            <FormField
+              error={errors.shortlistGuidanceValue}
+              errorId="request-shortlistGuidanceValue-error"
+              htmlFor="request-guidance"
+              label="Shortlist Guidance Value (Optional)"
+            >
+              <TextInput
+                aria-describedby="request-guidance-help"
+                aria-invalid={Boolean(errors.shortlistGuidanceValue)}
+                disabled={pending}
+                id="request-guidance"
+                max={10000}
+                min={0}
+                onChange={(event) => update('shortlistGuidanceValue', event.target.value)}
+                placeholder="e.g., 10"
+                type="number"
+                value={values.shortlistGuidanceValue}
+              />
+              <p className="request-field-help" id="request-guidance-help">
+                Advisory only. Leave blank when no guidance value is available; it never blocks
+                shortlist finalization.
+              </p>
+            </FormField>
+          </div>
           <FormField
-            error={errors.shortlistGuidanceValue}
-            errorId="request-shortlistGuidanceValue-error"
-            htmlFor="request-guidance"
-            label="Maximum Shortlist Limit"
+            error={errors.description}
+            errorId="request-description-error"
+            htmlFor="request-description"
+            label="Role Description"
           >
-            <TextInput
-              aria-invalid={Boolean(errors.shortlistGuidanceValue)}
+            <textarea
+              aria-invalid={Boolean(errors.description)}
+              className="input request-textarea"
               disabled={pending}
-              id="request-guidance"
-              max={100}
-              min={1}
-              onChange={(event) => update('shortlistGuidanceValue', event.target.value)}
-              placeholder="e.g., 10"
-              type="number"
-              value={values.shortlistGuidanceValue}
+              id="request-description"
+              maxLength={10000}
+              onChange={(event) => update('description', event.target.value)}
+              placeholder="Describe responsibilities, expectations, and relevant context"
+              value={values.description}
             />
           </FormField>
-        </div>
-        <RequiredSkillPicker
-          disabled={pending}
-          onChange={(skills) => update('requiredSkills', skills)}
-          value={values.requiredSkills}
-        />
-        {errors.requiredSkills ? (
-          <p className="field-error" role="alert">
-            {errors.requiredSkills}
-          </p>
-        ) : null}
+        </section>
+
+        <section className="request-form-section" aria-labelledby="request-skills-heading">
+          <div className="request-form-section-heading">
+            <h3 id="request-skills-heading">Add Required Skills</h3>
+            <p>
+              Select taxonomy skills required for the role. Student competency levels remain
+              student-managed and are not editable by administrators.
+            </p>
+          </div>
+          <RequiredSkillPicker
+            disabled={pending}
+            onChange={(skills) => update('requiredSkills', skills)}
+            value={values.requiredSkills}
+          />
+          {errors.requiredSkills ? (
+            <p className="field-error" role="alert">
+              {errors.requiredSkills}
+            </p>
+          ) : null}
+        </section>
+
         <div className="modal-actions">
           <Button disabled={pending} onClick={onCancel} variant="secondary">
-            Close
+            Cancel
           </Button>
-          <Button isLoading={pending} type="submit">
-            {mode === 'create' ? 'Add' : 'Save Changes'}
+          <Button disabled={mode === 'edit' && !isDirty} isLoading={pending} type="submit">
+            {mode === 'create' ? 'Create Request' : 'Save Changes'}
           </Button>
         </div>
       </form>

@@ -1,20 +1,25 @@
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
-export function InternshipRequestCancelDialog({
+
+export function InternshipRequestDeleteDialog({
   error,
   isPending,
   onClose,
   onConfirm,
+  requestTitle,
 }: {
   error?: string
   isPending: boolean
   onClose: () => void
   onConfirm: () => void
+  requestTitle: string
 }) {
   return (
-    <ConfirmDialog closeDisabled={isPending} onClose={onClose} title="Confirm Deletion">
-      <div className="request-cancel-dialog">
-        <p>Are you sure you want to delete this internship request?</p>
+    <ConfirmDialog closeDisabled={isPending} onClose={onClose} title="Delete Internship Request">
+      <div className="request-delete-dialog">
+        <p>
+          Delete <strong>{requestTitle}</strong>? This action cannot be undone.
+        </p>
         {error ? (
           <div className="inline-alert" role="alert">
             {error}
@@ -22,10 +27,10 @@ export function InternshipRequestCancelDialog({
         ) : null}
         <div className="modal-actions">
           <Button disabled={isPending} onClick={onClose} variant="secondary">
-            Cancel
+            Keep Request
           </Button>
-          <Button isLoading={isPending} onClick={onConfirm}>
-            Delete
+          <Button className="wireframe-danger-button" isLoading={isPending} onClick={onConfirm}>
+            Delete Internship Request
           </Button>
         </div>
       </div>
