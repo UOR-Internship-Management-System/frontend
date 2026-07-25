@@ -1,8 +1,8 @@
 # OpenAPI v1.6.0 Validation Report
 
-Validated: 2026-07-19
+Validated: 2026-07-26
 
-Canonical LF SHA-256: `ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a85d8350`
+Canonical LF SHA-256: `c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa18e902ad`
 
 ## Structural and contract checks
 
@@ -21,6 +21,8 @@ Canonical LF SHA-256: `ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a
 | No company authentication or COMPANY role                                  | PASS   |
 | No Admin taxonomy mutation                                                 | PASS   |
 | No GPA fields in internship request schemas                                | PASS   |
+| No request work-arrangement, notes, or Admin competency fields              | PASS   |
+| Explicit company/request delete semantics                                   | PASS   |
 | Runtime GPA confined to filtering and academic data                        | PASS   |
 | No candidate score/rank/probability/recommendation/match percentage fields | PASS   |
 | Manual shortlist mutation contract                                         | PASS   |
@@ -38,10 +40,10 @@ This table is finalized after executing the repository gates.
 | Command                            | Result                       |
 | ---------------------------------- | ---------------------------- |
 | `npm ci`                           | PENDING                      |
-| `npm run openapi:generate`         | PENDING                      |
-| `npm run openapi:check`            | PENDING                      |
+| `npm run openapi:generate`         | PASS                         |
+| `npm run openapi:check`            | PASS                         |
 | `npm run validate-env`             | PENDING                      |
-| `npm run verify:scope`             | PENDING                      |
+| `npm run verify:scope`             | PASS                         |
 | `npm run format:check`             | PENDING                      |
 | `npm run lint`                     | PENDING                      |
 | `npm run typecheck`                | PENDING                      |

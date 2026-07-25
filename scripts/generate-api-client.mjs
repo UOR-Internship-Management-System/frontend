@@ -486,7 +486,6 @@ export type ApiCompanyResponse = {
 export type ApiPagedCompanyResponse = ApiPagedResponse<ApiCompanyResponse>
 
 export type ApiInternshipRequestStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED' | 'CANCELLED'
-export type ApiInternshipWorkMode = 'ONSITE' | 'HYBRID' | 'REMOTE'
 export type ApiInternshipRequestSort =
   | 'createdAt,desc'
   | 'title,asc'
@@ -495,29 +494,26 @@ export type ApiInternshipRequestSort =
 
 export type ApiInternshipRequiredSkillRequest = {
   skillId: string
-  requiredCompetencyLevel?: ApiCompetencyLevel | null
 }
 
 export type ApiInternshipRequiredSkillResponse = {
   requiredSkillId: string
   skillId: string
   skillName: string
-  requiredCompetencyLevel: ApiCompetencyLevel | null
 }
 
 export type ApiInternshipRequestCreateRequest = {
   companyId: string
   title: string
   description?: string | null
-  location?: string | null
-  workMode?: ApiInternshipWorkMode | null
   status: ApiInternshipRequestStatus
   shortlistGuidanceValue?: number | null
-  notes?: string | null
   requiredSkills: ApiInternshipRequiredSkillRequest[]
 }
 
-export type ApiInternshipRequestUpdateRequest = Partial<ApiInternshipRequestCreateRequest>
+export type ApiInternshipRequestUpdateRequest = Partial<
+  Omit<ApiInternshipRequestCreateRequest, 'companyId'>
+>
 
 export type ApiInternshipRequestSummaryResponse = {
   requestId: string
@@ -533,11 +529,8 @@ export type ApiInternshipRequestResponse = {
   company: ApiCompanyResponse
   title: string
   description: string | null
-  location: string | null
-  workMode: ApiInternshipWorkMode | null
   status: ApiInternshipRequestStatus
   shortlistGuidanceValue: number | null
-  notes: string | null
   requiredSkills: ApiInternshipRequiredSkillResponse[]
   version: number
   createdAt: string

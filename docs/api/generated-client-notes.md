@@ -2,7 +2,7 @@
 
 The canonical frontend contract is OpenAPI 3.1.1 version 1.6.0 at `docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml`.
 
-Canonical LF SHA-256: `ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a85d8350`.
+Canonical LF SHA-256: `c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa18e902ad`.
 
 `npm run openapi:generate` produces deterministic contract metadata and selected strict transport types for completed Sprint 1-6 behavior plus the frozen Sprint 7-8 Admin Student inspection, company/request, deterministic filtering, shortlist, and export contracts. It does not generate a complete endpoint SDK.
 
@@ -13,7 +13,7 @@ The generated Sprint 7-8 metadata includes strict equivalents of:
 - `AdminStudentDetailResponse`
 - `AdminLatestCvResponse`
 - Company create/update/response and page types
-- Internship request create/update/response, status, work-mode, required-skill, and page types
+- Internship request create/update/response, status, taxonomy-skill, and page types
 - Candidate filtering criteria/run/candidate/page and constrained sort types
 - Shortlist create/detail/candidate/mutation/finalization/page and status types
 - CSV summary and ZIP bulk-CV export requests
@@ -24,7 +24,8 @@ Contract rules:
 - Admin Student inspection is read-only.
 - Latest saved CV access is read-only and PDF-only.
 - Companies are metadata-only external stakeholders with no system identity.
-- Internship requests contain no GPA criteria.
+- Internship requests contain no GPA criteria, work-arrangement fields, administrative notes, or Admin-edited competency levels.
+- Company and internship-request DELETE operations are explicit destructive actions with optimistic concurrency.
 - GPA appears only as official academic data or runtime filtering criteria.
 - Filtering is deterministic and contains no score, rank, probability, recommendation, or match percentage.
 - Candidate selection is manual.

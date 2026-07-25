@@ -3833,9 +3833,9 @@ paths:
     delete:
       tags:
         - Company Metadata
-      summary: Deactivate company metadata record.
+      summary: Delete company metadata record.
       operationId: deleteAdminCompaniesByCompanyId
-      description: Idempotent soft deactivation. Existing request references remain; active requests may require closure first.
+      description: Permanently deletes the company metadata record and its linked internship requests.
       security:
         - bearerAuth: []
       x-access-role: ADMIN
@@ -3852,7 +3852,7 @@ paths:
         - $ref: '#/components/parameters/IfMatchVersion'
       responses:
         '204':
-          description: Company is inactive. Repeating the operation for an already inactive company returns 204.
+          description: Company and linked internship requests were deleted.
         '401':
           $ref: '#/components/responses/Error401'
         '403':
@@ -3867,8 +3867,6 @@ paths:
           $ref: '#/components/responses/Error503'
         '404':
           $ref: '#/components/responses/CompanyNotFound404'
-        '409':
-          $ref: '#/components/responses/CompanyLinked409'
         '428':
           $ref: '#/components/responses/MissingIfMatch428'
   /admin/internship-requests:
@@ -3878,8 +3876,7 @@ paths:
       summary: List internship requests.
       operationId: getAdminInternshipRequests
       description:
-        Admin-only server-side list. Search covers role title, company name, location, and notes. GPA criteria
-        are absent.
+        Admin-only server-side list. Search covers role title and company name. GPA criteria are absent.
       security:
         - bearerAuth: []
       x-access-role: ADMIN
@@ -4067,9 +4064,9 @@ paths:
     delete:
       tags:
         - Internship Requests
-      summary: Cancel internship request.
+      summary: Delete internship request.
       operationId: deleteAdminInternshipRequestsByRequestId
-      description: Idempotently transitions DRAFT or ACTIVE to CANCELLED. Finalized-shortlist dependencies may cause 409.
+      description: Permanently deletes the internship request when allowed by referential-integrity rules.
       security:
         - bearerAuth: []
       x-access-role: ADMIN
@@ -4086,7 +4083,7 @@ paths:
         - $ref: '#/components/parameters/IfMatchVersion'
       responses:
         '204':
-          description: Request is CANCELLED. Repeating cancellation returns 204.
+          description: Internship request was deleted.
         '401':
           $ref: '#/components/responses/Error401'
         '403':
@@ -7241,15 +7238,6 @@ components:
             - string
             - 'null'
           maxLength: 10000
-        location:
-          type:
-            - string
-            - 'null'
-          maxLength: 150
-        workMode:
-          oneOf:
-            - $ref: '#/components/schemas/InternshipWorkMode'
-            - type: 'null'
         status:
           $ref: '#/components/schemas/InternshipRequestStatus'
         shortlistGuidanceValue:
@@ -7259,11 +7247,6 @@ components:
           minimum: 0
           maximum: 10000
           description: Advisory value only; never a hard finalization limit.
-        notes:
-          type:
-            - string
-            - 'null'
-          maxLength: 4000
         requiredSkills:
           type: array
           items:
@@ -7279,11 +7262,8 @@ components:
         - company
         - title
         - description
-        - location
-        - workMode
         - status
         - shortlistGuidanceValue
-        - notes
         - requiredSkills
         - version
         - createdAt
@@ -7304,15 +7284,6 @@ components:
             - string
             - 'null'
           maxLength: 10000
-        location:
-          type:
-            - string
-            - 'null'
-          maxLength: 150
-        workMode:
-          oneOf:
-            - $ref: '#/components/schemas/InternshipWorkMode'
-            - type: 'null'
         status:
           $ref: '#/components/schemas/InternshipRequestStatus'
         shortlistGuidanceValue:
@@ -7320,11 +7291,6 @@ components:
             - integer
             - 'null'
           minimum: 0
-        notes:
-          type:
-            - string
-            - 'null'
-          maxLength: 4000
         requiredSkills:
           type: array
           items:
@@ -7346,9 +7312,6 @@ components:
       type: object
       additionalProperties: false
       properties:
-        companyId:
-          type: string
-          format: uuid
         title:
           type: string
           minLength: 1
@@ -7358,15 +7321,6 @@ components:
             - string
             - 'null'
           maxLength: 10000
-        location:
-          type:
-            - string
-            - 'null'
-          maxLength: 150
-        workMode:
-          oneOf:
-            - $ref: '#/components/schemas/InternshipWorkMode'
-            - type: 'null'
         status:
           $ref: '#/components/schemas/InternshipRequestStatus'
         shortlistGuidanceValue:
@@ -7376,11 +7330,6 @@ components:
           minimum: 0
           maximum: 10000
           description: Advisory value only; never a hard finalization limit.
-        notes:
-          type:
-            - string
-            - 'null'
-          maxLength: 4000
         requiredSkills:
           type: array
           items:
@@ -7399,10 +7348,6 @@ components:
         skillId:
           type: string
           format: uuid
-        requiredCompetencyLevel:
-          oneOf:
-            - $ref: '#/components/schemas/CompetencyLevel'
-            - type: 'null'
     InternshipRequiredSkillResponse:
       type: object
       additionalProperties: false
@@ -7410,7 +7355,6 @@ components:
         - requiredSkillId
         - skillId
         - skillName
-        - requiredCompetencyLevel
       properties:
         requiredSkillId:
           type: string
@@ -7424,10 +7368,6 @@ components:
           type: string
           minLength: 1
           readOnly: true
-        requiredCompetencyLevel:
-          oneOf:
-            - $ref: '#/components/schemas/CompetencyLevel'
-            - type: 'null'
     OperationResponse:
       type: object
       properties:
@@ -9907,13 +9847,7 @@ components:
         - ACTIVE
         - CLOSED
         - CANCELLED
-      description: DRAFT may become ACTIVE or CANCELLED; ACTIVE may become CLOSED or CANCELLED; CLOSED and CANCELLED are terminal.
-    InternshipWorkMode:
-      type: string
-      enum:
-        - ONSITE
-        - HYBRID
-        - REMOTE
+      description: DRAFT may become ACTIVE; ACTIVE may become CLOSED; CLOSED and CANCELLED are terminal retained states. DELETE removes the request resource.
     FilterSkillMatchMode:
       type: string
       enum:

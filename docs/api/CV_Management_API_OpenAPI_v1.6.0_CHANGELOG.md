@@ -62,3 +62,12 @@ Version 1.6.0 is a minor contract milestone. It preserves all valid Sprint 1-6 p
 - Expanded deterministic generated TypeScript metadata through Sprint 8.
 - Expanded OpenAPI synchronization checks to verify `$ref` resolution, operationId preservation, strict schemas, exact export media types, optimistic concurrency, and negative-scope semantics.
 - Added focused Vitest contract checks and Sprint 7-8 traceability/decision documents.
+
+## Admin internship-management wireframe correction - 2026-07-26
+
+- Replaced company activation/deactivation actions with an explicit `Delete Company` flow; deletion also removes linked internship requests after confirmation.
+- Replaced internship-request cancellation action with an explicit `Delete Internship Request` flow.
+- Removed location, work mode, and administrative notes from internship-request create, update, and response schemas.
+- Removed company selection from the update schema; create continues to receive the selected company identifier from page context rather than a visible form field.
+- Removed request-skill competency-level fields. Admins select taxonomy skills only; Student declared-skill competency remains Student-owned.
+- Kept Create Company and Create Internship Request on the same default modal width contract.

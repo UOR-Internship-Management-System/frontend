@@ -5,7 +5,7 @@ import path from 'node:path'
 const root = process.cwd()
 const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml'
 const priorContractPath = 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
-const expectedContractSha256 = 'ebc5adb4b95380b3f66b38b06437a183a136149297916a90d19aaee0a85d8350'
+const expectedContractSha256 = 'c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa18e902ad'
 const requiredFiles = [
   contractPath,
   priorContractPath,
@@ -226,6 +226,39 @@ for (const schemaName of internshipSchemas) {
   const block = namedBlock('schemas', schemaName)
   if (/^ {6}[A-Za-z0-9_]*gpa[A-Za-z0-9_]*:/im.test(block))
     fail(`${schemaName} contains persisted GPA criteria`)
+  for (const removedProperty of ['location', 'workMode', 'notes']) {
+    if (new RegExp(`^ {6}${removedProperty}:`, 'm').test(block)) {
+      fail(`${schemaName} contains removed wireframe field ${removedProperty}`)
+    }
+  }
+}
+
+const requestUpdateSchema = namedBlock('schemas', 'InternshipRequestUpdateRequest')
+if (/^ {6}companyId:/m.test(requestUpdateSchema)) {
+  fail('InternshipRequestUpdateRequest must use the already-selected company context')
+}
+for (const schemaName of ['InternshipRequiredSkillRequest', 'InternshipRequiredSkillResponse']) {
+  if (/requiredCompetencyLevel:/.test(namedBlock('schemas', schemaName))) {
+    fail(`${schemaName} must not expose Admin competency-level editing`)
+  }
+}
+if (contract.includes('\n    InternshipWorkMode:\n')) {
+  fail('Removed InternshipWorkMode schema is still present')
+}
+
+const companyDelete = operationBlock('/admin/companies/{companyId}', 'delete')
+if (!companyDelete.includes('summary: Delete company metadata record.')) {
+  fail('Company DELETE must expose the wireframe Delete Company action')
+}
+if (!companyDelete.includes('linked internship requests')) {
+  fail('Company DELETE must document linked internship-request deletion')
+}
+const requestDelete = operationBlock('/admin/internship-requests/{requestId}', 'delete')
+if (!requestDelete.includes('summary: Delete internship request.')) {
+  fail('Internship-request DELETE must expose the wireframe delete action')
+}
+if (/cancel/i.test(requestDelete)) {
+  fail('Internship-request DELETE must not use cancellation semantics')
 }
 
 const candidateSchemas = ['CandidateFilteringCandidateResponse', 'ShortlistCandidateResponse']
