@@ -54,8 +54,7 @@ export function DeclaredSkillsTable({
               <th scope="col">Skill Category</th>
               <th scope="col">Skill</th>
               <th scope="col">Competency</th>
-              <th scope="col">Last updated</th>
-              <th scope="col">Actions</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -63,6 +62,7 @@ export function DeclaredSkillsTable({
               const errorId = `declared-skill-${item.declaredSkillId}-error`
               const isUpdating = updatingId === item.declaredSkillId
               const paths = taxonomyPathsBySkillId.get(item.skillId) ?? []
+              const selectedLevel = levels[item.declaredSkillId] ?? item.competencyLevel
               return (
                 <tr key={item.declaredSkillId}>
                   <td>{taxonomyNames(paths, 'clusterName')}</td>
@@ -81,7 +81,7 @@ export function DeclaredSkillsTable({
                         if (level)
                           setLevels((current) => ({ ...current, [item.declaredSkillId]: level }))
                       }}
-                      value={levels[item.declaredSkillId] ?? item.competencyLevel}
+                      value={selectedLevel}
                     />
                     {errors[item.declaredSkillId] ? (
                       <p className="error-text" id={errorId} role="alert">
@@ -89,14 +89,11 @@ export function DeclaredSkillsTable({
                       </p>
                     ) : null}
                   </td>
-                  <td>{new Date(item.updatedAt).toLocaleDateString()}</td>
                   <td>
                     <div className="s4-skills-row-actions">
                       <Button
-                        disabled={
-                          (levels[item.declaredSkillId] ?? item.competencyLevel) ===
-                          item.competencyLevel
-                        }
+                        aria-label={`Update competency for ${item.skillName}`}
+                        disabled={selectedLevel === item.competencyLevel}
                         isLoading={isUpdating}
                         onClick={() => void update(item)}
                         variant="secondary"
@@ -104,11 +101,12 @@ export function DeclaredSkillsTable({
                         Update
                       </Button>
                       <Button
+                        aria-label={`Remove ${item.skillName}`}
                         disabled={isUpdating || deletingId === item.declaredSkillId}
                         onClick={() => onRemove(item)}
                         variant="secondary"
                       >
-                        Remove {item.skillName}
+                        Remove
                       </Button>
                     </div>
                   </td>
@@ -123,6 +121,7 @@ export function DeclaredSkillsTable({
         {items.map((item) => {
           const isUpdating = updatingId === item.declaredSkillId
           const paths = taxonomyPathsBySkillId.get(item.skillId) ?? []
+          const selectedLevel = levels[item.declaredSkillId] ?? item.competencyLevel
           return (
             <article className="s4-skills-mobile-card" key={item.declaredSkillId}>
               <h3>{item.skillName}</h3>
@@ -148,7 +147,7 @@ export function DeclaredSkillsTable({
                     if (level)
                       setLevels((current) => ({ ...current, [item.declaredSkillId]: level }))
                   }}
-                  value={levels[item.declaredSkillId] ?? item.competencyLevel}
+                  value={selectedLevel}
                 />
               </label>
               {errors[item.declaredSkillId] ? (
@@ -158,16 +157,18 @@ export function DeclaredSkillsTable({
               ) : null}
               <div className="s4-skills-row-actions">
                 <Button
-                  disabled={
-                    (levels[item.declaredSkillId] ?? item.competencyLevel) === item.competencyLevel
-                  }
+                  disabled={selectedLevel === item.competencyLevel}
                   isLoading={isUpdating}
                   onClick={() => void update(item)}
                   variant="secondary"
                 >
                   Update
                 </Button>
-                <Button onClick={() => onRemove(item)} variant="secondary">
+                <Button
+                  disabled={isUpdating || deletingId === item.declaredSkillId}
+                  onClick={() => onRemove(item)}
+                  variant="secondary"
+                >
                   Remove
                 </Button>
               </div>

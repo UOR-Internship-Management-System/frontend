@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
 import { SelectField } from '../../../shared/components/forms/SelectField'
 import { Button } from '../../../shared/components/ui/Button'
@@ -8,19 +9,23 @@ import type { CompetencyLevel } from '../types/studentSkillTypes'
 import { SkillLevelSelect } from './SkillLevelSelect'
 
 export function DeclaredSkillForm({
-  isPending,
-  onSubmit,
-  onSelectSkill,
-  selectedSkill,
-  taxonomy,
+  availableSearch,
   declaredSkillIds,
   disabled = false,
+  isPending,
+  onAvailableSearchChange,
+  onSelectSkill,
+  onSubmit,
+  selectedSkill,
+  taxonomy,
 }: {
+  availableSearch: string
   selectedSkill: IndividualSkill | null
   taxonomy: SkillTaxonomy
   declaredSkillIds: ReadonlySet<string>
   isPending: boolean
   disabled?: boolean
+  onAvailableSearchChange: (value: string) => void
   onSelectSkill: (skill: IndividualSkill | null) => void
   onSubmit: (competencyLevel: CompetencyLevel) => Promise<void>
 }) {
@@ -61,6 +66,7 @@ export function DeclaredSkillForm({
       setError('Select a competency level.')
       return
     }
+
     try {
       await onSubmit(competencyLevel)
       setCompetencyLevel('')
@@ -71,6 +77,16 @@ export function DeclaredSkillForm({
 
   return (
     <form className="s4-skills-declare-form" noValidate onSubmit={submit}>
+      <div className="s4-skills-available-search">
+        <SearchInput
+          aria-label="Search available system skills"
+          disabled={disabled || isPending}
+          onChange={(event) => onAvailableSearchChange(event.target.value)}
+          placeholder="Search available system skills"
+          value={availableSearch}
+        />
+      </div>
+
       <div className="s4-skills-add-fields">
         <label>
           <span>Core Cluster</span>
@@ -85,7 +101,7 @@ export function DeclaredSkillForm({
             }}
             value={clusterId}
           >
-            <option value="">Select a core cluster</option>
+            <option value="">Choose Core Cluster</option>
             {taxonomy.clusters.map((cluster) => (
               <option key={cluster.clusterId} value={cluster.clusterId}>
                 {cluster.name}
@@ -105,7 +121,7 @@ export function DeclaredSkillForm({
             }}
             value={categoryId}
           >
-            <option value="">Select a skill category</option>
+            <option value="">Choose Skill Category</option>
             {categories.map((category) => (
               <option key={category.categoryId} value={category.categoryId}>
                 {category.name}
@@ -125,7 +141,7 @@ export function DeclaredSkillForm({
             }}
             value={selectedSkill?.skillId ?? ''}
           >
-            <option value="">Select an individual skill</option>
+            <option value="">Choose Individual Skill</option>
             {skills.map((skill) => (
               <option
                 disabled={declaredSkillIds.has(skill.skillId)}
@@ -149,13 +165,16 @@ export function DeclaredSkillForm({
           />
         </label>
       </div>
-      <Button
-        disabled={disabled || !selectedSkill || !competencyLevel}
-        isLoading={isPending}
-        type="submit"
-      >
-        Add declared skill
-      </Button>
+
+      <div className="s4-skills-form-actions">
+        <Button
+          disabled={disabled || !selectedSkill || !competencyLevel}
+          isLoading={isPending}
+          type="submit"
+        >
+          Add Skill
+        </Button>
+      </div>
       <FormErrorMessage id="declare-skill-error" message={error} />
     </form>
   )
