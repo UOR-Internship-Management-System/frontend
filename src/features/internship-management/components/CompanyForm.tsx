@@ -103,11 +103,7 @@ export function CompanyForm({
     <Modal
       closeDisabled={isPending}
       onClose={onCancel}
-      title={
-        mode === 'create'
-          ? 'Create Corporate CRM Profile Parameters'
-          : 'Modify Corporate Profile Parameters'
-      }
+      title={mode === 'create' ? 'Create Company' : 'Edit Company'}
     >
       <form className="company-form" noValidate onSubmit={submit}>
         {formError ? (
@@ -121,7 +117,7 @@ export function CompanyForm({
           error={errors.name}
           errorId="company-name-error"
           htmlFor="company-name"
-          label="Company Legal Name"
+          label="Company Name"
         >
           <TextInput
             aria-describedby={describedBy('name')}
@@ -141,7 +137,7 @@ export function CompanyForm({
           error={errors.websiteUrl}
           errorId="company-websiteUrl-error"
           htmlFor="company-website"
-          label="Corporate Website URL"
+          label="Website"
         >
           <TextInput
             aria-describedby={describedBy('websiteUrl')}
@@ -162,7 +158,7 @@ export function CompanyForm({
             error={errors.contactPerson}
             errorId="company-contactPerson-error"
             htmlFor="company-contact-person"
-            label="HR Representative Name"
+            label="HR Representative"
           >
             <TextInput
               aria-describedby={describedBy('contactPerson')}
@@ -180,7 +176,7 @@ export function CompanyForm({
             error={errors.contactEmail}
             errorId="company-contactEmail-error"
             htmlFor="company-contact-email"
-            label="Office / HR Email Address"
+            label="HR Email Address"
           >
             <TextInput
               aria-describedby={describedBy('contactEmail')}
@@ -199,7 +195,7 @@ export function CompanyForm({
             error={errors.contactPhone}
             errorId="company-contactPhone-error"
             htmlFor="company-contact-phone"
-            label="Direct Line Phone"
+            label="Phone Number"
           >
             <TextInput
               aria-describedby={describedBy('contactPhone')}
@@ -216,12 +212,31 @@ export function CompanyForm({
           </FormField>
         </div>
 
+        <FormField
+          error={errors.notes}
+          errorId="company-notes-error"
+          htmlFor="company-notes"
+          label="Internal Notes (Optional)"
+        >
+          <textarea
+            aria-describedby={describedBy('notes')}
+            aria-invalid={Boolean(errors.notes)}
+            className="input request-textarea"
+            disabled={isPending}
+            id="company-notes"
+            maxLength={4000}
+            onChange={(event) => update('notes', event.target.value)}
+            placeholder="Add internal context for department administrators"
+            value={values.notes}
+          />
+        </FormField>
+
         <div className="modal-actions">
           <Button disabled={isPending} onClick={onCancel} variant="secondary">
             Close
           </Button>
           <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
-            {mode === 'create' ? 'Save Profile' : 'Save Changes'}
+            {mode === 'create' ? 'Create Company' : 'Save Changes'}
           </Button>
         </div>
       </form>

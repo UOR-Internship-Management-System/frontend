@@ -1,4 +1,5 @@
 import { Button } from '../../../shared/components/ui/Button'
+import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { Company } from '../types/internshipManagementTypes'
 
 export function CompanyTable({
@@ -19,15 +20,27 @@ export function CompanyTable({
       {companies.map((company) => (
         <article
           aria-current={company.companyId === selectedCompanyId ? 'true' : undefined}
-          className={`wireframe-management-row ${company.companyId === selectedCompanyId ? 'selected' : ''}`}
+          className={`wireframe-management-row ${company.companyId === selectedCompanyId ? 'selected' : ''} ${company.active ? '' : 'wireframe-management-row-inactive'}`.trim()}
           key={company.companyId}
           onClick={() => onSelect(company.companyId)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              onSelect(company.companyId)
+            }
+          }}
           role="listitem"
+          tabIndex={0}
         >
           <div className="wireframe-row-meta">
-            <h3>{company.name}</h3>
+            <div className="request-row-title">
+              <h3>{company.name}</h3>
+              <StatusBadge tone={company.active ? 'success' : 'neutral'}>
+                {company.active ? 'Active' : 'Inactive'}
+              </StatusBadge>
+            </div>
             <p>
-              {company.websiteUrl ?? 'Website not provided'} · HR Rep:{' '}
+              {company.websiteUrl ?? 'Website not provided'} · HR representative:{' '}
               {company.contactPerson ?? 'Not provided'}
             </p>
           </div>
@@ -45,7 +58,7 @@ export function CompanyTable({
               onClick={() => onDelete(company.companyId)}
               variant="secondary"
             >
-              Delete
+              Delete Company
             </Button>
           </div>
         </article>

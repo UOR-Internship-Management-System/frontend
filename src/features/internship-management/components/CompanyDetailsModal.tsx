@@ -1,48 +1,75 @@
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
+import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { Company } from '../types/internshipManagementTypes'
 
 export function CompanyDetailsModal({
   company,
   onClose,
-  onDeactivate,
+  onDelete,
   onEdit,
 }: {
   company: Company
   onClose: () => void
-  onDeactivate: () => void
+  onDelete: () => void
   onEdit: () => void
 }) {
   return (
-    <Modal onClose={onClose} title="Corporate CRM Details Panel">
+    <Modal onClose={onClose} title="Company Details">
       <dl className="wireframe-details-grid">
         <div className="wireframe-details-wide">
-          <dt>Company Legal Name</dt>
+          <dt>Company Name</dt>
           <dd>{company.name}</dd>
         </div>
         <div>
-          <dt>Corporate Website URL</dt>
-          <dd>{company.websiteUrl ?? 'Not provided'}</dd>
+          <dt>Status</dt>
+          <dd>
+            <StatusBadge tone={company.active ? 'success' : 'neutral'}>
+              {company.active ? 'Active' : 'Inactive'}
+            </StatusBadge>
+          </dd>
         </div>
         <div>
-          <dt>HR Representative Name</dt>
+          <dt>Website</dt>
+          <dd>
+            {company.websiteUrl ? (
+              <a href={company.websiteUrl} rel="noreferrer" target="_blank">
+                {company.websiteUrl}
+              </a>
+            ) : (
+              'Not provided'
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>HR Representative</dt>
           <dd>{company.contactPerson ?? 'Not provided'}</dd>
         </div>
         <div>
-          <dt>Office / HR Email Address</dt>
-          <dd>{company.contactEmail ?? 'Not provided'}</dd>
+          <dt>HR Email Address</dt>
+          <dd>
+            {company.contactEmail ? (
+              <a href={`mailto:${company.contactEmail}`}>{company.contactEmail}</a>
+            ) : (
+              'Not provided'
+            )}
+          </dd>
         </div>
         <div>
-          <dt>Direct Line Phone</dt>
+          <dt>Phone Number</dt>
           <dd>{company.contactPhone ?? 'Not provided'}</dd>
+        </div>
+        <div className="wireframe-details-wide">
+          <dt>Internal Notes</dt>
+          <dd>{company.notes ?? 'Not provided'}</dd>
         </div>
       </dl>
       <div className="modal-actions">
         <Button onClick={onClose} variant="secondary">
           Close
         </Button>
-        <Button onClick={onDeactivate} variant="secondary">
-          Delete
+        <Button className="wireframe-danger-button" onClick={onDelete} variant="secondary">
+          Delete Company
         </Button>
         <Button icon={<span className="material-symbols-outlined">edit</span>} onClick={onEdit}>
           Edit
