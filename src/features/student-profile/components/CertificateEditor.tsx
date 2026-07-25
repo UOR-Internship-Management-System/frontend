@@ -65,7 +65,7 @@ export function CertificateEditor({
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="certificate-title" label="Certificate Title">
+        <FormField htmlFor="certificate-title" label="Certification Name">
           <TextInput
             id="certificate-title"
             maxLength={200}
@@ -74,7 +74,7 @@ export function CertificateEditor({
             value={values.title}
           />
         </FormField>
-        <FormField htmlFor="certificate-issuer" label="Issuer">
+        <FormField htmlFor="certificate-issuer" label="Issuing Authority">
           <TextInput
             id="certificate-issuer"
             maxLength={200}
@@ -83,7 +83,7 @@ export function CertificateEditor({
             value={values.issuer}
           />
         </FormField>
-        <FormField htmlFor="certificate-date" label="Issue Date">
+        <FormField htmlFor="certificate-date" label="Date Issued">
           <TextInput
             id="certificate-date"
             onChange={(event) => setValues({ ...values, issueDate: event.target.value })}
@@ -92,7 +92,7 @@ export function CertificateEditor({
             value={values.issueDate}
           />
         </FormField>
-        <FormField htmlFor="certificate-url" label="Credential URL">
+        <FormField htmlFor="certificate-url" label="Credential URL Reference">
           <TextInput
             id="certificate-url"
             onChange={(event) => setValues({ ...values, credentialUrl: event.target.value })}
@@ -103,7 +103,7 @@ export function CertificateEditor({
       </div>
       <FormField
         htmlFor="certificate-evidence"
-        label={item?.evidence ? 'Replace Evidence' : 'Certificate Evidence'}
+        label={item?.evidence ? 'Replace Certificate Evidence' : 'Certificate Evidence (Optional)'}
       >
         <FileUploadField
           accept={evidencePolicy ? fileAcceptValue(evidencePolicy) : undefined}
@@ -123,7 +123,7 @@ export function CertificateEditor({
           onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
           type="checkbox"
         />{' '}
-        Include in CV
+        Include this Certificate in the CV
       </label>
       <ProfileEditorActions
         isPending={isPending}
