@@ -24,13 +24,13 @@ import {
 } from '../mappers/studentProjectMapper'
 import type { StudentProjectFormValues } from '../types/studentProjectTypes'
 
-const pageSize = 5
+const pageSize = 4
+const projectSort = 'updatedAt,desc'
 type ProjectOverlay = 'create' | 'details' | 'edit' | 'delete' | null
 
 export function StudentProjectsPage() {
   const { notify } = useNotifications()
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState('updatedAt,desc')
   const [page, setPage] = useState(0)
   const [overlay, setOverlay] = useState<ProjectOverlay>(null)
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null)
@@ -39,7 +39,7 @@ export function StudentProjectsPage() {
   const projects = useStudentProjects({
     page,
     size: pageSize,
-    sort,
+    sort: projectSort,
     search: debouncedSearch || undefined,
   })
   const selected = useProject(overlay && overlay !== 'create' ? selectedProjectId : null)
@@ -102,7 +102,8 @@ export function StudentProjectsPage() {
       const error = mapApiError(reason, 'protected')
       if (error.status === 412 || error.status === 428) {
         setConflictMessage(
-          'This project changed after it was loaded. Your draft is preserved against the refreshed version.',
+          'This project changed after it was loaded. Your draft is preserved against the ' +
+            'refreshed version.',
         )
         await Promise.all([selected.refetch(), projects.refetch()])
       } else if (error.status === 404) {
@@ -145,9 +146,19 @@ export function StudentProjectsPage() {
   return (
     <main className="content-stack s4-projects-page">
       <PageHeader
-        actions={<Button onClick={() => setOverlay('create')}>Add project</Button>}
-        description="Maintain Student-owned portfolio evidence and choose what appears in your generated CV."
-        eyebrow="Student workspace"
+        actions={
+          <Button
+            aria-label="Add project"
+            icon={<span className="material-symbols-outlined">add</span>}
+            onClick={() => setOverlay('create')}
+          >
+            Add
+          </Button>
+        }
+        description={
+          'Project portfolio repository. Manage your saved projects with full CRUD operations and ' +
+          'choose which entries appear in your generated CV.'
+        }
         title="Projects"
       />
 
@@ -158,14 +169,7 @@ export function StudentProjectsPage() {
         </div>
       ) : null}
 
-      <SectionCard aria-labelledby="project-repository-title" className="s4-projects-repository">
-        <div className="s4-projects-section-heading">
-          <div>
-            <h2 id="project-repository-title">Project repository</h2>
-            <p>{projects.data?.page.totalElements ?? 0} projects from server metadata.</p>
-          </div>
-        </div>
-
+      <SectionCard aria-label="Project portfolio repository" className="s4-projects-repository">
         {projects.isFetching && !projects.isPending ? (
           <p aria-live="polite">Updating projects...</p>
         ) : null}
@@ -195,13 +199,8 @@ export function StudentProjectsPage() {
                 setSelectedProjectId(projectId)
                 setOverlay('details')
               }}
-              onSortChange={(value) => {
-                setSort(value)
-                setPage(0)
-              }}
               page={projects.data.page}
               search={search}
-              sort={sort}
             />
           ) : null}
         </LoadingBoundary>
@@ -213,8 +212,8 @@ export function StudentProjectsPage() {
       {overlay && overlay !== 'create' && selected.isPending ? (
         <Modal
           onClose={closeOverlay}
-          title="Project details"
-          description="Portfolio project details"
+          title="Project Details"
+          description="Loading portfolio project details."
         >
           <ProjectModalSkeleton />
         </Modal>

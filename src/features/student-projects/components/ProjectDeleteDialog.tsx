@@ -29,8 +29,11 @@ export function ProjectDeleteDialog({
   }
 
   return (
-    <ConfirmDialog closeDisabled={isPending} onClose={onClose} title={`Delete ${project.title}?`}>
-      <p>This permanently removes the project from your portfolio.</p>
+    <ConfirmDialog closeDisabled={isPending} onClose={onClose} title="Remove Project">
+      <p>
+        Are you sure you want to remove <strong>{project.title}</strong> from your portfolio?
+      </p>
+      <p>This action permanently removes the project and its skill links.</p>
       {error ? (
         <p className="error-text" role="alert">
           {error}
@@ -38,10 +41,14 @@ export function ProjectDeleteDialog({
       ) : null}
       <div className="modal-actions">
         <Button disabled={isPending} onClick={onClose} variant="secondary">
-          Cancel
+          Close
         </Button>
-        <Button isLoading={isPending} onClick={() => void confirm()}>
-          Delete project
+        <Button
+          className="s4-projects-danger-button"
+          isLoading={isPending}
+          onClick={() => void confirm()}
+        >
+          Remove
         </Button>
       </div>
     </ConfirmDialog>
