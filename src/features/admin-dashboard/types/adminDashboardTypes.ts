@@ -11,5 +11,4 @@ export type AdminMetricView = {
 
 export type AdminDashboardView = {
   metrics: AdminMetricView[]
-  lastUpdatedLabel: string
 }

@@ -16,7 +16,7 @@ function renderPage() {
 }
 
 describe('AdminDashboardPage', () => {
-  it('shows an accessible skeleton during the initial request', () => {
+  it('shows a page-specific accessible skeleton during the initial request', () => {
     server.use(
       http.get('/api/v1/admin/dashboard/metrics', async () => {
         await delay(200)
@@ -28,22 +28,31 @@ describe('AdminDashboardPage', () => {
         })
       }),
     )
+
     renderPage()
+
     expect(screen.getByRole('status', { name: 'Loading admin dashboard' })).toBeInTheDocument()
   })
 
-  it('renders all live metrics and the backend-provided freshness time', async () => {
+  it('renders only the wireframe-aligned live metrics and page content', async () => {
     renderPage()
 
     expect(await screen.findByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument()
-    expect(screen.getByText('248')).toBeInTheDocument()
-    expect(screen.getByText('231')).toBeInTheDocument()
-    expect(screen.getByText('37')).toBeInTheDocument()
-    expect(screen.getByText(/last updated/i)).toBeInTheDocument()
+    expect(document.title).toBe('Admin Dashboard Content | CV Management & Filtering System')
+    expect(
+      screen.getByText(
+        'Centralized decision-support summary tracking active candidate workflows and departmental ledger integrity status.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('142')).toBeInTheDocument()
+    expect(screen.getByText('134')).toBeInTheDocument()
+    expect(screen.getByText('12')).toBeInTheDocument()
     expect(screen.getAllByRole('article')).toHaveLength(3)
+    expect(screen.queryByText('System overview')).not.toBeInTheDocument()
+    expect(screen.queryByText(/last updated/i)).not.toBeInTheDocument()
   })
 
-  it('shows service-unavailable feedback and retries without clearing the page', async () => {
+  it('shows service-unavailable feedback and retries without clearing the page context', async () => {
     const user = userEvent.setup()
     server.use(
       http.get('/api/v1/admin/dashboard/metrics', () =>
@@ -53,11 +62,13 @@ describe('AdminDashboardPage', () => {
         ),
       ),
     )
+
     renderPage()
 
     expect(await screen.findByRole('alert', {}, { timeout: 4_000 })).toHaveTextContent(
       'temporarily unavailable',
     )
+    expect(screen.getByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument()
     expect(screen.getByText(/dashboard-503/i)).toBeInTheDocument()
 
     server.use(
