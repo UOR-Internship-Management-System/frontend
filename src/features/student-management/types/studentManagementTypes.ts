@@ -15,7 +15,7 @@ import type {
 
 export type RegisteredStudentsQuery = {
   page: number
-  size: 20 | 50 | 100
+  size: 5 | 20 | 50 | 100
   sort: ApiRegisteredStudentSort
   search: string
   level?: ApiRegisteredStudentLevel
@@ -23,7 +23,7 @@ export type RegisteredStudentsQuery = {
 
 export type AdminAcademicRecordsQuery = {
   page: number
-  size: 20 | 50 | 100
+  size: 5 | 20 | 50 | 100
   sort: ApiAcademicRecordSort
   search: string
   courseCode: string
@@ -43,7 +43,6 @@ export type RegisteredStudentView = ApiStudentSummaryResponse & {
 export type AdminAcademicRecordView = ApiAcademicRecordResponse & {
   creditsLabel: string
   gradePointLabel: string
-  periodLabel: string
 }
 
 export type AdminStudentDetail = ApiAdminStudentDetailResponse

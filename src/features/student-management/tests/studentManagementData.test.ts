@@ -26,7 +26,7 @@ describe('Student management data layer', () => {
     expect(() => registeredStudentSchema.parse({ ...student, currentLevel: 2 })).toThrow(ZodError)
   })
 
-  it('recovers URL defaults and serializes only approved state', () => {
+  it('uses five-row wireframe defaults and serializes only approved URL state', () => {
     const parsed = parseRegisteredStudentsQuery(
       new URLSearchParams('search=Silva&level=4&sort=officialGpa%2Cdesc&page=2&size=50'),
     )
@@ -38,9 +38,10 @@ describe('Student management data layer', () => {
       size: 50,
     })
     expect(serializeRegisteredStudentsQuery(parsed).toString()).toContain('level=4')
+    expect(serializeRegisteredStudentsQuery(parseRegisteredStudentsQuery(new URLSearchParams(''))).toString()).toBe('')
     expect(
       parseRegisteredStudentsQuery(new URLSearchParams('level=9&sort=bad&page=-1&size=7')),
-    ).toEqual({ page: 0, size: 20, sort: 'fullName,asc', search: '', level: undefined })
+    ).toEqual({ page: 0, size: 5, sort: 'fullName,asc', search: '', level: undefined })
   })
 
   it('uses stable protected query keys including every server parameter', () => {
