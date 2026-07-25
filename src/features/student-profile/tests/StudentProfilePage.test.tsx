@@ -61,11 +61,11 @@ describe('StudentProfilePage', () => {
     expect(screen.getByText(profile.indexNumber)).toBeInTheDocument()
     expect(screen.getByText(profile.universityEmail)).toBeInTheDocument()
     expect(screen.getByLabelText('Full Name')).toBeEnabled()
-    expect(screen.getByLabelText('Personal Email')).toBeEnabled()
+    expect(screen.getByLabelText('Personal Email Address')).toBeEnabled()
     expect(screen.getByLabelText('Professional Headline')).toBeEnabled()
-    expect(screen.getByLabelText('Professional Summary')).toBeEnabled()
-    expect(screen.getByLabelText('Phone')).toBeEnabled()
-    expect(screen.getByLabelText('Location')).toBeEnabled()
+    expect(screen.getByLabelText('Profile Summary / Objective')).toBeEnabled()
+    expect(screen.getByLabelText('Phone Number')).toBeEnabled()
+    expect(screen.getByLabelText('City and State')).toBeEnabled()
     expect(screen.getByText(profile.degreeProgramme)).toBeInTheDocument()
     expect(screen.getByText(`Level ${profile.studentLevel}`)).toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'Index Number' })).not.toBeInTheDocument()
@@ -74,6 +74,22 @@ describe('StudentProfilePage', () => {
     expect(
       screen.queryByRole('button', { name: /upload|change|remove photo/i }),
     ).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Saved Professional Links' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Saved Certificates' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Saved Awards and Achievements' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Saved Extracurricular Activities' }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Saved Professional Experience' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Add Certificate' })).toHaveTextContent('Add')
   })
 
   it('submits only core editable values and reports server-confirmed success', async () => {
@@ -112,7 +128,7 @@ describe('StudentProfilePage', () => {
     hookMocks.useUpdateStudentProfile.mockReturnValue({ isPending: false, mutateAsync })
     renderWithProviders(<StudentProfilePage />)
 
-    const phone = screen.getByLabelText('Phone')
+    const phone = screen.getByLabelText('Phone Number')
     await user.clear(phone)
     await user.type(phone, 'invalid')
     await user.click(screen.getByRole('button', { name: 'Save Profile' }))
@@ -136,7 +152,7 @@ describe('StudentProfilePage', () => {
     })
     renderWithProviders(<StudentProfilePage />)
 
-    await user.type(screen.getByLabelText('Phone'), '7')
+    await user.type(screen.getByLabelText('Phone Number'), '7')
     await user.click(screen.getByRole('button', { name: 'Save Profile' }))
 
     const reload = await screen.findByRole('button', { name: 'Reload latest profile' })

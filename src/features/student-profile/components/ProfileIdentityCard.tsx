@@ -44,7 +44,7 @@ export function ProfileIdentityCard({
         </div>
       </dl>
       <p className="profile-identity-note">
-        Verified identity and official academic values are read-only.
+        Official identity and academic values are read-only.
       </p>
     </aside>
   )
