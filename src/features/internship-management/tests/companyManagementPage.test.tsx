@@ -7,8 +7,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { createQueryClient } from '../../../app/config/queryClient'
 import { NotificationProvider } from '../../../app/providers/NotificationProvider'
 import { server } from '../../../mocks/server'
-import type { Company } from '../types/internshipManagementTypes'
 import { InternshipManagementPage } from '../pages/InternshipManagementPage'
+import type { Company } from '../types/internshipManagementTypes'
 
 const company: Company = {
   companyId: '11111111-1111-4111-8111-111111111111',
@@ -25,17 +25,20 @@ const company: Company = {
 }
 const companyPage = {
   items: [company],
-  page: { page: 0, size: 20, totalElements: 1, totalPages: 1, sort: 'name,asc' },
+  page: { page: 0, size: 3, totalElements: 1, totalPages: 1, sort: 'name,asc' },
 }
 
-function renderPage() {
+function renderPage(onCompanyList = vi.fn(), currentCompany: Company = company) {
   server.use(
-    http.get('/api/v1/admin/companies', () => HttpResponse.json(companyPage)),
-    http.get('/api/v1/admin/companies/:companyId', () => HttpResponse.json(company)),
+    http.get('/api/v1/admin/companies', ({ request }) => {
+      onCompanyList(new URL(request.url).search)
+      return HttpResponse.json({ ...companyPage, items: [currentCompany] })
+    }),
+    http.get('/api/v1/admin/companies/:companyId', () => HttpResponse.json(currentCompany)),
     http.get('/api/v1/admin/internship-requests', () =>
       HttpResponse.json({
         items: [],
-        page: { page: 0, size: 20, totalElements: 0, totalPages: 0, sort: 'createdAt,desc' },
+        page: { page: 0, size: 4, totalElements: 0, totalPages: 0, sort: 'createdAt,desc' },
       }),
     ),
   )
@@ -50,23 +53,29 @@ function renderPage() {
   )
 }
 
-describe('InternshipManagementPage wireframe behavior', () => {
-  it('renders the supplied company row inventory and enables request creation after selection', async () => {
+describe('InternshipManagementPage production behavior', () => {
+  it('uses server pagination, lists active companies, and enables request creation after selection', async () => {
     const user = userEvent.setup()
-    renderPage()
+    const companyList = vi.fn()
+    renderPage(companyList)
+
     expect(await screen.findByText('Acme Lanka')).toBeInTheDocument()
-    expect(screen.getByText('https://acme.example · HR Rep: Nimali Perera')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Create internship request' })).toBeDisabled()
+    expect(screen.getByText('https://acme.example · HR representative: Nimali Perera')).toBeInTheDocument()
+    expect(companyList).toHaveBeenCalledWith(
+      expect.stringContaining('page=0&size=3&sort=name%2Casc&active=true'),
+    )
+    expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeDisabled()
+
     await user.click(screen.getByText('Acme Lanka'))
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Create internship request' })).toBeEnabled(),
+      expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeEnabled(),
     )
     expect(screen.getByRole('navigation', { name: 'Company list pagination' })).toHaveTextContent(
-      'Showing 1 to 1 of 1 companies',
+      '1–1 of 1',
     )
   })
 
-  it('uses the five required wireframe fields when creating a company', async () => {
+  it('uses the wireframe company fields and the contract-backed internal notes field', async () => {
     const user = userEvent.setup()
     const create = vi.fn()
     server.use(
@@ -77,28 +86,36 @@ describe('InternshipManagementPage wireframe behavior', () => {
     )
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Create a Company' }))
-    const dialog = screen.getByRole('dialog', { name: 'Create Corporate CRM Profile Parameters' })
-    await user.click(within(dialog).getByRole('button', { name: 'Save Profile' }))
+    await user.click(screen.getByRole('button', { name: 'Create Company' }))
+    const dialog = screen.getByRole('dialog', { name: 'Create Company' })
+
+    await user.click(within(dialog).getByRole('button', { name: 'Create Company' }))
     expect(await within(dialog).findByText('Company name is required.')).toBeInTheDocument()
     expect(within(dialog).getByText('Corporate website is required.')).toBeInTheDocument()
-    await user.type(within(dialog).getByLabelText('Company Legal Name'), 'Acme Lanka')
-    await user.type(within(dialog).getByLabelText('Corporate Website URL'), 'https://acme.example')
-    await user.type(within(dialog).getByLabelText('HR Representative Name'), 'Nimali Perera')
-    await user.type(
-      within(dialog).getByLabelText('Office / HR Email Address'),
-      'nimali@acme.example',
-    )
-    await user.type(within(dialog).getByLabelText('Direct Line Phone'), '+94 11 234 5678')
-    await user.click(within(dialog).getByRole('button', { name: 'Save Profile' }))
+    await user.type(within(dialog).getByLabelText('Company Name'), 'Acme Lanka')
+    await user.type(within(dialog).getByLabelText('Website'), 'https://acme.example')
+    await user.type(within(dialog).getByLabelText('HR Representative'), 'Nimali Perera')
+    await user.type(within(dialog).getByLabelText('HR Email Address'), 'nimali@acme.example')
+    await user.type(within(dialog).getByLabelText('Phone Number'), '+94 11 234 5678')
+    await user.type(within(dialog).getByLabelText('Internal Notes (Optional)'), 'Preferred partner')
+    await user.click(within(dialog).getByRole('button', { name: 'Create Company' }))
+
     await waitFor(() =>
       expect(create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Acme Lanka', notes: null }),
+        expect.objectContaining({ name: 'Acme Lanka', notes: 'Preferred partner' }),
       ),
     )
   })
 
-  it('opens the exact delete confirmation and submits the version precondition', async () => {
+  it('uses the default modal width for Create Company', async () => {
+    const user = userEvent.setup()
+    renderPage()
+    await screen.findByText('Acme Lanka')
+    await user.click(screen.getByRole('button', { name: 'Create Company' }))
+    expect(screen.getByRole('dialog', { name: 'Create Company' })).toHaveClass('modal-card-default')
+  })
+
+  it('deletes through an explicit destructive confirmation and version precondition', async () => {
     const user = userEvent.setup()
     const remove = vi.fn()
     server.use(
@@ -109,12 +126,13 @@ describe('InternshipManagementPage wireframe behavior', () => {
     )
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Delete' }))
-    const dialog = await screen.findByRole('dialog', { name: 'Confirm Deletion' })
-    expect(
-      within(dialog).getByText('Are you sure you want to delete this company?'),
-    ).toBeInTheDocument()
-    await user.click(within(dialog).getByRole('button', { name: 'Delete' }))
+    expect(screen.queryByRole('button', { name: 'Active Company' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Reactivate|Deactivate/ })).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Delete Company' }))
+    const dialog = await screen.findByRole('dialog', { name: 'Delete Company' })
+    expect(within(dialog).getByText(/internship requests will also be deleted/i)).toBeInTheDocument()
+    await user.click(within(dialog).getByRole('button', { name: 'Delete Company' }))
     await waitFor(() => expect(remove).toHaveBeenCalledWith('"4"'))
   })
+
 })

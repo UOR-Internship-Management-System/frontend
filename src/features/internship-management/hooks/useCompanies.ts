@@ -5,7 +5,7 @@ import { internshipManagementApi } from '../api/internshipManagementApi'
 import type {
   CompaniesQuery,
   CompanyCreateInput,
-  CompanyDeactivateInput,
+  CompanyDeleteInput,
   CompanyUpdateInput,
 } from '../types/internshipManagementTypes'
 import { internshipManagementKeys } from './internshipManagementQueryKeys'
@@ -57,26 +57,27 @@ export function useUpdateCompany() {
   })
 }
 
-export function useDeactivateCompany() {
+export function useDeleteCompany() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (input: CompanyDeactivateInput) => internshipManagementApi.deactivateCompany(input),
-    onSuccess: (_result, input) =>
-      Promise.all([
+    mutationFn: (input: CompanyDeleteInput) => internshipManagementApi.deleteCompany(input),
+    onSuccess: (_result, input) => {
+      queryClient.removeQueries({ queryKey: internshipManagementKeys.companyDetail(input.companyId) })
+      return Promise.all([
         queryClient.invalidateQueries({ queryKey: internshipManagementKeys.companies() }),
-        queryClient.invalidateQueries({
-          queryKey: internshipManagementKeys.companyDetail(input.companyId),
-        }),
-      ]),
+        queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() }),
+      ])
+    },
   })
 }
 
 export function getCompanyMutationErrorMessage(error: unknown) {
   const mapped = mapApiError(error, 'protected')
   if (mapped.status === 412) return 'Company data changed. Reload the latest version and try again.'
-  if (mapped.status === 428) return 'Reload this company before saving the change.'
-  if (mapped.status === 409) {
-    return 'This company cannot be deactivated while it is linked to an active internship request.'
+  if (mapped.status === 428) return 'Reload this company before deleting it.'
+  if (mapped.code === 'DUPLICATE_COMPANY') {
+    return 'A company with this name already exists. Review the existing company record.'
   }
+  if (mapped.status === 409) return 'This company cannot be deleted because linked data is in use.'
   return mapped.message
 }

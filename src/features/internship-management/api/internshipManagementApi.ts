@@ -17,10 +17,10 @@ import {
 import type {
   CompaniesQuery,
   CompanyCreateInput,
-  CompanyDeactivateInput,
+  CompanyDeleteInput,
   CompanyUpdateInput,
-  InternshipRequestCancelInput,
   InternshipRequestCreateInput,
+  InternshipRequestDeleteInput,
   InternshipRequestsQuery,
   InternshipRequestUpdateInput,
   RequiredSkillAddInput,
@@ -82,7 +82,7 @@ export const internshipManagementApi = {
     )
   },
 
-  async deactivateCompany({ companyId, version }: CompanyDeactivateInput) {
+  async deleteCompany({ companyId, version }: CompanyDeleteInput) {
     await httpClient<void>(companyPath(companyId), {
       method: 'DELETE',
       headers: { 'If-Match': formatIfMatchVersion(version) },
@@ -128,7 +128,7 @@ export const internshipManagementApi = {
     )
   },
 
-  async cancelInternshipRequest({ requestId, version }: InternshipRequestCancelInput) {
+  async deleteInternshipRequest({ requestId, version }: InternshipRequestDeleteInput) {
     await httpClient<void>(internshipRequestPath(requestId), {
       method: 'DELETE',
       headers: { 'If-Match': formatIfMatchVersion(version) },

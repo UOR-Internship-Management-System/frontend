@@ -40,7 +40,7 @@ describe('Company metadata data layer', () => {
     ).toThrow()
   })
 
-  it('parses and serializes prefixed URL state with an omitted all-status filter', () => {
+  it('normalizes and serializes the company lifecycle filter', () => {
     const selected = companyId
     const parsed = parseCompaniesUrlState(
       new URLSearchParams(
@@ -56,15 +56,18 @@ describe('Company metadata data layer', () => {
       selectedCompanyId: selected,
     })
     expect(serializeCompaniesUrlState(parsed).toString()).toContain('companyActive=false')
-    expect(serializeCompaniesUrlState({ ...parsed, active: undefined }).toString()).not.toContain(
-      'companyActive',
-    )
+    expect(
+      parseCompaniesUrlState(new URLSearchParams('companyActive=all')).active,
+    ).toBeUndefined()
+    expect(
+      serializeCompaniesUrlState({ ...parsed, active: undefined }).toString(),
+    ).toContain('companyActive=all')
     expect(parseCompaniesUrlState(new URLSearchParams('companySize=7&companyId=bad'))).toEqual(
-      expect.objectContaining({ size: 20, selectedCompanyId: undefined }),
+      expect.objectContaining({ size: 3, selectedCompanyId: undefined }),
     )
   })
 
-  it('constructs list/detail/create/update/deactivate requests with concurrency headers', async () => {
+  it('constructs list/detail/create/update/delete requests with concurrency headers', async () => {
     const requests: Array<{
       method: string
       search?: string
@@ -107,7 +110,7 @@ describe('Company metadata data layer', () => {
       version: 3,
       body: { name: 'Updated Technologies' },
     })
-    await internshipManagementApi.deactivateCompany({ companyId, version: 4 })
+    await internshipManagementApi.deleteCompany({ companyId, version: 4 })
 
     expect(requests).toEqual([
       { method: 'GET', search: '?page=0&size=20&sort=name%2Casc' },
@@ -130,7 +133,14 @@ describe('Company metadata data layer', () => {
       'Reload',
     )
     expect(getCompanyMutationErrorMessage({ status: 409, title: 'Linked' })).toContain(
-      'active internship request',
+      'linked data',
     )
+    expect(
+      getCompanyMutationErrorMessage({
+        status: 409,
+        title: 'Duplicate',
+        code: 'DUPLICATE_COMPANY',
+      }),
+    ).toContain('already exists')
   })
 })
