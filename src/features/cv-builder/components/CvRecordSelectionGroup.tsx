@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 
@@ -75,9 +76,9 @@ export function CvRecordSelectionGroup({
           The maximum of {maximumSelectedRecords} records is selected for this group.
         </p>
       ) : null}
-      <a aria-label={`Manage ${manageLabel}`} href={manageHref}>
+      <Link aria-label={`Manage ${manageLabel}`} to={manageHref}>
         Manage {manageLabel}
-      </a>
+      </Link>
     </fieldset>
   )
 }
