@@ -3,9 +3,9 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { CvBuilderSkeleton } from '../../../shared/skeletons/CvBuilderSkeleton'
-import { CvActionBar } from '../components/CvActionBar'
 import { CvConfigurationPanel } from '../components/CvConfigurationPanel'
 import type { CvSelectionItem } from '../components/CvRecordSelectionGroup'
+import { CvOutputPanel } from '../components/CvOutputPanel'
 import { CvPreviewPanel } from '../components/CvPreviewPanel'
 import { CvSourceFreshnessNotice } from '../components/CvSourceFreshnessNotice'
 import { useCvFreshness } from '../hooks/useCvFreshness'
@@ -23,6 +23,7 @@ import { useSaveCv } from '../hooks/useSaveCvVersion'
 import {
   cvSelectionKeys,
   emptyCvRecordSelections,
+  haveSameCvSelections,
   mapCvFreshness,
   mapCvPreviewRequest,
   type CvRecordSelections,
@@ -39,7 +40,9 @@ export function CvBuilderPage() {
   const [selectionWarning, setSelectionWarning] = useState<string | null>(null)
   const [preview, setPreview] = useState<CvPreview | null>(null)
   const [previewExpired, setPreviewExpired] = useState(false)
+  const [savedPreviewId, setSavedPreviewId] = useState<string | null>(null)
   const initializedConfiguration = useRef(false)
+  const latestSelections = useRef(selections)
   const freshness = useCvFreshness()
   const currentCvEnabled = freshness.isSuccess && freshness.data.status !== 'NOT_SAVED'
   const currentCv = useCurrentCv(currentCvEnabled)
@@ -98,14 +101,28 @@ export function CvBuilderPage() {
     .join('|')
 
   const previewMutation = useCvPreview({
-    onSuccess: (confirmedPreview) => {
+    onSuccess: (confirmedPreview, requestedSelections) => {
+      const selectionChangedDuringGeneration = !haveSameCvSelections(
+        requestedSelections,
+        latestSelections.current,
+      )
       setPreview(confirmedPreview)
-      setConfigurationDirty(false)
+      setSavedPreviewId(null)
+      setConfigurationDirty(selectionChangedDuringGeneration)
       setPreviewExpired(Date.parse(confirmedPreview.expiresAt) <= Date.now())
+      setSelectionWarning(
+        selectionChangedDuringGeneration
+          ? 'Your selections changed while the preview was generating. Update the preview before saving.'
+          : null,
+      )
     },
   })
   const saveMutation = useSaveCv()
   const downloadMutation = useDownloadCv()
+
+  useEffect(() => {
+    latestSelections.current = selections
+  }, [selections])
 
   useEffect(() => {
     if (initializedConfiguration.current || !configurationReady) return
@@ -167,18 +184,20 @@ export function CvBuilderPage() {
     (freshness.data?.status !== undefined && freshness.data.status !== 'NOT_SAVED')
 
   const toggleRecord = (selection: keyof CvRecordSelections, recordId: string) => {
-    setSelections((current) => {
-      const selected = current[selection]
-      if (!selected.includes(recordId) && selected.length >= 100) return current
-      return {
-        ...current,
-        [selection]: selected.includes(recordId)
-          ? selected.filter((id) => id !== recordId)
-          : [...selected, recordId],
-      }
-    })
+    const current = latestSelections.current
+    const selected = current[selection]
+    if (!selected.includes(recordId) && selected.length >= 100) return
+
+    const next = {
+      ...current,
+      [selection]: selected.includes(recordId)
+        ? selected.filter((id) => id !== recordId)
+        : [...selected, recordId],
+    }
+    latestSelections.current = next
+    setSelections(next)
     setSelectionWarning(null)
-    setConfigurationDirty(true)
+    setConfigurationDirty(preview ? !haveSameCvSelections(next, preview.configuration) : true)
   }
 
   const generatePreview = () => {
@@ -187,7 +206,14 @@ export function CvBuilderPage() {
   }
 
   const savePreview = () => {
-    if (!preview || configurationDirty || previewExpired) return
+    if (
+      !preview ||
+      configurationDirty ||
+      previewExpired ||
+      savedPreviewId === preview.previewId
+    ) {
+      return
+    }
     if (Date.parse(preview.expiresAt) <= Date.now()) {
       setPreviewExpired(true)
       return
@@ -195,6 +221,7 @@ export function CvBuilderPage() {
     saveMutation.mutate(
       { previewId: preview.previewId, revision: currentCv.data?.revision ?? null },
       {
+        onSuccess: () => setSavedPreviewId(preview.previewId),
         onError: (error) => {
           if (mapApiError(error, 'protected').code === 'CV_PREVIEW_EXPIRED') {
             setPreviewExpired(true)
@@ -211,9 +238,9 @@ export function CvBuilderPage() {
   return (
     <main className="content-stack s5-cv-builder-page">
       <PageHeader
-        description="Select individual source records, confirm a generated preview, and save your active CV."
-        eyebrow="Student workspace · Sprint 5"
-        title="CV Builder"
+        description="Customize the included records, generate an ATS-compliant preview, save the current CV version, and download the saved PDF."
+        eyebrow="Student workspace"
+        title="LaTeX CV Builder"
       />
 
       {freshnessView ? <CvSourceFreshnessNotice freshness={freshnessView} /> : null}
@@ -249,28 +276,36 @@ export function CvBuilderPage() {
         selections={selections}
       />
 
-      <CvPreviewPanel
-        dirty={configurationDirty}
-        error={previewError}
-        expired={previewExpired}
-        isPending={previewMutation.isPending}
-        onRetry={generatePreview}
-        preview={preview}
-      />
+      <div className="s5-cv-workspace-grid">
+        <CvPreviewPanel
+          dirty={configurationDirty}
+          error={previewError}
+          expired={previewExpired}
+          isPending={previewMutation.isPending}
+          onRetry={generatePreview}
+          preview={preview}
+        />
 
-      <CvActionBar
-        configurationDirty={configurationDirty}
-        configurationReady={configurationReady}
-        downloadPending={downloadMutation.pendingTargetKey === 'current'}
-        expired={previewExpired}
-        hasPreview={preview !== null}
-        hasSavedCv={hasSavedCv}
-        onDownload={() => downloadMutation.mutate({ kind: 'current' })}
-        onGenerate={generatePreview}
-        onSave={savePreview}
-        previewPending={previewMutation.isPending}
-        savePending={saveMutation.isPending}
-      />
+        <CvOutputPanel
+          configurationDirty={configurationDirty}
+          configurationReady={configurationReady}
+          currentCv={currentCv.data}
+          downloadPending={downloadMutation.pendingTargetKey === 'current'}
+          expired={previewExpired}
+          hasPreview={preview !== null}
+          hasSavedCv={hasSavedCv}
+          onDownload={() => downloadMutation.mutate({ kind: 'current' })}
+          onGenerate={generatePreview}
+          onSave={savePreview}
+          previewPending={previewMutation.isPending}
+          previewSaved={
+            preview !== null && !configurationDirty && savedPreviewId === preview.previewId
+          }
+          savedCvPending={currentCvEnabled && currentCv.isPending}
+          savedCvUnavailable={currentCvEnabled && currentCv.isError}
+          savePending={saveMutation.isPending}
+        />
+      </div>
     </main>
   )
 }
