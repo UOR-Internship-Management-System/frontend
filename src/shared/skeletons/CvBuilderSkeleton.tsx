@@ -104,7 +104,7 @@ export function CvOutputPanelSkeleton() {
 export function CvBuilderSkeleton() {
   return (
     <SkeletonStatusRegion className="content-stack" label="Loading CV Builder">
-      <SkeletonPageHeader />
+      <SkeletonPageHeader eyebrow />
       <div aria-hidden="true" className="skeleton-card skeleton-stack">
         <SkeletonShape height={18} width={280} />
         <SkeletonShape height={12} radius="pill" width="74%" />

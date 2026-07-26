@@ -25,11 +25,17 @@ export function SkeletonShape({
   )
 }
 
-export function SkeletonPageHeader({ action = false }: { action?: boolean }) {
+export function SkeletonPageHeader({
+  action = false,
+  eyebrow = false,
+}: {
+  action?: boolean
+  eyebrow?: boolean
+}) {
   return (
     <header aria-hidden="true" className="page-header skeleton-page-header">
       <div>
-        <SkeletonShape height={24} radius="pill" width={150} />
+        {eyebrow ? <SkeletonShape height={24} radius="pill" width={150} /> : null}
         <SkeletonShape height={44} width="min(430px, 82vw)" />
         <SkeletonBlock
           decorative
