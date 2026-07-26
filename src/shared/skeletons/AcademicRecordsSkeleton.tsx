@@ -1,4 +1,3 @@
-import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 import {
   SkeletonPageHeader,
   SkeletonPagination,
@@ -8,25 +7,21 @@ import {
 } from './SkeletonPrimitives'
 
 const recordColumns =
-  'minmax(90px,.7fr) minmax(180px,1.5fr) repeat(5,minmax(110px,.85fr)) minmax(130px,1fr) minmax(100px,.7fr)'
+  'minmax(110px,.8fr) minmax(240px,1.8fr) minmax(90px,.7fr) minmax(90px,.7fr) minmax(110px,.8fr)'
 
 export function AcademicGpaSkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
-    <div aria-hidden="true" className="skeleton-gpa-grid" data-testid="academic-gpa-cards">
-      {Array.from({ length: 3 }, (_, index) => (
-        <article
-          className="s5-records-gpa-card skeleton-card-stack"
-          data-skeleton-gpa-card
-          key={index}
-        >
-          <div className="skeleton-section-heading">
-            <SkeletonShape height={12} radius="pill" width="48%" />
-            {index === 0 ? <SkeletonShape height={28} radius="pill" width={82} /> : null}
-          </div>
-          <SkeletonShape height={38} width="42%" />
-          <SkeletonShape height={12} radius="pill" width="74%" />
-        </article>
-      ))}
+    <div
+      aria-hidden="true"
+      className="s5-records-gpa-summary"
+      data-skeleton-gpa-card
+      data-testid="academic-gpa-card"
+    >
+      <SkeletonShape height={64} radius="lg" width={64} />
+      <div className="skeleton-card-stack">
+        <SkeletonShape height={12} radius="pill" width={150} />
+        <SkeletonShape height={38} width={92} />
+      </div>
     </div>
   )
   return announce ? (
@@ -46,19 +41,12 @@ export function AcademicRecordsTableSkeleton({
   const content = (
     <div className="skeleton-stack">
       {includeToolbar ? (
-        <div aria-hidden="true" className="skeleton-controls-grid">
-          <div className="skeleton-field">
-            <SkeletonShape height={12} radius="pill" width={150} />
-            <SkeletonShape height={48} radius="md" />
-          </div>
-          <div className="skeleton-field">
-            <SkeletonShape height={12} radius="pill" width={120} />
-            <SkeletonShape height={48} radius="md" />
-          </div>
+        <div aria-hidden="true" className="s5-records-search">
+          <SkeletonShape height={48} radius="md" />
         </div>
       ) : null}
       <SkeletonTableGrid
-        columns={9}
+        columns={5}
         gridTemplateColumns={recordColumns}
         rows={5}
         testId="academic-records-table-skeleton"
@@ -80,23 +68,10 @@ export function AcademicRecordsSkeleton() {
       label="Loading Academic Records"
     >
       <SkeletonPageHeader />
-      <section aria-hidden="true" className="section-card s5-records-gpa-section skeleton-stack">
-        <div className="skeleton-section-heading">
-          <div className="skeleton-stack">
-            <SkeletonShape height={12} radius="pill" width={150} />
-            <SkeletonShape height={28} width={220} />
-            <SkeletonBlock decorative lineWidths={['360px']} lines={1} variant="inline" />
-          </div>
-          <SkeletonShape height={34} radius="pill" width={126} />
-        </div>
+      <section aria-hidden="true" className="section-card s5-records-gpa-section">
         <AcademicGpaSkeleton announce={false} />
       </section>
       <section aria-hidden="true" className="section-card s5-records-list-section skeleton-stack">
-        <div className="skeleton-stack">
-          <SkeletonShape height={12} radius="pill" width={140} />
-          <SkeletonShape height={28} width={230} />
-          <SkeletonShape height={12} radius="pill" width={410} />
-        </div>
         <AcademicRecordsTableSkeleton announce={false} />
       </section>
     </SkeletonStatusRegion>

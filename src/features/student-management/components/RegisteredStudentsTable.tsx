@@ -13,22 +13,21 @@ export function RegisteredStudentsTable({ students }: { students: RegisteredStud
             <th scope="col">Full Name</th>
             <th scope="col">Degree Program</th>
             <th scope="col">Current Level</th>
-            <th scope="col">Official GPA</th>
-            <th scope="col">Actions</th>
+            <th scope="col">GPA</th>
+            <th className="text-right" scope="col">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           {students.map((student) => (
             <tr key={student.studentId}>
               <td data-label="Index Number">{student.indexNumber}</td>
-              <td data-label="Full Name">
-                <strong>{student.fullName}</strong>
-                <span className="registered-student-secondary">{student.universityEmail}</span>
-              </td>
+              <td data-label="Full Name">{student.fullName}</td>
               <td data-label="Degree Program">{student.degreeProgram}</td>
               <td data-label="Current Level">{student.levelLabel}</td>
-              <td data-label="Official GPA">{student.officialGpaLabel}</td>
-              <td data-label="Actions">
+              <td data-label="GPA">{student.officialGpaLabel}</td>
+              <td className="text-right" data-label="Actions">
                 <Link
                   className="button button-secondary roster-action-link"
                   to={buildAdminStudentDetailPath(student.studentId)}

@@ -10,6 +10,7 @@ import {
 } from '../schemas/cvBuilderSchemas'
 import {
   emptyCvRecordSelections,
+  haveSameCvSelections,
   mapCv,
   mapCvFreshness,
   mapCvPreviewRequest,
@@ -18,6 +19,7 @@ import {
 const previewId = '70000000-0000-4000-8000-000000000001'
 const cvId = '50000000-0000-4000-8000-000000000004'
 const projectId = '60000000-0000-4000-8000-000000000001'
+const secondProjectId = '60000000-0000-4000-8000-000000000002'
 const experienceId = '50000000-0000-4000-8000-000000000001'
 const certificateId = '20000000-0000-4000-8000-000000000001'
 const awardId = '30000000-0000-4000-8000-000000000001'
@@ -111,17 +113,26 @@ describe('CV Builder transport validation', () => {
     expect(
       mapCvPreviewRequest({
         ...configuration,
-        includedProjectIds: ['60000000-0000-4000-8000-000000000002', projectId],
+        includedProjectIds: [secondProjectId, projectId],
       }),
     ).toEqual({
       ...configuration,
-      includedProjectIds: [projectId, '60000000-0000-4000-8000-000000000002'],
+      includedProjectIds: [projectId, secondProjectId],
     })
     expect(mapCvFreshness(cvFreshnessSchema.parse(freshness))).toMatchObject({
       title: 'Your saved CV needs an update',
       changedAreaLabels: ['Profile and CV details', 'Projects'],
     })
     expect(mapCv(cvSchema.parse(cv))).toMatchObject({ revision: 4, fileSizeLabel: '180.0 KB' })
+    expect(
+      haveSameCvSelections(
+        { ...configuration, includedProjectIds: [projectId, secondProjectId] },
+        { ...configuration, includedProjectIds: [secondProjectId, projectId] },
+      ),
+    ).toBe(true)
+    expect(haveSameCvSelections(configuration, { ...configuration, includedAwardIds: [] })).toBe(
+      false,
+    )
     expect(cvBuilderKeys.current()).toEqual(['protected', 'cv-builder', 'current'])
   })
 

@@ -43,9 +43,7 @@ export function ProfileIdentityCard({
           <dd>{profile.cohortYear ?? 'Not available'}</dd>
         </div>
       </dl>
-      <p className="profile-identity-note">
-        Verified identity and official academic values are read-only.
-      </p>
+      <p className="profile-identity-note">Official identity and academic values are read-only.</p>
     </aside>
   )
 }

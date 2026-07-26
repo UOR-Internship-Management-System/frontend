@@ -16,6 +16,12 @@ const allowed = [
   'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml',
   'docs/api/CV_Management_API_OpenAPI_v1.5.0_CHANGELOG.md',
   'docs/api/CV_Management_API_OpenAPI_v1.5.0_VALIDATION_REPORT.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml',
+  'docs/api/CV_Management_API_OpenAPI_v1.6.0_CHANGELOG.md',
+  'docs/api/CV_Management_API_OpenAPI_v1.6.0_VALIDATION_REPORT.md',
+  'docs/api/SPRINT_7_8_CONTRACT_DECISION_REGISTER.md',
+  'docs/api/SPRINT_7_8_CONTRACT_TRACEABILITY_MATRIX.md',
+  'docs/api/generated-client-notes.md',
   'docs/Project Documentations',
   'docs/Sprint plans',
 ]

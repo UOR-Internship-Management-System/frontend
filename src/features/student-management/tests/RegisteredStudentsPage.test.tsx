@@ -34,36 +34,51 @@ function renderPage(initialEntry: string = routePaths.adminStudents) {
 }
 
 describe('RegisteredStudentsPage', () => {
-  it('renders the server roster, count, null GPA, and deep-dive route', async () => {
+  it('renders the wireframe-aligned server roster without redundant table content', async () => {
     renderPage()
     expect(await screen.findByRole('heading', { name: 'Registered Students' })).toBeInTheDocument()
-    expect(await screen.findByText('6 registered Students')).toBeInTheDocument()
+    expect(await screen.findByText('6 Registered Undergraduates')).toBeInTheDocument()
     expect(screen.getByText('Not available')).toBeInTheDocument()
+    expect(screen.getByLabelText('Rows per page')).toHaveValue('5')
+
     const kavindiRow = screen.getByText('Kavindi Silva').closest('tr')
     expect(kavindiRow).not.toBeNull()
     expect(
       within(kavindiRow as HTMLTableRowElement).getByRole('link', { name: 'View Deep-Dive' }),
     ).toHaveAttribute('href', '/admin/students/11111111-1111-4111-8111-111111111111')
+    expect(
+      within(kavindiRow as HTMLTableRowElement).queryByText('kavindi.silva@dcs.ruh.ac.lk'),
+    ).not.toBeInTheDocument()
     expect(screen.getByRole('table')).toHaveAccessibleName('Registered Student roster')
+    expect(screen.getByRole('columnheader', { name: 'GPA' })).toBeInTheDocument()
   })
 
-  it('debounces search into URL state and supports mutually exclusive level filters', async () => {
+  it('debounces search into URL state and supports mutually exclusive quick filters', async () => {
     const user = userEvent.setup()
     renderPage()
     await screen.findByText('Kavindi Silva')
 
-    await user.type(screen.getByLabelText('Search registered Students'), 'Lahiru')
+    await user.type(screen.getByLabelText('Search Students'), 'Lahiru')
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('search=Lahiru'), {
       timeout: 2_000,
     })
     expect(await screen.findByText('Lahiru Gunasekara')).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Level 4' }))
-    expect(screen.getByRole('button', { name: 'Level 4' })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: 'Level 4 Candidates Only' }))
+    expect(screen.getByRole('button', { name: 'Level 4 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
     expect(screen.getByTestId('location')).toHaveTextContent('level=4')
-    await user.click(screen.getByRole('button', { name: 'Level 3' }))
-    expect(screen.getByRole('button', { name: 'Level 3' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'Level 4' })).toHaveAttribute('aria-pressed', 'false')
+    await user.click(screen.getByRole('button', { name: 'Level 3 Candidates Only' }))
+    expect(screen.getByRole('button', { name: 'Level 3 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByRole('button', { name: 'Level 4 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
   })
 
   it('distinguishes no-results and service error states with recovery actions', async () => {

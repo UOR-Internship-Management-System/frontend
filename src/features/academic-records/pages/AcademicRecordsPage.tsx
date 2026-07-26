@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
@@ -15,20 +14,19 @@ import { AcademicRecordsTable } from '../components/AcademicRecordsTable'
 import { GpaSummaryCards } from '../components/GpaSummaryCards'
 import { useAcademicRecords } from '../hooks/useAcademicRecords'
 import { useGpaSummary } from '../hooks/useGpaSummary'
-import { academicSortOptions } from '../mappers/academicRecordMapper'
 
-const pageSize = 10
+const pageSize = 5
+const defaultSort = 'academicYear,desc'
 
 export function AcademicRecordsPage() {
   const [search, setSearch] = useState('')
-  const [sort, setSort] = useState('academicYear,desc')
   const [page, setPage] = useState(0)
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
   const gpa = useGpaSummary()
   const records = useAcademicRecords({
     page,
     size: pageSize,
-    sort,
+    sort: defaultSort,
     search: debouncedSearch || undefined,
   })
 
@@ -43,30 +41,15 @@ export function AcademicRecordsPage() {
   return (
     <main className="content-stack s5-records-page">
       <PageHeader
-        description="Review your official Computer Science GPA and committed university results in one read-only workspace."
-        eyebrow="Student workspace"
+        description="Review your official academic results and GPA summary in a clean student-facing record view."
         title="Academic Records"
       />
 
-      <SectionCard aria-labelledby="official-gpa-title" className="s5-records-gpa-section">
-        <div className="s5-records-section-heading">
-          <div>
-            <span className="s5-records-kicker">Official summary</span>
-            <h2 id="official-gpa-title">Computer Science GPA</h2>
-            <p>Calculated by the university from committed academic records.</p>
-          </div>
-          <div className="s5-records-read-only-note">
-            <span aria-hidden="true" className="material-symbols-outlined">
-              verified_user
-            </span>
-            Read-only
-          </div>
-        </div>
-
+      <SectionCard aria-label="Computer Science GPA summary" className="s5-records-gpa-section">
         <LoadingBoundary
           isLoading={gpa.isPending}
           label="Loading official GPA"
-          minHeight={190}
+          minHeight={112}
           skeleton={<AcademicGpaSkeleton />}
         >
           {gpaError ? (
@@ -82,48 +65,21 @@ export function AcademicRecordsPage() {
         </LoadingBoundary>
       </SectionCard>
 
-      <SectionCard aria-labelledby="committed-records-title" className="s5-records-list-section">
-        <div className="s5-records-section-heading">
-          <div>
-            <span className="s5-records-kicker">University record</span>
-            <h2 id="committed-records-title">Committed results</h2>
-            <p>
-              {records.data?.page.totalElements ?? 0} records from official server metadata. No
-              changes can be made here.
-            </p>
-          </div>
-        </div>
+      <SectionCard aria-labelledby="official-results-title" className="s5-records-list-section">
+        <h2 className="visually-hidden" id="official-results-title">
+          Official academic results
+        </h2>
 
-        <div className="s5-records-toolbar">
-          <label>
-            <span>Search records</span>
-            <SearchInput
-              aria-label="Search academic records"
-              onChange={(event) => {
-                setSearch(event.target.value)
-                setPage(0)
-              }}
-              placeholder="Course code or title"
-              value={search}
-            />
-          </label>
-          <label>
-            <span>Sort records</span>
-            <SortSelect
-              aria-label="Sort academic records"
-              onChange={(event) => {
-                setSort(event.target.value)
-                setPage(0)
-              }}
-              value={sort}
-            >
-              {academicSortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </SortSelect>
-          </label>
+        <div className="s5-records-search">
+          <SearchInput
+            aria-label="Search academic records"
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setPage(0)
+            }}
+            placeholder="Search by subject code or name"
+            value={search}
+          />
         </div>
 
         {records.isFetching && !records.isPending ? (
@@ -135,7 +91,7 @@ export function AcademicRecordsPage() {
         <LoadingBoundary
           isLoading={records.isPending}
           label="Loading academic records"
-          minHeight={430}
+          minHeight={390}
           skeleton={<AcademicRecordsTableSkeleton includeToolbar={false} />}
         >
           {recordsError ? (
@@ -149,10 +105,10 @@ export function AcademicRecordsPage() {
             <EmptyState
               message={
                 debouncedSearch
-                  ? `No committed records match "${debouncedSearch}".`
-                  : 'Committed academic results will appear here when they become available.'
+                  ? `No official results match "${debouncedSearch}".`
+                  : 'Official academic results will appear here after they are committed by the university.'
               }
-              title={debouncedSearch ? 'No matching records' : 'No committed records yet'}
+              title={debouncedSearch ? 'No matching records' : 'No academic records yet'}
             />
           ) : records.data?.items.length ? (
             <>

@@ -67,6 +67,45 @@ describe('httpDownloadClient', () => {
     })
   })
 
+  it.each([
+    {
+      contentType: 'text/csv' as const,
+      disposition: 'attachment; filename="../final shortlist.csv"',
+      expectedFilename: 'final shortlist.csv',
+      body: 'indexNumber,name',
+    },
+    {
+      contentType: 'application/zip' as const,
+      disposition: 'attachment; filename="../latest-cvs.zip"',
+      expectedFilename: 'latest-cvs.zip',
+      body: 'zip-content',
+    },
+  ])(
+    'downloads an authenticated $contentType file with an enforced safe extension',
+    async ({ body, contentType, disposition, expectedFilename }) => {
+      authTokenStorage.setToken('admin-token')
+      const fetchMock = vi.fn().mockResolvedValue(
+        new Response(body, {
+          headers: {
+            'Content-Type': `${contentType}; charset=binary`,
+            'Content-Disposition': disposition,
+          },
+        }),
+      )
+      vi.stubGlobal('fetch', fetchMock)
+
+      const result = await httpDownloadClient('/admin/exports/export-id/download', {
+        expectedContentType: contentType,
+      })
+
+      const headers = new Headers((fetchMock.mock.calls[0]?.[1] as RequestInit).headers)
+      expect(headers.get('Accept')).toBe(contentType)
+      expect(headers.get('Authorization')).toBe('Bearer admin-token')
+      expect(result).toMatchObject({ contentType, filename: expectedFilename })
+      expect(result.blob.size).toBeGreaterThan(0)
+    },
+  )
+
   it.each(['text/html', 'application/zip', 'application/octet-stream'])(
     'rejects a successful %s response before exposing a file',
     async (contentType) => {
@@ -100,6 +139,45 @@ describe('httpDownloadClient', () => {
     )
   })
 
+  it.each([
+    ['text/csv' as const, 'application/zip', 'INVALID_CSV_RESPONSE'],
+    ['application/zip' as const, 'text/csv', 'INVALID_ZIP_RESPONSE'],
+  ])(
+    'rejects a mismatched response when %s was expected',
+    async (expectedContentType, actualContentType, code) => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(
+          new Response('wrong-file', {
+            headers: { 'Content-Type': actualContentType },
+          }),
+        ),
+      )
+
+      await expect(
+        httpDownloadClient('/admin/exports/export-id/download', { expectedContentType }),
+      ).rejects.toEqual(expect.objectContaining({ code }))
+    },
+  )
+
+  it.each([
+    ['text/csv' as const, 'INVALID_CSV_RESPONSE'],
+    ['application/zip' as const, 'INVALID_ZIP_RESPONSE'],
+  ])('rejects an empty %s response', async (expectedContentType, code) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(null, {
+          headers: { 'Content-Type': expectedContentType },
+        }),
+      ),
+    )
+
+    await expect(
+      httpDownloadClient('/admin/exports/export-id/download', { expectedContentType }),
+    ).rejects.toEqual(expect.objectContaining({ code }))
+  })
+
   it.each([404, 503])('throws Problem Details for a %s JSON error', async (status) => {
     vi.stubGlobal(
       'fetch',
@@ -119,8 +197,40 @@ describe('httpDownloadClient', () => {
     )
 
     await expect(httpDownloadClient('/me/cv/latest/download')).rejects.toEqual(
-      expect.objectContaining({ status, correlationId: `req-${status}` }),
+      expect.objectContaining({
+        status,
+        correlationId: `req-${status}`,
+        message: 'The PDF could not be downloaded.',
+      }),
     )
+  })
+
+  it('does not expose internal paths from an otherwise valid Problem Details body', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            type: 'about:blank',
+            title: 'Storage read failed',
+            status: 503,
+            code: 'CV_FILE_UNAVAILABLE',
+            message: 'Unable to read C:\\private\\student-cv.pdf',
+            correlationId: 'safe-correlation-id',
+          }),
+          { status: 503, headers: { 'Content-Type': 'application/problem+json' } },
+        ),
+      ),
+    )
+
+    await expect(httpDownloadClient('/me/cv/latest/download')).rejects.toEqual({
+      type: 'about:blank',
+      title: 'PDF download failed',
+      status: 503,
+      code: 'CV_FILE_UNAVAILABLE',
+      message: 'The PDF could not be downloaded.',
+      correlationId: 'safe-correlation-id',
+    })
   })
 
   it('announces an authenticated session expiry on 401', async () => {
@@ -142,5 +252,30 @@ describe('httpDownloadClient', () => {
     )
     expect(onExpired).toHaveBeenCalledOnce()
     unsubscribe()
+  })
+
+  it.each([
+    ['application/problem+json', '{invalid-json'],
+    ['application/json', JSON.stringify({ title: 42, internalPath: '/private/export.zip' })],
+    ['text/html', '<h1>Internal storage failure</h1>'],
+  ])('maps an unsafe %s error body to controlled Problem Details', async (contentType, body) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(body, {
+          status: 503,
+          headers: { 'Content-Type': contentType, 'X-Request-Id': 'safe-503' },
+        }),
+      ),
+    )
+
+    await expect(httpDownloadClient('/admin/exports/export-id/download')).rejects.toEqual({
+      type: 'about:blank',
+      title: 'Download failed',
+      status: 503,
+      code: 'HTTP_503',
+      message: 'The PDF could not be downloaded.',
+      correlationId: 'safe-503',
+    })
   })
 })

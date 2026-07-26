@@ -144,13 +144,17 @@ test('Admin uploads, reviews, and transactionally commits an academic ledger', a
   await mockAdminSprint6Api(page)
   await page.goto('/admin/academic-ledger', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Academic Ledger' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
+  ).toBeVisible()
   await expect(page.locator('.app-header')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Skip to admin content' })).toHaveCount(0)
   await expect(page.locator('button.theme-toggle')).toHaveCount(1)
   await expect(page.locator('.app-main > .page-transition')).toHaveCount(0)
   await expect(page.locator('.admin-shell .page-transition')).toHaveCount(1)
-  const sidebarBounds = await page.locator('.admin-sidebar').evaluate((sidebar) => {
+  const sidebar = page.locator('.admin-sidebar')
+  await expect(sidebar).toHaveCSS('position', 'fixed')
+  const sidebarBounds = await sidebar.evaluate((sidebar) => {
     const bounds = sidebar.getBoundingClientRect()
     return {
       bottom: bounds.bottom,
@@ -169,7 +173,7 @@ test('Admin uploads, reviews, and transactionally commits an academic ledger', a
     mimeType: 'text/csv',
     buffer: Buffer.from('studentIndexNumber,courseCode\n2021CS001,CS4010'),
   })
-  await page.getByRole('button', { name: 'Upload and validate' }).click()
+  await page.getByRole('button', { name: 'Process and Stage Ledger' }).click()
   await expect(page).toHaveURL(/uploadId=/)
   await expect(
     page.getByText('All staged rows passed validation and are ready to commit.'),
@@ -201,13 +205,14 @@ test('Admin inspects official Student records without edit controls on a narrow 
     name: 'Students available for official academic record inspection',
   })
   await expect(inspection).toBeVisible()
-  const inspectButton = inspection.getByRole('button', { name: 'View academic records' }).first()
+  const inspectButton = inspection.getByRole('button', { name: 'View More' }).first()
   await inspectButton.focus()
   await expect(inspectButton).toBeFocused()
   await page.keyboard.press('Enter')
   const dialog = page.getByRole('dialog', { name: /academic records/i })
   await expect(dialog.getByRole('table', { name: /Official academic records/i })).toBeVisible()
   await expect(dialog.getByRole('button', { name: /edit|save|delete/i })).toHaveCount(0)
+  await expect(page.locator('.modal-backdrop')).toHaveCSS('position', 'fixed')
   const modalBounds = await dialog.evaluate((element) => {
     const bounds = element.getBoundingClientRect()
     const content = element.querySelector<HTMLElement>('.modal-content')

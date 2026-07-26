@@ -67,7 +67,7 @@ const scenarios = [
   {
     name: 'student-skills',
     path: '/student/skills',
-    heading: 'Declared Skills',
+    heading: 'Skills',
     role: 'student',
     loading: 'Loading available skills',
   },
@@ -162,13 +162,23 @@ async function installApiGate(page: Page, role: 'student' | 'admin') {
     ({ dark, token }) => {
       window.sessionStorage.setItem('cv-management.foundation-token', token)
       if (dark) window.localStorage.setItem('cv-management.theme', 'dark')
-      ;(window as Window & { __cls?: number; __clsEntries?: unknown[] }).__cls = 0
-      ;(window as Window & { __clsEntries?: unknown[] }).__clsEntries = []
+      const clsTarget = window as Window & {
+        __cls?: number
+        __clsEntries?: unknown[]
+        __clsStart?: number
+      }
+      clsTarget.__cls = 0
+      clsTarget.__clsEntries = []
+      clsTarget.__clsStart = Number.POSITIVE_INFINITY
       new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
           const shift = entry as PerformanceEntry & { value?: number; hadRecentInput?: boolean }
-          if (!shift.hadRecentInput) {
-            const target = window as Window & { __cls?: number; __clsEntries?: unknown[] }
+          const target = window as Window & {
+            __cls?: number
+            __clsEntries?: unknown[]
+            __clsStart?: number
+          }
+          if (!shift.hadRecentInput && shift.startTime >= (target.__clsStart ?? Infinity)) {
             target.__cls = (target.__cls ?? 0) + (shift.value ?? 0)
             target.__clsEntries?.push({
               value: shift.value ?? 0,
@@ -295,17 +305,29 @@ for (const scenario of scenarios) {
       }
     }
     await page.waitForTimeout(300)
-
     await expect(page).toHaveScreenshot(`${scenario.name}-skeleton.png`, { fullPage: true })
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        }),
+    )
 
     await page.evaluate(() => {
-      ;(window as Window & { __cls?: number }).__cls = 0
+      const target = window as Window & {
+        __cls?: number
+        __clsEntries?: unknown[]
+        __clsStart?: number
+      }
+      target.__cls = 0
+      target.__clsEntries = []
+      target.__clsStart = performance.now()
     })
     release()
 
     await expect(page.getByRole('heading', { level: 1, name: scenario.heading })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1, name: scenario.heading })).toHaveCount(1)
-    await expect(page).toHaveScreenshot(`${scenario.name}-content.png`, { fullPage: true })
+    await page.waitForTimeout(200)
 
     const overflowSafe = await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth + 1,
@@ -318,5 +340,7 @@ for (const scenario of scenarios) {
     }))
     if (cls >= 0.02) console.log(JSON.stringify(entries, null, 2))
     expect(cls).toBeLessThan(0.02)
+
+    await expect(page).toHaveScreenshot(`${scenario.name}-content.png`, { fullPage: true })
   })
 }

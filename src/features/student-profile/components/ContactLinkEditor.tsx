@@ -46,7 +46,7 @@ export function ContactLinkEditor({
           {error}
         </div>
       ) : null}
-      <FormField htmlFor="contact-link-label" label="Label">
+      <FormField htmlFor="contact-link-label" label="Link Label">
         <TextInput
           id="contact-link-label"
           maxLength={60}
@@ -81,7 +81,7 @@ export function ContactLinkEditor({
           onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
           type="checkbox"
         />{' '}
-        Include in CV
+        Include this Professional Link in the CV
       </label>
       <ProfileEditorActions
         isPending={isPending}

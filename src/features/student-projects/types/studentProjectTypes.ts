@@ -1,4 +1,4 @@
-import type { IndividualSkill } from '../../student-skills/types/studentSkillTypes'
+import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import type { PagedQuery, PagedResponse } from '../../../shared/types/pagination'
 
 export type StudentProject = {

@@ -49,7 +49,7 @@ export function ActivityEditor({
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="activity-name" label="Activity Name">
+        <FormField htmlFor="activity-name" label="Organization / Club / Society Name">
           <TextInput
             id="activity-name"
             maxLength={200}
@@ -58,7 +58,7 @@ export function ActivityEditor({
             value={values.activityName}
           />
         </FormField>
-        <FormField htmlFor="activity-role" label="Role">
+        <FormField htmlFor="activity-role" label="Role / Position Held">
           <TextInput
             id="activity-role"
             maxLength={150}
@@ -84,7 +84,7 @@ export function ActivityEditor({
           />
         </FormField>
       </div>
-      <FormField htmlFor="activity-description" label="Description">
+      <FormField htmlFor="activity-description" label="Core Responsibilities">
         <textarea
           className="input"
           id="activity-description"
@@ -99,7 +99,7 @@ export function ActivityEditor({
           onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
           type="checkbox"
         />{' '}
-        Include in CV
+        Include this Activity in the CV
       </label>
       <ProfileEditorActions
         isPending={isPending}

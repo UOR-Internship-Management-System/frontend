@@ -12,7 +12,7 @@ const rosterColumns =
 function RegisteredStudentsMobileRowsSkeleton() {
   return (
     <div aria-hidden="true" className="skeleton-mobile-cards skeleton-mobile-roster">
-      {Array.from({ length: 6 }, (_, index) => (
+      {Array.from({ length: 5 }, (_, index) => (
         <article className="skeleton-mobile-card skeleton-mobile-roster-row" key={index}>
           <SkeletonShape height={16} width="88%" />
           <div className="skeleton-stack">
@@ -33,26 +33,26 @@ export function RegisteredStudentsSectionSkeleton({ announce = true }: { announc
           <SkeletonShape height={28} width={205} />
           <SkeletonShape height={12} radius="pill" width={360} />
         </div>
-        <SkeletonShape height={32} radius="pill" width={180} />
+        <SkeletonShape height={32} radius="pill" width={210} />
       </div>
       <div aria-hidden="true" className="skeleton-controls-grid">
         <div className="skeleton-field">
-          <SkeletonShape height={12} radius="pill" width={175} />
+          <SkeletonShape height={12} radius="pill" width={150} />
           <SkeletonShape height={48} radius="md" />
         </div>
         <div className="skeleton-field">
-          <SkeletonShape height={12} radius="pill" width={100} />
+          <SkeletonShape height={12} radius="pill" width={110} />
           <SkeletonShape height={48} radius="md" />
         </div>
       </div>
       <div aria-hidden="true" className="skeleton-chip-row" data-testid="registered-level-chips">
-        <SkeletonShape height={36} radius="pill" width={92} />
-        <SkeletonShape height={36} radius="pill" width={92} />
+        <SkeletonShape height={42} radius="pill" width={190} />
+        <SkeletonShape height={42} radius="pill" width={190} />
       </div>
       <SkeletonTableGrid
         columns={6}
         gridTemplateColumns={rosterColumns}
-        rows={6}
+        rows={5}
         testId="registered-students-table-skeleton"
       />
       <RegisteredStudentsMobileRowsSkeleton />
@@ -73,7 +73,7 @@ export function RegisteredStudentsSkeleton() {
       label="Loading Registered Students"
     >
       <SkeletonPageHeader />
-      <section aria-hidden="true" className="section-card">
+      <section aria-hidden="true" className="section-card registered-students-roster-card">
         <RegisteredStudentsSectionSkeleton announce={false} />
       </section>
     </SkeletonStatusRegion>

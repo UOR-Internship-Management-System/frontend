@@ -7,6 +7,7 @@ import { resetStudentProjectsMock } from '../mocks/fixtures/studentProjects.fixt
 import { resetCvBuilderMock } from '../mocks/fixtures/cvBuilder.fixture'
 import { resetAcademicRecordsMock } from '../mocks/fixtures/academicRecords.fixture'
 import { resetAuthMocks } from '../mocks/handlers/authHandlers'
+import { resetSprint78Mocks } from '../mocks/handlers/sprint78Handlers'
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })
@@ -31,5 +32,6 @@ afterEach(() => {
   resetStudentProjectsMock()
   resetCvBuilderMock()
   resetAcademicRecordsMock()
+  resetSprint78Mocks()
 })
 afterAll(() => server.close())

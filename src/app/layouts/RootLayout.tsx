@@ -31,15 +31,27 @@ const adminWorkspaceRoutes = [
   routePaths.adminAcademicLedger,
   routePaths.adminStudents,
   routePaths.adminStudentDetail,
+  routePaths.adminInternships,
+  routePaths.adminCandidateFiltering,
+  routePaths.adminShortlists,
 ] as const
 
 function isAdminWorkspacePath(pathname: string) {
-  return adminWorkspaceRoutes.some((route) => matchPath({ path: route, end: true }, pathname))
+  return adminWorkspaceRoutes.some((route) =>
+    matchPath(
+      {
+        path: route,
+        end: true,
+      },
+      pathname,
+    ),
+  )
 }
 
 export function RootLayout() {
   const location = useLocation()
   const outlet = useOutlet()
+
   const isStandalone = standaloneRoutes.has(location.pathname)
   const isStudentWorkspace = studentWorkspaceRoutes.has(location.pathname)
   const isAdminWorkspace = isAdminWorkspacePath(location.pathname)
@@ -47,7 +59,11 @@ export function RootLayout() {
 
   return (
     <div
-      className={`app-shell ${isStandalone ? 'app-shell-standalone' : ''} ${isWorkspace ? 'app-shell-workspace' : ''} ${isStudentWorkspace ? 'app-shell-student-workspace' : ''} ${isAdminWorkspace ? 'app-shell-admin-workspace' : ''}`.trim()}
+      className={`app-shell ${
+        isStandalone ? 'app-shell-standalone' : ''
+      } ${isWorkspace ? 'app-shell-workspace' : ''} ${
+        isStudentWorkspace ? 'app-shell-student-workspace' : ''
+      } ${isAdminWorkspace ? 'app-shell-admin-workspace' : ''}`.trim()}
     >
       {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
 
@@ -58,6 +74,7 @@ export function RootLayout() {
               <span className="brand-dot" />
               CV Management
             </Link>
+
             <ThemeToggle />
           </div>
         </header>
@@ -67,7 +84,9 @@ export function RootLayout() {
         className={
           isStandalone
             ? 'app-main app-main-standalone'
-            : `app-main ${isWorkspace ? 'app-main-workspace' : ''} ${isStudentWorkspace ? 'app-main-student-workspace' : ''} ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
+            : `app-main ${isWorkspace ? 'app-main-workspace' : ''} ${
+                isStudentWorkspace ? 'app-main-student-workspace' : ''
+              } ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
         }
       >
         {isWorkspace ? (

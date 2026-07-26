@@ -18,18 +18,8 @@ export type AcademicRecordQuery = {
 export type AcademicRecordView = AcademicRecord & {
   creditsLabel: string
   gradePointLabel: string
-  periodLabel: string
-  committedAtLabel: string
 }
 
 export type GpaSummaryView = GpaSummary & {
   gpaLabel: string | null
-  creditsLabel: string | null
-  calculatedAtLabel: string | null
-  sourceLabel: string | null
-}
-
-export type AcademicSortOption = {
-  label: string
-  value: string
 }

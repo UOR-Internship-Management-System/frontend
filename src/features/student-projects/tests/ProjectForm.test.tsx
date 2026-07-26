@@ -21,15 +21,27 @@ describe('ProjectForm and project dialogs', () => {
     )
 
     await user.type(view.getByLabelText('Repository URL'), 'javascript:alert(1)')
-    fireEvent.change(view.getByLabelText('Start date'), { target: { value: '2026-05-16' } })
-    fireEvent.change(view.getByLabelText('End date'), { target: { value: '2026-05-15' } })
-    await user.click(view.getByRole('button', { name: 'Create project' }))
+    await user.click(view.getByRole('button', { name: 'Timeline' }))
+    fireEvent.change(view.getByLabelText('Start Date'), { target: { value: '2026-05-16' } })
+    fireEvent.change(view.getByLabelText('End Date'), { target: { value: '2026-05-15' } })
+    await user.click(view.getByRole('button', { name: 'Save' }))
 
     expect(await view.findByText('Enter a project title.')).toBeInTheDocument()
     expect(view.getByText('Use an http or https web address.')).toBeInTheDocument()
     expect(view.getByText('End date cannot be before start date.')).toBeInTheDocument()
-    await waitFor(() => expect(view.getByLabelText('Project title')).toHaveFocus())
+    await waitFor(() => expect(view.getByLabelText('Title')).toHaveFocus())
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('excludes unsupported wireframe-only fields from the API-backed form', () => {
+    const view = renderWithProviders(
+      <ProjectForm mode="create" onCancel={vi.fn()} onSubmit={vi.fn()} />,
+    )
+
+    expect(view.queryByLabelText('Project Type')).not.toBeInTheDocument()
+    expect(view.queryByLabelText('LinkedIn URL')).not.toBeInTheDocument()
+    expect(view.queryByLabelText('Documentation URL')).not.toBeInTheDocument()
+    expect(view.queryByLabelText('Skill usage notes')).not.toBeInTheDocument()
   })
 
   it('adds unique taxonomy skills, removes chips, and submits controlled values', async () => {
@@ -40,18 +52,18 @@ describe('ProjectForm and project dialogs', () => {
     )
     const taxonomy = await view.findByLabelText('Taxonomy skill')
 
-    await user.type(view.getByLabelText('Project title'), 'Portfolio API')
+    await user.type(view.getByLabelText('Title'), 'Portfolio API')
     await user.selectOptions(taxonomy, skillIds.typescript)
-    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    await user.click(view.getByRole('button', { name: 'Add Skill' }))
     expect(
       within(view.getByRole('list', { name: 'Project skills' })).getByText('TypeScript'),
     ).toBeVisible()
     expect(within(taxonomy).getByRole('option', { name: 'TypeScript' })).toBeDisabled()
 
     await user.selectOptions(taxonomy, skillIds.react)
-    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    await user.click(view.getByRole('button', { name: 'Add Skill' }))
     await user.click(view.getByRole('button', { name: 'Remove React' }))
-    await user.click(view.getByRole('button', { name: 'Create project' }))
+    await user.click(view.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit).toHaveBeenCalledWith(
@@ -66,14 +78,15 @@ describe('ProjectForm and project dialogs', () => {
       <ProjectForm mode="create" onCancel={vi.fn()} onSubmit={onSubmit} />,
     )
 
-    await user.type(view.getByLabelText('Project title'), 'Ongoing research tool')
-    fireEvent.change(view.getByLabelText('Start date'), { target: { value: '2026-06-01' } })
-    fireEvent.change(view.getByLabelText('End date'), { target: { value: '2026-07-01' } })
-    await user.click(view.getByLabelText('This project is ongoing'))
+    await user.type(view.getByLabelText('Title'), 'Ongoing research tool')
+    await user.click(view.getByRole('button', { name: 'Timeline' }))
+    fireEvent.change(view.getByLabelText('Start Date'), { target: { value: '2026-06-01' } })
+    fireEvent.change(view.getByLabelText('End Date'), { target: { value: '2026-07-01' } })
+    await user.click(view.getByLabelText('Under Development'))
 
-    expect(view.getByLabelText('End date')).toBeDisabled()
-    expect(view.getByLabelText('End date')).toHaveValue('')
-    await user.click(view.getByRole('button', { name: 'Create project' }))
+    expect(view.getByLabelText('End Date')).toBeDisabled()
+    expect(view.getByLabelText('End Date')).toHaveValue('')
+    await user.click(view.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledOnce())
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ endDate: '' }))
   })
@@ -122,7 +135,7 @@ describe('ProjectForm and project dialogs', () => {
       expect(within(taxonomy).getByRole('option', { name: lateSkill.name })).toBeVisible(),
     )
     await user.selectOptions(taxonomy, lateSkill.skillId)
-    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    await user.click(view.getByRole('button', { name: 'Add Skill' }))
 
     expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent(lateSkill.name)
     await user.type(
@@ -166,15 +179,20 @@ describe('ProjectForm and project dialogs', () => {
     }
 
     const view = renderWithProviders(<Harness />)
-    await user.clear(view.getByLabelText('Description'))
-    await user.type(view.getByLabelText('Description'), 'Student-owned draft change')
+    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
+    await user.type(
+      view.getByLabelText('Project Abstract / High-Level Description'),
+      'Student-owned draft change',
+    )
     await user.click(view.getByRole('button', { name: 'Refresh server project' }))
 
     await waitFor(() =>
-      expect(view.getByLabelText('Project title')).toHaveValue('Server-renamed portfolio'),
+      expect(view.getByLabelText('Title')).toHaveValue('Server-renamed portfolio'),
     )
-    expect(view.getByLabelText('Description')).toHaveValue('Student-owned draft change')
-    await user.click(view.getByRole('button', { name: 'Save project' }))
+    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
+      'Student-owned draft change',
+    )
+    await user.click(view.getByRole('button', { name: 'Save Changes' }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Server-renamed portfolio',
@@ -204,15 +222,20 @@ describe('ProjectForm and project dialogs', () => {
       />,
     )
 
-    await user.clear(view.getByLabelText('Description'))
+    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
     await user.clear(view.getByLabelText('Repository URL'))
-    await user.type(view.getByLabelText('Description'), 'Intended replacement')
-    await user.click(view.getByRole('button', { name: 'Save project' }))
+    await user.type(
+      view.getByLabelText('Project Abstract / High-Level Description'),
+      'Intended replacement',
+    )
+    await user.click(view.getByRole('button', { name: 'Save Changes' }))
 
     expect(await view.findByText(/entered values are preserved/i)).toBeInTheDocument()
-    expect(view.getByLabelText('Description')).toHaveValue('Intended replacement')
+    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
+      'Intended replacement',
+    )
     expect(view.getByLabelText('Repository URL')).toHaveValue('')
-    expect(view.getByRole('button', { name: 'Save project' })).toBeEnabled()
+    expect(view.getByRole('button', { name: 'Save Changes' })).toBeEnabled()
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ description: 'Intended replacement', repositoryUrl: '' }),
     )
@@ -272,7 +295,7 @@ describe('ProjectForm and project dialogs', () => {
     const view = renderWithProviders(<Harness />)
     const launcher = view.getByRole('button', { name: 'Launch project form' })
     await user.click(launcher)
-    expect(view.getByRole('dialog', { name: 'Add project' })).toBeInTheDocument()
+    expect(view.getByRole('dialog', { name: 'Create New Project' })).toBeInTheDocument()
     await user.keyboard('{Escape}')
     await waitFor(() => expect(view.queryByRole('dialog')).not.toBeInTheDocument())
     await waitFor(() => expect(launcher).toHaveFocus())
@@ -292,12 +315,12 @@ describe('ProjectForm and project dialogs', () => {
       />,
     )
 
-    const repository = view.getByRole('link', { name: 'Open repository' })
+    const repository = view.getByRole('link', { name: 'Open Repository' })
     expect(repository).toHaveAttribute('href', project.repositoryUrl)
     expect(repository).toHaveAttribute('target', '_blank')
     expect(repository).toHaveAttribute('rel', expect.stringContaining('noopener'))
-    await user.click(view.getByRole('button', { name: 'Edit project' }))
-    await user.click(view.getByRole('button', { name: 'Delete project' }))
+    await user.click(view.getByRole('button', { name: 'Edit' }))
+    await user.click(view.getByRole('button', { name: 'Remove Project' }))
     expect(onEdit).toHaveBeenCalledOnce()
     expect(onDelete).toHaveBeenCalledOnce()
   })
@@ -315,9 +338,9 @@ describe('ProjectForm and project dialogs', () => {
       <ProjectDeleteDialog onClose={vi.fn()} onConfirm={onConfirm} project={project} />,
     )
 
-    await user.click(view.getByRole('button', { name: 'Delete project' }))
+    await user.click(view.getByRole('button', { name: 'Remove' }))
     expect(await view.findByRole('alert')).toHaveTextContent(/changed since it was loaded/i)
-    expect(view.getByRole('dialog', { name: `Delete ${project.title}?` })).toBeInTheDocument()
-    expect(view.getByRole('button', { name: 'Delete project' })).toBeEnabled()
+    expect(view.getByRole('dialog', { name: 'Remove Project' })).toBeInTheDocument()
+    expect(view.getByRole('button', { name: 'Remove' })).toBeEnabled()
   })
 })

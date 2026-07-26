@@ -1,25 +1,49 @@
 import { useEffect } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { LedgerSelectedBatchSkeleton, LedgerUploadsTableSkeleton } from '../../../shared/skeletons'
+import { LedgerAcademicInspection } from '../components/LedgerAcademicInspection'
+import { LedgerCommitControl } from '../components/LedgerCommitControl'
+import { LedgerReviewSection } from '../components/LedgerReviewSection'
 import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
-import { LedgerReviewSection } from '../components/LedgerReviewSection'
-import { LedgerCommitControl } from '../components/LedgerCommitControl'
-import { LedgerAcademicInspection } from '../components/LedgerAcademicInspection'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
 import { useLedgerUploadDetail, useLedgerUploads, useUploadLedger } from '../hooks/useLedgerUpload'
 
+const pageTitle = 'Academic Ledger Management | CV Management & Filtering System'
+const pageDescription =
+  'Centralized academic data validation repository. Import official undergraduate transcripts ' +
+  'via batch files to evaluate data parameters, review staged records, and protect academic data ' +
+  'from unauthorized modification.'
+
 export function AcademicLedgerPage() {
-  const { state, rowSearchInput, selectUpload, setRowSearchInput, updateRows, updateUploads } =
-    useAcademicLedgerUrlState()
+  const {
+    state,
+    rowSearchInput,
+    studentSearchInput,
+    selectUpload,
+    setRowSearchInput,
+    setStudentSearchInput,
+    updateRows,
+    updateStudents,
+    updateUploads,
+  } = useAcademicLedgerUrlState()
   const uploads = useLedgerUploads(state.uploads)
   const selected = useLedgerUploadDetail(state.uploadId)
   const upload = useUploadLedger()
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = pageTitle
+    return () => {
+      document.title = previousTitle
+    }
+  }, [])
 
   useEffect(() => {
     const totalPages = uploads.data?.page.totalPages ?? 0
@@ -31,20 +55,27 @@ export function AcademicLedgerPage() {
     selected.data &&
     !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
   )
+
   return (
-    <div className="content-stack academic-ledger-page">
-      <PageHeader
-        eyebrow="Administration"
-        title="Academic Ledger"
-        description="Stage, validate, review, and transactionally commit official academic records."
-      />
+    <main className="content-stack academic-ledger-page">
+      <PageHeader title="Academic Ledger Management" description={pageDescription} />
+
       <LedgerUploadPanel
         error={upload.error}
         isPending={upload.isPending}
+        onReset={upload.reset}
         onUpload={(file) =>
           upload.mutate(file, { onSuccess: ({ data }) => selectUpload(data.uploadId) })
         }
       />
+
+      <LedgerAcademicInspection
+        onQueryChange={updateStudents}
+        onSearchChange={setStudentSearchInput}
+        query={state.students}
+        searchInput={studentSearchInput}
+      />
+
       {state.uploadId && selected.isPending ? <LedgerSelectedBatchSkeleton /> : null}
       {selected.data ? <LedgerUploadStatus detail={selected.data} /> : null}
       {selected.isError ? (
@@ -64,19 +95,22 @@ export function AcademicLedgerPage() {
         />
       ) : null}
       {selected.data && isReviewable ? <LedgerCommitControl detail={selected.data} /> : null}
-      <section aria-labelledby="recent-ledger-batches-title" className="section-card">
+
+      <section aria-labelledby="ledger-batches-title" className="section-card ledger-batches-panel">
         <div className="ledger-section-heading">
           <div>
-            <p className="section-kicker">History</p>
-            <h2 id="recent-ledger-batches-title">Recent upload batches</h2>
+            <p className="section-kicker">Processing history</p>
+            <h2 id="ledger-batches-title">Ledger Upload Batches</h2>
+            <p>Open an existing batch to continue validation review or commit eligible records.</p>
           </div>
           {uploads.isFetching && !uploads.isPending ? <span role="status">Updating…</span> : null}
         </div>
-        <div className="ledger-toolbar">
+        <div className="ledger-toolbar ledger-batch-toolbar">
           <label>
             Search files
-            <input
-              className="input"
+            <SearchInput
+              aria-label="Search ledger upload files"
+              placeholder="Search by file name"
               value={state.uploads.search}
               onChange={(event) => updateUploads({ search: event.target.value.slice(0, 120) })}
             />
@@ -123,7 +157,7 @@ export function AcademicLedgerPage() {
             message="No ledger uploads match the current filters."
           />
         ) : null}
-        {uploads.data ? (
+        {uploads.data?.page.totalPages ? (
           <PaginationBar
             label="Academic ledger upload pages"
             page={uploads.data.page.page}
@@ -136,7 +170,6 @@ export function AcademicLedgerPage() {
           />
         ) : null}
       </section>
-      <LedgerAcademicInspection />
-    </div>
+    </main>
   )
 }

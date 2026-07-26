@@ -19,8 +19,9 @@ export function mapRegisteredStudent(student: ApiStudentSummaryResponse): Regist
 export function mapAdminAcademicRecord(record: ApiAcademicRecordResponse): AdminAcademicRecordView {
   return {
     ...record,
-    creditsLabel: record.credits.toFixed(1),
+    creditsLabel: Number.isInteger(record.credits)
+      ? String(record.credits)
+      : record.credits.toFixed(1),
     gradePointLabel: record.gradePoint.toFixed(2),
-    periodLabel: `${record.academicYear} · ${record.semester}`,
   }
 }

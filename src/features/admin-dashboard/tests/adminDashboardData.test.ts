@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { ZodError } from 'zod'
-import { adminDashboardMetricsSchema } from '../schemas/adminDashboardSchemas'
-import { mapAdminDashboard } from '../mappers/adminDashboardMapper'
 import { adminDashboardKeys } from '../hooks/adminDashboardQueryKeys'
 import { shouldRetryAdminDashboard } from '../hooks/useAdminDashboard'
+import { mapAdminDashboard } from '../mappers/adminDashboardMapper'
+import { adminDashboardMetricsSchema } from '../schemas/adminDashboardSchemas'
 
 const metrics = {
   totalStudents: 142,
@@ -21,15 +21,30 @@ describe('Admin dashboard data layer', () => {
     )
   })
 
-  it('maps the three metrics and backend freshness timestamp deterministically', () => {
+  it('maps the three API metrics to the exact wireframe labels and descriptions', () => {
     const view = mapAdminDashboard(metrics)
-    expect(view.metrics.map((item) => item.label)).toEqual([
-      'Total Students',
-      'Registered Students',
-      'Internship Requests Created',
+
+    expect(view.metrics).toEqual([
+      {
+        key: 'totalStudents',
+        label: 'Total Students',
+        value: '142',
+        description: 'Total count of students currently in the database.',
+      },
+      {
+        key: 'registeredStudents',
+        label: 'Registered Students',
+        value: '134',
+        description: 'Current count of students registered in the system.',
+      },
+      {
+        key: 'internshipRequestsCreated',
+        label: 'Internship Requests Created',
+        value: '12',
+        description: 'Total number of internship requests that have been generated.',
+      },
     ])
-    expect(view.metrics.map((item) => item.value)).toEqual(['142', '134', '12'])
-    expect(view.lastUpdatedLabel).not.toBe('Invalid Date')
+    expect(view).not.toHaveProperty('lastUpdatedLabel')
   })
 
   it('uses a stable protected query key and safe retry policy', () => {

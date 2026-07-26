@@ -7,6 +7,7 @@ export function HomePage() {
       <section className="gateway-hero">
         <div className="gateway-hero-bg" />
         <div className="gateway-hero-content">
+          <img src="/logo (2).png" alt="University Logo" className="gateway-logo" />
           <p className="gateway-eyebrow">CV Management System</p>
           <h1 id="gateway-title">Department Access Gateway</h1>
           <p>

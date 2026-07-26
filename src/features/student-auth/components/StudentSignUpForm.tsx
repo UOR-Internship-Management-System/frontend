@@ -35,6 +35,8 @@ export function StudentSignUpForm({ isSubmitting, onSubmit }: StudentSignUpFormP
           return
         }
 
+        const submitter = (event.nativeEvent as SubmitEvent).submitter
+        if (submitter instanceof HTMLElement) submitter.focus({ preventScroll: true })
         setErrors({})
         onSubmit(result.data)
       }}
