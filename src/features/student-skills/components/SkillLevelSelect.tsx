@@ -33,7 +33,7 @@ export function SkillLevelSelect({
       required
       value={value}
     >
-      <option value="">Select competency</option>
+      <option value="">Choose competency</option>
       {competencyLevels.map((level) => (
         <option key={level} value={level}>
           {labels[level]}

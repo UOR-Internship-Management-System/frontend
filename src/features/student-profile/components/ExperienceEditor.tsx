@@ -51,7 +51,7 @@ export function ExperienceEditor({
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="experience-organization" label="Organization">
+        <FormField htmlFor="experience-organization" label="Company">
           <TextInput
             id="experience-organization"
             maxLength={200}
@@ -60,7 +60,7 @@ export function ExperienceEditor({
             value={values.organization}
           />
         </FormField>
-        <FormField htmlFor="experience-position" label="Position Title">
+        <FormField htmlFor="experience-position" label="Job Title">
           <TextInput
             id="experience-position"
             maxLength={150}
@@ -69,7 +69,7 @@ export function ExperienceEditor({
             value={values.positionTitle}
           />
         </FormField>
-        <FormField htmlFor="experience-location" label="Location">
+        <FormField htmlFor="experience-location" label="Job Location">
           <TextInput
             id="experience-location"
             onChange={(event) => setValues({ ...values, location: event.target.value })}
@@ -108,9 +108,9 @@ export function ExperienceEditor({
           }
           type="checkbox"
         />{' '}
-        I currently work here
+        Is Current Role
       </label>
-      <FormField htmlFor="experience-description" label="Description">
+      <FormField htmlFor="experience-description" label="Core Responsibilities / Bulleted Duties">
         <textarea
           className="input"
           id="experience-description"
@@ -125,7 +125,7 @@ export function ExperienceEditor({
           onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
           type="checkbox"
         />{' '}
-        Include in CV
+        Include this Experience in the CV
       </label>
       <ProfileEditorActions
         isPending={isPending}

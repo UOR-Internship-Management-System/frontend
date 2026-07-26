@@ -7,18 +7,23 @@ import {
 } from './SkeletonPrimitives'
 
 const declaredColumns =
-  'minmax(150px,1fr) minmax(170px,1.1fr) minmax(170px,1.1fr) minmax(120px,.8fr) minmax(150px,.9fr) minmax(150px,.9fr)'
+  'minmax(180px,1.15fr) minmax(180px,1.1fr) minmax(150px,.9fr) minmax(150px,.9fr) minmax(180px,1fr)'
 
 export function AddSkillOptionsSkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
-    <div aria-hidden="true" className="s4-skills-add-fields">
-      {Array.from({ length: 4 }, (_, index) => (
-        <div className="skeleton-field" key={index}>
-          <SkeletonShape height={12} radius="pill" width={index === 0 ? 96 : 132} />
-          <SkeletonShape height={48} radius="md" />
-        </div>
-      ))}
-      <SkeletonShape height={42} radius="pill" width={132} />
+    <div aria-hidden="true" className="skeleton-stack">
+      <SkeletonShape height={48} radius="md" width="min(100%, 460px)" />
+      <div className="s4-skills-add-fields">
+        {Array.from({ length: 4 }, (_, index) => (
+          <div className="skeleton-field" key={index}>
+            <SkeletonShape height={12} radius="pill" width={index === 0 ? 96 : 132} />
+            <SkeletonShape height={48} radius="md" />
+          </div>
+        ))}
+      </div>
+      <div className="s4-skills-form-actions">
+        <SkeletonShape height={44} radius="pill" width={128} />
+      </div>
     </div>
   )
   return announce ? (
@@ -32,13 +37,14 @@ export function TaxonomyResultsSkeleton({ announce = true }: { announce?: boolea
   const content = (
     <div className="skeleton-stack">
       <div aria-hidden="true" className="s4-skills-results">
-        {Array.from({ length: 6 }, (_, index) => (
+        {Array.from({ length: 9 }, (_, index) => (
           <article className="s4-skills-result skeleton-skill-result" key={index}>
+            <SkeletonShape height={22} radius="pill" width={index % 2 === 0 ? 112 : 148} />
+            <SkeletonShape height={18} width={index % 3 === 0 ? '58%' : '72%'} />
             <span className="skeleton-stack skeleton-skill-result__copy">
-              <SkeletonShape height={16} width={index % 2 === 0 ? '48%' : '58%'} />
-              <SkeletonShape height={12} radius="pill" width="82%" />
+              <SkeletonShape height={12} radius="pill" width="86%" />
+              <SkeletonShape height={12} radius="pill" width="62%" />
             </span>
-            <SkeletonShape height={12} radius="pill" width={index === 1 ? 112 : 52} />
           </article>
         ))}
       </div>
@@ -62,15 +68,14 @@ export function DeclaredSkillsListSkeleton({
   const content = (
     <div className="skeleton-stack">
       {includeToolbar ? (
-        <div aria-hidden="true" className="skeleton-controls-grid">
-          <SkeletonShape height={48} radius="md" />
-          <SkeletonShape height={48} radius="md" />
+        <div aria-hidden="true" className="s4-skills-list-toolbar">
+          <SkeletonShape height={48} radius="md" width="min(100%, 460px)" />
         </div>
       ) : null}
       <SkeletonTableGrid
-        columns={6}
+        columns={5}
         gridTemplateColumns={declaredColumns}
-        rows={5}
+        rows={6}
         testId="declared-skills-table-skeleton"
       />
       <SkeletonPagination />
@@ -87,23 +92,31 @@ export function StudentSkillsSkeleton() {
   return (
     <SkeletonStatusRegion className="content-stack" label="Loading Skills workspace">
       <SkeletonPageHeader />
-      <section aria-hidden="true" className="section-card skeleton-stack">
-        <SkeletonShape height={28} width={170} />
+      <section aria-hidden="true" className="section-card s4-skills-add-card">
+        <div className="s4-skills-section-heading">
+          <div className="skeleton-stack">
+            <SkeletonShape height={28} width={190} />
+            <SkeletonShape height={14} width="min(100%, 560px)" />
+          </div>
+        </div>
         <AddSkillOptionsSkeleton announce={false} />
       </section>
-      <section aria-hidden="true" className="section-card skeleton-stack">
-        <SkeletonShape height={28} width={260} />
-        <div className="s4-skills-taxonomy-filters">
-          {Array.from({ length: 3 }, (_, index) => (
-            <SkeletonShape height={48} radius="md" key={index} />
-          ))}
+      <section aria-hidden="true" className="section-card s4-skills-available-card">
+        <div className="s4-skills-section-heading">
+          <div className="skeleton-stack">
+            <SkeletonShape height={28} width={260} />
+            <SkeletonShape height={14} width="min(100%, 520px)" />
+          </div>
+          <SkeletonShape height={32} radius="pill" width={106} />
         </div>
         <TaxonomyResultsSkeleton announce={false} />
       </section>
-      <section aria-hidden="true" className="section-card skeleton-stack">
-        <div className="skeleton-section-heading">
-          <SkeletonShape height={28} width={230} />
-          <SkeletonShape height={32} radius="pill" width={120} />
+      <section aria-hidden="true" className="section-card s4-skills-list-card">
+        <div className="s4-skills-section-heading">
+          <div className="skeleton-stack">
+            <SkeletonShape height={28} width={210} />
+            <SkeletonShape height={14} width="min(100%, 460px)" />
+          </div>
         </div>
         <DeclaredSkillsListSkeleton announce={false} />
       </section>

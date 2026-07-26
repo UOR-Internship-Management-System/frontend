@@ -12,9 +12,19 @@ import { RegisteredStudentsToolbar } from '../components/RegisteredStudentsToolb
 import { useRegisteredStudents } from '../hooks/useRegisteredStudents'
 import { useRegisteredStudentsUrlState } from '../hooks/useRegisteredStudentsUrlState'
 
+const pageTitle = 'Registered Students | CV Management & Filtering System'
+
 export function RegisteredStudentsPage() {
   const { query, searchInput, setSearchInput, updateQuery } = useRegisteredStudentsUrlState()
   const studentsQuery = useRegisteredStudents(query)
+
+  useEffect(() => {
+    const previousTitle = document.title
+    document.title = pageTitle
+    return () => {
+      document.title = previousTitle
+    }
+  }, [])
 
   useEffect(() => {
     const totalPages = studentsQuery.data?.page.totalPages ?? 0
@@ -28,11 +38,13 @@ export function RegisteredStudentsPage() {
   return (
     <div className="content-stack registered-students-page">
       <PageHeader
-        description="Search and inspect the registered Student directory."
-        eyebrow="Administration"
+        description="Centralized master directory for registered Level 3 and Level 4 Students. Use search, filters, sorting, and read-only inspection to locate Student records."
         title="Registered Students"
       />
-      <section aria-labelledby="registered-students-roster-title" className="section-card">
+      <section
+        aria-labelledby="registered-students-roster-title"
+        className="section-card registered-students-roster-card"
+      >
         <LoadingBoundary
           isLoading={studentsQuery.isPending}
           label="Loading registered Students"
@@ -83,9 +95,9 @@ export function RegisteredStudentsPage() {
               <PaginationBar
                 label="Registered Student pages"
                 onPageChange={(page) => updateQuery({ page })}
-                onPageSizeChange={(size) => updateQuery({ size: size as 20 | 50 | 100 })}
+                onPageSizeChange={(size) => updateQuery({ size: size as 5 | 20 | 50 | 100 })}
                 page={studentsQuery.data.page.page}
-                pageSizeOptions={[20, 50, 100]}
+                pageSizeOptions={[5, 20, 50, 100]}
                 size={studentsQuery.data.page.size}
                 totalElements={studentsQuery.data.page.totalElements}
                 totalPages={studentsQuery.data.page.totalPages}

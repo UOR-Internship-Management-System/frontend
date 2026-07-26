@@ -17,12 +17,16 @@ export type ModalProps = {
   description?: string
   onClose?: () => void
   closeDisabled?: boolean
+  closeOnBackdrop?: boolean
   size?: 'default' | 'wide'
+  className?: string
 }
 
 export function Modal({
   children,
+  className = '',
   closeDisabled = false,
+  closeOnBackdrop = false,
   description,
   onClose,
   size = 'default',
@@ -140,12 +144,15 @@ export function Modal({
     <div
       className={`modal-backdrop app-modal-overlay active ${isClosing ? 'closing' : ''}`}
       onAnimationEnd={handleCloseAnimationEnd}
+      onMouseDown={(event) => {
+        if (closeOnBackdrop && event.target === event.currentTarget) handleClose()
+      }}
     >
       <section
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className={`modal-card modal-card-${size} card`}
+        className={`modal-card modal-card-${size} card ${className}`.trim()}
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}

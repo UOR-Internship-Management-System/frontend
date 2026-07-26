@@ -1,30 +1,45 @@
 import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 import {
-  SkeletonMobileCards,
   SkeletonPageHeader,
   SkeletonPagination,
   SkeletonShape,
   SkeletonStatusRegion,
-  SkeletonTableGrid,
 } from './SkeletonPrimitives'
 
-const projectColumns =
-  'minmax(260px,1.8fr) minmax(150px,.9fr) minmax(220px,1.3fr) minmax(110px,.6fr) minmax(150px,.8fr)'
+function ProjectRowSkeleton() {
+  return (
+    <article aria-hidden="true" className="skeleton-project-row">
+      <div className="skeleton-project-row-content">
+        <div className="skeleton-chip-row">
+          <SkeletonShape height={24} radius="pill" width={190} />
+          <SkeletonShape height={26} radius="pill" width={126} />
+          <SkeletonShape height={26} radius="pill" width={94} />
+        </div>
+        <SkeletonShape height={14} radius="pill" width={170} />
+        <SkeletonBlock decorative lineWidths={['94%', '72%']} lines={2} variant="inline" />
+        <div className="skeleton-chip-row">
+          <SkeletonShape height={28} radius="pill" width={84} />
+          <SkeletonShape height={28} radius="pill" width={108} />
+          <SkeletonShape height={28} radius="pill" width={96} />
+        </div>
+      </div>
+      <SkeletonShape height={42} radius="md" width={108} />
+    </article>
+  )
+}
 
 export function ProjectRepositorySkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
     <div className="skeleton-stack">
-      <div aria-hidden="true" className="skeleton-controls-grid">
+      <div aria-hidden="true" className="skeleton-project-toolbar">
         <SkeletonShape height={48} radius="md" />
-        <SkeletonShape height={48} radius="md" />
+        <SkeletonShape height={32} radius="pill" width={104} />
       </div>
-      <SkeletonTableGrid
-        columns={5}
-        gridTemplateColumns={projectColumns}
-        rows={5}
-        testId="projects-table-skeleton"
-      />
-      <SkeletonMobileCards count={5} />
+      <div className="skeleton-project-list" data-testid="projects-list-skeleton">
+        {Array.from({ length: 4 }, (_, index) => (
+          <ProjectRowSkeleton key={index} />
+        ))}
+      </div>
       <SkeletonPagination />
     </div>
   )
@@ -38,7 +53,8 @@ export function ProjectRepositorySkeleton({ announce = true }: { announce?: bool
 export function ProjectModalSkeleton() {
   return (
     <div aria-hidden="true" className="skeleton-project-modal">
-      <SkeletonBlock decorative lineWidths={['96%', '88%', '70%']} lines={3} variant="inline" />
+      <SkeletonShape height={46} radius="md" />
+      <SkeletonShape height={38} radius="pill" width={132} />
       <div className="skeleton-controls-grid">
         <div className="skeleton-field">
           <SkeletonShape height={12} radius="pill" width={100} />
@@ -49,15 +65,22 @@ export function ProjectModalSkeleton() {
           <SkeletonShape height={44} radius="md" />
         </div>
       </div>
+      <SkeletonBlock decorative lineWidths={['96%', '88%', '70%']} lines={3} variant="inline" />
+
+      <div className="skeleton-field">
+        <SkeletonShape height={12} radius="pill" width={120} />
+        <SkeletonShape height={72} radius="md" />
+      </div>
+
       <div className="skeleton-chip-row">
         <SkeletonShape height={30} radius="pill" width={90} />
         <SkeletonShape height={30} radius="pill" width={118} />
         <SkeletonShape height={30} radius="pill" width={102} />
       </div>
-      <SkeletonShape height={44} radius="md" />
       <div className="skeleton-modal-footer">
-        <SkeletonShape height={42} radius="pill" width={116} />
-        <SkeletonShape height={42} radius="pill" width={136} />
+        <SkeletonShape height={42} radius="md" width={132} />
+        <SkeletonShape height={42} radius="md" width={92} />
+        <SkeletonShape height={42} radius="md" width={92} />
       </div>
     </div>
   )
@@ -68,7 +91,6 @@ export function StudentProjectsSkeleton() {
     <SkeletonStatusRegion className="content-stack" label="Loading Projects workspace">
       <SkeletonPageHeader action />
       <section aria-hidden="true" className="section-card skeleton-stack">
-        <SkeletonShape height={28} width={220} />
         <ProjectRepositorySkeleton announce={false} />
       </section>
     </SkeletonStatusRegion>

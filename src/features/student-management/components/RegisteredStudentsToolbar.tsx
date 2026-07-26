@@ -4,10 +4,10 @@ import { Chip } from '../../../shared/components/ui/Chip'
 import type { RegisteredStudentsQuery } from '../types/studentManagementTypes'
 
 const sortOptions: ReadonlyArray<{ value: RegisteredStudentsQuery['sort']; label: string }> = [
-  { value: 'fullName,asc', label: 'Full name · A–Z' },
-  { value: 'officialGpa,desc', label: 'Official GPA · highest' },
-  { value: 'officialGpa,asc', label: 'Official GPA · lowest' },
-  { value: 'indexNumber,asc', label: 'Index number · ascending' },
+  { value: 'fullName,asc', label: 'Alphabetical order' },
+  { value: 'officialGpa,desc', label: 'GPA (High to Low)' },
+  { value: 'officialGpa,asc', label: 'GPA (Low to High)' },
+  { value: 'indexNumber,asc', label: 'Index Number order' },
 ]
 
 type RegisteredStudentsToolbarProps = {
@@ -31,23 +31,23 @@ export function RegisteredStudentsToolbar({
     <div className="registered-students-toolbar">
       <div className="registered-students-toolbar-heading">
         <div>
-          <h2 id="registered-students-roster-title">Student roster</h2>
-          <p>Search and review registered Level 3 and Level 4 Students.</p>
+          <h2 id="registered-students-roster-title">Student Roster</h2>
+          <p>Search and inspect registered Level 3 and Level 4 Student records.</p>
         </div>
-        <Chip>{totalElements} registered Students</Chip>
+        <Chip>{totalElements} Registered Undergraduates</Chip>
       </div>
       <div className="registered-students-controls">
         <label className="registered-students-search">
-          <span>Search registered Students</span>
+          <span>Search Students</span>
           <SearchInput
             maxLength={120}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Name, index, email, or academic batch"
+            placeholder="Search Students by index, name, or batch"
             value={searchInput}
           />
         </label>
         <label>
-          <span>Sort roster</span>
+          <span>Sort Students</span>
           <SortSelect
             onChange={(event) =>
               onQueryChange({ sort: event.target.value as RegisteredStudentsQuery['sort'] })
@@ -62,7 +62,7 @@ export function RegisteredStudentsToolbar({
           </SortSelect>
         </label>
         <fieldset className="registered-students-levels">
-          <legend>Current level</legend>
+          <legend>Quick Filters</legend>
           {[3, 4].map((level) => {
             const selected = query.level === level
             return (
@@ -73,14 +73,14 @@ export function RegisteredStudentsToolbar({
                 onClick={() => onQueryChange({ level: selected ? undefined : (level as 3 | 4) })}
                 type="button"
               >
-                Level {level}
+                Level {level} Candidates Only
               </button>
             )
           })}
         </fieldset>
       </div>
       <p aria-live="polite" className="registered-students-updating">
-        {isFetching ? 'Updating roster…' : ''}
+        {isFetching ? 'Updating Student roster…' : ''}
       </p>
     </div>
   )

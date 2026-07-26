@@ -1,3 +1,4 @@
+import { routePaths } from '../../../app/config/routePaths'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import type { CvRecordSelections } from '../mappers/cvMapper'
 import { CvRecordSelectionGroup, type CvSelectionGroupState } from './CvRecordSelectionGroup'
@@ -11,6 +12,13 @@ export type CvConfigurationPanelProps = {
   activitySources: CvSelectionGroupState
   onToggleRecord: (selection: keyof CvRecordSelections, recordId: string) => void
 }
+
+const alwaysIncludedContent = [
+  'Identity and contact details',
+  'Professional summary',
+  'Declared skills',
+  'Academic summary',
+] as const
 
 export function CvConfigurationPanel({
   activitySources,
@@ -31,13 +39,18 @@ export function CvConfigurationPanel({
       </div>
 
       <div className="s5-cv-identity-note">
-        <strong>Identity and contact details are always included.</strong>
-        <span>The CV always uses the approved default section order.</span>
+        <strong>Always included</strong>
+        <div className="s5-cv-always-included-list">
+          {alwaysIncludedContent.map((item) => (
+            <span key={item}>{item}</span>
+          ))}
+        </div>
+        <small>Optional records follow the approved default section order.</small>
       </div>
 
       <div className="s5-cv-source-grid">
         <CvRecordSelectionGroup
-          manageHref="/student/profile"
+          manageHref={routePaths.studentProfile}
           manageLabel="Work Experience in Profile"
           onToggle={(id) => onToggleRecord('includedExperienceIds', id)}
           selectedIds={selections.includedExperienceIds}
@@ -45,7 +58,7 @@ export function CvConfigurationPanel({
           {...experienceSources}
         />
         <CvRecordSelectionGroup
-          manageHref="/student/projects"
+          manageHref={routePaths.studentProjects}
           manageLabel="Projects"
           onToggle={(id) => onToggleRecord('includedProjectIds', id)}
           selectedIds={selections.includedProjectIds}
@@ -53,7 +66,7 @@ export function CvConfigurationPanel({
           {...projectSources}
         />
         <CvRecordSelectionGroup
-          manageHref="/student/profile"
+          manageHref={routePaths.studentProfile}
           manageLabel="Certificates in Profile"
           onToggle={(id) => onToggleRecord('includedCertificateIds', id)}
           selectedIds={selections.includedCertificateIds}
@@ -61,7 +74,7 @@ export function CvConfigurationPanel({
           {...certificateSources}
         />
         <CvRecordSelectionGroup
-          manageHref="/student/profile"
+          manageHref={routePaths.studentProfile}
           manageLabel="Awards and Honors in Profile"
           onToggle={(id) => onToggleRecord('includedAwardIds', id)}
           selectedIds={selections.includedAwardIds}
@@ -69,7 +82,7 @@ export function CvConfigurationPanel({
           {...awardSources}
         />
         <CvRecordSelectionGroup
-          manageHref="/student/profile"
+          manageHref={routePaths.studentProfile}
           manageLabel="Extracurricular Activities in Profile"
           onToggle={(id) => onToggleRecord('includedActivityIds', id)}
           selectedIds={selections.includedActivityIds}

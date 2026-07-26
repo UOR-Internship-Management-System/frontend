@@ -1,18 +1,20 @@
 import { useMemo, useState } from 'react'
+import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
+import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { AddSkillOptionsSkeleton, DeclaredSkillsListSkeleton } from '../../../shared/skeletons'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { useNotifications } from '../../../app/providers/NotificationProvider'
+import { AddSkillOptionsSkeleton, DeclaredSkillsListSkeleton } from '../../../shared/skeletons'
+import { indexSkillTaxonomy, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
+import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { clampPage } from '../../../shared/utils/clampPage'
 import { DeclaredSkillForm } from '../components/DeclaredSkillForm'
 import { DeclaredSkillsTable } from '../components/DeclaredSkillsTable'
@@ -23,27 +25,27 @@ import {
   useUpdateDeclaredSkill,
 } from '../hooks/useDeclaredSkillMutations'
 import { useAllDeclaredSkills, useDeclaredSkills } from '../hooks/useDeclaredSkills'
-import { useSkillTaxonomyTree } from '../hooks/useSkillTaxonomy'
-import { indexSkillTaxonomy } from '../mappers/skillMapper'
-import type { CompetencyLevel, DeclaredSkill, IndividualSkill } from '../types/studentSkillTypes'
+import type { CompetencyLevel, DeclaredSkill } from '../types/studentSkillTypes'
 
-const pageSize = 5
+const declaredPageSize = 6
+const declaredSort = 'skillName,asc'
 
 export function StudentSkillsPage() {
   const { notify } = useNotifications()
   const [selectedSkill, setSelectedSkill] = useState<IndividualSkill | null>(null)
-  const [search, setSearch] = useState('')
-  const [sort, setSort] = useState('skillName,asc')
+  const [availableSearch, setAvailableSearch] = useState('')
+  const [declaredSearch, setDeclaredSearch] = useState('')
   const [page, setPage] = useState(0)
   const [removeTarget, setRemoveTarget] = useState<DeclaredSkill | null>(null)
+  const [removeError, setRemoveError] = useState<string>()
   const [conflictMessage, setConflictMessage] = useState<string>()
-  const debouncedSearch = useDebouncedValue(search.trim(), 300)
+  const debouncedDeclaredSearch = useDebouncedValue(declaredSearch.trim(), 300)
 
   const declared = useDeclaredSkills({
     page,
-    size: pageSize,
-    sort,
-    search: debouncedSearch || undefined,
+    size: declaredPageSize,
+    sort: declaredSort,
+    search: debouncedDeclaredSearch || undefined,
   })
   const allDeclared = useAllDeclaredSkills()
   const taxonomyTree = useSkillTaxonomyTree()
@@ -63,7 +65,7 @@ export function StudentSkillsPage() {
     const error = mapApiError(reason, 'protected')
     if (error.status === 412) {
       setConflictMessage(
-        'This record changed after you loaded it. Your intended change is preserved; review the latest version and retry.',
+        'This record changed after you loaded it. Review the latest version, then retry your change.',
       )
       await declared.refetch()
     } else if (error.status === 404) {
@@ -81,12 +83,13 @@ export function StudentSkillsPage() {
         message: 'This skill is already declared.',
       }
     }
+
     try {
       await createMutation.mutateAsync({ skillId: selectedSkill.skillId, competencyLevel })
       notify({
         tone: 'success',
         title: 'Skill added',
-        message: `${selectedSkill.name} is now declared.`,
+        message: `${selectedSkill.name} is now included in your declared skills.`,
       })
       setSelectedSkill(null)
       setConflictMessage(undefined)
@@ -115,27 +118,44 @@ export function StudentSkillsPage() {
     }
   }
 
+  const openRemoveDialog = (item: DeclaredSkill) => {
+    setRemoveError(undefined)
+    setRemoveTarget(item)
+  }
+
+  const closeRemoveDialog = () => {
+    if (deleteMutation.isPending) return
+    setRemoveError(undefined)
+    setRemoveTarget(null)
+  }
+
   const removeSkill = async () => {
     if (!removeTarget) return
     const target = removeTarget
+    setRemoveError(undefined)
+
     try {
       await deleteMutation.mutateAsync({
         declaredSkillId: target.declaredSkillId,
         version: target.version,
       })
       const nextTotal = Math.max(0, (declared.data?.page.totalElements ?? 1) - 1)
-      setPage((current) => clampPage(current, nextTotal, pageSize))
+      setPage((current) => clampPage(current, nextTotal, declaredPageSize))
       notify({
         tone: 'success',
         title: 'Skill removed',
-        message: `${target.skillName} was removed.`,
+        message: `${target.skillName} was removed from your declared skills.`,
       })
       setRemoveTarget(null)
       setConflictMessage(undefined)
     } catch (reason) {
       const error = mapApiError(reason, 'protected')
       await handleRecoverableError(reason)
-      if (error.status === 404) setRemoveTarget(null)
+      if (error.status === 404) {
+        setRemoveTarget(null)
+        return
+      }
+      setRemoveError(error.message)
     }
   }
 
@@ -143,13 +163,13 @@ export function StudentSkillsPage() {
   const addSkillError = taxonomyTree.error ?? allDeclared.error
   const mappedAddSkillError = addSkillError ? mapApiError(addSkillError, 'protected') : null
   const addSkillLoading = taxonomyTree.isPending || allDeclared.isPending
+  const taxonomyPathsBySkillId = taxonomyIndex?.pathsBySkillId ?? new Map()
 
   return (
     <main className="content-stack s4-skills-page">
       <PageHeader
-        description="Browse the developer-managed taxonomy and maintain your own declared competency levels."
-        eyebrow="Student workspace"
-        title="Declared Skills"
+        description="Browse the complete system skill taxonomy, select your competency level, and maintain your declared student skills inventory."
+        title="Skills"
       />
 
       {conflictMessage ? (
@@ -162,14 +182,16 @@ export function StudentSkillsPage() {
       <SectionCard aria-labelledby="add-skill-title" className="s4-skills-add-card">
         <div className="s4-skills-section-heading">
           <div>
-            <h2 id="add-skill-title">Add Skill</h2>
-            <p>Select each taxonomy level, choose your competency, and save immediately.</p>
+            <h2 id="add-skill-title">Add Skill Entry</h2>
+            <p>
+              Use the searchable system skill list below or select through the cascading fields.
+            </p>
           </div>
         </div>
         <LoadingBoundary
           isLoading={addSkillLoading}
           label="Loading Add Skill options"
-          minHeight={150}
+          minHeight={220}
           skeleton={<AddSkillOptionsSkeleton />}
         >
           {mappedAddSkillError ? (
@@ -181,8 +203,10 @@ export function StudentSkillsPage() {
             />
           ) : taxonomyTree.data && allDeclared.data ? (
             <DeclaredSkillForm
+              availableSearch={availableSearch}
               declaredSkillIds={declaredSkillIds}
               isPending={createMutation.isPending}
+              onAvailableSearchChange={setAvailableSearch}
               onSelectSkill={setSelectedSkill}
               onSubmit={addSkill}
               selectedSkill={selectedSkill}
@@ -196,45 +220,36 @@ export function StudentSkillsPage() {
         <SkillTaxonomyBrowser
           declaredSkillIds={declaredSkillIds}
           onSelect={setSelectedSkill}
+          search={availableSearch}
           selectionDisabled={createMutation.isPending || !taxonomyTree.data || !allDeclared.data}
           selectedSkillId={selectedSkill?.skillId}
+          taxonomyPathsBySkillId={taxonomyPathsBySkillId}
         />
       </SectionCard>
 
       <SectionCard aria-labelledby="declared-skills-title" className="s4-skills-list-card">
         <div className="s4-skills-section-heading">
           <div>
-            <h2 id="declared-skills-title">Your declared skills</h2>
-            <p>{declared.data?.page.totalElements ?? 0} declared skills from server metadata.</p>
+            <h2 id="declared-skills-title">Declared Skills</h2>
+            <p>These are the skills currently attached to your student profile.</p>
           </div>
         </div>
         <div className="s4-skills-list-toolbar">
           <SearchInput
             aria-label="Search declared skills"
             onChange={(event) => {
-              setSearch(event.target.value)
+              setDeclaredSearch(event.target.value)
               setPage(0)
             }}
             placeholder="Search declared skills"
-            value={search}
+            value={declaredSearch}
           />
-          <SortSelect
-            aria-label="Sort declared skills"
-            onChange={(event) => {
-              setSort(event.target.value)
-              setPage(0)
-            }}
-            value={sort}
-          >
-            <option value="skillName,asc">Skill name A–Z</option>
-            <option value="skillName,desc">Skill name Z–A</option>
-            <option value="competencyLevel,asc">Competency</option>
-            <option value="updatedAt,desc">Recently updated</option>
-          </SortSelect>
         </div>
 
         {declared.isFetching && !declared.isPending ? (
-          <p aria-live="polite">Updating declared skills...</p>
+          <p aria-live="polite" className="s4-skills-loading-note">
+            Updating declared skills...
+          </p>
         ) : null}
         <LoadingBoundary
           isLoading={declared.isPending}
@@ -252,34 +267,32 @@ export function StudentSkillsPage() {
           ) : declared.data?.items.length === 0 ? (
             <EmptyState
               message={
-                search
-                  ? `No declared skills match “${search}”.`
+                declaredSearch
+                  ? `No declared skills match “${declaredSearch}”.`
                   : 'Select an available taxonomy skill above to create your first declaration.'
               }
-              title={search ? 'No matching declared skills' : 'No declared skills yet'}
+              title={declaredSearch ? 'No matching declared skills' : 'No declared skills yet'}
             />
           ) : declared.data?.items.length ? (
             <>
               <DeclaredSkillsTable
                 deletingId={deleteMutation.isPending ? removeTarget?.declaredSkillId : undefined}
                 items={declared.data.items}
-                onRemove={setRemoveTarget}
+                onRemove={openRemoveDialog}
                 onUpdate={updateSkill}
-                taxonomyPathsBySkillId={taxonomyIndex?.pathsBySkillId ?? new Map()}
+                taxonomyPathsBySkillId={taxonomyPathsBySkillId}
                 updatingId={
                   updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
                 }
               />
-              {declared.data.page.totalPages > 0 ? (
-                <PaginationBar
-                  label="Declared skills pagination"
-                  onPageChange={setPage}
-                  page={declared.data.page.page}
-                  size={declared.data.page.size}
-                  totalElements={declared.data.page.totalElements}
-                  totalPages={declared.data.page.totalPages}
-                />
-              ) : null}
+              <PaginationBar
+                label="Declared skills pagination"
+                onPageChange={setPage}
+                page={declared.data.page.page}
+                size={declared.data.page.size}
+                totalElements={declared.data.page.totalElements}
+                totalPages={declared.data.page.totalPages}
+              />
             </>
           ) : null}
         </LoadingBoundary>
@@ -288,20 +301,21 @@ export function StudentSkillsPage() {
       {removeTarget ? (
         <ConfirmDialog
           closeDisabled={deleteMutation.isPending}
-          onClose={() => setRemoveTarget(null)}
-          title={`Remove ${removeTarget.skillName}?`}
+          onClose={closeRemoveDialog}
+          title="Remove Skill"
         >
-          <p>This removes the skill from your declared-skill list.</p>
+          <p>Are you sure you want to remove {removeTarget.skillName} from your declared skills?</p>
+          <FormErrorMessage id="remove-declared-skill-error" message={removeError} />
           <div className="modal-actions">
             <Button
               disabled={deleteMutation.isPending}
-              onClick={() => setRemoveTarget(null)}
+              onClick={closeRemoveDialog}
               variant="secondary"
             >
-              Cancel
+              Close
             </Button>
             <Button isLoading={deleteMutation.isPending} onClick={() => void removeSkill()}>
-              Remove skill
+              Remove
             </Button>
           </div>
         </ConfirmDialog>

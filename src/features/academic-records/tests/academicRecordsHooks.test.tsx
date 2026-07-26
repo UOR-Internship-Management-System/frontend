@@ -59,7 +59,7 @@ describe('Academic Records hooks', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true))
     expect(list).toHaveBeenCalledWith(query, expect.any(AbortSignal))
-    expect(result.current.data?.items[0]?.periodLabel).toContain('2025/26')
+    expect(result.current.data?.items[0]?.courseTitle).toBe('Distributed Systems')
   })
 
   it('allows one retry only for network and server failures', () => {

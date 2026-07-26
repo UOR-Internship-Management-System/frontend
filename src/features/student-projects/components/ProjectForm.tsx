@@ -8,8 +8,8 @@ import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { SelectField } from '../../../shared/components/forms/SelectField'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { useIndividualSkills } from '../../student-skills/hooks/useSkillTaxonomy'
-import type { IndividualSkill } from '../../student-skills/types/studentSkillTypes'
+import { useIndividualSkills } from '../../../shared/skill-taxonomy'
+import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { studentProjectFormSchema } from '../schemas/studentProjectSchemas'
 import type { StudentProjectFormValues } from '../types/studentProjectTypes'
 import { ProjectSkillChips } from './ProjectSkillChips'
@@ -109,7 +109,11 @@ export function ProjectForm({
   const [isOngoing, setIsOngoing] = useState(() =>
     Boolean(initialValues.startDate && !initialValues.endDate),
   )
+  const [isTimelineExpanded, setIsTimelineExpanded] = useState(
+    () => mode === 'edit' || Boolean(initialValues.startDate || initialValues.endDate),
+  )
   const [selectedSkillId, setSelectedSkillId] = useState('')
+  const [selectedSkillNotes, setSelectedSkillNotes] = useState('')
   const [taxonomySearch, setTaxonomySearch] = useState('')
   const [taxonomyPage, setTaxonomyPage] = useState(0)
   const [dirtyFields, setDirtyFields] = useState<Set<ProjectFormField>>(() => new Set())
@@ -145,6 +149,7 @@ export function ProjectForm({
   useEffect(() => {
     setTaxonomyPage(0)
     setSelectedSkillId('')
+    setSelectedSkillNotes('')
   }, [debouncedTaxonomySearch])
 
   useEffect(() => {
@@ -187,6 +192,7 @@ export function ProjectForm({
     }
     update('skillIds', [...values.skillIds, selectedSkillId])
     setSelectedSkillId('')
+    setSelectedSkillNotes('')
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -203,6 +209,7 @@ export function ProjectForm({
         }
       }
       setFieldErrors(errors)
+      if (errors.startDate || errors.endDate) setIsTimelineExpanded(true)
       window.requestAnimationFrame(() => {
         if (errors.title) titleRef.current?.focus()
         else if (errors.endDate) endDateRef.current?.focus()
@@ -222,6 +229,7 @@ export function ProjectForm({
         }
       }
       setFieldErrors(errors)
+      if (errors.startDate || errors.endDate) setIsTimelineExpanded(true)
       setFormError(mapped.message)
     } finally {
       setIsPending(false)
@@ -234,9 +242,9 @@ export function ProjectForm({
   return (
     <Modal
       closeDisabled={isPending}
-      description="Add portfolio evidence using canonical taxonomy skills."
       onClose={onCancel}
-      title={mode === 'create' ? 'Add project' : 'Edit project'}
+      size="wide"
+      title={mode === 'create' ? 'Create New Project' : 'Edit Project'}
     >
       <form className="s4-projects-form" noValidate onSubmit={submit}>
         {formError ? (
@@ -250,7 +258,7 @@ export function ProjectForm({
           error={fieldErrors.title}
           errorId="project-title-error"
           htmlFor="project-title"
-          label="Project title"
+          label="Title"
         >
           <TextInput
             aria-describedby={describedBy('title')}
@@ -259,28 +267,80 @@ export function ProjectForm({
             id="project-title"
             maxLength={200}
             onChange={(event) => update('title', event.target.value)}
+            placeholder="Enter project title"
             ref={titleRef}
             value={values.title}
           />
         </FormField>
 
-        <FormField
-          error={fieldErrors.description}
-          errorId="project-description-error"
-          htmlFor="project-description"
-          label="Description"
+        <button
+          aria-controls="project-timeline-panel"
+          aria-expanded={isTimelineExpanded}
+          className="s4-projects-timeline-toggle"
+          disabled={isPending}
+          onClick={() => setIsTimelineExpanded((current) => !current)}
+          type="button"
         >
-          <textarea
-            aria-describedby={describedBy('description')}
-            aria-invalid={Boolean(fieldErrors.description)}
-            className="input"
-            disabled={isPending}
-            id="project-description"
-            onChange={(event) => update('description', event.target.value)}
-            rows={4}
-            value={values.description}
-          />
-        </FormField>
+          <span aria-hidden="true" className="material-symbols-outlined">
+            edit_note
+          </span>
+          Timeline
+        </button>
+
+        {isTimelineExpanded ? (
+          <div className="s4-projects-timeline-panel" id="project-timeline-panel">
+            <div className="s4-projects-form-grid">
+              <FormField
+                error={fieldErrors.startDate}
+                errorId="project-startDate-error"
+                htmlFor="project-start-date"
+                label="Start Date"
+              >
+                <TextInput
+                  aria-describedby={describedBy('startDate')}
+                  aria-invalid={Boolean(fieldErrors.startDate)}
+                  disabled={isPending}
+                  id="project-start-date"
+                  onChange={(event) => update('startDate', event.target.value)}
+                  type="date"
+                  value={values.startDate}
+                />
+              </FormField>
+              <FormField
+                error={fieldErrors.endDate}
+                errorId="project-endDate-error"
+                htmlFor="project-end-date"
+                label="End Date"
+              >
+                <TextInput
+                  aria-describedby={describedBy('endDate')}
+                  aria-invalid={Boolean(fieldErrors.endDate)}
+                  disabled={isPending || isOngoing}
+                  id="project-end-date"
+                  min={values.startDate || undefined}
+                  onChange={(event) => update('endDate', event.target.value)}
+                  ref={endDateRef}
+                  type="date"
+                  value={values.endDate}
+                />
+              </FormField>
+            </div>
+
+            <label className="s4-projects-ongoing-option">
+              <input
+                checked={isOngoing}
+                disabled={isPending}
+                onChange={(event) => {
+                  const checked = event.target.checked
+                  setIsOngoing(checked)
+                  if (checked && values.endDate) update('endDate', '')
+                }}
+                type="checkbox"
+              />
+              <span>Under Development</span>
+            </label>
+          </div>
+        ) : null}
 
         <div className="s4-projects-form-grid">
           <FormField
@@ -319,58 +379,32 @@ export function ProjectForm({
               value={values.demoUrl}
             />
           </FormField>
-          <FormField
-            error={fieldErrors.startDate}
-            errorId="project-startDate-error"
-            htmlFor="project-start-date"
-            label="Start date"
-          >
-            <TextInput
-              aria-describedby={describedBy('startDate')}
-              aria-invalid={Boolean(fieldErrors.startDate)}
-              disabled={isPending}
-              id="project-start-date"
-              onChange={(event) => update('startDate', event.target.value)}
-              type="date"
-              value={values.startDate}
-            />
-          </FormField>
-          <FormField
-            error={fieldErrors.endDate}
-            errorId="project-endDate-error"
-            htmlFor="project-end-date"
-            label="End date"
-          >
-            <TextInput
-              aria-describedby={describedBy('endDate')}
-              aria-invalid={Boolean(fieldErrors.endDate)}
-              disabled={isPending || isOngoing}
-              id="project-end-date"
-              min={values.startDate || undefined}
-              onChange={(event) => update('endDate', event.target.value)}
-              ref={endDateRef}
-              type="date"
-              value={values.endDate}
-            />
-          </FormField>
         </div>
 
-        <label className="s4-projects-ongoing-option">
-          <input
-            checked={isOngoing}
+        <FormField
+          error={fieldErrors.description}
+          errorId="project-description-error"
+          htmlFor="project-description"
+          label="Project Abstract / High-Level Description"
+        >
+          <textarea
+            aria-describedby={describedBy('description')}
+            aria-invalid={Boolean(fieldErrors.description)}
+            className="input"
             disabled={isPending}
-            onChange={(event) => {
-              const checked = event.target.checked
-              setIsOngoing(checked)
-              if (checked && values.endDate) update('endDate', '')
-            }}
-            type="checkbox"
+            id="project-description"
+            onChange={(event) => update('description', event.target.value)}
+            placeholder="Describe the project, its purpose, and your main contribution."
+            rows={4}
+            value={values.description}
           />
-          <span>This project is ongoing</span>
-        </label>
+        </FormField>
 
         <fieldset className="s4-projects-skills-fieldset" disabled={isPending}>
-          <legend>Project skills</legend>
+          <legend>Skills</legend>
+          <p className="s4-projects-field-help">
+            Select technologies from the developer-managed skill taxonomy.
+          </p>
           <SearchInput
             aria-label="Search project taxonomy skills"
             disabled={taxonomy.isPending}
@@ -385,7 +419,7 @@ export function ProjectForm({
               onChange={(event) => setSelectedSkillId(event.target.value)}
               value={selectedSkillId}
             >
-              <option value="">Select a taxonomy skill</option>
+              <option value="">Select Skill from the list</option>
               {taxonomy.data?.items.map((skill) => (
                 <option
                   disabled={values.skillIds.includes(skill.skillId)}
@@ -397,9 +431,24 @@ export function ProjectForm({
               ))}
             </SelectField>
             <Button disabled={!selectedSkillId} onClick={addSkill} variant="secondary">
-              Add skill
+              Add Skill
             </Button>
           </div>
+          {selectedSkillId && skillsById.has(selectedSkillId) ? (
+            <FormField
+              htmlFor="skill-usage-notes"
+              label={`Skill Usage Notes (${skillsById.get(selectedSkillId)?.name})`}
+            >
+              <textarea
+                className="input"
+                id="skill-usage-notes"
+                onChange={(event) => setSelectedSkillNotes(event.target.value)}
+                placeholder={`Describe how this project used ${skillsById.get(selectedSkillId)?.name}`}
+                rows={2}
+                value={selectedSkillNotes}
+              />
+            </FormField>
+          ) : null}
           {taxonomy.data && taxonomy.data.page.totalPages > 1 ? (
             <PaginationBar
               label="Project taxonomy skills pagination"
@@ -435,23 +484,25 @@ export function ProjectForm({
           ) : null}
         </fieldset>
 
-        <label className="s4-projects-cv-option">
-          <input
-            checked={values.includeInCv}
-            disabled={isPending}
-            onChange={(event) => update('includeInCv', event.target.checked)}
-            type="checkbox"
-          />
-          <span>Include this project in my generated CV</span>
-        </label>
+        <div className="s4-projects-form-footer">
+          <label className="s4-projects-cv-option">
+            <input
+              checked={values.includeInCv}
+              disabled={isPending}
+              onChange={(event) => update('includeInCv', event.target.checked)}
+              type="checkbox"
+            />
+            <span>Include this project in the CV</span>
+          </label>
 
-        <div className="modal-actions">
-          <Button disabled={isPending} onClick={onCancel} variant="secondary">
-            Cancel
-          </Button>
-          <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
-            {mode === 'create' ? 'Create project' : 'Save project'}
-          </Button>
+          <div className="modal-actions">
+            <Button disabled={isPending} onClick={onCancel} variant="secondary">
+              Close
+            </Button>
+            <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
+              {mode === 'create' ? 'Save' : 'Save Changes'}
+            </Button>
+          </div>
         </div>
       </form>
     </Modal>

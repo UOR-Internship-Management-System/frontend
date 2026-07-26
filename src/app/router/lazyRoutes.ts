@@ -108,3 +108,20 @@ export const StudentDeepDivePage = lazy(() =>
     default: module.StudentDeepDivePage,
   })),
 )
+export const InternshipManagementPage = lazy(() =>
+  import('../../features/internship-management/pages/InternshipManagementPage').then((module) => ({
+    default: module.InternshipManagementPage,
+  })),
+)
+
+export const CandidateFilteringPage = lazy(() =>
+  import('../../features/candidate-filtering/pages/CandidateFilteringPage').then((module) => ({
+    default: module.CandidateFilteringPage,
+  })),
+)
+
+export const ShortlistsPage = lazy(() =>
+  import('../../features/shortlists/pages/ShortlistsPage').then((module) => ({
+    default: module.ShortlistsPage,
+  })),
+)

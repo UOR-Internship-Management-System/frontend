@@ -12,17 +12,22 @@ import { renderWithProviders } from '../../../test/renderWithProviders'
 import { AcademicRecordsPage } from '../pages/AcademicRecordsPage'
 
 describe('AcademicRecordsPage', () => {
-  it('shows official AVAILABLE GPA and populated committed records', async () => {
+  it('matches the approved GPA card and five-column official-results structure', async () => {
     const view = renderWithProviders(<AcademicRecordsPage />)
 
     expect(await view.findByRole('heading', { level: 1, name: 'Academic Records' })).toBeVisible()
+    expect(await view.findByText('Computer Science GPA')).toBeVisible()
     expect(await view.findByText('3.75')).toBeVisible()
-    expect(view.getByText('Official')).toBeVisible()
     expect(await view.findByText('Distributed Systems')).toBeVisible()
-    expect(view.getByText(/12 records from official server metadata/i)).toBeVisible()
+
     const table = view.getByRole('table')
-    expect(within(table).getByRole('columnheader', { name: 'Course code' })).toBeVisible()
-    expect(within(table).getByRole('columnheader', { name: 'Course title' })).toBeVisible()
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(5)
+    expect(within(table).getByRole('columnheader', { name: 'Subject Code' })).toBeVisible()
+    expect(within(table).getByRole('columnheader', { name: 'Subject Name' })).toBeVisible()
+    expect(within(table).getByRole('columnheader', { name: 'Credits' })).toBeVisible()
+    expect(within(table).getByRole('columnheader', { name: 'Grade' })).toBeVisible()
+    expect(within(table).getByRole('columnheader', { name: 'Grade Point' })).toBeVisible()
+
     const distributedSystemsRow = within(table).getByRole('row', { name: /Distributed Systems/ })
     expect(within(distributedSystemsRow).getByRole('cell', { name: 'CS4010' })).toBeVisible()
     expect(
@@ -34,17 +39,15 @@ describe('AcademicRecordsPage', () => {
     setGpaFixture(unavailableGpaFixture)
     const view = renderWithProviders(<AcademicRecordsPage />)
 
-    expect(
-      await view.findByRole('heading', { name: 'Official GPA is not available yet' }),
-    ).toBeVisible()
-    expect(view.getByText('Not available')).toBeVisible()
+    expect(await view.findByText('Not available')).toBeVisible()
+    expect(view.getByText(/after official academic results are committed/i)).toBeVisible()
     expect(view.queryByText('3.75')).not.toBeInTheDocument()
   })
 
-  it('distinguishes an empty committed record set from a search with no results', async () => {
+  it('distinguishes an empty official record set from a search with no results', async () => {
     setAcademicRecordsFixture([])
     const empty = renderWithProviders(<AcademicRecordsPage />)
-    expect(await empty.findByText('No committed records yet')).toBeVisible()
+    expect(await empty.findByText('No academic records yet')).toBeVisible()
     empty.unmount()
 
     const user = userEvent.setup()
@@ -53,31 +56,17 @@ describe('AcademicRecordsPage', () => {
     expect(
       await searched.findByText('No matching records', undefined, { timeout: 3_000 }),
     ).toBeVisible()
-    expect(searched.getByText(/No committed records match "quantum"/)).toBeVisible()
+    expect(searched.getByText(/No official results match "quantum"/)).toBeVisible()
   })
 
-  it('uses server pagination metadata to move between record pages', async () => {
+  it('uses five-row server pagination to mirror the approved page layout', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<AcademicRecordsPage />)
 
-    expect(await view.findByText(/1.10 of 12/)).toBeVisible()
+    expect(await view.findByText(/1.5 of 12/)).toBeVisible()
     await user.click(view.getByRole('button', { name: 'Next' }))
-    expect(await view.findByText('Legacy Systems')).toBeVisible()
-    expect(view.getByText(/11.12 of 12/)).toBeVisible()
-  })
-
-  it('sends only an authorized sort value and renders the sorted page', async () => {
-    const user = userEvent.setup()
-    const view = renderWithProviders(<AcademicRecordsPage />)
-    await view.findByText('Distributed Systems')
-
-    await user.selectOptions(
-      view.getByRole('combobox', { name: 'Sort academic records' }),
-      'courseCode,desc',
-    )
-    const table = await view.findByRole('table')
-    const firstDataRow = within(table).getAllByRole('row')[1]
-    expect(within(firstDataRow).getByText('CS4060')).toBeVisible()
+    expect(await view.findByText('Human Computer Interaction')).toBeVisible()
+    expect(view.getByText(/6.10 of 12/)).toBeVisible()
   })
 
   it('keeps GPA failure and retry independent from loaded records', async () => {
@@ -119,13 +108,17 @@ describe('AcademicRecordsPage', () => {
     expect(view.getAllByText(/temporarily unavailable/i)).toHaveLength(2)
   })
 
-  it('contains no academic edit controls or unsupported GPA behavior', async () => {
+  it('contains no edit, sort, Estimated GPA, or unsupported detail controls', async () => {
     const view = renderWithProviders(<AcademicRecordsPage />)
     await view.findByText('Distributed Systems')
 
     expect(view.getByText(/This table is read-only/i, { selector: 'caption' })).toBeInTheDocument()
     expect(view.queryByRole('button', { name: /edit|add|delete|save/i })).not.toBeInTheDocument()
+    expect(view.queryByRole('combobox', { name: /sort academic records/i })).not.toBeInTheDocument()
     expect(view.queryByText(/Estimated GPA/i)).not.toBeInTheDocument()
+    expect(
+      view.queryByRole('columnheader', { name: /academic period|attempt|result|committed/i }),
+    ).not.toBeInTheDocument()
     expect(view.queryByRole('columnheader', { name: /actions/i })).not.toBeInTheDocument()
   })
 })

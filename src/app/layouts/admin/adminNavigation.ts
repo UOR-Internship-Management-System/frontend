@@ -10,4 +10,11 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
   { label: 'Dashboard', route: routePaths.adminDashboard, icon: 'dashboard' },
   { label: 'Academic Ledger', route: routePaths.adminAcademicLedger, icon: 'table_view' },
   { label: 'Registered Students', route: routePaths.adminStudents, icon: 'groups' },
+  { label: 'Internship Management', route: routePaths.adminInternships, icon: 'business_center' },
+  {
+    label: 'Candidate Filtering',
+    route: routePaths.adminCandidateFiltering,
+    icon: 'filter_alt',
+  },
+  { label: 'Shortlists', route: routePaths.adminShortlists, icon: 'assignment_turned_in' },
 ]

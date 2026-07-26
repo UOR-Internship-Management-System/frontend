@@ -162,6 +162,34 @@ describe('Route Guards', () => {
       expect(screen.queryByText('Admin Dashboard')).not.toBeInTheDocument()
     })
 
+    it('denies the Student role access to an Admin Student Deep-Dive route', () => {
+      const path = '/admin/students/11111111-1111-4111-8111-111111111111'
+      renderWithRouterAndAuth(
+        { status: 'authenticated', currentUser: studentUser },
+        path,
+        <RequireAdmin>
+          <div>Student Deep-Dive</div>
+        </RequireAdmin>,
+        path,
+      )
+      expect(screen.getByText('Unauthorized')).toBeInTheDocument()
+      expect(screen.queryByText('Student Deep-Dive')).not.toBeInTheDocument()
+    })
+
+    it('denies the Student role access to Internship Management', () => {
+      const path = '/admin/internships'
+      renderWithRouterAndAuth(
+        { status: 'authenticated', currentUser: studentUser },
+        path,
+        <RequireAdmin>
+          <div>Internship Management</div>
+        </RequireAdmin>,
+        path,
+      )
+      expect(screen.getByText('Unauthorized')).toBeInTheDocument()
+      expect(screen.queryByText('Internship Management')).not.toBeInTheDocument()
+    })
+
     it('shows a recoverable session verification state without redirecting', () => {
       renderWithRouterAndAuth(
         {

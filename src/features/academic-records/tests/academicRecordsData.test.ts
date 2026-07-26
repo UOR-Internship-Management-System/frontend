@@ -1,11 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { academicRecordsApi } from '../api/academicRecordsApi'
 import { academicRecordKeys } from '../hooks/academicRecordKeys'
-import {
-  academicSortOptions,
-  mapAcademicRecord,
-  mapGpaSummary,
-} from '../mappers/academicRecordMapper'
+import { mapAcademicRecord, mapGpaSummary } from '../mappers/academicRecordMapper'
 import {
   academicRecordSchema,
   gpaSummarySchema,
@@ -78,26 +74,20 @@ describe('Academic Records transport validation', () => {
     ).toThrow()
   })
 
-  it('maps official display values without editable state or artificial precision', () => {
+  it('maps only the display values required by the approved Student table and GPA card', () => {
     expect(mapAcademicRecord(academicRecordSchema.parse(record))).toMatchObject({
       creditsLabel: '4',
       gradePointLabel: '3.7',
-      periodLabel: '2025/2026 · Semester 1',
     })
     expect(mapGpaSummary(gpaSummarySchema.parse(availableGpa))).toMatchObject({
       status: 'AVAILABLE',
       gpaLabel: '3.75',
-      creditsLabel: '42',
     })
     expect(mapGpaSummary(gpaSummarySchema.parse(unavailableGpa)).gpaLabel).toBeNull()
   })
 
-  it('exposes only contract-authorized sort values and stable record/GPA keys', () => {
-    expect(academicSortOptions).toHaveLength(14)
-    expect(academicSortOptions.every((option) => /^[a-zA-Z]+,(asc|desc)$/.test(option.value))).toBe(
-      true,
-    )
-    const query = { page: 1, size: 10, sort: 'courseCode,asc', search: 'CSC' }
+  it('keeps stable record and GPA query keys', () => {
+    const query = { page: 1, size: 5, sort: 'academicYear,desc', search: 'CSC' }
     expect(academicRecordKeys.recordList(query)).toEqual([
       'protected',
       'academic-records',
@@ -108,24 +98,24 @@ describe('Academic Records transport validation', () => {
     expect(academicRecordKeys.gpa()).toEqual(['protected', 'academic-records', 'gpa'])
   })
 
-  it('uses exact read-only paths and search/sort/page query parameters', async () => {
+  it('uses exact read-only paths and approved search/page query parameters', async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(Response.json(availableGpa))
       .mockResolvedValueOnce(
         Response.json({
           items: [record],
-          page: { page: 1, size: 10, totalElements: 11, totalPages: 2, sort: 'courseCode,asc' },
+          page: { page: 1, size: 5, totalElements: 11, totalPages: 3, sort: 'academicYear,desc' },
         }),
       )
     vi.stubGlobal('fetch', fetchMock)
 
     await academicRecordsApi.getGpa()
-    await academicRecordsApi.list({ page: 1, size: 10, sort: 'courseCode,asc', search: 'web' })
+    await academicRecordsApi.list({ page: 1, size: 5, sort: 'academicYear,desc', search: 'web' })
 
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       '/api/v1/me/academic-records/gpa',
-      '/api/v1/me/academic-records?page=1&size=10&sort=courseCode%2Casc&search=web',
+      '/api/v1/me/academic-records?page=1&size=5&sort=academicYear%2Cdesc&search=web',
     ])
     expect(fetchMock.mock.calls.every(([, init]) => (init as RequestInit).method === 'GET')).toBe(
       true,

@@ -58,6 +58,15 @@ function renderAdminLayout(initialPath: string = routePaths.adminDashboard) {
                 <Route path={routePaths.adminDashboard} element={<h1>Admin Dashboard</h1>} />
                 <Route path={routePaths.adminAcademicLedger} element={<h1>Academic Ledger</h1>} />
                 <Route path={routePaths.adminStudents} element={<h1>Registered Students</h1>} />
+                <Route
+                  path={routePaths.adminInternships}
+                  element={<h1>Internship Management</h1>}
+                />
+                <Route
+                  path={routePaths.adminCandidateFiltering}
+                  element={<h1>Candidate Filtering</h1>}
+                />
+                <Route path={routePaths.adminShortlists} element={<h1>Shortlists</h1>} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -73,12 +82,12 @@ describe('AdminLayout', () => {
     vi.unstubAllGlobals()
   })
 
-  it('shows only the three Sprint 6 Admin destinations with active-route state', () => {
+  it('shows the approved Admin destinations with active-route state', () => {
     installMatchMedia(false)
     renderAdminLayout(routePaths.adminAcademicLedger)
     const navigation = screen.getByRole('navigation', { name: 'Admin navigation' })
 
-    expect(within(navigation).getAllByRole('link')).toHaveLength(3)
+    expect(within(navigation).getAllByRole('link')).toHaveLength(6)
     expect(screen.getByRole('link', { name: 'Academic Ledger' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -87,7 +96,18 @@ describe('AdminLayout', () => {
       'href',
       routePaths.adminStudents,
     )
-    expect(screen.queryByRole('link', { name: /internship/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Internship Management' })).toHaveAttribute(
+      'href',
+      routePaths.adminInternships,
+    )
+    expect(screen.getByRole('link', { name: 'Candidate Filtering' })).toHaveAttribute(
+      'href',
+      routePaths.adminCandidateFiltering,
+    )
+    expect(screen.getByRole('link', { name: 'Shortlists' })).toHaveAttribute(
+      'href',
+      routePaths.adminShortlists,
+    )
   })
 
   it('provides one theme control, identity, route focus target, and logout', async () => {

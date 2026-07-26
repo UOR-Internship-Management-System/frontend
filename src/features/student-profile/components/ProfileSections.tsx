@@ -1,15 +1,11 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import {
-  removeCertificateEvidence,
-  uploadCertificateEvidence,
-} from '../api/studentProfileEntriesApi'
+import { useCertificateEvidenceMutations } from '../hooks/useCertificateEvidenceMutations'
 import {
   useActivities,
   useActivityMutations,
@@ -22,7 +18,6 @@ import {
   useExperience,
   useExperienceMutations,
 } from '../hooks/useProfileEntries'
-import { studentProfileKeys } from '../hooks/studentProfileKeys'
 import { PROFILE_SECTION_PAGE_SIZE } from '../types/profileEntryTypes'
 import type {
   Activity,
@@ -97,7 +92,7 @@ function DeleteDialog({
   onConfirm: () => void
 }) {
   return (
-    <ConfirmDialog closeDisabled={isPending} onClose={onCancel} title={`Delete ${entryName}`}>
+    <ConfirmDialog closeDisabled={isPending} onClose={onCancel} title="Confirm Deletion">
       <p>
         This permanently removes this {entryName.toLowerCase()} from your profile. This action
         cannot be undone.
@@ -177,7 +172,8 @@ export function ProfessionalLinksSection() {
   return (
     <>
       <ProfileCollectionSection
-        addLabel="Add Professional Link"
+        addAriaLabel="Add Professional Link"
+        addLabel="Add"
         description="Add safe links to professional profiles and portfolio sites."
         error={query.isError ? query.error : null}
         isFetching={query.isFetching}
@@ -187,6 +183,7 @@ export function ProfessionalLinksSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
+        savedTitle="Saved Professional Links"
         search={state.search}
         searchLabel="Search professional links"
         title="Professional Links"
@@ -251,37 +248,33 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
   const state = useProfileSectionState('issueDate,desc')
   const query = useCertificates(state.query)
   const mutations = useCertificateMutations()
-  const queryClient = useQueryClient()
+  const evidenceMutations = useCertificateEvidenceMutations()
   const { notify } = useNotifications()
   const [editing, setEditing] = useState<Certificate | 'new' | null>(null)
   const [deleting, setDeleting] = useState<Certificate | null>(null)
   const [removingEvidence, setRemovingEvidence] = useState<Certificate | null>(null)
-  const [filePending, setFilePending] = useState(false)
   const pending =
     mutations.create.isPending ||
     mutations.update.isPending ||
     mutations.remove.isPending ||
-    filePending
-  const refresh = () =>
-    queryClient.invalidateQueries({
-      queryKey: studentProfileKeys.collection('certificates'),
-    })
+    evidenceMutations.upload.isPending ||
+    evidenceMutations.remove.isPending
   const save = async (values: CertificateRequest, evidence?: File) => {
     const createdOrUpdated =
       editing === 'new'
         ? await mutations.create.mutateAsync(values)
         : await mutations.update.mutateAsync({ id: editing!.id, version: editing!.version, values })
     if (evidence) {
-      setFilePending(true)
       try {
-        await uploadCertificateEvidence(createdOrUpdated.id, createdOrUpdated.version, evidence)
+        await evidenceMutations.upload.mutateAsync({
+          certificateId: createdOrUpdated.id,
+          file: evidence,
+          version: createdOrUpdated.version,
+        })
       } catch (error) {
         notifyFailure(notify, error, 'Certificate saved, but evidence upload failed')
         setEditing(null)
-        await refresh()
         return
-      } finally {
-        setFilePending(false)
       }
     }
     notify({
@@ -290,7 +283,6 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
       message: `${createdOrUpdated.title} was saved.`,
     })
     setEditing(null)
-    await refresh()
   }
   const remove = async () => {
     if (!deleting) return
@@ -309,27 +301,27 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
   }
   const removeEvidence = async () => {
     if (!removingEvidence) return
-    setFilePending(true)
     try {
-      await removeCertificateEvidence(removingEvidence.id, removingEvidence.version)
+      await evidenceMutations.remove.mutateAsync({
+        certificateId: removingEvidence.id,
+        version: removingEvidence.version,
+      })
       notify({
         tone: 'success',
         title: 'Evidence removed',
         message: `Evidence for ${removingEvidence.title} was removed.`,
       })
       setRemovingEvidence(null)
-      await refresh()
     } catch (error) {
       notifyFailure(notify, error, 'Unable to remove evidence')
-    } finally {
-      setFilePending(false)
     }
   }
   const items = query.data?.items ?? []
   return (
     <>
       <ProfileCollectionSection
-        addLabel="Add Certificate"
+        addAriaLabel="Add Certificate"
+        addLabel="Add"
         description="Record credentials and attach optional supporting evidence."
         error={query.isError ? query.error : null}
         isFetching={query.isFetching}
@@ -339,6 +331,7 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
+        savedTitle="Saved Certificates"
         search={state.search}
         searchLabel="Search certificates"
         title="Certificates"
@@ -422,20 +415,23 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
       ) : null}
       {removingEvidence ? (
         <ConfirmDialog
-          closeDisabled={filePending}
+          closeDisabled={evidenceMutations.remove.isPending}
           onClose={() => setRemovingEvidence(null)}
           title="Remove Certificate Evidence"
         >
           <p>This removes only the supporting file. The Certificate remains saved.</p>
           <div className="modal-actions">
             <Button
-              disabled={filePending}
+              disabled={evidenceMutations.remove.isPending}
               onClick={() => setRemovingEvidence(null)}
               variant="secondary"
             >
               Cancel
             </Button>
-            <Button isLoading={filePending} onClick={() => void removeEvidence()}>
+            <Button
+              isLoading={evidenceMutations.remove.isPending}
+              onClick={() => void removeEvidence()}
+            >
               Remove Evidence
             </Button>
           </div>
@@ -481,7 +477,8 @@ export function AwardsSection() {
   return (
     <>
       <ProfileCollectionSection
-        addLabel="Add Award"
+        addAriaLabel="Add Award or Achievement"
+        addLabel="Add"
         description="Record awards, achievements, and recognitions."
         error={query.isError ? query.error : null}
         isFetching={query.isFetching}
@@ -491,6 +488,7 @@ export function AwardsSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
+        savedTitle="Saved Awards and Achievements"
         search={state.search}
         searchLabel="Search awards and achievements"
         title="Awards and Achievements"
@@ -527,7 +525,7 @@ export function AwardsSection() {
         <Modal
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Award' : 'Edit Award'}
+          title={editing === 'new' ? 'Add Award or Achievement' : 'Edit Award or Achievement'}
         >
           <AwardEditor
             isPending={pending}
@@ -539,7 +537,7 @@ export function AwardsSection() {
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Award"
+          entryName="Award or Achievement"
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -585,7 +583,8 @@ export function ActivitiesSection() {
   return (
     <>
       <ProfileCollectionSection
-        addLabel="Add Activity"
+        addAriaLabel="Add Extracurricular Activity"
+        addLabel="Add"
         description="Record extracurricular, volunteer, and organizational roles."
         error={query.isError ? query.error : null}
         isFetching={query.isFetching}
@@ -595,6 +594,7 @@ export function ActivitiesSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
+        savedTitle="Saved Extracurricular Activities"
         search={state.search}
         searchLabel="Search extracurricular activities"
         title="Extracurricular Activities"
@@ -631,7 +631,9 @@ export function ActivitiesSection() {
         <Modal
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Activity' : 'Edit Activity'}
+          title={
+            editing === 'new' ? 'Add Extracurricular Activity' : 'Edit Extracurricular Activity'
+          }
         >
           <ActivityEditor
             isPending={pending}
@@ -643,7 +645,7 @@ export function ActivitiesSection() {
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Activity"
+          entryName="Extracurricular Activity"
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -693,7 +695,8 @@ export function ExperienceSection() {
   return (
     <>
       <ProfileCollectionSection
-        addLabel="Add Experience"
+        addAriaLabel="Add Professional Experience"
+        addLabel="Add"
         description="Record professional roles and responsibilities."
         error={query.isError ? query.error : null}
         isFetching={query.isFetching}
@@ -703,6 +706,7 @@ export function ExperienceSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
+        savedTitle="Saved Professional Experience"
         search={state.search}
         searchLabel="Search professional experience"
         title="Professional Experience"
@@ -739,7 +743,7 @@ export function ExperienceSection() {
         <Modal
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Experience' : 'Edit Experience'}
+          title={editing === 'new' ? 'Add Professional Experience' : 'Edit Professional Experience'}
         >
           <ExperienceEditor
             isPending={pending}
@@ -751,7 +755,7 @@ export function ExperienceSection() {
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Experience"
+          entryName="Professional Experience"
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}

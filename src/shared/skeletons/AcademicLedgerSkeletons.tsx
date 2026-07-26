@@ -122,17 +122,28 @@ export function AcademicLedgerRouteSkeleton() {
           />
         </div>
       </header>
-      <section className="section-card" aria-hidden="true">
-        <Shape height={28} width={260} />
+      <section className="section-card ledger-upload-panel" aria-hidden="true">
+        <Shape height={28} width={280} />
         <SkeletonBlock decorative lineWidths={['76%', '52%']} lines={2} variant="inline" />
-        <Shape height={126} radius="lg" />
-        <Shape height={44} radius="pill" width={190} />
+        <Shape height={164} radius="lg" />
+        <Shape height={44} radius="pill" width={230} />
       </section>
-      <section className="section-card">
+      <section className="section-card ledger-inspection-panel" aria-hidden="true">
+        <div className="skeleton-section-heading">
+          <Shape height={28} width={180} />
+        </div>
+        <Shape height={48} radius="pill" width="min(440px, 100%)" />
+        <TableGrid columns={4} rows={5} />
+        <div className="skeleton-pagination">
+          <Shape height={14} radius="pill" width={180} />
+          <Shape height={38} radius="pill" width={220} />
+        </div>
+      </section>
+      <section className="section-card ledger-batches-panel">
         <div className="skeleton-section-heading" aria-hidden="true">
           <div>
-            <Shape height={28} width={210} />
-            <Shape height={12} radius="pill" width={330} />
+            <Shape height={28} width={260} />
+            <Shape height={12} radius="pill" width={390} />
           </div>
         </div>
         <LedgerUploadsTableSkeleton />
@@ -174,7 +185,7 @@ export function LedgerInspectionTableSkeleton() {
   return (
     <div aria-busy="true" aria-label="Loading Student records" role="status">
       <span className="visually-hidden">Loading Student records</span>
-      <TableGrid columns={6} rows={5} />
+      <TableGrid columns={4} rows={5} />
       <div className="skeleton-pagination" aria-hidden="true">
         <Shape height={14} radius="pill" width={180} />
         <Shape height={38} radius="pill" width={220} />
@@ -187,7 +198,11 @@ export function LedgerRecordsModalSkeleton() {
   return (
     <div aria-busy="true" aria-label="Loading academic record details" role="status">
       <span className="visually-hidden">Loading academic record details</span>
-      <TableGrid columns={6} rows={5} />
+      <div className="skeleton-toolbar" aria-hidden="true">
+        <Shape height={48} width="min(420px, 100%)" />
+        <Shape height={48} width="min(420px, 100%)" />
+      </div>
+      <TableGrid columns={5} rows={5} />
       <div className="skeleton-pagination" aria-hidden="true">
         <Shape height={14} radius="pill" width={180} />
         <Shape height={38} radius="pill" width={220} />

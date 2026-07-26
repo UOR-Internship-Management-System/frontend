@@ -106,10 +106,10 @@ describe('Sprint 2 auth API contract', () => {
     await waitFor(() => expect(queryClient.getQueryData(profileKey)).toBeUndefined())
   })
 
-  it('registers Profile while keeping later Student and Admin routes inactive', () => {
-    expect(collectRoutePaths(routes)).toContain('/student/profile')
-    expect(collectRoutePaths(routes)).not.toEqual(
+  it('registers the approved Student and Admin workspaces', () => {
+    expect(collectRoutePaths(routes)).toEqual(
       expect.arrayContaining([
+        '/student/profile',
         '/student/skills',
         '/student/projects',
         '/student/cv-builder',

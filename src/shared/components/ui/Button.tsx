@@ -27,7 +27,7 @@ export function Button({
       {...props}
     >
       <span className="button-content" aria-hidden={isLoading || undefined}>
-        {icon}
+        {icon ? <span aria-hidden="true">{icon}</span> : null}
         {children}
       </span>
       {isLoading ? (

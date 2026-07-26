@@ -35,6 +35,16 @@ export function mapCvPreviewRequest(selections: CvRecordSelections): CvPreviewRe
   )
 }
 
+export function haveSameCvSelections(left: CvRecordSelections, right: CvRecordSelections): boolean {
+  const normalizedLeft = mapCvPreviewRequest(left)
+  const normalizedRight = mapCvPreviewRequest(right)
+  return (
+    cvSelectionKeys.every((key) =>
+      normalizedLeft[key].every((id, index) => id === normalizedRight[key][index]),
+    ) && cvSelectionKeys.every((key) => normalizedLeft[key].length === normalizedRight[key].length)
+  )
+}
+
 export function mapCvFreshness(value: CvFreshness): CvFreshnessView {
   const presentation = {
     NOT_SAVED: { title: 'No saved CV yet', tone: 'neutral' as const },

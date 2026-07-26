@@ -10,10 +10,10 @@ export const registeredStudentSorts = [
   'indexNumber,asc',
 ] as const
 
-const allowedSizes = [20, 50, 100] as const
+const allowedSizes = [5, 20, 50, 100] as const
 export const defaultRegisteredStudentsQuery: RegisteredStudentsQuery = {
   page: 0,
-  size: 20,
+  size: 5,
   sort: 'fullName,asc',
   search: '',
 }
@@ -21,12 +21,12 @@ export const defaultRegisteredStudentsQuery: RegisteredStudentsQuery = {
 export function parseRegisteredStudentsQuery(parameters: URLSearchParams): RegisteredStudentsQuery {
   const rawSort = parameters.get('sort')
   const rawLevel = parameters.get('level')
-  const rawSize = readNonnegativeInteger(parameters.get('size'), 20)
+  const rawSize = readNonnegativeInteger(parameters.get('size'), 5)
   const search = (parameters.get('search') ?? '').trim().slice(0, 120)
 
   return {
     page: readNonnegativeInteger(parameters.get('page'), 0),
-    size: allowedSizes.includes(rawSize as 20 | 50 | 100) ? (rawSize as 20 | 50 | 100) : 20,
+    size: allowedSizes.includes(rawSize as 5 | 20 | 50 | 100) ? (rawSize as 5 | 20 | 50 | 100) : 5,
     sort: registeredStudentSorts.includes(rawSort as RegisteredStudentsQuery['sort'])
       ? (rawSort as RegisteredStudentsQuery['sort'])
       : 'fullName,asc',
@@ -41,7 +41,7 @@ export function serializeRegisteredStudentsQuery(query: RegisteredStudentsQuery)
   if (query.level) parameters.set('level', String(query.level))
   if (query.sort !== 'fullName,asc') parameters.set('sort', query.sort)
   if (query.page > 0) parameters.set('page', String(query.page))
-  if (query.size !== 20) parameters.set('size', String(query.size))
+  if (query.size !== 5) parameters.set('size', String(query.size))
   return parameters
 }
 

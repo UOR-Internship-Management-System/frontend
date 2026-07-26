@@ -190,7 +190,7 @@ export function ProfileForm({ onReload, profile }: ProfileFormProps) {
             error={fieldErrors.personalEmail}
             errorId="profile-personal-email-error"
             htmlFor="profile-personal-email"
-            label="Personal Email"
+            label="Personal Email Address"
           >
             <TextInput
               aria-describedby={
@@ -227,7 +227,7 @@ export function ProfileForm({ onReload, profile }: ProfileFormProps) {
             error={fieldErrors.phone}
             errorId="profile-phone-error"
             htmlFor="profile-phone"
-            label="Phone"
+            label="Phone Number"
           >
             <TextInput
               aria-describedby={fieldErrors.phone ? 'profile-phone-error' : undefined}
@@ -245,7 +245,7 @@ export function ProfileForm({ onReload, profile }: ProfileFormProps) {
             error={fieldErrors.location}
             errorId="profile-location-error"
             htmlFor="profile-location"
-            label="Location"
+            label="City and State"
           >
             <TextInput
               aria-describedby={fieldErrors.location ? 'profile-location-error' : undefined}
@@ -264,7 +264,7 @@ export function ProfileForm({ onReload, profile }: ProfileFormProps) {
           error={fieldErrors.summary}
           errorId="profile-summary-error"
           htmlFor="profile-summary"
-          label="Professional Summary"
+          label="Profile Summary / Objective"
         >
           <textarea
             aria-describedby={fieldErrors.summary ? 'profile-summary-error' : undefined}

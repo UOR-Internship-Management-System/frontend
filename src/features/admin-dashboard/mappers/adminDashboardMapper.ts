@@ -12,27 +12,21 @@ export function mapAdminDashboard(metrics: AdminDashboardMetrics): AdminDashboar
       key: 'totalStudents',
       label: 'Total Students',
       value: numberFormatter.format(metrics.totalStudents),
-      description: 'Total number of Student records currently available.',
+      description: 'Total count of students currently in the database.',
     },
     {
       key: 'registeredStudents',
       label: 'Registered Students',
       value: numberFormatter.format(metrics.registeredStudents),
-      description: 'Students currently registered in the system.',
+      description: 'Current count of students registered in the system.',
     },
     {
       key: 'internshipRequestsCreated',
       label: 'Internship Requests Created',
       value: numberFormatter.format(metrics.internshipRequestsCreated),
-      description: 'Internship requests created to date.',
+      description: 'Total number of internship requests that have been generated.',
     },
   ]
 
-  return {
-    metrics: cards,
-    lastUpdatedLabel: new Intl.DateTimeFormat(undefined, {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(metrics.lastUpdatedAt)),
-  }
+  return { metrics: cards }
 }

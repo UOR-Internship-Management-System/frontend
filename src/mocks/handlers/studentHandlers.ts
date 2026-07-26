@@ -156,6 +156,10 @@ function createInitialState(): MockProfileState {
 
 let state = createInitialState()
 
+export function getStudentProfileMockState() {
+  return state
+}
+
 export function resetStudentProfileMock() {
   idCounter = 100
   state = createInitialState()

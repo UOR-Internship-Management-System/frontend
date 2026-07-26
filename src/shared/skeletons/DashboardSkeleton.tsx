@@ -1,7 +1,7 @@
 import { SkeletonBlock } from '../components/feedback/SkeletonBlock'
 import { SkeletonPageHeader, SkeletonShape, SkeletonStatusRegion } from './SkeletonPrimitives'
 
-function MetricCardSkeleton() {
+function StudentMetricCardSkeleton() {
   return (
     <article
       aria-hidden="true"
@@ -19,14 +19,27 @@ function MetricCardSkeleton() {
   )
 }
 
-function SummaryHeader({ admin = false }: { admin?: boolean }) {
+function AdminMetricCardSkeleton() {
   return (
-    <div
+    <article
       aria-hidden="true"
-      className={admin ? 'admin-dashboard-summary-header' : 'student-dashboard-summary-header'}
+      className="section-card admin-metric-card metric-skeleton-card skeleton-card-stack"
+      data-skeleton-admin-metric
+      data-skeleton-metric
     >
+      <SkeletonShape height={12} radius="pill" width="48%" />
+      <SkeletonShape height={38} width="38%" />
+      <SkeletonShape height={1} radius="none" />
+      <SkeletonBlock decorative lineWidths={['92%', '68%']} lines={2} variant="inline" />
+    </article>
+  )
+}
+
+function StudentSummaryHeader() {
+  return (
+    <div aria-hidden="true" className="student-dashboard-summary-header">
       <div className="skeleton-stack">
-        <SkeletonShape height={28} width={admin ? 210 : 205} />
+        <SkeletonShape height={28} width={205} />
         <SkeletonShape height={12} radius="pill" width={390} />
       </div>
       <SkeletonShape height={14} radius="pill" width={190} />
@@ -50,13 +63,13 @@ export function StudentDashboardSkeleton() {
         <SkeletonShape height={72} radius="circle" width={72} />
       </section>
       <section aria-hidden="true" className="student-dashboard-summary skeleton-stack">
-        <SummaryHeader />
+        <StudentSummaryHeader />
         <div
           className="student-dashboard-metrics-grid"
           data-testid="student-dashboard-metrics-skeleton"
         >
           {Array.from({ length: 4 }, (_, index) => (
-            <MetricCardSkeleton key={index} />
+            <StudentMetricCardSkeleton key={index} />
           ))}
         </div>
       </section>
@@ -71,11 +84,10 @@ export function AdminDashboardSkeleton() {
       label="Loading admin dashboard"
     >
       <SkeletonPageHeader />
-      <section aria-hidden="true" className="admin-dashboard-summary skeleton-stack">
-        <SummaryHeader admin />
+      <section aria-hidden="true" className="admin-dashboard-summary">
         <div className="admin-metrics-grid" data-testid="admin-dashboard-metrics-skeleton">
           {Array.from({ length: 3 }, (_, index) => (
-            <MetricCardSkeleton key={index} />
+            <AdminMetricCardSkeleton key={index} />
           ))}
         </div>
       </section>

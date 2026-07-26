@@ -9,6 +9,7 @@ import { Button } from '../../../shared/components/ui/Button'
 import type { PageMetadata } from '../types/profileEntryTypes'
 
 export function ProfileCollectionSection({
+  addAriaLabel,
   addLabel,
   children,
   description,
@@ -20,10 +21,12 @@ export function ProfileCollectionSection({
   onRetry,
   onSearchChange,
   page,
+  savedTitle,
   search,
   searchLabel,
   title,
 }: {
+  addAriaLabel: string
   addLabel: string
   children: ReactNode
   description: string
@@ -35,6 +38,7 @@ export function ProfileCollectionSection({
   onRetry: () => void
   onSearchChange: (value: string) => void
   page?: PageMetadata
+  savedTitle: string
   search: string
   searchLabel: string
   title: string
@@ -51,8 +55,11 @@ export function ProfileCollectionSection({
           <h2 id={`${title.replaceAll(' ', '-').toLowerCase()}-title`}>{title}</h2>
           <p>{description}</p>
         </div>
-        <Button onClick={onAdd}>{addLabel}</Button>
+        <Button aria-label={addAriaLabel} onClick={onAdd}>
+          {addLabel}
+        </Button>
       </div>
+      <h3 className="profile-saved-list-title">{savedTitle}</h3>
       <SearchInput
         aria-label={searchLabel}
         onChange={(event) => onSearchChange(event.target.value)}

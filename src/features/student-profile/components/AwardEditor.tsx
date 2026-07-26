@@ -48,7 +48,7 @@ export function AwardEditor({
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="award-title" label="Award Title">
+        <FormField htmlFor="award-title" label="Award / Achievement Title">
           <TextInput
             id="award-title"
             maxLength={200}
@@ -57,7 +57,7 @@ export function AwardEditor({
             value={values.title}
           />
         </FormField>
-        <FormField htmlFor="award-issuer" label="Issuer">
+        <FormField htmlFor="award-issuer" label="Awarding Institution / Body">
           <TextInput
             id="award-issuer"
             maxLength={200}
@@ -66,7 +66,7 @@ export function AwardEditor({
             value={values.issuer}
           />
         </FormField>
-        <FormField htmlFor="award-date" label="Award Date">
+        <FormField htmlFor="award-date" label="Date Received">
           <TextInput
             id="award-date"
             onChange={(event) => setValues({ ...values, awardDate: event.target.value })}
@@ -76,7 +76,7 @@ export function AwardEditor({
           />
         </FormField>
       </div>
-      <FormField htmlFor="award-description" label="Description">
+      <FormField htmlFor="award-description" label="Description (Optional)">
         <textarea
           className="input"
           id="award-description"
@@ -91,7 +91,7 @@ export function AwardEditor({
           onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
           type="checkbox"
         />{' '}
-        Include in CV
+        Include this Award in the CV
       </label>
       <ProfileEditorActions
         isPending={isPending}
