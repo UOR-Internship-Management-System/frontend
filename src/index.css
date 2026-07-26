@@ -5048,6 +5048,12 @@ body.dark-mode .s5-records-page {
 
 /* Sprint 4: Student declared skills. Keep selectors feature-scoped. */
 .s4-skills-page {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.s4-skills-page > * {
   min-width: 0;
 }
 
