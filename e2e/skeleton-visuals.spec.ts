@@ -306,6 +306,12 @@ for (const scenario of scenarios) {
     }
     await page.waitForTimeout(300)
     await expect(page).toHaveScreenshot(`${scenario.name}-skeleton.png`, { fullPage: true })
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        }),
+    )
 
     await page.evaluate(() => {
       const target = window as Window & {
