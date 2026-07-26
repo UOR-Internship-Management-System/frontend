@@ -163,9 +163,14 @@ test('Admin creates company metadata and a taxonomy-backed internship request', 
     .getByRole('dialog')
     .getByRole('button', { name: 'Create Company', exact: true })
     .click()
-  await expect(page.getByText('Browser Verified Company', { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Browser Verified Company' })).toBeVisible()
 
-  await page.getByRole('button', { name: /Create internship request/i }).click()
+  const createRequest = page.getByRole('button', { name: /Create internship request/i })
+  const requestDialog = page.getByRole('dialog', { name: 'Create Internship Request' })
+  await expect(async () => {
+    if (!(await requestDialog.isVisible())) await createRequest.click()
+    await expect(requestDialog).toBeVisible()
+  }).toPass()
   await page.getByLabel('Internship Role Title').fill('Software Engineering Intern')
   await page.getByLabel('Shortlist Guidance Value (Optional)').fill('2')
   await page.getByLabel('Select TypeScript').check()
