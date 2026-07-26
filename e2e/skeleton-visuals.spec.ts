@@ -67,7 +67,7 @@ const scenarios = [
   {
     name: 'student-skills',
     path: '/student/skills',
-    heading: 'Declared Skills',
+    heading: 'Skills',
     role: 'student',
     loading: 'Loading available skills',
   },
