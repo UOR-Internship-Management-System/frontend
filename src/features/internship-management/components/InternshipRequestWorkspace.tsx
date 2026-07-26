@@ -255,7 +255,11 @@ export function InternshipRequestWorkspace({
             isLoading={requests.isPending}
             label="Loading internship requests"
             skeleton={
-              <InternshipManagementListSkeleton rows={Math.min(state.size, 5)} variant="requests" />
+              <InternshipManagementListSkeleton
+                rows={Math.min(state.size, 5)}
+                showPagination
+                variant="requests"
+              />
             }
           >
             {requests.error ? (

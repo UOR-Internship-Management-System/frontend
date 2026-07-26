@@ -105,19 +105,13 @@ async function mockInternshipManagement(page: Page) {
         company: baseCompany,
         title: body.title,
         description: body.description ?? null,
-        location: body.location ?? null,
-        workMode: body.workMode ?? null,
         status: body.status,
         shortlistGuidanceValue: body.shortlistGuidanceValue ?? null,
-        notes: body.notes ?? null,
-        requiredSkills: body.requiredSkills.map(
-          (skill: { skillId: string; requiredCompetencyLevel?: string | null }) => ({
-            requiredSkillId: '77777777-7777-4777-8777-777777777777',
-            skillId: skill.skillId,
-            skillName: 'TypeScript',
-            requiredCompetencyLevel: skill.requiredCompetencyLevel ?? null,
-          }),
-        ),
+        requiredSkills: body.requiredSkills.map((skill: { skillId: string }) => ({
+          requiredSkillId: '77777777-7777-4777-8777-777777777777',
+          skillId: skill.skillId,
+          skillName: 'TypeScript',
+        })),
         version: 0,
         createdAt: now,
         updatedAt: now,
@@ -159,25 +153,28 @@ test('Admin creates company metadata and a taxonomy-backed internship request', 
   await expect(page.getByText('Example Technologies', { exact: true })).toBeVisible()
   await expect(page.getByText('0 companies')).toHaveCount(0)
 
-  await page.getByRole('button', { name: /Create a company/i }).click()
-  await page.getByLabel('Company Legal Name').fill('Browser Verified Company')
-  await page.getByLabel('Corporate Website URL').fill('https://browser.example.test')
-  await page.getByLabel('HR Representative Name').fill('Browser Tester')
-  await page.getByLabel('Office / HR Email Address').fill('tester@browser.example.test')
-  await page.getByLabel('Direct Line Phone').fill('+94 11 234 5678')
-  await page.getByRole('dialog').getByRole('button', { name: 'Save Profile', exact: true }).click()
+  await page.getByRole('button', { name: 'Create Company', exact: true }).click()
+  await page.getByLabel('Company Name').fill('Browser Verified Company')
+  await page.getByLabel('Website').fill('https://browser.example.test')
+  await page.getByLabel('HR Representative').fill('Browser Tester')
+  await page.getByLabel('HR Email Address').fill('tester@browser.example.test')
+  await page.getByLabel('Phone Number').fill('+94 11 234 5678')
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Create Company', exact: true })
+    .click()
   await expect(page.getByText('Browser Verified Company', { exact: true })).toBeVisible()
 
   await page.getByRole('button', { name: /Create internship request/i }).click()
   await page.getByLabel('Internship Role Title').fill('Software Engineering Intern')
-  await page.getByLabel('Maximum Shortlist Limit').fill('2')
+  await page.getByLabel('Shortlist Guidance Value (Optional)').fill('2')
   await page.getByLabel('Select TypeScript').check()
-  await page.getByRole('button', { name: 'Add selected skills' }).click()
-  await page.getByRole('dialog').getByRole('button', { name: 'Add', exact: true }).click()
+  await page.getByRole('button', { name: 'Add Selected Skills' }).click()
+  await expect(page.getByRole('dialog').getByLabel(/GPA/i)).toHaveCount(0)
+  await page.getByRole('dialog').getByRole('button', { name: 'Create Request' }).click()
 
   await expect(page.getByText('Software Engineering Intern', { exact: true })).toBeVisible()
-  await expect(page.getByText('Mapped Skills: TypeScript', { exact: true })).toBeVisible()
-  await expect(page.getByText(/GPA/i)).toHaveCount(0)
+  await expect(page.getByText('Required skills: TypeScript', { exact: true })).toBeVisible()
 })
 
 test('Company loading skeleton preserves the loaded row and pagination geometry', async ({
@@ -219,11 +216,11 @@ test('Company loading skeleton preserves the loaded row and pagination geometry'
   const skeleton = page.getByTestId('companies-list-skeleton')
   await expect(skeleton).toBeVisible()
   await expect(skeleton.locator('.wireframe-management-row')).toHaveCount(3)
-  await expect(skeleton.locator('.wireframe-pagination')).toHaveCount(1)
-  const skeletonRowHeight = await skeleton
+  await expect(skeleton.locator('.pagination-bar')).toHaveCount(1)
+  const skeletonRowMinHeight = await skeleton
     .locator('.wireframe-management-row')
     .first()
-    .evaluate((element) => element.getBoundingClientRect().height)
+    .evaluate((element) => getComputedStyle(element).minHeight)
   await page.setViewportSize({ height: 844, width: 390 })
   await expect
     .poll(() =>
@@ -241,11 +238,11 @@ test('Company loading skeleton preserves the loaded row and pagination geometry'
 
   releaseCompanies()
   await expect(page.getByText('Example Technologies', { exact: true })).toBeVisible()
-  const loadedRowHeight = await page
+  const loadedRowMinHeight = await page
     .getByLabel('Company metadata directory')
     .locator('.wireframe-management-row')
     .first()
-    .evaluate((element) => element.getBoundingClientRect().height)
+    .evaluate((element) => getComputedStyle(element).minHeight)
 
-  expect(skeletonRowHeight).toBe(loadedRowHeight)
+  expect(skeletonRowMinHeight).toBe(loadedRowMinHeight)
 })

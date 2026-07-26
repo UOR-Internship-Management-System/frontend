@@ -19,6 +19,15 @@ async function authenticateAdmin(page: Page) {
   )
 }
 
+async function gotoApp(page: Page, path: string) {
+  try {
+    await page.goto(path, { waitUntil: 'domcontentloaded' })
+  } catch (error) {
+    if (!String(error).includes('ERR_ABORTED')) throw error
+    await page.goto(path, { waitUntil: 'domcontentloaded' })
+  }
+}
+
 async function mockCandidateFilteringBootstrap(page: Page) {
   await page.route('**/api/v1/admin/internship-requests**', (route) =>
     route.fulfill({
@@ -60,11 +69,8 @@ async function mockCandidateFilteringWorkflow(page: Page) {
     company,
     title: 'Software Engineering Intern',
     description: 'Build accessible administrative interfaces.',
-    location: 'Matara',
-    workMode: 'HYBRID',
     status: 'ACTIVE',
     shortlistGuidanceValue: 2,
-    notes: null,
     requiredSkills: [],
     version: 3,
     createdAt: now,
@@ -147,9 +153,7 @@ async function mockCandidateFilteringWorkflow(page: Page) {
 }
 
 test('anonymous Candidate Filtering access redirects to Admin login', async ({ page }) => {
-  await page.goto('/admin/candidate-filtering', {
-    waitUntil: 'domcontentloaded',
-  })
+  await gotoApp(page, '/admin/candidate-filtering')
 
   await expect(page).toHaveURL(/\/admin\/login$/)
 
@@ -179,7 +183,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
 
   await expect(
     page.getByText(
-      'Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually lock the final shortlist.',
+      'Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist.',
     ),
   ).toBeVisible()
 

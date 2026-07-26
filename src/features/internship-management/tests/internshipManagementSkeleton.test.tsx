@@ -53,6 +53,12 @@ describe('internship management skeleton geometry', () => {
     ).toHaveLength(2)
   })
 
+  it('uses the pagination class shared with loaded lists', () => {
+    render(<InternshipManagementListSkeleton rows={3} showPagination variant="companies" />)
+
+    expect(document.querySelector('.pagination-bar')).toBeInTheDocument()
+  })
+
   it('uses the same details-grid field counts as each loaded modal', () => {
     const { rerender } = render(<InternshipManagementDetailsSkeleton variant="company" />)
     expect(document.querySelectorAll('.wireframe-details-grid > div')).toHaveLength(7)
