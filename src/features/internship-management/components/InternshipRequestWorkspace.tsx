@@ -115,6 +115,7 @@ export function InternshipRequestWorkspace({
 
   const updateRequest = async (body: InternshipRequestCreateInput) => {
     if (!selected.data) throw new TypeError('Load the internship request before updating it.')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { companyId: _selectedCompanyId, ...updateBody } = body
     const saved = await updateMutation.mutateAsync({
       requestId: selected.data.requestId,
