@@ -306,6 +306,12 @@ for (const scenario of scenarios) {
     }
     await page.waitForTimeout(300)
     await expect(page).toHaveScreenshot(`${scenario.name}-skeleton.png`, { fullPage: true })
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+        }),
+    )
 
     await page.evaluate(() => {
       const target = window as Window & {
@@ -321,7 +327,7 @@ for (const scenario of scenarios) {
 
     await expect(page.getByRole('heading', { level: 1, name: scenario.heading })).toBeVisible()
     await expect(page.getByRole('heading', { level: 1, name: scenario.heading })).toHaveCount(1)
-    await expect(page).toHaveScreenshot(`${scenario.name}-content.png`, { fullPage: true })
+    await page.waitForTimeout(200)
 
     const overflowSafe = await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth + 1,
@@ -334,5 +340,7 @@ for (const scenario of scenarios) {
     }))
     if (cls >= 0.02) console.log(JSON.stringify(entries, null, 2))
     expect(cls).toBeLessThan(0.02)
+
+    await expect(page).toHaveScreenshot(`${scenario.name}-content.png`, { fullPage: true })
   })
 }

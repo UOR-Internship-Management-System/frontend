@@ -112,6 +112,7 @@
 }
 
 .loading-boundary__skeleton.is-exiting {
+  visibility: hidden;
   opacity: 0;
   pointer-events: none;
 }

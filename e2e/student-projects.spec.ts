@@ -266,43 +266,49 @@ test('Student completes the protected project portfolio workflow', async ({ page
 
   await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page')
-  await page.getByRole('button', { name: 'Add project' }).click()
-  await page.getByLabel('Project title').fill('Browser Portfolio')
-  await page.getByLabel('Description').fill('Created through the protected Projects route.')
+  const addProject = page.getByRole('button', { name: 'Add project' })
+  const createDialog = page.getByRole('dialog', { name: 'Create New Project' })
+  await expect(async () => {
+    if (!(await createDialog.isVisible())) await addProject.click()
+    await expect(createDialog).toBeVisible()
+  }).toPass()
+  await page.getByLabel('Title').fill('Browser Portfolio')
+  await page
+    .getByLabel('Project Abstract / High-Level Description')
+    .fill('Created through the protected Projects route.')
   await page.getByLabel('Repository URL').fill('https://github.com/example/browser-portfolio')
-  await page.getByLabel('Start date').fill('2026-02-01')
+  await page.getByRole('button', { name: 'Timeline' }).click()
+  await page.getByLabel('Start Date').fill('2026-02-01')
   await page.getByLabel('Taxonomy skill', { exact: true }).selectOption(taxonomySkills[0]!.skillId)
-  await page.getByRole('button', { name: 'Add skill' }).click()
-  await page.getByRole('button', { name: 'Create project' }).click()
+  await page.getByRole('button', { name: 'Add Skill' }).click()
+  await page.getByRole('button', { name: 'Save', exact: true }).click()
   await expect(page.getByText('Project created')).toBeVisible()
 
-  const row = page.getByRole('row', { name: /Browser Portfolio/ })
-  await expect(row).toBeVisible()
-  await row.getByRole('button', { name: /View details/ }).click()
-  const details = page.getByRole('dialog', { name: 'Browser Portfolio' })
-  await expect(details.getByRole('link', { name: 'Open repository' })).toHaveAttribute(
+  const project = page.getByRole('listitem', { name: 'Project Browser Portfolio' })
+  await expect(project).toBeVisible()
+  await project.getByRole('button', { name: 'Details for Browser Portfolio' }).click()
+  const details = page.getByRole('dialog', { name: 'Project Details' })
+  await expect(details.getByRole('link', { name: 'Open Repository' })).toHaveAttribute(
     'href',
     'https://github.com/example/browser-portfolio',
   )
-  await details.getByRole('button', { name: 'Edit project' }).click()
-  await page.getByLabel('Include this project in my generated CV').uncheck()
-  await page.getByRole('button', { name: 'Save project' }).click()
+  await details.getByRole('button', { name: 'Edit' }).click()
+  await page.getByLabel('Include this project in the CV').uncheck()
+  await page.getByRole('button', { name: 'Save Changes' }).click()
   await expect(page.getByText('Project updated')).toBeVisible()
-  await expect(row).toContainText('Excluded')
+  await expect(project).toContainText('CV Excluded')
 
-  await row.getByRole('button', { name: /View details/ }).click()
+  await project.getByRole('button', { name: 'Details for Browser Portfolio' }).click()
   await page
-    .getByRole('dialog', { name: 'Browser Portfolio' })
-    .getByRole('button', {
-      name: 'Delete project',
-    })
+    .getByRole('dialog', { name: 'Project Details' })
+    .getByRole('button', { name: 'Remove Project' })
     .click()
   await page
-    .getByRole('dialog', { name: 'Delete Browser Portfolio?' })
-    .getByRole('button', { name: 'Delete project' })
+    .getByRole('dialog', { name: 'Remove Project' })
+    .getByRole('button', { name: 'Remove', exact: true })
     .click()
   await expect(page.getByText('Project deleted')).toBeVisible()
-  await expect(row).toHaveCount(0)
+  await expect(project).toHaveCount(0)
 })
 
 test('Project edit retries without overwriting a concurrent server field change', async ({
@@ -312,24 +318,27 @@ test('Project edit retries without overwriting a concurrent server field change'
   await mockProjectsApi(page, { staleUpdate: true })
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
 
-  const row = page.getByRole('row', { name: /Accessible Internship Portal/ })
-  await row.getByRole('button', { name: /View details/ }).click()
+  await page.getByRole('button', { name: 'Details for Accessible Internship Portal' }).click()
   await page
-    .getByRole('dialog', { name: 'Accessible Internship Portal' })
-    .getByRole('button', { name: 'Edit project' })
+    .getByRole('dialog', { name: 'Project Details' })
+    .getByRole('button', { name: 'Edit' })
     .click()
-  await page.getByLabel('Description').fill('Draft that survives a stale response.')
-  await page.getByRole('button', { name: 'Save project' }).click()
+  await page
+    .getByLabel('Project Abstract / High-Level Description')
+    .fill('Draft that survives a stale response.')
+  await page.getByRole('button', { name: 'Save Changes' }).click()
 
   await expect(page.getByText('Review the latest project')).toBeVisible()
-  await expect(page.getByLabel('Description')).toHaveValue('Draft that survives a stale response.')
-  await expect(page.getByLabel('Project title')).toHaveValue('Server-renamed internship portfolio')
-  await expect(page.getByRole('dialog', { name: 'Edit project' })).toBeVisible()
-  await page.getByRole('button', { name: 'Save project' }).click()
+  await expect(page.getByLabel('Project Abstract / High-Level Description')).toHaveValue(
+    'Draft that survives a stale response.',
+  )
+  await expect(page.getByLabel('Title')).toHaveValue('Server-renamed internship portfolio')
+  await expect(page.getByRole('dialog', { name: 'Edit Project' })).toBeVisible()
+  await page.getByRole('button', { name: 'Save Changes' }).click()
 
   await expect(page.getByText('Project updated')).toBeVisible()
   await expect(
-    page.getByRole('row', { name: /Server-renamed internship portfolio/ }),
+    page.getByRole('listitem', { name: 'Project Server-renamed internship portfolio' }),
   ).toContainText('Draft that survives a stale response.')
 })
 
@@ -360,8 +369,8 @@ test('Project form honors focus, reduced motion, dark mode, and 320px bounds', a
   await page.getByRole('button', { name: /switch to dark mode/i }).click()
   await page.getByRole('button', { name: 'Add project' }).click()
 
-  const dialog = page.getByRole('dialog', { name: 'Add project' })
-  const closeButton = dialog.getByRole('button', { name: 'Close Add project' })
+  const dialog = page.getByRole('dialog', { name: 'Create New Project' })
+  const closeButton = dialog.getByRole('button', { name: 'Close Create New Project' })
   await expect(closeButton).toBeFocused()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await expect(dialog).toHaveCSS('animation-name', 'none')

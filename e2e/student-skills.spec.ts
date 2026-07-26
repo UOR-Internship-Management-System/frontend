@@ -260,14 +260,14 @@ test('Student completes the declared-skill workflow through protected navigation
   await mockSkillsApi(page)
   await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Declared Skills' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Skills' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Skills' })).toHaveAttribute('aria-current', 'page')
   const taxonomy = page.getByRole('list', { name: 'Available taxonomy skills' })
   await expect(taxonomy.getByRole('button', { name: /React/ })).toBeDisabled()
 
   await taxonomy.getByRole('button', { name: /TypeScript/ }).click()
   await page.getByLabel('Competency Level').selectOption('ADVANCED')
-  await page.getByRole('button', { name: 'Add declared skill' }).click()
+  await page.getByRole('button', { name: 'Add Skill', exact: true }).click()
   await expect(page.getByText('Skill added')).toBeVisible()
   await page
     .locator('.toast', { hasText: 'Skill added' })
@@ -276,8 +276,8 @@ test('Student completes the declared-skill workflow through protected navigation
   await expect(page.getByRole('row', { name: /TypeScript/ })).toBeVisible()
 
   const reactRow = page.getByRole('row', { name: /React/ })
-  await reactRow.getByLabel('Competency for React').selectOption('ADVANCED')
-  await reactRow.getByRole('button', { name: 'Update' }).click()
+  await reactRow.getByLabel('Competency for React', { exact: true }).selectOption('ADVANCED')
+  await reactRow.getByRole('button', { name: 'Update competency for React' }).click()
   await expect(page.getByText('Competency updated')).toBeVisible()
   await page
     .locator('.toast', { hasText: 'Competency updated' })
@@ -286,8 +286,8 @@ test('Student completes the declared-skill workflow through protected navigation
 
   await reactRow.getByRole('button', { name: 'Remove React' }).click()
   await page
-    .getByRole('dialog', { name: 'Remove React?' })
-    .getByRole('button', { name: 'Remove skill' })
+    .getByRole('dialog', { name: 'Remove Skill' })
+    .getByRole('button', { name: 'Remove', exact: true })
     .click()
   await expect(page.getByText('Skill removed')).toBeVisible()
 })
@@ -301,15 +301,15 @@ test('Student reviews duplicate and stale conflicts without losing intended inpu
 
   await page.getByRole('button', { name: /TypeScript/ }).click()
   await page.getByLabel('Competency Level').selectOption('ADVANCED')
-  await page.getByRole('button', { name: 'Add declared skill' }).click()
+  await page.getByRole('button', { name: 'Add Skill', exact: true }).click()
   await expect(page.getByText(/conflicts with existing information/i)).toBeVisible()
   await expect(page.getByLabel('Competency Level')).toHaveValue('ADVANCED')
 
   const reactRow = page.getByRole('row', { name: /React/ })
-  await reactRow.getByLabel('Competency for React').selectOption('ADVANCED')
-  await reactRow.getByRole('button', { name: 'Update' }).click()
+  await reactRow.getByLabel('Competency for React', { exact: true }).selectOption('ADVANCED')
+  await reactRow.getByRole('button', { name: 'Update competency for React' }).click()
   await expect(page.getByText('Review the latest record')).toBeVisible()
-  await expect(reactRow.getByLabel('Competency for React')).toHaveValue('ADVANCED')
+  await expect(reactRow.getByLabel('Competency for React', { exact: true })).toHaveValue('ADVANCED')
 })
 
 test('Skills keeps declared records usable when taxonomy is unavailable', async ({ page }) => {

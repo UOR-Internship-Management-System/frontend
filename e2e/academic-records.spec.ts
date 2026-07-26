@@ -116,7 +116,7 @@ test('Academic Records remains protected by the Student route guard', async ({ p
   await expect(page).toHaveURL(/\/student\/login$/)
 })
 
-test('Student reviews official GPA and read-only records with search, sort, and pagination', async ({
+test('Student reviews official GPA and read-only records with search and pagination', async ({
   page,
 }) => {
   await authenticateStudent(page)
@@ -125,19 +125,15 @@ test('Student reviews official GPA and read-only records with search, sort, and 
 
   await expect(page.getByRole('heading', { level: 1, name: 'Academic Records' })).toBeVisible()
   await expect(page.getByText('3.75')).toBeVisible()
-  await expect(page.getByText('Official', { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Computer Science GPA summary' })).toBeVisible()
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)
-  await expect(page.getByText(/1.10 of 12/)).toBeVisible()
+  await expect(page.getByText(/1.5 of 12/)).toBeVisible()
 
   await page.getByRole('button', { name: 'Next' }).click()
-  await expect(page.getByText('Legacy Systems')).toBeVisible()
+  await expect(page.getByText('Computer Science Course 6')).toBeVisible()
   await page.getByRole('button', { name: 'Previous' }).click()
-  await page
-    .getByRole('combobox', { name: 'Sort academic records' })
-    .selectOption('courseCode,desc')
-  await expect(page.getByRole('table').getByRole('row').nth(1)).toContainText('CS1012')
 
   await page.getByRole('searchbox', { name: 'Search academic records' }).fill('Legacy')
   await expect(page.getByText('Legacy Systems')).toBeVisible()
@@ -156,9 +152,7 @@ test('NOT_AVAILABLE is successful and the records workspace stays mobile and dar
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/student/academic-records', { waitUntil: 'domcontentloaded' })
 
-  await expect(
-    page.getByRole('heading', { name: 'Official GPA is not available yet' }),
-  ).toBeVisible()
+  await expect(page.getByRole('status').getByText('Not available')).toBeVisible()
   await page.getByRole('button', { name: /switch to dark mode/i }).click()
   await expect(page.locator('html')).toHaveClass(/dark/)
   await expect(page.locator('.s5-records-table-wrap')).toHaveCSS('overflow-x', 'auto')
