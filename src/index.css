@@ -4151,7 +4151,14 @@ td {
 
 /* Sprint 6 Academic Ledger */
 .academic-ledger-page {
+  width: 100%;
+  min-width: 0;
   max-width: 1340px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.academic-ledger-page > * {
+  min-width: 0;
 }
 
 .ledger-review-panel,
