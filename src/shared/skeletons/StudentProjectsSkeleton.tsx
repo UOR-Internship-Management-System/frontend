@@ -66,7 +66,7 @@ export function ProjectModalSkeleton() {
         </div>
       </div>
       <SkeletonBlock decorative lineWidths={['96%', '88%', '70%']} lines={3} variant="inline" />
-      
+
       <div className="skeleton-field">
         <SkeletonShape height={12} radius="pill" width={120} />
         <SkeletonShape height={72} radius="md" />

@@ -3150,7 +3150,6 @@ td {
   resize: vertical;
 }
 
-
 .company-details dl {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5326,7 +5325,7 @@ body.dark-mode .s5-records-page {
   transition: background-color var(--motion-duration-fast) ease;
 }
 
-.logic-switch-wrapper[aria-checked="true"] .logic-switch-axis {
+.logic-switch-wrapper[aria-checked='true'] .logic-switch-axis {
   background: var(--primary);
   border-color: var(--primary-strong);
 }
@@ -5339,7 +5338,7 @@ body.dark-mode .s5-records-page {
   height: 22px;
   background: var(--canvas);
   border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5349,7 +5348,7 @@ body.dark-mode .s5-records-page {
   transition: transform var(--motion-duration-fast) var(--motion-standard);
 }
 
-.logic-switch-wrapper[aria-checked="true"] .logic-switch-handle {
+.logic-switch-wrapper[aria-checked='true'] .logic-switch-handle {
   transform: translateX(20px);
 }
 

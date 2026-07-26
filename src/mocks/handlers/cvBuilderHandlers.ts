@@ -53,18 +53,20 @@ export const cvBuilderHandlers = [
     const profileState = getStudentProfileMockState()
     const projects = getStudentProjectsFixture()
     const skills = getDeclaredSkillsFixture()
-    
+
     const htmlParts: string[] = []
     htmlParts.push(`<article class="ats-cv">`)
     htmlParts.push(`<h1>${profileState.profile.fullName}</h1>`)
     htmlParts.push(`<p>${profileState.profile.universityEmail} | ${profileState.profile.phone}</p>`)
-    
+
     if (profileState.profile.summary) {
       htmlParts.push(`<section><h2>Profile</h2><p>${profileState.profile.summary}</p></section>`)
     }
-    
+
     if (parsed.data.includedExperienceIds.length > 0) {
-      const selectedExp = profileState.experience.filter(e => parsed.data.includedExperienceIds.includes(e.id))
+      const selectedExp = profileState.experience.filter((e) =>
+        parsed.data.includedExperienceIds.includes(e.id),
+      )
       htmlParts.push(`<section><h2>Experience</h2>`)
       for (const exp of selectedExp) {
         htmlParts.push(`<article><h3>${exp.positionTitle}</h3><p>${exp.organization}</p></article>`)
@@ -73,24 +75,32 @@ export const cvBuilderHandlers = [
     }
 
     if (parsed.data.includedProjectIds.length > 0) {
-      const selectedProj = projects.filter(p => parsed.data.includedProjectIds.includes(p.projectId))
+      const selectedProj = projects.filter((p) =>
+        parsed.data.includedProjectIds.includes(p.projectId),
+      )
       htmlParts.push(`<section><h2>Projects</h2>`)
       for (const proj of selectedProj) {
         htmlParts.push(`<article><h3>${proj.title}</h3><p>${proj.description}</p></article>`)
       }
       htmlParts.push(`</section>`)
     }
-    
+
     // Temporarily including all skills in the preview mock since cvInclude is removed.
     const includedSkills = skills
     if (includedSkills.length > 0) {
       htmlParts.push(`<section><h2>Skills</h2><p>`)
-      htmlParts.push(includedSkills.map(s => individualSkillsFixture.find(i => i.skillId === s.skillId)?.name ?? '').join(', '))
+      htmlParts.push(
+        includedSkills
+          .map((s) => individualSkillsFixture.find((i) => i.skillId === s.skillId)?.name ?? '')
+          .join(', '),
+      )
       htmlParts.push(`</p></section>`)
     }
-    
+
     if (parsed.data.includedCertificateIds.length > 0) {
-      const selectedCert = profileState.certificates.filter(c => parsed.data.includedCertificateIds.includes(c.id))
+      const selectedCert = profileState.certificates.filter((c) =>
+        parsed.data.includedCertificateIds.includes(c.id),
+      )
       htmlParts.push(`<section><h2>Certificates</h2><ul>`)
       for (const cert of selectedCert) {
         htmlParts.push(`<li>${cert.title} - ${cert.issuer}</li>`)
@@ -99,7 +109,9 @@ export const cvBuilderHandlers = [
     }
 
     if (parsed.data.includedAwardIds.length > 0) {
-      const selectedAward = profileState.awards.filter(a => parsed.data.includedAwardIds.includes(a.id))
+      const selectedAward = profileState.awards.filter((a) =>
+        parsed.data.includedAwardIds.includes(a.id),
+      )
       htmlParts.push(`<section><h2>Awards</h2><ul>`)
       for (const aw of selectedAward) {
         htmlParts.push(`<li>${aw.title} - ${aw.issuer}</li>`)
@@ -108,7 +120,9 @@ export const cvBuilderHandlers = [
     }
 
     if (parsed.data.includedActivityIds.length > 0) {
-      const selectedAct = profileState.activities.filter(a => parsed.data.includedActivityIds.includes(a.id))
+      const selectedAct = profileState.activities.filter((a) =>
+        parsed.data.includedActivityIds.includes(a.id),
+      )
       htmlParts.push(`<section><h2>Activities</h2><ul>`)
       for (const act of selectedAct) {
         htmlParts.push(`<li>${act.roleTitle} - ${act.activityName}</li>`)

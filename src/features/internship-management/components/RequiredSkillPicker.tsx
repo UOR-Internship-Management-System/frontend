@@ -108,7 +108,6 @@ export function RequiredSkillPicker({
     setStagedSkills([])
   }
 
-
   return (
     <fieldset
       aria-describedby="required-skills-help"

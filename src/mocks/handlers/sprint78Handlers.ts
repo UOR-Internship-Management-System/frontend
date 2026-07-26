@@ -457,9 +457,7 @@ export const sprint78Handlers = [
         (!search || `${item.title} ${item.company.name}`.toLowerCase().includes(search)),
     )
     const sort = url.searchParams.get('sort') ?? 'createdAt,desc'
-    return HttpResponse.json(
-      page(sortInternshipRequests(items, sort), request, 'createdAt,desc'),
-    )
+    return HttpResponse.json(page(sortInternshipRequests(items, sort), request, 'createdAt,desc'))
   }),
 
   http.get(`${apiBase}/admin/internship-requests/:requestId`, ({ params }) => {
@@ -474,12 +472,20 @@ export const sprint78Handlers = [
   http.post(`${apiBase}/admin/internship-requests`, async ({ request }) => {
     const body = (await request.json()) as ApiInternshipRequestCreateRequest
     if (!['DRAFT', 'ACTIVE'].includes(body.status)) {
-      return problem(409, 'INVALID_REQUEST_STATUS_TRANSITION', 'Create requests as Draft or Active.')
+      return problem(
+        409,
+        'INVALID_REQUEST_STATUS_TRANSITION',
+        'Create requests as Draft or Active.',
+      )
     }
     const company = companies.find((item) => item.companyId === body.companyId)
     if (!company) return problem(404, 'COMPANY_NOT_FOUND', 'The company was not found.')
     if (!company.active) {
-      return problem(409, 'COMPANY_INACTIVE', 'Inactive companies cannot be selected for new requests.')
+      return problem(
+        409,
+        'COMPANY_INACTIVE',
+        'Inactive companies cannot be selected for new requests.',
+      )
     }
     const item: ApiInternshipRequestResponse = {
       requestId: mockId('b9', requestSequence++),

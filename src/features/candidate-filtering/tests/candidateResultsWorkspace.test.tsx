@@ -134,7 +134,9 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
     expect(screen.getByText('Already shortlisted in 2 active requests')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'View skills for Ayesha Perera' })).toBeEnabled()
     expect(
-      screen.queryByText(new RegExp(['score', 'rank', ['match', 'percentage'].join(' ')].join('|'), 'i')),
+      screen.queryByText(
+        new RegExp(['score', 'rank', ['match', 'percentage'].join(' ')].join('|'), 'i'),
+      ),
     ).not.toBeInTheDocument()
     expect(screen.queryByText(/latest cv/i)).not.toBeInTheDocument()
   })
@@ -265,7 +267,9 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Finalize Shortlist' }))
 
     expect(
-      await within(dialog).findByText(/candidates were added to the draft, but finalization failed/i),
+      await within(dialog).findByText(
+        /candidates were added to the draft, but finalization failed/i,
+      ),
     ).toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'Retry finalization' }))
 

@@ -183,7 +183,9 @@ export function StudentSkillsPage() {
         <div className="s4-skills-section-heading">
           <div>
             <h2 id="add-skill-title">Add Skill Entry</h2>
-            <p>Use the searchable system skill list below or select through the cascading fields.</p>
+            <p>
+              Use the searchable system skill list below or select through the cascading fields.
+            </p>
           </div>
         </div>
         <LoadingBoundary

@@ -53,7 +53,7 @@ export function AcademicLedgerPage() {
   const uploadsError = uploads.isError ? mapApiError(uploads.error, 'protected') : null
   const isReviewable = Boolean(
     selected.data &&
-      !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
+    !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
   )
 
   return (

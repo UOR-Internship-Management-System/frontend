@@ -165,7 +165,8 @@ export function InternshipRequestWorkspace({
               <p className="internship-section-context">{selectedCompany.name}</p>
               {!selectedCompany.active ? (
                 <p className="internship-section-context">
-                  Inactive company — request history remains available, but new requests are disabled.
+                  Inactive company — request history remains available, but new requests are
+                  disabled.
                 </p>
               ) : null}
             </>
@@ -199,10 +200,7 @@ export function InternshipRequestWorkspace({
       ) : !selectedCompany ? (
         <>
           <InternshipRequestToolbarSkeleton />
-          <InternshipManagementListSkeleton
-            rows={Math.min(state.size, 5)}
-            variant="requests"
-          />
+          <InternshipManagementListSkeleton rows={Math.min(state.size, 5)} variant="requests" />
         </>
       ) : (
         <>
@@ -221,8 +219,7 @@ export function InternshipRequestWorkspace({
                 onChange={(event) =>
                   updateState({
                     status: (event.target.value || undefined) as
-                      | ApiInternshipRequestStatus
-                      | undefined,
+                      ApiInternshipRequestStatus | undefined,
                   })
                 }
                 value={state.status ?? ''}
@@ -258,10 +255,7 @@ export function InternshipRequestWorkspace({
             isLoading={requests.isPending}
             label="Loading internship requests"
             skeleton={
-              <InternshipManagementListSkeleton
-                rows={Math.min(state.size, 5)}
-                variant="requests"
-              />
+              <InternshipManagementListSkeleton rows={Math.min(state.size, 5)} variant="requests" />
             }
           >
             {requests.error ? (

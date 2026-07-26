@@ -38,7 +38,11 @@ describe('Student management data layer', () => {
       size: 50,
     })
     expect(serializeRegisteredStudentsQuery(parsed).toString()).toContain('level=4')
-    expect(serializeRegisteredStudentsQuery(parseRegisteredStudentsQuery(new URLSearchParams(''))).toString()).toBe('')
+    expect(
+      serializeRegisteredStudentsQuery(
+        parseRegisteredStudentsQuery(new URLSearchParams('')),
+      ).toString(),
+    ).toBe('')
     expect(
       parseRegisteredStudentsQuery(new URLSearchParams('level=9&sort=bad&page=-1&size=7')),
     ).toEqual({ page: 0, size: 5, sort: 'fullName,asc', search: '', level: undefined })

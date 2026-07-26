@@ -632,9 +632,7 @@ export function ActivitiesSection() {
           closeDisabled={pending}
           onClose={() => setEditing(null)}
           title={
-            editing === 'new'
-              ? 'Add Extracurricular Activity'
-              : 'Edit Extracurricular Activity'
+            editing === 'new' ? 'Add Extracurricular Activity' : 'Edit Extracurricular Activity'
           }
         >
           <ActivityEditor
@@ -745,9 +743,7 @@ export function ExperienceSection() {
         <Modal
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={
-            editing === 'new' ? 'Add Professional Experience' : 'Edit Professional Experience'
-          }
+          title={editing === 'new' ? 'Add Professional Experience' : 'Edit Professional Experience'}
         >
           <ExperienceEditor
             isPending={pending}

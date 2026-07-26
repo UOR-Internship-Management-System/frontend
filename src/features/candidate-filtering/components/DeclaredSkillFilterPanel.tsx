@@ -7,7 +7,6 @@ import { indexSkillTaxonomy, useSkillTaxonomyTree } from '../../../shared/skill-
 import type { InternshipRequiredSkill } from '../../internship-management/types/internshipManagementTypes'
 import { AdditionalSkillsModal } from './AdditionalSkillsModal'
 
-
 export function DeclaredSkillFilterPanel({
   additionalSkillIds,
   disabled,

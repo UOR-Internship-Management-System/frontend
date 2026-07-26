@@ -128,7 +128,9 @@ function SkillResultCard({
 }) {
   const clusterNames = useMemo(() => uniqueNames(paths, 'clusterName'), [paths])
   const categoryNames = useMemo(() => uniqueNames(paths, 'categoryName'), [paths])
-  const clusterLabel = clusterNames.length ? clusterNames.join(', ') : 'Taxonomy cluster unavailable'
+  const clusterLabel = clusterNames.length
+    ? clusterNames.join(', ')
+    : 'Taxonomy cluster unavailable'
   const categoryLabel = categoryNames.length
     ? categoryNames.join(', ')
     : 'Taxonomy category unavailable'

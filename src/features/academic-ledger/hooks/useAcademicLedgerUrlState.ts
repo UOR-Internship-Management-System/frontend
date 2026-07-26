@@ -110,10 +110,7 @@ export function useAcademicLedgerUrlState() {
   }, [debouncedRowSearch, rowSearchInput, setState, state])
   useEffect(() => {
     const search = debouncedStudentSearch.trim().slice(0, 120)
-    if (
-      studentSearchInput.trim().slice(0, 120) !== search ||
-      search === state.students.search
-    ) {
+    if (studentSearchInput.trim().slice(0, 120) !== search || search === state.students.search) {
       return
     }
     setState({ ...state, students: { ...state.students, page: 0, search } }, { replace: true })

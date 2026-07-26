@@ -41,7 +41,11 @@ export function InternshipManagementSkeleton() {
     >
       <SkeletonPageHeader />
       {/* Companies section card — toolbar: search + status filter + sort select + Create Company button */}
-      <section aria-hidden="true" className="section-card skeleton-stack" data-testid="internship-management-skeleton">
+      <section
+        aria-hidden="true"
+        className="section-card skeleton-stack"
+        data-testid="internship-management-skeleton"
+      >
         <div className="skeleton-section-heading">
           <SkeletonShape height={28} width={220} />
         </div>
@@ -80,7 +84,10 @@ export function CandidateFilteringSkeleton() {
       label="Loading Candidate Filtering"
     >
       <SkeletonPageHeader />
-      <div className="candidate-filtering-layout split-dashboard-pane" data-testid="candidate-filtering-skeleton">
+      <div
+        className="candidate-filtering-layout split-dashboard-pane"
+        data-testid="candidate-filtering-skeleton"
+      >
         {/* Left aside — two section cards matching CandidateSelectionPanel */}
         <aside aria-hidden="true" className="candidate-filtering-sidebar">
           {/* Card 1: Select Internship Request */}
@@ -143,7 +150,11 @@ export function ShortlistExportSkeleton() {
     >
       <SkeletonPageHeader />
       {/* ShortlistDirectory section — toolbar: search + company select + track select */}
-      <section aria-hidden="true" className="section-card skeleton-stack" data-testid="shortlist-export-skeleton">
+      <section
+        aria-hidden="true"
+        className="section-card skeleton-stack"
+        data-testid="shortlist-export-skeleton"
+      >
         <div className="skeleton-section-heading">
           <SkeletonShape height={28} width={200} />
         </div>

@@ -268,9 +268,7 @@ describe('StudentProjectsPage', () => {
     )
 
     expect(await view.findByText('Project deleted')).toBeInTheDocument()
-    expect(
-      await view.findByRole('listitem', { name: 'Project Portfolio Project 1' }),
-    ).toBeVisible()
+    expect(await view.findByRole('listitem', { name: 'Project Portfolio Project 1' })).toBeVisible()
     expect(view.getByText(/Page 1 of 1/)).toBeInTheDocument()
   })
 })

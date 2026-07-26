@@ -63,13 +63,9 @@ export function RootLayout() {
         isStandalone ? 'app-shell-standalone' : ''
       } ${isWorkspace ? 'app-shell-workspace' : ''} ${
         isStudentWorkspace ? 'app-shell-student-workspace' : ''
-      } ${
-        isAdminWorkspace ? 'app-shell-admin-workspace' : ''
-      }`.trim()}
+      } ${isAdminWorkspace ? 'app-shell-admin-workspace' : ''}`.trim()}
     >
-      {isStandalone ? (
-        <ThemeToggle className="global-theme-toggle" />
-      ) : null}
+      {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
 
       {!isStandalone && !isWorkspace ? (
         <header className="app-header">
@@ -88,26 +84,15 @@ export function RootLayout() {
         className={
           isStandalone
             ? 'app-main app-main-standalone'
-            : `app-main ${
-                isWorkspace ? 'app-main-workspace' : ''
-              } ${
-                isStudentWorkspace
-                  ? 'app-main-student-workspace'
-                  : ''
-              } ${
-                isAdminWorkspace
-                  ? 'app-main-admin-workspace'
-                  : ''
-              }`.trim()
+            : `app-main ${isWorkspace ? 'app-main-workspace' : ''} ${
+                isStudentWorkspace ? 'app-main-student-workspace' : ''
+              } ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
         }
       >
         {isWorkspace ? (
           outlet
         ) : (
-          <div
-            className="page-transition"
-            key={location.pathname}
-          >
+          <div className="page-transition" key={location.pathname}>
             {outlet}
           </div>
         )}

@@ -14,7 +14,9 @@ export function GpaSummaryCards({ summary }: { summary: GpaSummaryView }) {
           {isAvailable ? summary.gpaLabel : 'Not available'}
         </strong>
         {!isAvailable ? (
-          <p>Your GPA will appear after official academic results are committed by the university.</p>
+          <p>
+            Your GPA will appear after official academic results are committed by the university.
+          </p>
         ) : null}
       </div>
     </div>

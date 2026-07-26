@@ -62,7 +62,9 @@ export function useDeleteCompany() {
   return useMutation({
     mutationFn: (input: CompanyDeleteInput) => internshipManagementApi.deleteCompany(input),
     onSuccess: (_result, input) => {
-      queryClient.removeQueries({ queryKey: internshipManagementKeys.companyDetail(input.companyId) })
+      queryClient.removeQueries({
+        queryKey: internshipManagementKeys.companyDetail(input.companyId),
+      })
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: internshipManagementKeys.companies() }),
         queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() }),

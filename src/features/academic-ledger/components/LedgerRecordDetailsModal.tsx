@@ -7,9 +7,7 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { LedgerRecordsModalSkeleton } from '../../../shared/skeletons'
-import {
-  useAdminStudentAcademicRecords,
-} from '../../student-management/hooks/useRegisteredStudents'
+import { useAdminStudentAcademicRecords } from '../../student-management/hooks/useRegisteredStudents'
 import type {
   AdminAcademicRecordsQuery,
   RegisteredStudentView,

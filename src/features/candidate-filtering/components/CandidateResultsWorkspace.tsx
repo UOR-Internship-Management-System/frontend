@@ -191,7 +191,10 @@ export function CandidateResultsWorkspace({
         </LoadingBoundary>
       )}
 
-      <footer aria-label="Manual shortlist selection actions" className="candidate-selection-action-bar">
+      <footer
+        aria-label="Manual shortlist selection actions"
+        className="candidate-selection-action-bar"
+      >
         <div>
           <strong>{selectedCount} selected</strong>
           <span>Selections persist across result pages for this filtering run.</span>

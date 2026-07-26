@@ -150,59 +150,56 @@ describe('ProjectForm and project dialogs', () => {
     expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent(lateSkill.name)
   })
 
-  it(
-    'merges refreshed server fields into a stale draft without replacing dirty fields',
-    async () => {
-      const user = userEvent.setup()
-      const original = getStudentProjectsFixture()[0]!
-      const refreshed = {
-        ...original,
+  it('merges refreshed server fields into a stale draft without replacing dirty fields', async () => {
+    const user = userEvent.setup()
+    const original = getStudentProjectsFixture()[0]!
+    const refreshed = {
+      ...original,
+      title: 'Server-renamed portfolio',
+      version: original.version + 1,
+    }
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+
+    function Harness() {
+      const [project, setProject] = useState(original)
+      return (
+        <>
+          <button onClick={() => setProject(refreshed)} type="button">
+            Refresh server project
+          </button>
+          <ProjectForm
+            initialSkills={project.skills}
+            initialValues={mapStudentProjectToForm(project)}
+            mode="edit"
+            onCancel={vi.fn()}
+            onSubmit={onSubmit}
+          />
+        </>
+      )
+    }
+
+    const view = renderWithProviders(<Harness />)
+    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
+    await user.type(
+      view.getByLabelText('Project Abstract / High-Level Description'),
+      'Student-owned draft change',
+    )
+    await user.click(view.getByRole('button', { name: 'Refresh server project' }))
+
+    await waitFor(() =>
+      expect(view.getByLabelText('Title')).toHaveValue('Server-renamed portfolio'),
+    )
+    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
+      'Student-owned draft change',
+    )
+    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
         title: 'Server-renamed portfolio',
-        version: original.version + 1,
-      }
-      const onSubmit = vi.fn().mockResolvedValue(undefined)
-
-      function Harness() {
-        const [project, setProject] = useState(original)
-        return (
-          <>
-            <button onClick={() => setProject(refreshed)} type="button">
-              Refresh server project
-            </button>
-            <ProjectForm
-              initialSkills={project.skills}
-              initialValues={mapStudentProjectToForm(project)}
-              mode="edit"
-              onCancel={vi.fn()}
-              onSubmit={onSubmit}
-            />
-          </>
-        )
-      }
-
-      const view = renderWithProviders(<Harness />)
-      await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
-      await user.type(
-        view.getByLabelText('Project Abstract / High-Level Description'),
-        'Student-owned draft change',
-      )
-      await user.click(view.getByRole('button', { name: 'Refresh server project' }))
-
-      await waitFor(() =>
-        expect(view.getByLabelText('Title')).toHaveValue('Server-renamed portfolio'),
-      )
-      expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
-        'Student-owned draft change',
-      )
-      await user.click(view.getByRole('button', { name: 'Save Changes' }))
-      expect(onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          title: 'Server-renamed portfolio',
-          description: 'Student-owned draft change',
-        }),
-      )
-    },
-  )
+        description: 'Student-owned draft change',
+      }),
+    )
+  })
 
   it('keeps nullable clears and the complete edit draft after a stale response', async () => {
     const user = userEvent.setup()
@@ -304,32 +301,29 @@ describe('ProjectForm and project dialogs', () => {
     await waitFor(() => expect(launcher).toHaveFocus())
   })
 
-  it(
-    'renders read-only details with safe external-link attributes and action entry points',
-    async () => {
-      const user = userEvent.setup()
-      const project = getStudentProjectsFixture()[0]!
-      const onEdit = vi.fn()
-      const onDelete = vi.fn()
-      const view = renderWithProviders(
-        <ProjectDetailsModal
-          onClose={vi.fn()}
-          onDelete={onDelete}
-          onEdit={onEdit}
-          project={project}
-        />,
-      )
+  it('renders read-only details with safe external-link attributes and action entry points', async () => {
+    const user = userEvent.setup()
+    const project = getStudentProjectsFixture()[0]!
+    const onEdit = vi.fn()
+    const onDelete = vi.fn()
+    const view = renderWithProviders(
+      <ProjectDetailsModal
+        onClose={vi.fn()}
+        onDelete={onDelete}
+        onEdit={onEdit}
+        project={project}
+      />,
+    )
 
-      const repository = view.getByRole('link', { name: 'Open Repository' })
-      expect(repository).toHaveAttribute('href', project.repositoryUrl)
-      expect(repository).toHaveAttribute('target', '_blank')
-      expect(repository).toHaveAttribute('rel', expect.stringContaining('noopener'))
-      await user.click(view.getByRole('button', { name: 'Edit' }))
-      await user.click(view.getByRole('button', { name: 'Remove Project' }))
-      expect(onEdit).toHaveBeenCalledOnce()
-      expect(onDelete).toHaveBeenCalledOnce()
-    },
-  )
+    const repository = view.getByRole('link', { name: 'Open Repository' })
+    expect(repository).toHaveAttribute('href', project.repositoryUrl)
+    expect(repository).toHaveAttribute('target', '_blank')
+    expect(repository).toHaveAttribute('rel', expect.stringContaining('noopener'))
+    await user.click(view.getByRole('button', { name: 'Edit' }))
+    await user.click(view.getByRole('button', { name: 'Remove Project' }))
+    expect(onEdit).toHaveBeenCalledOnce()
+    expect(onDelete).toHaveBeenCalledOnce()
+  })
 
   it('keeps delete confirmation open and retryable after failure', async () => {
     const user = userEvent.setup()

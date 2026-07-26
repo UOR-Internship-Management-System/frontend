@@ -8,12 +8,12 @@ It is a **development plan only**. It does not implement or modify production co
 
 ### Target routes
 
-| Sprint | Page | Route |
-|---|---|---|
-| 7 | Student Deep-Dive | `/admin/students/:studentId` |
-| 7 | Company and Internship Request Management | `/admin/internships` |
-| 8 | Candidate Filtering Dashboard | `/admin/candidate-filtering` |
-| 8 | Shortlist and Export Workflow | `/admin/shortlists` |
+| Sprint | Page                                      | Route                        |
+| ------ | ----------------------------------------- | ---------------------------- |
+| 7      | Student Deep-Dive                         | `/admin/students/:studentId` |
+| 7      | Company and Internship Request Management | `/admin/internships`         |
+| 8      | Candidate Filtering Dashboard             | `/admin/candidate-filtering` |
+| 8      | Shortlist and Export Workflow             | `/admin/shortlists`          |
 
 ## 2. Governing source order
 
@@ -113,14 +113,14 @@ Generated files must never be edited manually.
 
 ### 5.2 Feature ownership
 
-| Feature | Responsibility |
-|---|---|
-| `student-management` | Registered Student list extension, read-only Student Deep-Dive, latest saved CV metadata and PDF download |
-| `internship-management` | Company metadata, internship request lifecycle, required skill selection |
-| `candidate-filtering` | Runtime deterministic criteria, filtering runs, paged candidate results, cross-page manual selection |
-| `shortlists` | Draft shortlist creation/review, candidate mutations, guidance, finalization |
-| `exports` | Export job creation, polling, warning display, CSV/ZIP download |
-| `shared` | Generic infrastructure only: taxonomy read access, typed file downloading, common query/error/UI utilities |
+| Feature                 | Responsibility                                                                                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `student-management`    | Registered Student list extension, read-only Student Deep-Dive, latest saved CV metadata and PDF download  |
+| `internship-management` | Company metadata, internship request lifecycle, required skill selection                                   |
+| `candidate-filtering`   | Runtime deterministic criteria, filtering runs, paged candidate results, cross-page manual selection       |
+| `shortlists`            | Draft shortlist creation/review, candidate mutations, guidance, finalization                               |
+| `exports`               | Export job creation, polling, warning display, CSV/ZIP download                                            |
+| `shared`                | Generic infrastructure only: taxonomy read access, typed file downloading, common query/error/UI utilities |
 
 Cross-feature imports must be avoided. Read-only skill taxonomy access should be extracted into shared infrastructure rather than making Admin features depend directly on `student-skills`.
 
@@ -288,14 +288,14 @@ Rules:
 
 Add wrappers for:
 
-| Operation | Endpoint |
-|---|---|
-| Student detail | `GET /admin/students/{studentId}` |
-| Declared skills | `GET /admin/students/{studentId}/declared-skills` |
-| Projects | `GET /admin/students/{studentId}/projects` |
-| Academic records | `GET /admin/students/{studentId}/academic-records` |
-| Latest CV metadata | `GET /admin/students/{studentId}/latest-cv` |
-| Latest CV PDF | `GET /admin/students/{studentId}/latest-cv/download` |
+| Operation          | Endpoint                                             |
+| ------------------ | ---------------------------------------------------- |
+| Student detail     | `GET /admin/students/{studentId}`                    |
+| Declared skills    | `GET /admin/students/{studentId}/declared-skills`    |
+| Projects           | `GET /admin/students/{studentId}/projects`           |
+| Academic records   | `GET /admin/students/{studentId}/academic-records`   |
+| Latest CV metadata | `GET /admin/students/{studentId}/latest-cv`          |
+| Latest CV PDF      | `GET /admin/students/{studentId}/latest-cv/download` |
 
 Actions:
 
@@ -421,13 +421,13 @@ Implement strict support for:
 
 Endpoints:
 
-| Action | Endpoint |
-|---|---|
-| List | `GET /admin/companies` |
-| Create | `POST /admin/companies` |
-| Detail | `GET /admin/companies/{companyId}` |
-| Update/reactivate | `PATCH /admin/companies/{companyId}` |
-| Soft deactivate | `DELETE /admin/companies/{companyId}` |
+| Action            | Endpoint                              |
+| ----------------- | ------------------------------------- |
+| List              | `GET /admin/companies`                |
+| Create            | `POST /admin/companies`               |
+| Detail            | `GET /admin/companies/{companyId}`    |
+| Update/reactivate | `PATCH /admin/companies/{companyId}`  |
+| Soft deactivate   | `DELETE /admin/companies/{companyId}` |
 
 URL state:
 
@@ -505,15 +505,15 @@ Models:
 
 Endpoints:
 
-| Action | Endpoint |
-|---|---|
-| List | `GET /admin/internship-requests` |
-| Create | `POST /admin/internship-requests` |
-| Detail | `GET /admin/internship-requests/{requestId}` |
-| Update | `PATCH /admin/internship-requests/{requestId}` |
-| Cancel | `DELETE /admin/internship-requests/{requestId}` |
-| List required skills | `GET /admin/internship-requests/{requestId}/required-skills` |
-| Add required skill | `POST /admin/internship-requests/{requestId}/required-skills` |
+| Action                | Endpoint                                                                          |
+| --------------------- | --------------------------------------------------------------------------------- |
+| List                  | `GET /admin/internship-requests`                                                  |
+| Create                | `POST /admin/internship-requests`                                                 |
+| Detail                | `GET /admin/internship-requests/{requestId}`                                      |
+| Update                | `PATCH /admin/internship-requests/{requestId}`                                    |
+| Cancel                | `DELETE /admin/internship-requests/{requestId}`                                   |
+| List required skills  | `GET /admin/internship-requests/{requestId}/required-skills`                      |
+| Add required skill    | `POST /admin/internship-requests/{requestId}/required-skills`                     |
 | Remove required skill | `DELETE /admin/internship-requests/{requestId}/required-skills/{requiredSkillId}` |
 
 Rules:
@@ -658,12 +658,12 @@ Coverage:
 
 ### 8.4 Sprint 7 delivery schedule
 
-| Day | Primary outcome | Required commits |
-|---|---|---|
-| Day 31 | OpenAPI v1.6.0 and shared foundations | API-01, API-02, SH-01, SH-02 |
-| Day 32 | Student Deep-Dive data and page | S7-STU-01 to S7-STU-04 |
-| Day 33 | Student tests and company management | S7-STU-05, S7-COMP-01, S7-COMP-02 |
-| Day 34 | Internship request data and forms | S7-REQ-01 to S7-REQ-03 |
+| Day    | Primary outcome                                    | Required commits                                       |
+| ------ | -------------------------------------------------- | ------------------------------------------------------ |
+| Day 31 | OpenAPI v1.6.0 and shared foundations              | API-01, API-02, SH-01, SH-02                           |
+| Day 32 | Student Deep-Dive data and page                    | S7-STU-01 to S7-STU-04                                 |
+| Day 33 | Student tests and company management               | S7-STU-05, S7-COMP-01, S7-COMP-02                      |
+| Day 34 | Internship request data and forms                  | S7-REQ-01 to S7-REQ-03                                 |
 | Day 35 | Combined page, route integration, full Sprint 7 QA | S7-REQ-04 to S7-REQ-06, SH-03 if not completed earlier |
 
 ### 8.5 Sprint 7 Definition of Done
@@ -718,10 +718,10 @@ Validation rules:
 
 Endpoints:
 
-| Action | Endpoint |
-|---|---|
-| Create filtering run | `POST /admin/candidate-filtering/runs` |
-| Read filtering run | `GET /admin/candidate-filtering/runs/{filterRunId}` |
+| Action                | Endpoint                                                       |
+| --------------------- | -------------------------------------------------------------- |
+| Create filtering run  | `POST /admin/candidate-filtering/runs`                         |
+| Read filtering run    | `GET /admin/candidate-filtering/runs/{filterRunId}`            |
 | Read paged candidates | `GET /admin/candidate-filtering/runs/{filterRunId}/candidates` |
 
 URL state:
@@ -902,14 +902,14 @@ Models:
 
 Endpoints:
 
-| Action | Endpoint |
-|---|---|
-| List shortlists | `GET /admin/shortlists` |
-| Create draft | `POST /admin/shortlists` |
-| Read detail/candidates | `GET /admin/shortlists/{shortlistId}` |
-| Batch add candidates | `POST /admin/shortlists/{shortlistId}/candidates` |
-| Remove candidate | `DELETE /admin/shortlists/{shortlistId}/candidates/{studentId}` |
-| Finalize | `POST /admin/shortlists/{shortlistId}/finalize` |
+| Action                 | Endpoint                                                        |
+| ---------------------- | --------------------------------------------------------------- |
+| List shortlists        | `GET /admin/shortlists`                                         |
+| Create draft           | `POST /admin/shortlists`                                        |
+| Read detail/candidates | `GET /admin/shortlists/{shortlistId}`                           |
+| Batch add candidates   | `POST /admin/shortlists/{shortlistId}/candidates`               |
+| Remove candidate       | `DELETE /admin/shortlists/{shortlistId}/candidates/{studentId}` |
+| Finalize               | `POST /admin/shortlists/{shortlistId}/finalize`                 |
 
 URL state:
 
@@ -1013,13 +1013,13 @@ Models:
 
 Endpoints:
 
-| Action | Endpoint |
-|---|---|
-| Start CSV summary | `POST /admin/exports/shortlists/{shortlistId}` |
-| Start bulk ZIP | `POST /admin/exports/shortlists/{shortlistId}/bulk-cvs` |
-| Read job | `GET /admin/exports/{exportJobId}` |
-| Download CSV | `GET /admin/exports/{exportJobId}/download` |
-| Download ZIP | `GET /admin/exports/{exportJobId}/bulk-cvs/download` |
+| Action            | Endpoint                                                |
+| ----------------- | ------------------------------------------------------- |
+| Start CSV summary | `POST /admin/exports/shortlists/{shortlistId}`          |
+| Start bulk ZIP    | `POST /admin/exports/shortlists/{shortlistId}/bulk-cvs` |
+| Read job          | `GET /admin/exports/{exportJobId}`                      |
+| Download CSV      | `GET /admin/exports/{exportJobId}/download`             |
+| Download ZIP      | `GET /admin/exports/{exportJobId}/bulk-cvs/download`    |
 
 Rules:
 
@@ -1238,13 +1238,13 @@ npm run e2e:cross-browser
 
 ### 9.6 Sprint 8 delivery schedule
 
-| Day | Primary outcome | Required commits |
-|---|---|---|
-| Day 36 | Filtering models, APIs, URL state, criteria panel | S8-FLT-01 to S8-FLT-03 |
-| Day 37 | Results, selection, draft handoff, route activation | S8-FLT-04 to S8-FLT-07 |
-| Day 38 | Shortlist list/detail and candidate mutations | S8-SL-01, S8-SL-02 |
-| Day 39 | Guidance, finalization, export jobs, downloads | S8-SL-03, S8-EXP-01 to S8-EXP-03, S8-ROUTE-01 |
-| Day 40 | MSW, unit/integration/E2E, accessibility, full gates | S8-QA-01 to S8-QA-05 |
+| Day    | Primary outcome                                      | Required commits                              |
+| ------ | ---------------------------------------------------- | --------------------------------------------- |
+| Day 36 | Filtering models, APIs, URL state, criteria panel    | S8-FLT-01 to S8-FLT-03                        |
+| Day 37 | Results, selection, draft handoff, route activation  | S8-FLT-04 to S8-FLT-07                        |
+| Day 38 | Shortlist list/detail and candidate mutations        | S8-SL-01, S8-SL-02                            |
+| Day 39 | Guidance, finalization, export jobs, downloads       | S8-SL-03, S8-EXP-01 to S8-EXP-03, S8-ROUTE-01 |
+| Day 40 | MSW, unit/integration/E2E, accessibility, full gates | S8-QA-01 to S8-QA-05                          |
 
 ### 9.7 Sprint 8 Definition of Done
 
@@ -1315,21 +1315,21 @@ Invalidation rules:
 
 ## 11. Error and conflict UX plan
 
-| Status/condition | Frontend behavior |
-|---|---|
-| `400` | Show safe request/form error; preserve user input |
-| `401` | Use existing session-expiry flow and redirect to Admin login |
-| `403` | Render unauthorized state without protected data |
-| `404` | Show resource-specific not-found or unavailable state |
-| `409` | Show lifecycle, duplicate, linked-resource, one-shortlist, finalized, or export-state conflict based on validated Problem Details |
-| `412` | Show stale-version notice, refetch latest entity, require user to review before resubmitting |
-| `415` | Show unsupported content/format error; this should be impossible from valid UI |
-| `422` | Map field errors to form controls and form-level summary |
-| `428` | Show missing-precondition failure and log as a frontend integration defect |
-| `429` | Show rate-limit message and respect server retry guidance where available |
-| `500`/`503` | Safe retryable error state with correlation ID when available |
-| Zod parse failure | Non-retryable contract mismatch with safe UI message and diagnostic logging |
-| Wrong/empty file | Do not download; show invalid download response error |
+| Status/condition  | Frontend behavior                                                                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `400`             | Show safe request/form error; preserve user input                                                                                 |
+| `401`             | Use existing session-expiry flow and redirect to Admin login                                                                      |
+| `403`             | Render unauthorized state without protected data                                                                                  |
+| `404`             | Show resource-specific not-found or unavailable state                                                                             |
+| `409`             | Show lifecycle, duplicate, linked-resource, one-shortlist, finalized, or export-state conflict based on validated Problem Details |
+| `412`             | Show stale-version notice, refetch latest entity, require user to review before resubmitting                                      |
+| `415`             | Show unsupported content/format error; this should be impossible from valid UI                                                    |
+| `422`             | Map field errors to form controls and form-level summary                                                                          |
+| `428`             | Show missing-precondition failure and log as a frontend integration defect                                                        |
+| `429`             | Show rate-limit message and respect server retry guidance where available                                                         |
+| `500`/`503`       | Safe retryable error state with correlation ID when available                                                                     |
+| Zod parse failure | Non-retryable contract mismatch with safe UI message and diagnostic logging                                                       |
+| Wrong/empty file  | Do not download; show invalid download response error                                                                             |
 
 No raw stack trace, internal storage path, token, or unvalidated server message may be displayed.
 

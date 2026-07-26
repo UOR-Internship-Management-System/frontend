@@ -202,10 +202,7 @@ export const internshipRequestFormValuesSchema = z
     shortlistGuidanceValue: z
       .string()
       .trim()
-      .refine(
-        (value) => !value || /^\d+$/.test(value),
-        'Enter a whole number from 0 to 10000.',
-      )
+      .refine((value) => !value || /^\d+$/.test(value), 'Enter a whole number from 0 to 10000.')
       .refine(
         (value) => !value || (Number(value) >= 0 && Number(value) <= 10000),
         'Enter a whole number from 0 to 10000.',

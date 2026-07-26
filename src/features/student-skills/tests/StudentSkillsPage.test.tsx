@@ -46,9 +46,7 @@ describe('StudentSkillsPage', () => {
 
     const reactRow = view.getByRole('row', { name: /React/ })
     await user.selectOptions(within(reactRow).getByLabelText('Competency for React'), 'ADVANCED')
-    await user.click(
-      within(reactRow).getByRole('button', { name: 'Update competency for React' }),
-    )
+    await user.click(within(reactRow).getByRole('button', { name: 'Update competency for React' }))
     expect(await view.findByText('Competency updated')).toBeInTheDocument()
 
     await user.click(within(reactRow).getByRole('button', { name: 'Remove React' }))
@@ -69,7 +67,9 @@ describe('StudentSkillsPage', () => {
     for (const column of ['Core Cluster', 'Skill Category', 'Skill', 'Competency', 'Action']) {
       expect(within(table).getByRole('columnheader', { name: column })).toBeVisible()
     }
-    expect(within(table).queryByRole('columnheader', { name: 'Last updated' })).not.toBeInTheDocument()
+    expect(
+      within(table).queryByRole('columnheader', { name: 'Last updated' }),
+    ).not.toBeInTheDocument()
 
     await user.selectOptions(
       view.getByLabelText('Add Skill Core Cluster'),
@@ -123,7 +123,9 @@ describe('StudentSkillsPage', () => {
     const availableSkills = await view.findByRole('region', { name: 'Available System Skills' })
     for (const skill of individualSkillsFixture) {
       expect(
-        await within(availableSkills).findByRole('button', { name: new RegExp(`^${skill.name}\\.`) }),
+        await within(availableSkills).findByRole('button', {
+          name: new RegExp(`^${skill.name}\\.`),
+        }),
       ).toBeDisabled()
     }
     expect(await within(availableSkills).findByText('1–6 of 6', { exact: false })).toBeVisible()
@@ -174,9 +176,7 @@ describe('StudentSkillsPage', () => {
     const reactRow = await view.findByRole('row', { name: /React/ }, { timeout: 5_000 })
     const competency = within(reactRow).getByLabelText('Competency for React')
     await user.selectOptions(competency, 'ADVANCED')
-    await user.click(
-      within(reactRow).getByRole('button', { name: 'Update competency for React' }),
-    )
+    await user.click(within(reactRow).getByRole('button', { name: 'Update competency for React' }))
 
     expect(await view.findByText('Review the latest record')).toBeInTheDocument()
     expect(competency).toHaveValue('ADVANCED')
@@ -190,7 +190,10 @@ describe('StudentSkillsPage', () => {
     const view = renderWithProviders(<StudentSkillsPage />)
     await view.findByRole('row', { name: /React/ })
 
-    await user.type(await view.findByRole('searchbox', { name: 'Search declared skills' }), 'missing')
+    await user.type(
+      await view.findByRole('searchbox', { name: 'Search declared skills' }),
+      'missing',
+    )
     expect(await view.findByText('No matching declared skills')).toBeInTheDocument()
     expect(view.getByRole('button', { name: /React/ })).toBeDisabled()
   })

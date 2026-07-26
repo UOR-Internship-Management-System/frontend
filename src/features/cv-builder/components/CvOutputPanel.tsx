@@ -76,7 +76,9 @@ export function CvOutputPanel({
             {savedCvUnavailable ? 'cloud_off' : 'draft'}
           </span>
           <div>
-            <strong>{savedCvUnavailable ? 'Saved CV details unavailable' : 'No saved CV yet'}</strong>
+            <strong>
+              {savedCvUnavailable ? 'Saved CV details unavailable' : 'No saved CV yet'}
+            </strong>
             <span>
               {savedCvUnavailable
                 ? 'Retry the saved CV request before replacing the current version.'

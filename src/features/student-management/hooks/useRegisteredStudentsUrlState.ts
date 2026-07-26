@@ -26,9 +26,7 @@ export function parseRegisteredStudentsQuery(parameters: URLSearchParams): Regis
 
   return {
     page: readNonnegativeInteger(parameters.get('page'), 0),
-    size: allowedSizes.includes(rawSize as 5 | 20 | 50 | 100)
-      ? (rawSize as 5 | 20 | 50 | 100)
-      : 5,
+    size: allowedSizes.includes(rawSize as 5 | 20 | 50 | 100) ? (rawSize as 5 | 20 | 50 | 100) : 5,
     sort: registeredStudentSorts.includes(rawSort as RegisteredStudentsQuery['sort'])
       ? (rawSort as RegisteredStudentsQuery['sort'])
       : 'fullName,asc',

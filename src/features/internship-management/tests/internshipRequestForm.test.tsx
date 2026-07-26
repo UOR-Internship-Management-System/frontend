@@ -80,7 +80,9 @@ describe('InternshipRequestForm wireframe contract', () => {
     await user.click(within(dialog).getByRole('button', { name: 'Create Request' }))
     expect(await within(dialog).findByText('Role title is required.')).toBeInTheDocument()
     expect(within(dialog).queryByText(/guidance value is required/i)).not.toBeInTheDocument()
-    expect(within(dialog).queryByText(/select at least one required skill/i)).not.toBeInTheDocument()
+    expect(
+      within(dialog).queryByText(/select at least one required skill/i),
+    ).not.toBeInTheDocument()
     expect(within(dialog).queryByText(/GPA/i)).not.toBeInTheDocument()
 
     await user.type(within(dialog).getByLabelText('Internship Role Title'), 'General Intern')

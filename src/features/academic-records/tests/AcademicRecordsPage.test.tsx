@@ -116,7 +116,9 @@ describe('AcademicRecordsPage', () => {
     expect(view.queryByRole('button', { name: /edit|add|delete|save/i })).not.toBeInTheDocument()
     expect(view.queryByRole('combobox', { name: /sort academic records/i })).not.toBeInTheDocument()
     expect(view.queryByText(/Estimated GPA/i)).not.toBeInTheDocument()
-    expect(view.queryByRole('columnheader', { name: /academic period|attempt|result|committed/i })).not.toBeInTheDocument()
+    expect(
+      view.queryByRole('columnheader', { name: /academic period|attempt|result|committed/i }),
+    ).not.toBeInTheDocument()
     expect(view.queryByRole('columnheader', { name: /actions/i })).not.toBeInTheDocument()
   })
 })

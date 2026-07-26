@@ -206,12 +206,7 @@ export function CvBuilderPage() {
   }
 
   const savePreview = () => {
-    if (
-      !preview ||
-      configurationDirty ||
-      previewExpired ||
-      savedPreviewId === preview.previewId
-    ) {
+    if (!preview || configurationDirty || previewExpired || savedPreviewId === preview.previewId) {
       return
     }
     if (Date.parse(preview.expiresAt) <= Date.now()) {

@@ -13,19 +13,16 @@ function createQueryClient() {
 }
 
 describe('Student Profile source-data invalidation', () => {
-  it(
-    'invalidates the core Profile and CV freshness queries after a core or photo mutation',
-    async () => {
-      const queryClient = createQueryClient()
-      queryClient.setQueryData(studentProfileKeys.core(), { version: 1 })
-      queryClient.setQueryData(cvBuilderKeys.freshness(), { stale: false })
+  it('invalidates the core Profile and CV freshness queries after a core or photo mutation', async () => {
+    const queryClient = createQueryClient()
+    queryClient.setQueryData(studentProfileKeys.core(), { version: 1 })
+    queryClient.setQueryData(cvBuilderKeys.freshness(), { stale: false })
 
-      await invalidateProfileSourceQueries(queryClient)
+    await invalidateProfileSourceQueries(queryClient)
 
-      expect(queryClient.getQueryState(studentProfileKeys.core())?.isInvalidated).toBe(true)
-      expect(queryClient.getQueryState(cvBuilderKeys.freshness())?.isInvalidated).toBe(true)
-    },
-  )
+    expect(queryClient.getQueryState(studentProfileKeys.core())?.isInvalidated).toBe(true)
+    expect(queryClient.getQueryState(cvBuilderKeys.freshness())?.isInvalidated).toBe(true)
+  })
 
   it('also invalidates every active page of the changed repeating Profile section', async () => {
     const queryClient = createQueryClient()

@@ -19,7 +19,11 @@ import { CvBuilderPage } from '../pages/CvBuilderPage'
 
 describe('CvBuilderPage', () => {
   it('renders the LaTeX CV Builder first-time state without source exposure or history UI', async () => {
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     expect(await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })).toBeVisible()
     expect(view.getByRole('button', { name: 'Generate Preview' })).toBeEnabled()
     expect(view.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
@@ -33,7 +37,11 @@ describe('CvBuilderPage', () => {
   })
 
   it('shows item-level checkboxes in five fixed groups without master toggles', async () => {
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     const experience = await view.findByRole('group', { name: 'Work Experience' })
     expect(
       within(experience).getByRole('checkbox', { name: /Software Engineering Intern/ }),
@@ -54,7 +62,11 @@ describe('CvBuilderPage', () => {
         ),
       ),
     )
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     expect(
       await view.findByRole('heading', { name: 'Work Experience unavailable' }, { timeout: 5_000 }),
     ).toBeVisible()
@@ -64,19 +76,31 @@ describe('CvBuilderPage', () => {
   it('renders current and outdated freshness states', async () => {
     setCvFixture(savedCv)
     setCvFreshnessFixture(currentFreshness)
-    const current = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const current = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     expect(await current.findByRole('heading', { name: 'Your saved CV is current' })).toBeVisible()
     expect(await current.findByText('student-cv.pdf')).toBeVisible()
     expect(current.getByText('180.0 KB')).toBeVisible()
     current.unmount()
     setCvFreshnessFixture(outdatedProfileFreshness)
-    const outdated = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const outdated = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     expect(await outdated.findByText(/Profile and CV details/)).toBeVisible()
   })
 
   it('generates, dirties, updates, and saves only the confirmed preview', async () => {
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     expect(await view.findByTitle('Generated CV visual preview')).toBeVisible()
@@ -93,7 +117,9 @@ describe('CvBuilderPage', () => {
     expect(await view.findByText('CV saved')).toBeVisible()
     expect(view.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
     expect(view.getByRole('button', { name: 'Download Current CV PDF' })).toBeEnabled()
-    expect(view.getByText('The displayed preview is saved as the current CV version.')).toBeVisible()
+    expect(
+      view.getByText('The displayed preview is saved as the current CV version.'),
+    ).toBeVisible()
   })
 
   it('keeps a completed preview stale when selections change during generation', async () => {
@@ -119,7 +145,11 @@ describe('CvBuilderPage', () => {
       }),
     )
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
 
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
@@ -132,7 +162,11 @@ describe('CvBuilderPage', () => {
 
   it('retains configuration and requires regeneration after expiry', async () => {
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     await view.findByTitle('Generated CV visual preview')
@@ -149,7 +183,11 @@ describe('CvBuilderPage', () => {
   ])('shows a safe retryable %s preview error', async (failure, message) => {
     setCvPreviewFailure(failure)
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     expect(await view.findByRole('heading', { name: 'Preview generation failed' })).toBeVisible()
@@ -164,7 +202,11 @@ describe('CvBuilderPage', () => {
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() })
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await user.click(await view.findByRole('button', { name: 'Download Current CV PDF' }))
     expect(await view.findByText('PDF download started')).toBeVisible()
     expect(createObjectURL).toHaveBeenCalledOnce()
@@ -175,7 +217,11 @@ describe('CvBuilderPage', () => {
     setCvFreshnessFixture(currentFreshness)
     setCvDownloadFailure('unavailable')
     const user = userEvent.setup()
-    const view = renderWithProviders(<MemoryRouter><CvBuilderPage /></MemoryRouter>)
+    const view = renderWithProviders(
+      <MemoryRouter>
+        <CvBuilderPage />
+      </MemoryRouter>,
+    )
     await user.click(await view.findByRole('button', { name: 'Download Current CV PDF' }))
     expect(await view.findByText('PDF download failed')).toBeVisible()
   })

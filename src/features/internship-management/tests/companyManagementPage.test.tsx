@@ -60,7 +60,9 @@ describe('InternshipManagementPage production behavior', () => {
     renderPage(companyList)
 
     expect(await screen.findByText('Acme Lanka')).toBeInTheDocument()
-    expect(screen.getByText('https://acme.example · HR representative: Nimali Perera')).toBeInTheDocument()
+    expect(
+      screen.getByText('https://acme.example · HR representative: Nimali Perera'),
+    ).toBeInTheDocument()
     expect(companyList).toHaveBeenCalledWith(
       expect.stringContaining('page=0&size=3&sort=name%2Casc&active=true'),
     )
@@ -130,9 +132,10 @@ describe('InternshipManagementPage production behavior', () => {
     expect(screen.queryByRole('button', { name: /Reactivate|Deactivate/ })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Delete Company' }))
     const dialog = await screen.findByRole('dialog', { name: 'Delete Company' })
-    expect(within(dialog).getByText(/internship requests will also be deleted/i)).toBeInTheDocument()
+    expect(
+      within(dialog).getByText(/internship requests will also be deleted/i),
+    ).toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'Delete Company' }))
     await waitFor(() => expect(remove).toHaveBeenCalledWith('"4"'))
   })
-
 })

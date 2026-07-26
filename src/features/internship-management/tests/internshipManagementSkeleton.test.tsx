@@ -43,16 +43,14 @@ describe('internship management skeleton geometry', () => {
   })
 
   it('renders pagination only when the caller knows pagination will be present', () => {
-    const { rerender } = render(
-      <InternshipManagementListSkeleton rows={3} variant="companies" />,
-    )
+    const { rerender } = render(<InternshipManagementListSkeleton rows={3} variant="companies" />)
     expect(document.querySelector('.internship-pagination-skeleton')).not.toBeInTheDocument()
 
-    rerender(
-      <InternshipManagementListSkeleton rows={3} showPagination variant="companies" />,
-    )
+    rerender(<InternshipManagementListSkeleton rows={3} showPagination variant="companies" />)
     expect(document.querySelector('.internship-pagination-summary-skeleton')).toBeInTheDocument()
-    expect(document.querySelectorAll('.internship-pagination-actions-skeleton .skeleton-empty')).toHaveLength(2)
+    expect(
+      document.querySelectorAll('.internship-pagination-actions-skeleton .skeleton-empty'),
+    ).toHaveLength(2)
   })
 
   it('uses the same details-grid field counts as each loaded modal', () => {

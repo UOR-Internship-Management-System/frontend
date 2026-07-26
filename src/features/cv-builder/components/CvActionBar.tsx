@@ -48,9 +48,7 @@ export function CvActionBar({
         {generateLabel}
       </Button>
       <Button
-        disabled={
-          !hasPreview || configurationDirty || expired || previewPending || previewSaved
-        }
+        disabled={!hasPreview || configurationDirty || expired || previewPending || previewSaved}
         icon={
           <span aria-hidden="true" className="material-symbols-outlined">
             save

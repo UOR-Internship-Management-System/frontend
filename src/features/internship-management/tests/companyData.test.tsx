@@ -56,12 +56,10 @@ describe('Company metadata data layer', () => {
       selectedCompanyId: selected,
     })
     expect(serializeCompaniesUrlState(parsed).toString()).toContain('companyActive=false')
-    expect(
-      parseCompaniesUrlState(new URLSearchParams('companyActive=all')).active,
-    ).toBeUndefined()
-    expect(
-      serializeCompaniesUrlState({ ...parsed, active: undefined }).toString(),
-    ).toContain('companyActive=all')
+    expect(parseCompaniesUrlState(new URLSearchParams('companyActive=all')).active).toBeUndefined()
+    expect(serializeCompaniesUrlState({ ...parsed, active: undefined }).toString()).toContain(
+      'companyActive=all',
+    )
     expect(parseCompaniesUrlState(new URLSearchParams('companySize=7&companyId=bad'))).toEqual(
       expect.objectContaining({ size: 3, selectedCompanyId: undefined }),
     )

@@ -678,9 +678,7 @@
   .internship-request-form .modal-actions {
     bottom: calc(var(--space-4) * -1);
     flex-direction: column-reverse;
-    margin:
-      0 calc(var(--space-4) * -1)
-      calc(var(--space-4) * -1);
+    margin: 0 calc(var(--space-4) * -1) calc(var(--space-4) * -1);
     padding: var(--space-4);
   }
 

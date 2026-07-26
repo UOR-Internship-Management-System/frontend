@@ -30,7 +30,11 @@ export function AdminDashboardPage() {
 
     return (
       <main className="content-stack admin-dashboard-page">
-        <PageHeader description={pageDescription} eyebrow="Administration" title="Admin Dashboard" />
+        <PageHeader
+          description={pageDescription}
+          eyebrow="Administration"
+          title="Admin Dashboard"
+        />
         <ErrorState
           correlationId={error.correlationId}
           message={

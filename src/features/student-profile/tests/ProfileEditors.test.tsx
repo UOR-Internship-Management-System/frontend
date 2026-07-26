@@ -18,26 +18,14 @@ describe('Student Profile editor content', () => {
   afterEach(cleanup)
 
   it('uses the approved wireframe labels while retaining contract-backed fields', () => {
-    render(
-      <ContactLinkEditor
-        isPending={false}
-        onCancel={cancel}
-        onSubmit={submitLink}
-      />,
-    )
+    render(<ContactLinkEditor isPending={false} onCancel={cancel} onSubmit={submitLink} />)
     expect(screen.getByLabelText('Link Label')).toBeInTheDocument()
     expect(
       screen.getByRole('checkbox', { name: 'Include this Professional Link in the CV' }),
     ).toBeInTheDocument()
 
     cleanup()
-    render(
-      <CertificateEditor
-        isPending={false}
-        onCancel={cancel}
-        onSubmit={submitCertificate}
-      />,
-    )
+    render(<CertificateEditor isPending={false} onCancel={cancel} onSubmit={submitCertificate} />)
     expect(screen.getByLabelText('Certification Name')).toBeInTheDocument()
     expect(screen.getByLabelText('Issuing Authority')).toBeInTheDocument()
     expect(screen.getByLabelText('Date Issued')).toHaveAttribute('type', 'date')

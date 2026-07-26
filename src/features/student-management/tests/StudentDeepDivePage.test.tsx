@@ -56,7 +56,9 @@ describe('StudentDeepDivePage', () => {
       routePaths.adminStudents,
     )
 
-    const academicSection = screen.getByRole('heading', { name: 'Academic Results' }).closest('section')
+    const academicSection = screen
+      .getByRole('heading', { name: 'Academic Results' })
+      .closest('section')
     expect(academicSection).not.toBeNull()
     const academicTable = within(academicSection as HTMLElement)
     for (const column of [

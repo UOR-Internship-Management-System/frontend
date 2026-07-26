@@ -5,16 +5,11 @@ import { CandidateSelectionPanel } from '../components/CandidateSelectionPanel'
 import { useCandidateFilteringUrlState } from '../hooks/useCandidateFilteringUrlState'
 import { useCandidateSelection } from '../hooks/useCandidateSelection'
 
-const pageTitle =
-  'Interactive Candidate Filtering Dashboard | Ruhuna CS CV Management System'
+const pageTitle = 'Interactive Candidate Filtering Dashboard | Ruhuna CS CV Management System'
 
 export function CandidateFilteringPage() {
-  const {
-    candidateSearchInput,
-    setCandidateSearchInput,
-    state,
-    updateState,
-  } = useCandidateFilteringUrlState()
+  const { candidateSearchInput, setCandidateSearchInput, state, updateState } =
+    useCandidateFilteringUrlState()
   const selection = useCandidateSelection(state.runId)
 
   useEffect(() => {

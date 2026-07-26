@@ -130,9 +130,9 @@ describe('CV Builder transport validation', () => {
         { ...configuration, includedProjectIds: [secondProjectId, projectId] },
       ),
     ).toBe(true)
-    expect(
-      haveSameCvSelections(configuration, { ...configuration, includedAwardIds: [] }),
-    ).toBe(false)
+    expect(haveSameCvSelections(configuration, { ...configuration, includedAwardIds: [] })).toBe(
+      false,
+    )
     expect(cvBuilderKeys.current()).toEqual(['protected', 'cv-builder', 'current'])
   })
 

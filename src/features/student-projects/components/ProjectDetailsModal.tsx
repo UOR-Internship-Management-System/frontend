@@ -42,8 +42,7 @@ export function ProjectDetailsModal({
           <div>
             <dt>End Date</dt>
             <dd>
-              {formatDate(project.endDate) ??
-                (project.startDate ? 'Present' : 'Not provided')}
+              {formatDate(project.endDate) ?? (project.startDate ? 'Present' : 'Not provided')}
             </dd>
           </div>
           <div className="s4-projects-details-wide">

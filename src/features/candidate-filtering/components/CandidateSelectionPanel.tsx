@@ -89,7 +89,6 @@ export function CandidateSelectionPanel({
           }
         })
     }, 250)
-
   }, [
     createRun,
     selectedRequest.data,

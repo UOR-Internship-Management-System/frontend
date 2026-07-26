@@ -86,7 +86,9 @@ export function useDeleteInternshipRequest() {
     mutationFn: (input: InternshipRequestDeleteInput) =>
       internshipManagementApi.deleteInternshipRequest(input),
     onSuccess: (_result, input) => {
-      queryClient.removeQueries({ queryKey: internshipManagementKeys.requestDetail(input.requestId) })
+      queryClient.removeQueries({
+        queryKey: internshipManagementKeys.requestDetail(input.requestId),
+      })
       return queryClient.invalidateQueries({ queryKey: internshipManagementKeys.requests() })
     },
   })
@@ -96,6 +98,7 @@ export function getInternshipRequestMutationErrorMessage(error: unknown) {
   const mapped = mapApiError(error, 'protected')
   if (mapped.status === 412) return 'This request changed. Reload the latest version and try again.'
   if (mapped.status === 428) return 'Reload this request before deleting it.'
-  if (mapped.status === 409) return 'This internship request cannot be deleted in its current state.'
+  if (mapped.status === 409)
+    return 'This internship request cannot be deleted in its current state.'
   return mapped.message
 }

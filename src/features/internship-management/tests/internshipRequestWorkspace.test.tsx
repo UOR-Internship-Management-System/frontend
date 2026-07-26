@@ -78,7 +78,9 @@ describe('InternshipRequestWorkspace wireframe behavior', () => {
     expect(list).toHaveBeenCalledWith(
       expect.stringContaining(`page=0&size=4&sort=createdAt%2Cdesc&companyId=${company.companyId}`),
     )
-    expect(screen.getByText('Shortlist guidance: 12 candidates · Advisory only')).toBeInTheDocument()
+    expect(
+      screen.getByText('Shortlist guidance: 12 candidates · Advisory only'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Required skills: TypeScript')).toBeInTheDocument()
     expect(screen.queryByText(/GPA/i)).not.toBeInTheDocument()
 
@@ -102,7 +104,9 @@ describe('InternshipRequestWorkspace wireframe behavior', () => {
     )
     renderWorkspace()
     await screen.findByText('Software Engineering Intern')
-    expect(screen.queryByRole('button', { name: 'Active Internship Request' })).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Active Internship Request' }),
+    ).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Delete Internship Request' }))
     const dialog = await screen.findByRole('dialog', { name: 'Delete Internship Request' })
     expect(within(dialog).getByText(/cannot be undone/i)).toBeInTheDocument()

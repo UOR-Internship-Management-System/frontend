@@ -13,8 +13,31 @@ const requestId = '11111111-1111-4111-8111-111111111111'
 const companyId = '22222222-2222-4222-8222-222222222222'
 const runId = '33333333-3333-4333-8333-333333333333'
 const now = '2026-07-20T09:30:00Z'
-const company = { companyId, name: 'Example Technologies', websiteUrl: null, contactPerson: null, contactEmail: null, contactPhone: null, notes: null, active: true, version: 1, createdAt: now, updatedAt: now }
-const internshipRequest = { requestId, company, title: 'Software Engineering Intern', description: null, status: 'ACTIVE', shortlistGuidanceValue: 10, requiredSkills: [], version: 2, createdAt: now, updatedAt: now }
+const company = {
+  companyId,
+  name: 'Example Technologies',
+  websiteUrl: null,
+  contactPerson: null,
+  contactEmail: null,
+  contactPhone: null,
+  notes: null,
+  active: true,
+  version: 1,
+  createdAt: now,
+  updatedAt: now,
+}
+const internshipRequest = {
+  requestId,
+  company,
+  title: 'Software Engineering Intern',
+  description: null,
+  status: 'ACTIVE',
+  shortlistGuidanceValue: 10,
+  requiredSkills: [],
+  version: 2,
+  createdAt: now,
+  updatedAt: now,
+}
 
 function Harness() {
   const { state, updateState } = useCandidateFilteringUrlState()
@@ -23,24 +46,70 @@ function Harness() {
 
 function renderPanel(onRun: ReturnType<typeof vi.fn>) {
   server.use(
-    http.get('/api/v1/admin/companies', () => HttpResponse.json({ items: [company], page: { page: 0, size: 100, totalElements: 1, totalPages: 1, sort: 'name,asc' } })),
-    http.get('/api/v1/admin/internship-requests', () => HttpResponse.json({ items: [internshipRequest], page: { page: 0, size: 100, totalElements: 1, totalPages: 1, sort: 'companyName,asc' } })),
-    http.get('/api/v1/admin/internship-requests/:requestId', () => HttpResponse.json(internshipRequest)),
+    http.get('/api/v1/admin/companies', () =>
+      HttpResponse.json({
+        items: [company],
+        page: { page: 0, size: 100, totalElements: 1, totalPages: 1, sort: 'name,asc' },
+      }),
+    ),
+    http.get('/api/v1/admin/internship-requests', () =>
+      HttpResponse.json({
+        items: [internshipRequest],
+        page: { page: 0, size: 100, totalElements: 1, totalPages: 1, sort: 'companyName,asc' },
+      }),
+    ),
+    http.get('/api/v1/admin/internship-requests/:requestId', () =>
+      HttpResponse.json(internshipRequest),
+    ),
     http.get('/api/v1/skill-taxonomy', () => HttpResponse.json({ clusters: [] })),
     http.post('/api/v1/admin/candidate-filtering/runs', async ({ request }) => {
-      const body = await request.json() as Record<string, unknown>
+      const body = (await request.json()) as Record<string, unknown>
       onRun(body)
-      return HttpResponse.json({ filterRunId: runId, request: { requestId, companyId, companyName: company.name, title: internshipRequest.title, status: 'ACTIVE', shortlistGuidanceValue: 10 }, criteria: { ...body, runtimeGpaLowerBound: body.runtimeGpaLowerBound ?? null, runtimeGpaUpperBound: body.runtimeGpaUpperBound ?? null, requestSkillIds: [], additionalSkillIds: [] }, candidateCount: 1, createdAt: now }, { status: 201 })
+      return HttpResponse.json(
+        {
+          filterRunId: runId,
+          request: {
+            requestId,
+            companyId,
+            companyName: company.name,
+            title: internshipRequest.title,
+            status: 'ACTIVE',
+            shortlistGuidanceValue: 10,
+          },
+          criteria: {
+            ...body,
+            runtimeGpaLowerBound: body.runtimeGpaLowerBound ?? null,
+            runtimeGpaUpperBound: body.runtimeGpaUpperBound ?? null,
+            requestSkillIds: [],
+            additionalSkillIds: [],
+          },
+          candidateCount: 1,
+          createdAt: now,
+        },
+        { status: 201 },
+      )
     }),
   )
-  return render(<QueryClientProvider client={createQueryClient()}><MemoryRouter><Harness /></MemoryRouter></QueryClientProvider>)
+  return render(
+    <QueryClientProvider client={createQueryClient()}>
+      <MemoryRouter>
+        <Harness />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  )
 }
 
 async function selectRequest(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: /Select internship request/i }))
   const dialog = await screen.findByRole('dialog', { name: 'Select an internship request' })
-  await user.selectOptions(within(dialog).getByLabelText('Select company for candidate filtering'), companyId)
-  await user.selectOptions(within(dialog).getByLabelText('Select internship request for candidate filtering'), requestId)
+  await user.selectOptions(
+    within(dialog).getByLabelText('Select company for candidate filtering'),
+    companyId,
+  )
+  await user.selectOptions(
+    within(dialog).getByLabelText('Select internship request for candidate filtering'),
+    requestId,
+  )
   await user.click(within(dialog).getByRole('button', { name: 'Select request' }))
 }
 
@@ -53,7 +122,13 @@ describe('CandidateSelectionPanel wireframe behavior', () => {
     await waitFor(() => expect(onRun).toHaveBeenCalled(), { timeout: 3000 })
     await user.clear(screen.getByLabelText('Min Bound'))
     await user.type(screen.getByLabelText('Min Bound'), '2.75')
-    await waitFor(() => expect(onRun).toHaveBeenLastCalledWith(expect.objectContaining({ runtimeGpaLowerBound: 2.75, skillMatchMode: 'OR' })), { timeout: 3000 })
+    await waitFor(
+      () =>
+        expect(onRun).toHaveBeenLastCalledWith(
+          expect.objectContaining({ runtimeGpaLowerBound: 2.75, skillMatchMode: 'OR' }),
+        ),
+      { timeout: 3000 },
+    )
     expect(screen.queryByRole('button', { name: 'Run filtering' })).not.toBeInTheDocument()
   })
 
@@ -75,9 +150,7 @@ describe('CandidateSelectionPanel wireframe behavior', () => {
     expect(matchModeSwitch).toHaveAttribute('aria-checked', 'true')
     await waitFor(
       () =>
-        expect(onRun).toHaveBeenLastCalledWith(
-          expect.objectContaining({ skillMatchMode: 'AND' }),
-        ),
+        expect(onRun).toHaveBeenLastCalledWith(expect.objectContaining({ skillMatchMode: 'AND' })),
       { timeout: 3000 },
     )
   })

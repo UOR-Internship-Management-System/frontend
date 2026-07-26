@@ -200,10 +200,7 @@ export function InternshipManagementPage() {
           isLoading={companies.isPending}
           label="Loading registered companies"
           skeleton={
-            <InternshipManagementListSkeleton
-              rows={Math.min(state.size, 5)}
-              variant="companies"
-            />
+            <InternshipManagementListSkeleton rows={Math.min(state.size, 5)} variant="companies" />
           }
         >
           {companies.error ? (
