@@ -246,7 +246,7 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   await mockCvApi(page)
   await page.goto('/student/cv-builder', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'CV Builder' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'LaTeX CV Builder' })).toBeVisible()
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)
@@ -257,17 +257,21 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   ).toHaveAttribute('href', '/student/profile')
   await page.getByRole('button', { name: 'Generate Preview' }).click()
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save CV' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
 
   await page.getByRole('checkbox', { name: /AWS Cloud Foundations/ }).click()
   await expect(page.getByText(/controls changed after this preview/i)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Save CV' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
   await page.getByRole('button', { name: 'Update Preview' }).click()
-  await expect(page.getByRole('button', { name: 'Save CV' })).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
 
-  await page.getByRole('button', { name: 'Save CV' }).click()
-  await expect(page.getByRole('button', { name: 'Update Saved CV' })).toBeVisible()
-  await page.getByRole('button', { name: 'Download Saved PDF' }).click()
+  await page.getByRole('button', { name: 'Save Current CV Version' }).click()
+  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
+  await page
+    .locator('.toast', { hasText: 'CV saved' })
+    .getByRole('button', { name: 'Dismiss' })
+    .click()
+  await page.getByRole('button', { name: 'Download Current CV PDF' }).click()
   await expect(page.getByText('PDF download started')).toBeVisible()
   await expect(page.getByText(/Admin Review/i)).toHaveCount(0)
 })
@@ -279,10 +283,10 @@ test('an expired preview preserves configuration and requires regeneration', asy
 
   await page.getByRole('button', { name: 'Generate Preview' }).click()
   await expect(page.getByTitle('Generated CV visual preview')).toBeVisible()
-  await page.getByRole('button', { name: 'Save CV' }).click()
+  await page.getByRole('button', { name: 'Save Current CV Version' }).click()
 
   await expect(page.getByText('This preview has expired.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Regenerate Preview' })).toBeEnabled()
   await expect(page.getByRole('checkbox', { name: /Accessible Portfolio/ })).toBeChecked()
-  await expect(page.getByRole('button', { name: 'Save CV' })).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
 })

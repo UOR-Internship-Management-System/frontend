@@ -57,6 +57,13 @@ async function mockProtectedStudentScope(page: Page) {
       body: JSON.stringify(emptyPage(route.request().url(), 'name,asc')),
     }),
   )
+  await page.route(/\/api\/v1\/skill-taxonomy$/, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ clusters: [] }),
+    }),
+  )
   await page.route('**/api/v1/me/declared-skills**', (route) =>
     route.fulfill({
       status: 200,
@@ -70,6 +77,15 @@ async function mockProtectedStudentScope(page: Page) {
       contentType: 'application/json',
       body: JSON.stringify(emptyPage(route.request().url(), 'updatedAt,desc')),
     }),
+  )
+  await page.route(
+    /\/api\/v1\/me\/profile\/(experience|certificates|awards|activities)(\?.*)?$/,
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(emptyPage(route.request().url(), 'updatedAt,desc')),
+      }),
   )
   await page.route('**/api/v1/me/cv/source-freshness', (route) =>
     route.fulfill({
@@ -133,14 +149,14 @@ test('Sprint 4 Student pages omit removed terminology and unsupported project fi
   await mockProtectedStudentScope(page)
 
   await page.goto('/student/skills', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { level: 1, name: 'Declared Skills' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Skills' })).toBeVisible()
   await expectNoForbiddenVisibleText(page)
 
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
   await page.getByRole('button', { name: 'Add project' }).first().click()
 
-  const dialog = page.getByRole('dialog', { name: 'Add project' })
+  const dialog = page.getByRole('dialog', { name: 'Create New Project' })
   await expect(dialog).toBeVisible()
   await expectNoForbiddenVisibleText(page)
 

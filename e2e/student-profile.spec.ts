@@ -105,8 +105,8 @@ test('student updates only editable core Profile fields and retains server-confi
   await expect(page.getByRole('textbox', { name: 'University Email' })).toHaveCount(0)
 
   await page.getByLabel('Full Name').fill('Committed E2E Student')
-  await page.getByLabel('Professional Summary').fill('Updated server-confirmed summary.')
-  await page.getByLabel('Phone').fill('+94 77 123 4567')
+  await page.getByLabel('Profile Summary / Objective').fill('Updated server-confirmed summary.')
+  await page.getByLabel('Phone Number').fill('+94 77 123 4567')
   await page.getByRole('button', { name: 'Save Profile' }).click()
 
   await expect(page.getByText('Profile saved')).toBeVisible()
@@ -118,7 +118,7 @@ test('student updates only editable core Profile fields and retains server-confi
 
   await page.reload({ waitUntil: 'domcontentloaded' })
   await expect(page.getByLabel('Full Name')).toHaveValue('Committed E2E Student')
-  await expect(page.getByLabel('Phone')).toHaveValue('+94 77 123 4567')
+  await expect(page.getByLabel('Phone Number')).toHaveValue('+94 77 123 4567')
 })
 
 test('student Profile navigation remains keyboard-safe at a mobile viewport', async ({ page }) => {
