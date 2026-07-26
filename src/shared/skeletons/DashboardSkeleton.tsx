@@ -53,7 +53,7 @@ export function StudentDashboardSkeleton() {
       className="content-stack student-dashboard-page"
       label="Loading student dashboard"
     >
-      <SkeletonPageHeader eyebrow />
+      <SkeletonPageHeader />
       <section aria-hidden="true" className="section-card student-dashboard-welcome">
         <div className="skeleton-stack">
           <SkeletonShape height={12} radius="pill" width={270} />
@@ -83,7 +83,7 @@ export function AdminDashboardSkeleton() {
       className="content-stack admin-dashboard-page"
       label="Loading admin dashboard"
     >
-      <SkeletonPageHeader eyebrow />
+      <SkeletonPageHeader />
       <section aria-hidden="true" className="admin-dashboard-summary">
         <div className="admin-metrics-grid" data-testid="admin-dashboard-metrics-skeleton">
           {Array.from({ length: 3 }, (_, index) => (

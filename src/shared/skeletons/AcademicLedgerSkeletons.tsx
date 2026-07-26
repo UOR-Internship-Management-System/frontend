@@ -112,6 +112,7 @@ export function AcademicLedgerRouteSkeleton() {
       <span className="visually-hidden">Loading Academic Ledger</span>
       <header className="page-header" aria-hidden="true">
         <div>
+          <Shape height={24} radius="pill" width={150} />
           <Shape height={44} width="min(430px, 82vw)" />
           <SkeletonBlock
             decorative

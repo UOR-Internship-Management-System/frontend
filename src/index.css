@@ -2,8 +2,6 @@
 @import './styles/print-cv-preview.css';
 
 :root {
-  scrollbar-gutter: stable;
-
   /* Professional institutional palette: navy actions, slate neutrals, semantic states. */
   --primary: #1e40af;
   --primary-hover: #1e3a8a;

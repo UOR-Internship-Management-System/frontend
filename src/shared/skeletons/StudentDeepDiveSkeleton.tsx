@@ -57,7 +57,7 @@ export function StudentDeepDiveSkeleton() {
       className="content-stack student-deep-dive-page"
       label="Loading Student Deep-Dive"
     >
-      <SkeletonPageHeader eyebrow />
+      <SkeletonPageHeader />
       <div className="skeleton-admin-split" data-testid="student-deep-dive-skeleton">
         <IdentityPanelSkeleton />
         <div className="skeleton-stack">

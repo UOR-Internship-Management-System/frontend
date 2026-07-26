@@ -92,7 +92,7 @@ function StudentDetailSkeleton() {
 export function FormSkeleton({ variant = 'generic' }: { variant?: FormSkeletonVariant }) {
   return (
     <SkeletonStatusRegion className="content-stack" label="Loading form content">
-      <SkeletonPageHeader eyebrow={variant === 'profile'} />
+      <SkeletonPageHeader />
       {variant === 'profile' ? <ProfileFormSkeleton /> : null}
       {variant === 'student-detail' ? <StudentDetailSkeleton /> : null}
       {variant === 'generic' ? <GenericFormSkeleton /> : null}
