@@ -8,9 +8,9 @@ import {
 
 function ProjectRowSkeleton() {
   return (
-    <article aria-hidden="true" className="skeleton-project-row">
-      <div className="skeleton-project-row-content">
-        <div className="skeleton-chip-row">
+    <article aria-hidden="true" className="s4-projects-item">
+      <div className="s4-projects-item-content">
+        <div className="s4-projects-title-line">
           <SkeletonShape height={24} radius="pill" width={190} />
           <SkeletonShape height={26} radius="pill" width={126} />
           <SkeletonShape height={26} radius="pill" width={94} />
@@ -23,7 +23,9 @@ function ProjectRowSkeleton() {
           <SkeletonShape height={28} radius="pill" width={96} />
         </div>
       </div>
-      <SkeletonShape height={42} radius="md" width={108} />
+      <div className="s4-projects-item-action">
+        <SkeletonShape height={42} radius="md" width={108} />
+      </div>
     </article>
   )
 }
@@ -31,11 +33,11 @@ function ProjectRowSkeleton() {
 export function ProjectRepositorySkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
     <div className="skeleton-stack">
-      <div aria-hidden="true" className="skeleton-project-toolbar">
-        <SkeletonShape height={48} radius="md" />
+      <div aria-hidden="true" className="s4-projects-toolbar">
+        <SkeletonShape height={48} radius="md" width={360} />
         <SkeletonShape height={32} radius="pill" width={104} />
       </div>
-      <div className="skeleton-project-list" data-testid="projects-list-skeleton">
+      <div className="s4-projects-list" data-testid="projects-list-skeleton">
         {Array.from({ length: 4 }, (_, index) => (
           <ProjectRowSkeleton key={index} />
         ))}
@@ -52,35 +54,54 @@ export function ProjectRepositorySkeleton({ announce = true }: { announce?: bool
 
 export function ProjectModalSkeleton() {
   return (
-    <div aria-hidden="true" className="skeleton-project-modal">
-      <SkeletonShape height={46} radius="md" />
-      <SkeletonShape height={38} radius="pill" width={132} />
-      <div className="skeleton-controls-grid">
-        <div className="skeleton-field">
-          <SkeletonShape height={12} radius="pill" width={100} />
-          <SkeletonShape height={44} radius="md" />
-        </div>
-        <div className="skeleton-field">
-          <SkeletonShape height={12} radius="pill" width={110} />
-          <SkeletonShape height={44} radius="md" />
-        </div>
-      </div>
-      <SkeletonBlock decorative lineWidths={['96%', '88%', '70%']} lines={3} variant="inline" />
-
-      <div className="skeleton-field">
-        <SkeletonShape height={12} radius="pill" width={120} />
-        <SkeletonShape height={72} radius="md" />
+    <div aria-hidden="true" className="s4-projects-details">
+      <div className="s4-projects-details-status">
+        <SkeletonShape height={26} radius="pill" width={110} />
+        <SkeletonShape height={26} radius="pill" width={90} />
       </div>
 
-      <div className="skeleton-chip-row">
-        <SkeletonShape height={30} radius="pill" width={90} />
-        <SkeletonShape height={30} radius="pill" width={118} />
-        <SkeletonShape height={30} radius="pill" width={102} />
+      <div className="s4-projects-details-grid">
+        <div className="s4-projects-details-wide">
+          <SkeletonShape height={16} radius="pill" width={40} />
+          <SkeletonShape height={20} radius="md" width={220} />
+        </div>
+        <div>
+          <SkeletonShape height={16} radius="pill" width={70} />
+          <SkeletonShape height={20} radius="md" width={100} />
+        </div>
+        <div>
+          <SkeletonShape height={16} radius="pill" width={60} />
+          <SkeletonShape height={20} radius="md" width={100} />
+        </div>
+        <div className="s4-projects-details-wide">
+          <SkeletonShape height={16} radius="pill" width={200} />
+          <SkeletonBlock decorative lineWidths={['96%', '88%', '70%']} lines={3} variant="inline" />
+        </div>
       </div>
-      <div className="skeleton-modal-footer">
+
+      <div className="s4-projects-details-section">
+        <SkeletonShape height={18} radius="pill" width={60} />
+        <div className="skeleton-chip-row">
+          <SkeletonShape height={30} radius="pill" width={90} />
+          <SkeletonShape height={30} radius="pill" width={118} />
+          <SkeletonShape height={30} radius="pill" width={102} />
+        </div>
+      </div>
+
+      <div className="s4-projects-details-section">
+        <SkeletonShape height={18} radius="pill" width={100} />
+        <div className="s4-projects-links">
+          <SkeletonShape height={20} radius="pill" width={110} />
+          <SkeletonShape height={20} radius="pill" width={90} />
+        </div>
+      </div>
+
+      <div className="s4-projects-details-actions">
         <SkeletonShape height={42} radius="md" width={132} />
-        <SkeletonShape height={42} radius="md" width={92} />
-        <SkeletonShape height={42} radius="md" width={92} />
+        <div>
+          <SkeletonShape height={42} radius="md" width={92} />
+          <SkeletonShape height={42} radius="md" width={92} />
+        </div>
       </div>
     </div>
   )

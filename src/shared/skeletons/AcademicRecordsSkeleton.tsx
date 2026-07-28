@@ -17,10 +17,12 @@ export function AcademicGpaSkeleton({ announce = true }: { announce?: boolean })
       data-skeleton-gpa-card
       data-testid="academic-gpa-card"
     >
-      <SkeletonShape height={64} radius="lg" width={64} />
-      <div className="skeleton-card-stack">
-        <SkeletonShape height={12} radius="pill" width={150} />
-        <SkeletonShape height={38} width={92} />
+      <div className="s5-records-gpa-icon">
+        <SkeletonShape height={32} radius="sm" width={32} />
+      </div>
+      <div className="s5-records-gpa-meta">
+        <SkeletonShape height={14} radius="pill" width={180} />
+        <SkeletonShape height={48} width={120} />
       </div>
     </div>
   )
