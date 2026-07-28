@@ -11,8 +11,10 @@ const declaredColumns =
 
 export function AddSkillOptionsSkeleton({ announce = true }: { announce?: boolean }) {
   const content = (
-    <div aria-hidden="true" className="skeleton-stack">
-      <SkeletonShape height={48} radius="md" width="min(100%, 460px)" />
+    <div aria-hidden="true" className="s4-skills-declare-form">
+      <div className="s4-skills-available-search">
+        <SkeletonShape height={48} radius="md" width="100%" />
+      </div>
       <div className="s4-skills-add-fields">
         {Array.from({ length: 4 }, (_, index) => (
           <div className="skeleton-field" key={index}>
@@ -41,10 +43,10 @@ export function TaxonomyResultsSkeleton({ announce = true }: { announce?: boolea
           <article className="s4-skills-result skeleton-skill-result" key={index}>
             <SkeletonShape height={22} radius="pill" width={index % 2 === 0 ? 112 : 148} />
             <SkeletonShape height={18} width={index % 3 === 0 ? '58%' : '72%'} />
-            <span className="skeleton-stack skeleton-skill-result__copy">
-              <SkeletonShape height={12} radius="pill" width="86%" />
-              <SkeletonShape height={12} radius="pill" width="62%" />
-            </span>
+            <div className="s4-skills-result-footer">
+              <SkeletonShape height={12} radius="pill" width="40%" />
+              <SkeletonShape height={12} radius="pill" width="30%" />
+            </div>
           </article>
         ))}
       </div>

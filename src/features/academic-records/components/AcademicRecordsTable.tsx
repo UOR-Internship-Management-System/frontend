@@ -22,7 +22,9 @@ export function AcademicRecordsTable({ records }: { records: AcademicRecordView[
               <td>{record.courseCode}</td>
               <td>{record.courseTitle}</td>
               <td>{record.creditsLabel}</td>
-              <td>{record.letterGrade}</td>
+              <td>
+                <span className="s5-records-grade">{record.letterGrade}</span>
+              </td>
               <td>{record.gradePointLabel}</td>
             </tr>
           ))}
