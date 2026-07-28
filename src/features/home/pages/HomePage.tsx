@@ -1,63 +1,112 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
+import { GatewayIntro } from '../components/GatewayIntro'
+import { LogoDrawReveal } from '../components/LogoDrawReveal'
+import { TypewriterText } from '../components/TypewriterText'
+import { gatewayCaptions, gatewayCaptionTexts } from '../data/gatewayCaptions'
 
 export function HomePage() {
+  const gatewayPageRef = useRef<HTMLElement>(null)
+  const gatewayTitleRef = useRef<HTMLHeadingElement>(null)
+  const [introComplete, setIntroComplete] = useState(false)
+
+  const handleIntroComplete = useCallback(() => {
+    setIntroComplete(true)
+  }, [])
+
+  useEffect(() => {
+    if (!gatewayPageRef.current) return
+
+    gatewayPageRef.current.inert = !introComplete
+
+    if (introComplete) {
+      gatewayTitleRef.current?.focus({ preventScroll: true })
+    }
+  }, [introComplete])
+
   return (
-    <article className="gateway-page" aria-labelledby="gateway-title">
-      <section className="gateway-hero">
-        <div className="gateway-hero-bg" />
-        <div className="gateway-hero-content">
-          <img src="/logo (2).png" alt="University Logo" className="gateway-logo" />
-          <p className="gateway-eyebrow">CV Management System</p>
-          <h1 id="gateway-title">Department Access Gateway</h1>
-          <p>
-            Choose the approved Sprint 2 authentication path for Student onboarding or predefined
-            Department Admin sign-in.
-          </p>
-        </div>
-      </section>
+    <>
+      {!introComplete ? (
+        <GatewayIntro captions={gatewayCaptions} onComplete={handleIntroComplete} />
+      ) : null}
 
-      <section className="gateway-access" aria-labelledby="gateway-access-title">
-        <div className="gateway-access-header">
-          <h2 id="gateway-access-title">Select your role</h2>
-          <p>Access is separated by actor role and enforced again by backend RBAC.</p>
-        </div>
+      <article
+        aria-hidden={!introComplete}
+        aria-labelledby="gateway-title"
+        className="gateway-v2-page"
+        ref={gatewayPageRef}
+      >
+        <section className="gateway-v2-hero">
+          <div aria-hidden="true" className="gateway-v2-hero-bg" />
 
-        <div className="gateway-split-panel">
-          <div className="gateway-card gateway-card-student">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              school
-            </span>
-            <div>
-              <h3>Student</h3>
-              <p>Register or sign in with your university account.</p>
-            </div>
-            <div className="gateway-actions">
-              <Link className="button button-primary" to={routePaths.studentLogin}>
-                Login
-              </Link>
-              <Link className="button button-secondary" to={routePaths.studentSignUp}>
-                Register
-              </Link>
-            </div>
+          <div className="gateway-v2-brand-lockup">
+            <LogoDrawReveal alt="University logo" className="gateway-v2-logo" loop />
           </div>
 
-          <div className="gateway-card gateway-card-admin">
-            <span className="material-symbols-outlined" aria-hidden="true">
-              admin_panel_settings
-            </span>
-            <div>
-              <h3>Admin</h3>
-              <p>Use predefined administrator credentials to access the workspace.</p>
-            </div>
-            <div className="gateway-actions">
-              <Link className="button button-primary" to={routePaths.adminLogin}>
-                Login
-              </Link>
-            </div>
+          <div className="gateway-v2-hero-content">
+            <h1
+              id="gateway-title"
+              ref={gatewayTitleRef}
+              tabIndex={-1}
+              className="gateway-v2-dynamic-title"
+            >
+              {introComplete ? (
+                <TypewriterText captions={gatewayCaptionTexts} />
+              ) : (
+                <span aria-hidden="true" className="gateway-v2-typewriter-placeholder">
+                  <span className="gateway-v2-typewriter-copy">
+                    <span>{gatewayCaptionTexts[0]}</span>
+                    <span className="gateway-v2-typewriter-cursor">|</span>
+                  </span>
+                </span>
+              )}
+            </h1>
           </div>
-        </div>
-      </section>
-    </article>
+        </section>
+
+        <section className="gateway-v2-access" aria-labelledby="gateway-access-title">
+          <div className="gateway-v2-access-header">
+            <p className="gateway-v2-access-kicker">Secure role-based access</p>
+            <h2 id="gateway-access-title">Select your role</h2>
+          </div>
+
+          <div className="gateway-v2-split-panel">
+            <article className="gateway-v2-card gateway-v2-card-student">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                school
+              </span>
+              <div>
+                <h3>Student</h3>
+                <p>Register or sign in with your university account.</p>
+              </div>
+              <div className="gateway-v2-actions">
+                <Link className="button button-primary" to={routePaths.studentLogin}>
+                  Login
+                </Link>
+                <Link className="button button-secondary" to={routePaths.studentSignUp}>
+                  Register
+                </Link>
+              </div>
+            </article>
+
+            <article className="gateway-v2-card gateway-v2-card-admin">
+              <span className="material-symbols-outlined" aria-hidden="true">
+                admin_panel_settings
+              </span>
+              <div>
+                <h3>Admin</h3>
+                <p>Use your predefined administrator credentials to continue.</p>
+              </div>
+              <div className="gateway-v2-actions">
+                <Link className="button button-primary" to={routePaths.adminLogin}>
+                  Login
+                </Link>
+              </div>
+            </article>
+          </div>
+        </section>
+      </article>
+    </>
   )
 }
