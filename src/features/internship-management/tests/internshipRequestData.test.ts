@@ -22,7 +22,6 @@ const company = {
   contactEmail: null,
   contactPhone: null,
   notes: null,
-  active: true,
   version: 1,
   createdAt: now,
   updatedAt: now,
@@ -37,7 +36,6 @@ const internshipRequest = internshipRequestResponseSchema.parse({
   company,
   title: 'Software Engineering Intern',
   description: null,
-  status: 'DRAFT',
   shortlistGuidanceValue: 12,
   requiredSkills: [requiredSkill],
   version: 2,
@@ -55,7 +53,6 @@ describe('Internship request wireframe data layer', () => {
     const create = {
       companyId,
       title: 'Software Engineering Intern',
-      status: 'DRAFT' as const,
       requiredSkills: [{ skillId }],
     }
     expect(internshipRequestCreateSchema.parse(create)).toEqual(create)
@@ -120,7 +117,6 @@ describe('Internship request wireframe data layer', () => {
       size: 20 as const,
       sort: 'createdAt,desc' as const,
       search: 'software',
-      status: 'DRAFT' as const,
       companyId,
     }
     await internshipManagementApi.listInternshipRequests(query)
@@ -130,7 +126,6 @@ describe('Internship request wireframe data layer', () => {
     await internshipManagementApi.createInternshipRequest({
       companyId,
       title: internshipRequest.title,
-      status: 'DRAFT',
       requiredSkills: [{ skillId }],
     })
     await internshipManagementApi.updateInternshipRequest({
@@ -142,14 +137,13 @@ describe('Internship request wireframe data layer', () => {
     expect(calls).toEqual([
       {
         method: 'GET',
-        search: `?page=0&size=20&sort=createdAt%2Cdesc&search=software&status=DRAFT&companyId=${companyId}`,
+        search: `?page=0&size=20&sort=createdAt%2Cdesc&search=software&companyId=${companyId}`,
       },
       {
         method: 'POST',
         body: {
           companyId,
           title: internshipRequest.title,
-          status: 'DRAFT',
           requiredSkills: [{ skillId }],
         },
       },

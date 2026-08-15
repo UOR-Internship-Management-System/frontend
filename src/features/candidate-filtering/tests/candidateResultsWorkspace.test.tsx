@@ -71,7 +71,6 @@ function renderWorkspace({
           companyId,
           companyName: 'Example Technologies',
           title: 'Software Engineering Intern',
-          status: 'ACTIVE',
           shortlistGuidanceValue: 10,
         },
         criteria: {
@@ -203,7 +202,6 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
               companyId,
               companyName: 'Example Technologies',
               title: 'Software Engineering Intern',
-              status: 'ACTIVE',
               shortlistGuidanceValue: 10,
             },
             filterRunId: runId,

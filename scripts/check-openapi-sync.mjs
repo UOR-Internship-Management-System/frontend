@@ -4,11 +4,11 @@ import path from 'node:path'
 
 const root = process.cwd()
 const contractPath = 'docs/api/CV_Management_API_OpenAPI_v1.6.0.yaml'
-const priorContractPath = 'docs/api/CV_Management_API_OpenAPI_v1.5.0.yaml'
-const expectedContractSha256 = 'c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa18e902ad'
+const operationLockPath = 'docs/api/CV_Management_API_OpenAPI_v1.6.0_OPERATION_ID_LOCK.json'
+const expectedContractSha256 = '7c847677e82fdba10c51111522b3e247ae92a2b2c06cd9cab14b9ca7473a2c1f'
 const requiredFiles = [
   contractPath,
-  priorContractPath,
+  operationLockPath,
   'docs/api/CV_Management_API_OpenAPI_v1.6.0_CHANGELOG.md',
   'docs/api/CV_Management_API_OpenAPI_v1.6.0_VALIDATION_REPORT.md',
   'docs/api/generated-client-notes.md',
@@ -27,7 +27,7 @@ if (missing.length > 0) {
 
 const readLf = (file) => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n?/g, '\n')
 const contract = readLf(contractPath)
-const priorContract = readLf(priorContractPath)
+const operationLock = JSON.parse(readLf(operationLockPath))
 const actualHash = crypto.createHash('sha256').update(contract, 'utf8').digest('hex')
 
 function fail(message) {
@@ -71,18 +71,17 @@ function parseOperations(source) {
   return operations
 }
 
-const priorOperations = parseOperations(priorContract)
 const operations = parseOperations(contract)
 const operationIds = new Map()
 for (const [key, operationId] of operations) {
   if (operationIds.has(operationId)) fail(`Duplicate operationId: ${operationId}`)
   operationIds.set(operationId, key)
 }
-for (const [key, operationId] of priorOperations) {
-  if (!operations.has(key)) fail(`OpenAPI v1.6.0 removed existing operation: ${key}`)
+for (const [key, operationId] of Object.entries(operationLock)) {
+  if (!operations.has(key)) fail(`OpenAPI v1.6.0 removed locked operation: ${key}`)
   if (operations.get(key) !== operationId) {
     fail(
-      `OpenAPI v1.6.0 changed existing operationId for ${key}: ${operationId} -> ${operations.get(key)}`,
+      `OpenAPI v1.6.0 changed locked operationId for ${key}: ${operationId} -> ${operations.get(key)}`,
     )
   }
 }
@@ -246,6 +245,27 @@ if (contract.includes('\n    InternshipWorkMode:\n')) {
   fail('Removed InternshipWorkMode schema is still present')
 }
 
+for (const removedComponent of [
+  'CompanyActiveFilter',
+  'InternshipRequestStatusFilter',
+  'InternshipRequestStatus',
+]) {
+  if (contract.includes(`    ${removedComponent}:`))
+    fail(`Removed lifecycle component remains: ${removedComponent}`)
+}
+for (const [schemaName, propertyName] of [
+  ['CompanyResponse', 'active'],
+  ['CompanyUpdateRequest', 'active'],
+  ['InternshipRequestCreateRequest', 'status'],
+  ['InternshipRequestUpdateRequest', 'status'],
+  ['InternshipRequestResponse', 'status'],
+  ['InternshipRequestSummaryResponse', 'status'],
+]) {
+  if (new RegExp(`^ {6}${propertyName}:`, 'm').test(namedBlock('schemas', schemaName))) {
+    fail(`${schemaName} contains removed lifecycle property ${propertyName}`)
+  }
+}
+
 const companyDelete = operationBlock('/admin/companies/{companyId}', 'delete')
 if (!companyDelete.includes('summary: Delete company metadata record.')) {
   fail('Company DELETE must expose the wireframe Delete Company action')
@@ -337,7 +357,6 @@ const generatedExpectations = new Map([
       'ApiAdminLatestCvResponse',
       'ApiCompanyResponse',
       'ApiPagedCompanyResponse',
-      'ApiInternshipRequestStatus',
       'ApiPagedInternshipRequestResponse',
       'ApiCandidateFilteringCriteriaRequest',
       'ApiFilterSkillMatchMode',

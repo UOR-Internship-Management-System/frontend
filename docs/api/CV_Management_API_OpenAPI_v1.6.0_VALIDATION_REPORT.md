@@ -2,7 +2,7 @@
 
 Validated: 2026-07-26
 
-Canonical LF SHA-256: `c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa18e902ad`
+Canonical LF SHA-256: `7c847677e82fdba10c51111522b3e247ae92a2b2c06cd9cab14b9ca7473a2c1f`
 
 ## Structural and contract checks
 
@@ -22,7 +22,7 @@ Canonical LF SHA-256: `c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa1
 | No Admin taxonomy mutation                                                 | PASS   |
 | No GPA fields in internship request schemas                                | PASS   |
 | No request work-arrangement, notes, or Admin competency fields              | PASS   |
-| Explicit company/request delete semantics                                   | PASS   |
+| Explicit hard company/request delete semantics                              | PASS   |
 | Runtime GPA confined to filtering and academic data                        | PASS   |
 | No candidate score/rank/probability/recommendation/match percentage fields | PASS   |
 | Manual shortlist mutation contract                                         | PASS   |
@@ -31,6 +31,7 @@ Canonical LF SHA-256: `c0bf134d510dd3d36ac5bb3c313b8f8d8554a53c9af053505da72cfa1
 | CSV-only shortlist summary export                                          | PASS   |
 | ZIP-only bulk latest-saved CV export                                       | PASS   |
 | Explicit missing-CV reporting                                              | PASS   |
+| Company/request lifecycle-state removal                                    | PASS   |
 | Generated Sprint 1-8 metadata synchronization                              | PASS   |
 
 ## Repository integration results

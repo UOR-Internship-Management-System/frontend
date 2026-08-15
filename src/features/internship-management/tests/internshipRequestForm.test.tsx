@@ -19,7 +19,6 @@ const company = {
   contactEmail: null,
   contactPhone: null,
   notes: null,
-  active: true,
   version: 1,
   createdAt: '2026-07-20T09:30:00Z',
   updatedAt: '2026-07-20T09:30:00Z',
@@ -107,7 +106,6 @@ describe('InternshipRequestForm wireframe contract', () => {
     await user.type(within(dialog).getByLabelText('Internship Role Title'), 'Platform Intern')
     await user.type(within(dialog).getByLabelText('Shortlist Guidance Value (Optional)'), '8')
     await user.type(within(dialog).getByLabelText('Role Description'), 'Build platform features')
-    await user.selectOptions(within(dialog).getByLabelText('Request Status'), 'ACTIVE')
     await user.click(await within(dialog).findByLabelText('Select TypeScript'))
     await user.click(within(dialog).getByRole('button', { name: 'Add Selected Skills' }))
 
@@ -121,7 +119,6 @@ describe('InternshipRequestForm wireframe contract', () => {
         companyId,
         title: 'Platform Intern',
         description: 'Build platform features',
-        status: 'ACTIVE',
         shortlistGuidanceValue: 8,
         requiredSkills: [{ skillId }],
       }),

@@ -26,14 +26,12 @@ const response = {
     contactEmail: null,
     contactPhone: null,
     notes: null,
-    active: true,
     version: 1,
     createdAt: now,
     updatedAt: now,
   },
   title: 'Software Engineering Intern',
   description: null,
-  status: 'DRAFT',
   shortlistGuidanceValue: null,
   requiredSkills: [],
   version: 1,
@@ -45,7 +43,7 @@ describe('Internship request URL and server list state', () => {
   it('parses and serializes prefixed request state with strict enum and UUID handling', () => {
     const parsed = parseInternshipRequestsUrlState(
       new URLSearchParams(
-        `requestSearch=Engineer&requestStatus=ACTIVE&requestCompanyId=${companyId}&requestSort=title%2Casc&requestPage=2&requestSize=50&requestId=${requestId}`,
+        `requestSearch=Engineer&requestCompanyId=${companyId}&requestSort=title%2Casc&requestPage=2&requestSize=50&requestId=${requestId}`,
       ),
     )
     expect(parsed).toEqual({
@@ -53,22 +51,23 @@ describe('Internship request URL and server list state', () => {
       size: 50,
       sort: 'title,asc',
       search: 'Engineer',
-      status: 'ACTIVE',
       companyId,
       selectedRequestId: requestId,
     })
-    expect(serializeInternshipRequestsUrlState(parsed).toString()).toContain('requestStatus=ACTIVE')
     expect(
       parseInternshipRequestsUrlState(
-        new URLSearchParams('requestStatus=UNKNOWN&requestCompanyId=bad&requestSize=7'),
+        new URLSearchParams('requestCompanyId=bad&requestSize=7'),
       ),
-    ).toEqual(expect.objectContaining({ status: undefined, companyId: undefined, size: 4 }))
+    ).toEqual(expect.objectContaining({ companyId: undefined, size: 4 }))
+    expect(serializeInternshipRequestsUrlState(parsed).toString()).toBe(
+      `requestSearch=Engineer&requestCompanyId=${companyId}&requestSort=title%2Casc&requestPage=2&requestSize=50&requestId=${requestId}`,
+    )
   })
 
   it('debounces search and resets the independent request page', async () => {
     function Wrapper({ children }: PropsWithChildren) {
       return (
-        <MemoryRouter initialEntries={['/?requestPage=4&requestStatus=DRAFT']}>
+        <MemoryRouter initialEntries={['/?requestPage=4']}>
           {children}
         </MemoryRouter>
       )

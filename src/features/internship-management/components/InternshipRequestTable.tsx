@@ -1,10 +1,5 @@
 import { Button } from '../../../shared/components/ui/Button'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { InternshipRequest } from '../types/internshipManagementTypes'
-import {
-  formatInternshipRequestStatus,
-  internshipRequestStatusTone,
-} from '../utils/internshipRequestPresentation'
 
 export function InternshipRequestTable({
   onDelete,
@@ -20,12 +15,7 @@ export function InternshipRequestTable({
       {requests.map((request) => (
         <article className="wireframe-management-row" key={request.requestId} role="listitem">
           <div className="wireframe-row-meta">
-            <div className="request-row-title">
-              <h3>{request.title}</h3>
-              <StatusBadge tone={internshipRequestStatusTone(request.status)}>
-                {formatInternshipRequestStatus(request.status)}
-              </StatusBadge>
-            </div>
+            <h3>{request.title}</h3>
             <p>
               Shortlist guidance:{' '}
               {request.shortlistGuidanceValue === null

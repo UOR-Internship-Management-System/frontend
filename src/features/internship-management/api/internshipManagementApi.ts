@@ -51,7 +51,6 @@ export const internshipManagementApi = {
         size: query.size,
         sort: query.sort,
         search: query.search,
-        active: query.active,
       })}`,
       { signal },
     )
@@ -96,7 +95,6 @@ export const internshipManagementApi = {
         size: query.size,
         sort: query.sort,
         search: query.search,
-        status: query.status,
         companyId: query.companyId,
       })}`,
       { signal },
