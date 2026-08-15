@@ -103,7 +103,6 @@ async function mockInternshipManagement(page: Page) {
         company: baseCompany,
         title: body.title,
         description: body.description ?? null,
-        status: body.status,
         shortlistGuidanceValue: body.shortlistGuidanceValue ?? null,
         requiredSkills: body.requiredSkills.map((skill: { skillId: string }) => ({
           requiredSkillId: '77777777-7777-4777-8777-777777777777',

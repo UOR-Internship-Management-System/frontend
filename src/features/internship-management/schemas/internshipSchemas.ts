@@ -186,7 +186,7 @@ export const pagedInternshipRequiredSkillResponseSchema: z.ZodType<ApiPagedInter
 
 export const internshipRequestFormValuesSchema = z
   .object({
-    companyId: z.string().uuid('Select an active company.'),
+    companyId: z.string().uuid('Select a company.'),
     title: z.string().trim().min(1, 'Role title is required.').max(200),
     description: z.string().trim().max(10000, 'Description cannot exceed 10000 characters.'),
     shortlistGuidanceValue: z

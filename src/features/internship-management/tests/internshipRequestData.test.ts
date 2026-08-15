@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { server } from '../../../mocks/server'
 import { internshipManagementApi } from '../api/internshipManagementApi'
 import { internshipManagementKeys } from '../hooks/internshipManagementQueryKeys'
+import { getInternshipRequestMutationErrorMessage } from '../hooks/useInternshipRequests'
 import {
   internshipRequestCreateSchema,
   internshipRequestResponseSchema,
@@ -150,6 +151,18 @@ describe('Internship request wireframe data layer', () => {
       { method: 'PATCH', body: { title: 'Updated role' }, ifMatch: '"2"' },
       { method: 'DELETE', ifMatch: '"3"' },
     ])
+  })
+
+  it('maps concurrency and referential delete conflicts to recovery-safe messages', () => {
+    expect(getInternshipRequestMutationErrorMessage({ status: 412, title: 'Stale' })).toContain(
+      'changed',
+    )
+    expect(
+      getInternshipRequestMutationErrorMessage({ status: 428, title: 'Precondition' }),
+    ).toContain('Reload')
+    expect(getInternshipRequestMutationErrorMessage({ status: 409, title: 'Linked' })).toContain(
+      'linked data',
+    )
   })
 
   it('supports paged taxonomy-skill reads and versioned incremental mutations', async () => {
