@@ -45,6 +45,13 @@ async function openInternshipManagement(page: Page) {
   await expect(page.getByRole('heading', { name: 'Internship Requests Management' })).toBeVisible()
 }
 
+async function dismissVisibleToasts(page: Page) {
+  const dismissButtons = page.getByRole('button', { name: 'Dismiss', exact: true })
+  while ((await dismissButtons.count()) > 0) {
+    await dismissButtons.first().click()
+  }
+}
+
 async function readCompanyEtagFromBrowser(page: Page, token: string, companyId: string) {
   return page.evaluate(
     async ({ apiBaseUrl: browserApiBaseUrl, companyId: browserCompanyId, token: browserToken }) => {
@@ -87,6 +94,8 @@ async function createCompanyThroughUi(page: Page, companyName: string) {
   expect(body.active).toBeUndefined()
   expect(response.headers()['etag']).toBe(quotedVersion(body.version))
   expect(response.headers()['location']).toContain(`/api/v1/admin/companies/${body.companyId}`)
+
+  await page.getByRole('searchbox', { name: 'Search companies and HR contacts' }).fill(companyName)
 
   await expect(
     page
@@ -225,7 +234,7 @@ test('real backend supports Company and Internship Request CRUD with matching ET
 
     await page
       .getByRole('dialog', { name: 'Company Details' })
-      .getByRole('button', { name: 'Close' })
+      .getByRole('button', { name: 'Close', exact: true })
       .click()
 
     const internship = await createRequestThroughUi(page, requestTitle)
@@ -244,7 +253,7 @@ test('real backend supports Company and Internship Request CRUD with matching ET
       isApiResponse(
         response,
         'PATCH',
-        `${apiBaseUrl}/admin/internship-requests/${internship.requestId}`,
+        `/api/v1/admin/internship-requests/${internship.requestId}`,
       ),
     )
     const editRequest = page.getByRole('dialog', { name: 'Edit Internship Request' })
@@ -260,8 +269,10 @@ test('real backend supports Company and Internship Request CRUD with matching ET
 
     await page
       .getByRole('dialog', { name: 'Internship Request Details' })
-      .getByRole('button', { name: 'Close' })
+      .getByRole('button', { name: 'Close', exact: true })
       .click()
+
+    await dismissVisibleToasts(page)
 
     const updatedRequestRow = page
       .getByLabel('Internship request directory')
@@ -272,12 +283,12 @@ test('real backend supports Company and Internship Request CRUD with matching ET
       isApiResponse(
         response,
         'DELETE',
-        `${apiBaseUrl}/admin/internship-requests/${internship.requestId}`,
+        `/api/v1/admin/internship-requests/${internship.requestId}`,
       ),
     )
     await page
       .getByRole('dialog', { name: 'Delete Internship Request' })
-      .getByRole('button', { name: 'Delete Internship Request' })
+      .getByRole('button', { name: 'Delete Internship Request', exact: true })
       .click()
     expect((await deleteRequestPromise).status()).toBe(204)
     await expect(updatedRequestRow).toHaveCount(0)
@@ -292,7 +303,7 @@ test('real backend supports Company and Internship Request CRUD with matching ET
     )
     await page
       .getByRole('dialog', { name: 'Delete Company' })
-      .getByRole('button', { name: 'Delete Company' })
+      .getByRole('button', { name: 'Delete Company', exact: true })
       .click()
     expect((await deleteCompanyPromise).status()).toBe(204)
     await expect(updatedCompanyRow).toHaveCount(0)
@@ -332,7 +343,7 @@ test('real backend Company delete cascades requests while preserving the canonic
     const deleteCompanyPromise = page.waitForResponse((response) =>
       isApiResponse(response, 'DELETE', `/api/v1/admin/companies/${company.companyId}`),
     )
-    await dialog.getByRole('button', { name: 'Delete Company' }).click()
+    await dialog.getByRole('button', { name: 'Delete Company', exact: true }).click()
     expect((await deleteCompanyPromise).status()).toBe(204)
     companyId = undefined
 
