@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { server } from '../../../mocks/server'
 import { internshipManagementApi } from '../api/internshipManagementApi'
 import { internshipManagementKeys } from '../hooks/internshipManagementQueryKeys'
+import { getInternshipRequestMutationErrorMessage } from '../hooks/useInternshipRequests'
 import {
   internshipRequestCreateSchema,
   internshipRequestResponseSchema,
@@ -22,7 +23,6 @@ const company = {
   contactEmail: null,
   contactPhone: null,
   notes: null,
-  active: true,
   version: 1,
   createdAt: now,
   updatedAt: now,
@@ -37,7 +37,6 @@ const internshipRequest = internshipRequestResponseSchema.parse({
   company,
   title: 'Software Engineering Intern',
   description: null,
-  status: 'DRAFT',
   shortlistGuidanceValue: 12,
   requiredSkills: [requiredSkill],
   version: 2,
@@ -55,7 +54,6 @@ describe('Internship request wireframe data layer', () => {
     const create = {
       companyId,
       title: 'Software Engineering Intern',
-      status: 'DRAFT' as const,
       requiredSkills: [{ skillId }],
     }
     expect(internshipRequestCreateSchema.parse(create)).toEqual(create)
@@ -120,7 +118,6 @@ describe('Internship request wireframe data layer', () => {
       size: 20 as const,
       sort: 'createdAt,desc' as const,
       search: 'software',
-      status: 'DRAFT' as const,
       companyId,
     }
     await internshipManagementApi.listInternshipRequests(query)
@@ -130,7 +127,6 @@ describe('Internship request wireframe data layer', () => {
     await internshipManagementApi.createInternshipRequest({
       companyId,
       title: internshipRequest.title,
-      status: 'DRAFT',
       requiredSkills: [{ skillId }],
     })
     await internshipManagementApi.updateInternshipRequest({
@@ -142,20 +138,31 @@ describe('Internship request wireframe data layer', () => {
     expect(calls).toEqual([
       {
         method: 'GET',
-        search: `?page=0&size=20&sort=createdAt%2Cdesc&search=software&status=DRAFT&companyId=${companyId}`,
+        search: `?page=0&size=20&sort=createdAt%2Cdesc&search=software&companyId=${companyId}`,
       },
       {
         method: 'POST',
         body: {
           companyId,
           title: internshipRequest.title,
-          status: 'DRAFT',
           requiredSkills: [{ skillId }],
         },
       },
       { method: 'PATCH', body: { title: 'Updated role' }, ifMatch: '"2"' },
       { method: 'DELETE', ifMatch: '"3"' },
     ])
+  })
+
+  it('maps concurrency and referential delete conflicts to recovery-safe messages', () => {
+    expect(getInternshipRequestMutationErrorMessage({ status: 412, title: 'Stale' })).toContain(
+      'changed',
+    )
+    expect(
+      getInternshipRequestMutationErrorMessage({ status: 428, title: 'Precondition' }),
+    ).toContain('Reload')
+    expect(getInternshipRequestMutationErrorMessage({ status: 409, title: 'Linked' })).toContain(
+      'linked data',
+    )
   })
 
   it('supports paged taxonomy-skill reads and versioned incremental mutations', async () => {

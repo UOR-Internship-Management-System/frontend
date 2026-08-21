@@ -14,7 +14,7 @@
     "test": "vitest run --config vitest.config.mjs --reporter=dot --pool=forks --maxWorkers=1 --fileParallelism=false",
     "test:coverage": "vitest run --coverage --config vitest.config.mjs --pool=threads --maxWorkers=4",
     "e2e": "playwright test",
-    "e2e:cv-live": "playwright test --config=playwright.cv-live.config.ts",
+    "e2e:internships:live": "playwright test --config=playwright.internship-live.config.ts",
     "e2e:motion": "playwright test e2e/motion-accessibility.spec.ts",
     "e2e:visual": "playwright test e2e/skeleton-visuals.spec.ts --workers=1",
     "e2e:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit --project=edge",
@@ -22,7 +22,8 @@
     "openapi:generate": "node scripts/generate-api-client.mjs",
     "verify:scope": "node scripts/verify-removed-scope.mjs",
     "verify:removed-scope": "node scripts/verify-removed-scope.mjs",
-    "validate-env": "node scripts/validate-env.mjs"
+    "validate-env": "node scripts/validate-env.mjs",
+    "e2e:cv-live": "playwright test --config=playwright.cv-live.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.16",

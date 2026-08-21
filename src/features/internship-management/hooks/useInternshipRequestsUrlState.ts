@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { readNonnegativeInteger, useUrlQueryState } from '../../../shared/hooks/useUrlQueryState'
-import {
-  internshipRequestSortSchema,
-  internshipRequestStatusSchema,
-} from '../schemas/internshipSchemas'
+import { internshipRequestSortSchema } from '../schemas/internshipSchemas'
 import type {
   InternshipRequestPageSize,
   InternshipRequestsUrlState,
@@ -14,7 +11,6 @@ import type {
 const allowedSizes = [4, 20, 50, 100] as const
 const requestUrlKeys = [
   'requestSearch',
-  'requestStatus',
   'requestCompanyId',
   'requestSort',
   'requestPage',
@@ -27,7 +23,6 @@ export const defaultInternshipRequestsUrlState: InternshipRequestsUrlState = {
   size: 4,
   sort: 'createdAt,desc',
   search: '',
-  status: undefined,
   companyId: undefined,
   selectedRequestId: undefined,
 }
@@ -41,7 +36,6 @@ export function parseInternshipRequestsUrlState(
 ): InternshipRequestsUrlState {
   const size = readNonnegativeInteger(parameters.get('requestSize'), 4)
   const sort = internshipRequestSortSchema.safeParse(parameters.get('requestSort'))
-  const status = internshipRequestStatusSchema.safeParse(parameters.get('requestStatus'))
 
   return {
     page: readNonnegativeInteger(parameters.get('requestPage'), 0),
@@ -50,7 +44,6 @@ export function parseInternshipRequestsUrlState(
       : 4,
     sort: sort.success ? sort.data : 'createdAt,desc',
     search: (parameters.get('requestSearch') ?? '').trim().slice(0, 120),
-    status: status.success ? status.data : undefined,
     companyId: optionalUuid(parameters.get('requestCompanyId')),
     selectedRequestId: optionalUuid(parameters.get('requestId')),
   }
@@ -59,7 +52,6 @@ export function parseInternshipRequestsUrlState(
 export function serializeInternshipRequestsUrlState(state: InternshipRequestsUrlState) {
   const parameters = new URLSearchParams()
   if (state.search) parameters.set('requestSearch', state.search)
-  if (state.status) parameters.set('requestStatus', state.status)
   if (state.companyId) parameters.set('requestCompanyId', state.companyId)
   if (state.sort !== 'createdAt,desc') parameters.set('requestSort', state.sort)
   if (state.page > 0) parameters.set('requestPage', String(state.page))

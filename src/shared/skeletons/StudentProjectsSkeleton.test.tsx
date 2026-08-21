@@ -5,14 +5,17 @@ import { ProjectModalSkeleton, StudentProjectsSkeleton } from './StudentProjects
 describe('StudentProjectsSkeleton', () => {
   it('uses four project-specific repository rows instead of a generic table skeleton', () => {
     const { container } = render(<StudentProjectsSkeleton />)
-    expect(container.querySelectorAll('.skeleton-project-row')).toHaveLength(4)
-    expect(container.querySelector('.skeleton-project-toolbar')).toBeInTheDocument()
+    expect(container.querySelectorAll('.s4-projects-item')).toHaveLength(4)
+    expect(container.querySelector('.s4-projects-toolbar')).toBeInTheDocument()
     expect(container.querySelector('.skeleton-table-head')).not.toBeInTheDocument()
   })
 
   it('reserves the full project modal body', () => {
     const { container } = render(<ProjectModalSkeleton />)
-    expect(container.querySelector('.skeleton-modal-footer')).toBeInTheDocument()
-    expect(container.querySelectorAll('.skeleton-chip-row .skeleton-empty')).toHaveLength(3)
+    const chipRow = container.querySelector('.skeleton-chip-row')
+
+    expect(container.querySelector('.s4-projects-details-actions')).toBeInTheDocument()
+    expect(chipRow).toBeInTheDocument()
+    expect(chipRow?.childElementCount).toBe(3)
   })
 })

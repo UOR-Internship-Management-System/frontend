@@ -6,7 +6,6 @@ import type {
   ApiInternshipRequestCreateRequest,
   ApiInternshipRequestResponse,
   ApiInternshipRequestSort,
-  ApiInternshipRequestStatus,
   ApiInternshipRequestUpdateRequest,
   ApiInternshipRequiredSkillRequest,
   ApiInternshipRequiredSkillResponse,
@@ -21,7 +20,6 @@ export type CompaniesQuery = {
   size: CompanyPageSize
   sort: ApiCompanySort
   search: string
-  active?: boolean
 }
 
 export type CompaniesUrlState = CompaniesQuery & {
@@ -46,7 +44,6 @@ export type InternshipRequestsQuery = {
   size: InternshipRequestPageSize
   sort: ApiInternshipRequestSort
   search: string
-  status?: ApiInternshipRequestStatus
   companyId?: string
 }
 export type InternshipRequestsUrlState = InternshipRequestsQuery & {
@@ -85,7 +82,6 @@ export type InternshipRequestFormValues = {
   companyId: string
   title: string
   description: string
-  status: ApiInternshipRequestStatus
   shortlistGuidanceValue: string
   requiredSkills: RequiredSkillSelection[]
 }

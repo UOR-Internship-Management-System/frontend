@@ -14,9 +14,7 @@ describe('Sprint 2 frontend gateway and route guards', () => {
   it('renders the Sprint 2 public gateway shell', async () => {
     renderWithProviders(<App />)
 
-    expect(
-      await screen.findByRole('heading', { name: /department access gateway/i }),
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('region', { name: /gateway introduction/i })).toBeInTheDocument()
   })
 
   it('exposes the approved Student and Admin destinations', () => {

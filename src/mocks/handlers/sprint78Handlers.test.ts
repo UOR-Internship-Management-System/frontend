@@ -37,21 +37,20 @@ describe('Sprint 7-8 development handlers', () => {
     expect(latestCv.availability).toBe('AVAILABLE')
   })
 
-  it('persists company and internship request lifecycle mutations', async () => {
+  it('persists company and internship request CRUD mutations', async () => {
     const initial = await internshipManagementApi.listCompanies({
       page: 0,
       size: 20,
       sort: 'name,asc',
       search: '',
-      active: undefined,
     })
     expect(initial.items.length).toBeGreaterThan(0)
 
     const createdCompany = await internshipManagementApi.createCompany({
-      name: 'Lifecycle Test Company',
-      websiteUrl: 'https://lifecycle.example.test',
+      name: 'CRUD Test Company',
+      websiteUrl: 'https://crud.example.test',
       contactPerson: 'Test Contact',
-      contactEmail: 'contact@lifecycle.example.test',
+      contactEmail: 'contact@crud.example.test',
       contactPhone: null,
     })
     const updatedCompany = await internshipManagementApi.updateCompany({
@@ -63,15 +62,14 @@ describe('Sprint 7-8 development handlers', () => {
 
     const createdRequest = await internshipManagementApi.createInternshipRequest({
       companyId: createdCompany.companyId,
-      title: 'Lifecycle Engineering Intern',
+      title: 'CRUD Engineering Intern',
       description: null,
-      status: 'ACTIVE',
       shortlistGuidanceValue: 2,
       requiredSkills: [],
     })
     expect(
       (await internshipManagementApi.getInternshipRequest(createdRequest.requestId)).title,
-    ).toBe('Lifecycle Engineering Intern')
+    ).toBe('CRUD Engineering Intern')
 
     await internshipManagementApi.deleteInternshipRequest({
       requestId: createdRequest.requestId,

@@ -21,7 +21,6 @@ export const emptyCompanyForm: CompanyFormValues = {
   contactEmail: '',
   contactPhone: '',
   notes: '',
-  active: true,
 }
 
 export function mapCompanyToForm(company: Company): CompanyFormValues {
@@ -32,7 +31,6 @@ export function mapCompanyToForm(company: Company): CompanyFormValues {
     contactEmail: company.contactEmail ?? '',
     contactPhone: company.contactPhone ?? '',
     notes: company.notes ?? '',
-    active: company.active,
   }
 }
 

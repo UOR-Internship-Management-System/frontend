@@ -7,7 +7,6 @@ import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SelectField } from '../../../shared/components/forms/SelectField'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
@@ -44,7 +43,6 @@ export function InternshipManagementPage() {
     size: state.size,
     sort: state.sort,
     search: state.search,
-    active: state.active,
   })
   const selected = useCompany(state.selectedCompanyId ?? null)
   const createMutation = useCreateCompany()
@@ -54,9 +52,7 @@ export function InternshipManagementPage() {
     () => (selected.data ? mapCompanyToForm(selected.data) : undefined),
     [selected.data],
   )
-  const hasCompanyFilters = Boolean(
-    state.search || state.active !== true || state.sort !== 'name,asc',
-  )
+  const hasCompanyFilters = Boolean(state.search || state.sort !== 'name,asc')
 
   useEffect(() => {
     document.title = 'Internship Requests Management | CV Management & Filtering System'
@@ -123,17 +119,12 @@ export function InternshipManagementPage() {
 
   const clearCompanyFilters = () => {
     setSearchInput('')
-    updateState({ search: '', active: true, sort: 'name,asc', selectedCompanyId: undefined })
+    updateState({ search: '', sort: 'name,asc', selectedCompanyId: undefined })
   }
 
-  const emptyCompanyMessage =
-    state.active === false
-      ? 'No inactive companies match the current controls.'
-      : state.active === undefined
-        ? 'No companies match the current controls.'
-        : state.search
-          ? 'No active companies match the current search.'
-          : 'Create the first company before adding internship requests.'
+  const emptyCompanyMessage = state.search
+    ? 'No companies match the current search.'
+    : 'Create the first company before adding internship requests.'
 
   return (
     <div className="internship-wireframe-page">
@@ -154,24 +145,6 @@ export function InternshipManagementPage() {
             placeholder="Search companies or HR contacts"
             value={searchInput}
           />
-          <label className="internship-toolbar-field">
-            <span>Status</span>
-            <SelectField
-              aria-label="Filter companies by status"
-              onChange={(event) => {
-                const value = event.target.value
-                updateState({
-                  active: value === 'all' ? undefined : value === 'active',
-                  selectedCompanyId: undefined,
-                })
-              }}
-              value={state.active === undefined ? 'all' : state.active ? 'active' : 'inactive'}
-            >
-              <option value="active">Active companies</option>
-              <option value="inactive">Inactive companies</option>
-              <option value="all">All companies</option>
-            </SelectField>
-          </label>
           <label className="internship-toolbar-field">
             <span>Sort companies</span>
             <SortSelect

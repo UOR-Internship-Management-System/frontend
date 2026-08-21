@@ -98,19 +98,8 @@ function sortInternshipRequests(items: ApiInternshipRequestResponse[], sort: str
   return [...items].sort((left, right) => {
     if (sort === 'title,asc') return left.title.localeCompare(right.title)
     if (sort === 'companyName,asc') return left.company.name.localeCompare(right.company.name)
-    if (sort === 'status,asc') return left.status.localeCompare(right.status)
     return right.createdAt.localeCompare(left.createdAt)
   })
-}
-
-function canTransitionRequestStatus(
-  current: ApiInternshipRequestResponse['status'],
-  next: ApiInternshipRequestResponse['status'],
-) {
-  if (current === next) return true
-  if (current === 'DRAFT') return next === 'ACTIVE'
-  if (current === 'ACTIVE') return next === 'CLOSED'
-  return false
 }
 
 function page<T>(items: T[], request: Request, defaultSort: string) {
@@ -163,7 +152,6 @@ function requestSummary(request: ApiInternshipRequestResponse) {
     companyId: request.company.companyId,
     companyName: request.company.name,
     title: request.title,
-    status: request.status,
     shortlistGuidanceValue: request.shortlistGuidanceValue,
   }
 }
@@ -351,14 +339,12 @@ export const sprint78Handlers = [
   http.get(`${apiBase}/admin/companies`, ({ request }) => {
     const url = new URL(request.url)
     const search = (url.searchParams.get('search') ?? '').toLowerCase()
-    const active = url.searchParams.get('active')
     const items = companies.filter(
       (company) =>
-        (!search ||
-          `${company.name} ${company.contactPerson ?? ''} ${company.contactEmail ?? ''} ${company.contactPhone ?? ''}`
-            .toLowerCase()
-            .includes(search)) &&
-        (!active || !['true', 'false'].includes(active) || String(company.active) === active),
+        !search ||
+        `${company.name} ${company.contactPerson ?? ''} ${company.contactEmail ?? ''} ${company.contactPhone ?? ''}`
+          .toLowerCase()
+          .includes(search),
     )
     const sort = url.searchParams.get('sort') ?? 'name,asc'
     return HttpResponse.json(page(sortCompanies(items, sort), request, 'name,asc'))
@@ -388,7 +374,6 @@ export const sprint78Handlers = [
       contactEmail: body.contactEmail ?? null,
       contactPhone: body.contactPhone ?? null,
       notes: body.notes ?? null,
-      active: true,
       version: 0,
       createdAt: mockTimestamp,
       updatedAt: mockTimestamp,
@@ -448,12 +433,10 @@ export const sprint78Handlers = [
   http.get(`${apiBase}/admin/internship-requests`, ({ request }) => {
     const url = new URL(request.url)
     const companyId = url.searchParams.get('companyId')
-    const status = url.searchParams.get('status')
     const search = (url.searchParams.get('search') ?? '').toLowerCase()
     const items = internshipRequests.filter(
       (item) =>
         (!companyId || item.company.companyId === companyId) &&
-        (!status || item.status === status) &&
         (!search || `${item.title} ${item.company.name}`.toLowerCase().includes(search)),
     )
     const sort = url.searchParams.get('sort') ?? 'createdAt,desc'
@@ -471,28 +454,13 @@ export const sprint78Handlers = [
 
   http.post(`${apiBase}/admin/internship-requests`, async ({ request }) => {
     const body = (await request.json()) as ApiInternshipRequestCreateRequest
-    if (!['DRAFT', 'ACTIVE'].includes(body.status)) {
-      return problem(
-        409,
-        'INVALID_REQUEST_STATUS_TRANSITION',
-        'Create requests as Draft or Active.',
-      )
-    }
     const company = companies.find((item) => item.companyId === body.companyId)
     if (!company) return problem(404, 'COMPANY_NOT_FOUND', 'The company was not found.')
-    if (!company.active) {
-      return problem(
-        409,
-        'COMPANY_INACTIVE',
-        'Inactive companies cannot be selected for new requests.',
-      )
-    }
     const item: ApiInternshipRequestResponse = {
       requestId: mockId('b9', requestSequence++),
       company,
       title: body.title,
       description: body.description ?? null,
-      status: body.status,
       shortlistGuidanceValue: body.shortlistGuidanceValue ?? null,
       requiredSkills: body.requiredSkills.map(requiredSkill),
       version: 0,
@@ -513,13 +481,6 @@ export const sprint78Handlers = [
     const precondition = versionProblem(request, current.version)
     if (precondition) return precondition
     const body = (await request.json()) as ApiInternshipRequestUpdateRequest
-    if (body.status && !canTransitionRequestStatus(current.status, body.status)) {
-      return problem(
-        409,
-        'INVALID_REQUEST_STATUS_TRANSITION',
-        'The internship request cannot make that lifecycle transition.',
-      )
-    }
     const updated: ApiInternshipRequestResponse = {
       ...current,
       ...body,
@@ -656,11 +617,9 @@ export const sprint78Handlers = [
   http.get(`${apiBase}/admin/shortlists`, ({ request }) => {
     const url = new URL(request.url)
     const search = (url.searchParams.get('search') ?? '').toLowerCase()
-    const status = url.searchParams.get('status')
     const companyId = url.searchParams.get('companyId')
     const items = shortlists.filter(
       (item) =>
-        (!status || item.status === status) &&
         (!companyId || item.request.companyId === companyId) &&
         (!search ||
           `${item.name ?? ''} ${item.request.companyName} ${item.request.title}`

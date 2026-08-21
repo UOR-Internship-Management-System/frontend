@@ -16,7 +16,6 @@ const shortlist = {
     companyId,
     companyName: 'Example Technologies',
     title: 'Software Engineering Intern',
-    status: 'ACTIVE' as const,
     shortlistGuidanceValue: 10,
   },
   filterRunId: null,

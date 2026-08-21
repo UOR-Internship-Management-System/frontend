@@ -63,7 +63,6 @@ export const sprint78CompaniesFixture: ApiCompanyResponse[] = [
     contactEmail: 'nadeesha@acme.example.com',
     contactPhone: '+94 11 234 5678',
     notes: 'Primary frontend and product-engineering internship partner.',
-    active: true,
     version: 2,
     createdAt: '2026-07-01T08:30:00+05:30',
     updatedAt: '2026-07-19T14:15:00+05:30',
@@ -76,7 +75,6 @@ export const sprint78CompaniesFixture: ApiCompanyResponse[] = [
     contactEmail: 'tharindu@orbit.example.com',
     contactPhone: '+94 77 555 0102',
     notes: 'Backend, cloud, and data-platform internship partner.',
-    active: true,
     version: 1,
     createdAt: '2026-07-03T09:00:00+05:30',
     updatedAt: '2026-07-18T10:45:00+05:30',
@@ -88,8 +86,7 @@ export const sprint78CompaniesFixture: ApiCompanyResponse[] = [
     contactPerson: 'Malini Perera',
     contactEmail: 'malini@legacy.example.com',
     contactPhone: null,
-    notes: 'Inactive record retained for historical internship requests.',
-    active: false,
+    notes: 'Historical internship partner record.',
     version: 4,
     createdAt: '2026-06-20T11:00:00+05:30',
     updatedAt: '2026-07-15T16:20:00+05:30',
@@ -102,7 +99,6 @@ export const sprint78CompaniesFixture: ApiCompanyResponse[] = [
     contactEmail: 'hr@alpha-test.example.com',
     contactPhone: '+94 11 111 1111',
     notes: 'Test company for UI verification.',
-    active: true,
     version: 1,
     createdAt: '2026-07-21T08:00:00+05:30',
     updatedAt: '2026-07-21T08:00:00+05:30',
@@ -115,7 +111,6 @@ export const sprint78CompaniesFixture: ApiCompanyResponse[] = [
     contactEmail: 'hr@beta-test.example.com',
     contactPhone: '+94 11 222 2222',
     notes: 'Second test company for pagination and spacing verification.',
-    active: true,
     version: 1,
     createdAt: '2026-07-21T08:05:00+05:30',
     updatedAt: '2026-07-21T08:05:00+05:30',
@@ -128,7 +123,6 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
     company: sprint78CompaniesFixture[0],
     title: 'Frontend Engineering Intern',
     description: 'Build accessible React interfaces for internal product teams.',
-    status: 'ACTIVE',
     shortlistGuidanceValue: 2,
     requiredSkills: [
       {
@@ -151,7 +145,6 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
     company: sprint78CompaniesFixture[1],
     title: 'Backend Engineering Intern',
     description: 'Contribute to Spring Boot services and API integrations.',
-    status: 'ACTIVE',
     shortlistGuidanceValue: 3,
     requiredSkills: [
       {
@@ -174,7 +167,6 @@ export const sprint78InternshipRequestsFixture: ApiInternshipRequestResponse[] =
     company: sprint78CompaniesFixture[1],
     title: 'Data Platform Intern',
     description: 'Support data ingestion, validation, and reporting workflows.',
-    status: 'ACTIVE',
     shortlistGuidanceValue: 4,
     requiredSkills: [
       {
@@ -315,7 +307,6 @@ export const sprint78FilterRunsFixture: ApiCandidateFilteringRunResponse[] = [
       companyId: sprint78Ids.companies.acme,
       companyName: 'Acme Digital Labs',
       title: 'Frontend Engineering Intern',
-      status: 'ACTIVE',
       shortlistGuidanceValue: 2,
     },
     criteria: {
@@ -396,7 +387,6 @@ export const sprint78ShortlistsFixture: ApiShortlistResponse[] = [
       companyId: sprint78Ids.companies.acme,
       companyName: 'Acme Digital Labs',
       title: 'Frontend Engineering Intern',
-      status: 'ACTIVE',
       shortlistGuidanceValue: 2,
     },
 
@@ -421,7 +411,6 @@ export const sprint78ShortlistsFixture: ApiShortlistResponse[] = [
       companyId: sprint78Ids.companies.orbit,
       companyName: 'Orbit Systems',
       title: 'Backend Engineering Intern',
-      status: 'ACTIVE',
       shortlistGuidanceValue: 3,
     },
 
