@@ -250,11 +250,7 @@ test('real backend supports Company and Internship Request CRUD with matching ET
       .click()
 
     const requestPatchPromise = page.waitForResponse((response) =>
-      isApiResponse(
-        response,
-        'PATCH',
-        `/api/v1/admin/internship-requests/${internship.requestId}`,
-      ),
+      isApiResponse(response, 'PATCH', `/api/v1/admin/internship-requests/${internship.requestId}`),
     )
     const editRequest = page.getByRole('dialog', { name: 'Edit Internship Request' })
     await editRequest.getByLabel('Internship Role Title').fill(updatedRequestTitle)

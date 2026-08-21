@@ -55,9 +55,7 @@ describe('Internship request URL and server list state', () => {
       selectedRequestId: requestId,
     })
     expect(
-      parseInternshipRequestsUrlState(
-        new URLSearchParams('requestCompanyId=bad&requestSize=7'),
-      ),
+      parseInternshipRequestsUrlState(new URLSearchParams('requestCompanyId=bad&requestSize=7')),
     ).toEqual(expect.objectContaining({ companyId: undefined, size: 4 }))
     expect(serializeInternshipRequestsUrlState(parsed).toString()).toBe(
       `requestSearch=Engineer&requestCompanyId=${companyId}&requestSort=title%2Casc&requestPage=2&requestSize=50&requestId=${requestId}`,
@@ -66,11 +64,7 @@ describe('Internship request URL and server list state', () => {
 
   it('debounces search and resets the independent request page', async () => {
     function Wrapper({ children }: PropsWithChildren) {
-      return (
-        <MemoryRouter initialEntries={['/?requestPage=4']}>
-          {children}
-        </MemoryRouter>
-      )
+      return <MemoryRouter initialEntries={['/?requestPage=4']}>{children}</MemoryRouter>
     }
     const { result } = renderHook(() => useInternshipRequestsUrlState(), { wrapper: Wrapper })
     expect(result.current.state.page).toBe(4)

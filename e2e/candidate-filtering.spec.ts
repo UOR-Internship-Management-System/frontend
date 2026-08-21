@@ -81,7 +81,7 @@ async function mockCandidateFilteringWorkflow(page: Page) {
       companyId,
       companyName: company.name,
       title: request.title,
-        shortlistGuidanceValue: request.shortlistGuidanceValue,
+      shortlistGuidanceValue: request.shortlistGuidanceValue,
     },
     criteria: {
       requestId,
