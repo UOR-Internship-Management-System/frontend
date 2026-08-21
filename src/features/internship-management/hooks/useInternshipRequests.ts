@@ -99,6 +99,6 @@ export function getInternshipRequestMutationErrorMessage(error: unknown) {
   if (mapped.status === 412) return 'This request changed. Reload the latest version and try again.'
   if (mapped.status === 428) return 'Reload this request before deleting it.'
   if (mapped.status === 409)
-    return 'This internship request cannot be deleted in its current state.'
+    return 'This internship request cannot be deleted because linked data is in use.'
   return mapped.message
 }

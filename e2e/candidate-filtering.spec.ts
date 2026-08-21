@@ -59,7 +59,6 @@ async function mockCandidateFilteringWorkflow(page: Page) {
     contactEmail: 'nimali@example.test',
     contactPhone: null,
     notes: null,
-    active: true,
     version: 2,
     createdAt: now,
     updatedAt: now,
@@ -69,7 +68,6 @@ async function mockCandidateFilteringWorkflow(page: Page) {
     company,
     title: 'Software Engineering Intern',
     description: 'Build accessible administrative interfaces.',
-    status: 'ACTIVE',
     shortlistGuidanceValue: 2,
     requiredSkills: [],
     version: 3,
@@ -83,7 +81,6 @@ async function mockCandidateFilteringWorkflow(page: Page) {
       companyId,
       companyName: company.name,
       title: request.title,
-      status: request.status,
       shortlistGuidanceValue: request.shortlistGuidanceValue,
     },
     criteria: {

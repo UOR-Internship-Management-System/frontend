@@ -1,8 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type {
-  ApiInternshipRequestSort,
-  ApiInternshipRequestStatus,
-} from '../../../shared/api/generated/cvManagementApi.types'
+import type { ApiInternshipRequestSort } from '../../../shared/api/generated/cvManagementApi.types'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
@@ -11,7 +8,6 @@ import { SortSelect } from '../../../shared/components/data/SortSelect'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SelectField } from '../../../shared/components/forms/SelectField'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
@@ -60,7 +56,6 @@ export function InternshipRequestWorkspace({
           size: state.size,
           sort: state.sort,
           search: state.search,
-          status: state.status,
           companyId: selectedCompanyId,
         }
       : null,
@@ -73,7 +68,7 @@ export function InternshipRequestWorkspace({
     () => (selected.data ? mapInternshipRequestToForm(selected.data) : undefined),
     [selected.data],
   )
-  const hasFilters = Boolean(state.search || state.status || state.sort !== 'createdAt,desc')
+  const hasFilters = Boolean(state.search || state.sort !== 'createdAt,desc')
 
   useEffect(() => {
     setOverlay(null)
@@ -152,7 +147,7 @@ export function InternshipRequestWorkspace({
 
   const clearFilters = () => {
     setSearchInput('')
-    updateState({ search: '', status: undefined, sort: 'createdAt,desc' })
+    updateState({ search: '', sort: 'createdAt,desc' })
   }
 
   return (
@@ -163,22 +158,10 @@ export function InternshipRequestWorkspace({
           {selectedCompany ? (
             <>
               <p className="internship-section-context">{selectedCompany.name}</p>
-              {!selectedCompany.active ? (
-                <p className="internship-section-context">
-                  Inactive company — request history remains available, but new requests are
-                  disabled.
-                </p>
-              ) : null}
             </>
           ) : null}
         </div>
         <Button
-          disabled={!selectedCompany?.active}
-          title={
-            selectedCompany && !selectedCompany.active
-              ? 'This inactive company cannot receive new internship requests.'
-              : undefined
-          }
           icon={<span className="material-symbols-outlined">playlist_add</span>}
           onClick={() => setOverlay('create')}
         >
@@ -213,25 +196,6 @@ export function InternshipRequestWorkspace({
               value={searchInput}
             />
             <label className="internship-toolbar-field">
-              <span>Status</span>
-              <SelectField
-                aria-label="Filter internship requests by status"
-                onChange={(event) =>
-                  updateState({
-                    status: (event.target.value || undefined) as
-                      ApiInternshipRequestStatus | undefined,
-                  })
-                }
-                value={state.status ?? ''}
-              >
-                <option value="">All statuses</option>
-                <option value="DRAFT">Draft</option>
-                <option value="ACTIVE">Active</option>
-                <option value="CLOSED">Closed</option>
-                <option value="CANCELLED">Cancelled</option>
-              </SelectField>
-            </label>
-            <label className="internship-toolbar-field">
               <span>Sort requests</span>
               <SortSelect
                 onChange={(event) =>
@@ -241,7 +205,6 @@ export function InternshipRequestWorkspace({
               >
                 <option value="createdAt,desc">Newest first</option>
                 <option value="title,asc">Role title A–Z</option>
-                <option value="status,asc">Status</option>
               </SortSelect>
             </label>
             {hasFilters ? (

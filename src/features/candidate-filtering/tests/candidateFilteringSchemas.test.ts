@@ -86,7 +86,6 @@ describe('candidate filtering runtime schemas', () => {
         companyId: '55555555-5555-4555-8555-555555555555',
         companyName: 'Example Technologies',
         title: 'Software Engineering Intern',
-        status: 'ACTIVE' as const,
         shortlistGuidanceValue: 10,
       },
       criteria,

@@ -461,7 +461,7 @@ export type ApiCompanyRequest = {
   notes?: string | null
 }
 
-export type ApiCompanyUpdateRequest = Partial<ApiCompanyRequest> & { active?: boolean }
+export type ApiCompanyUpdateRequest = Partial<ApiCompanyRequest>
 
 export type ApiCompanyResponse = {
   companyId: string
@@ -471,7 +471,6 @@ export type ApiCompanyResponse = {
   contactEmail: string | null
   contactPhone: string | null
   notes: string | null
-  active: boolean
   version: number
   createdAt: string
   updatedAt: string
@@ -479,12 +478,10 @@ export type ApiCompanyResponse = {
 
 export type ApiPagedCompanyResponse = ApiPagedResponse<ApiCompanyResponse>
 
-export type ApiInternshipRequestStatus = 'DRAFT' | 'ACTIVE' | 'CLOSED' | 'CANCELLED'
 export type ApiInternshipRequestSort =
   | 'createdAt,desc'
   | 'title,asc'
   | 'companyName,asc'
-  | 'status,asc'
 
 export type ApiInternshipRequiredSkillRequest = {
   skillId: string
@@ -500,7 +497,6 @@ export type ApiInternshipRequestCreateRequest = {
   companyId: string
   title: string
   description?: string | null
-  status: ApiInternshipRequestStatus
   shortlistGuidanceValue?: number | null
   requiredSkills: ApiInternshipRequiredSkillRequest[]
 }
@@ -514,7 +510,6 @@ export type ApiInternshipRequestSummaryResponse = {
   companyId: string
   companyName: string
   title: string
-  status: ApiInternshipRequestStatus
   shortlistGuidanceValue: number | null
 }
 
@@ -523,7 +518,6 @@ export type ApiInternshipRequestResponse = {
   company: ApiCompanyResponse
   title: string
   description: string | null
-  status: ApiInternshipRequestStatus
   shortlistGuidanceValue: number | null
   requiredSkills: ApiInternshipRequiredSkillResponse[]
   version: number

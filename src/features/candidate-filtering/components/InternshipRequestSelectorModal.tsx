@@ -28,7 +28,6 @@ export function InternshipRequestSelectorModal({
     size: 100,
     sort: 'name,asc',
     search: companySearch.trim(),
-    active: true,
   })
   const requests = useInternshipRequests(
     companyId
@@ -37,7 +36,6 @@ export function InternshipRequestSelectorModal({
           size: 100,
           sort: 'title,asc',
           search: requestSearch.trim(),
-          status: 'ACTIVE',
           companyId,
         }
       : null,
@@ -55,7 +53,7 @@ export function InternshipRequestSelectorModal({
 
   return (
     <Modal
-      description="Search active external company records, then choose one active internship request."
+      description="Search external company records, then choose an internship request."
       onClose={onClose}
       title="Select an internship request"
     >
@@ -91,7 +89,7 @@ export function InternshipRequestSelectorModal({
             }}
             value={companyId}
           >
-            <option value="">Choose an active company</option>
+            <option value="">Choose a company</option>
             {companies.data?.items.map((company) => (
               <option key={company.companyId} value={company.companyId}>
                 {company.name}
@@ -120,7 +118,7 @@ export function InternshipRequestSelectorModal({
             value={requestId}
           >
             <option value="">
-              {companyId ? 'Choose an active internship request' : 'Select a company first'}
+              {companyId ? 'Choose an internship request' : 'Select a company first'}
             </option>
             {requests.data?.items.map((request) => (
               <option key={request.requestId} value={request.requestId}>
@@ -131,7 +129,7 @@ export function InternshipRequestSelectorModal({
         </label>
 
         {companyId && requests.data?.items.length === 0 ? (
-          <p className="modal-helper-text">No active requests match this company and search.</p>
+          <p className="modal-helper-text">No requests match this company and search.</p>
         ) : null}
 
         <div className="modal-actions">

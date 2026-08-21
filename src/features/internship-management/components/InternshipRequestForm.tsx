@@ -1,8 +1,6 @@
 import { useRef, useState } from 'react'
-import type { ApiInternshipRequestStatus } from '../../../shared/api/generated/cvManagementApi.types'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { FormField } from '../../../shared/components/forms/FormField'
-import { SelectField } from '../../../shared/components/forms/SelectField'
 import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
@@ -12,7 +10,6 @@ import type {
   InternshipRequestCreateInput,
   InternshipRequestFormValues,
 } from '../types/internshipManagementTypes'
-import { formatInternshipRequestStatus } from '../utils/internshipRequestPresentation'
 import { RequiredSkillPicker } from './RequiredSkillPicker'
 
 type Field = keyof InternshipRequestFormValues
@@ -22,25 +19,14 @@ export const emptyInternshipRequestForm: InternshipRequestFormValues = {
   companyId: '',
   title: '',
   description: '',
-  status: 'DRAFT',
   shortlistGuidanceValue: '',
   requiredSkills: [],
-}
-
-export function allowedRequestStatuses(
-  mode: 'create' | 'edit',
-  current: ApiInternshipRequestStatus,
-): ApiInternshipRequestStatus[] {
-  if (mode === 'create' || current === 'DRAFT') return ['DRAFT', 'ACTIVE']
-  if (current === 'ACTIVE') return ['ACTIVE', 'CLOSED']
-  return [current]
 }
 
 export function mapInternshipRequestToForm(request: {
   company: Company
   title: string
   description: string | null
-  status: ApiInternshipRequestStatus
   shortlistGuidanceValue: number | null
   requiredSkills: Array<{ skillId: string; skillName: string }>
 }): InternshipRequestFormValues {
@@ -48,7 +34,6 @@ export function mapInternshipRequestToForm(request: {
     companyId: request.company.companyId,
     title: request.title,
     description: request.description ?? '',
-    status: request.status,
     shortlistGuidanceValue:
       request.shortlistGuidanceValue === null ? '' : String(request.shortlistGuidanceValue),
     requiredSkills: request.requiredSkills.map(({ skillId, skillName }) => ({
@@ -63,7 +48,6 @@ function toSubmission(values: InternshipRequestFormValues): InternshipRequestCre
     companyId: values.companyId,
     title: values.title.trim(),
     description: values.description.trim() || null,
-    status: values.status,
     shortlistGuidanceValue: values.shortlistGuidanceValue.trim()
       ? Number(values.shortlistGuidanceValue)
       : null,
@@ -95,7 +79,6 @@ export function InternshipRequestForm({
   const [pending, setPending] = useState(false)
   const titleRef = useRef<HTMLInputElement | null>(null)
   const isDirty = JSON.stringify(values) !== JSON.stringify(resolvedInitialValues)
-  const statusOptions = allowedRequestStatuses(mode, initialValues.status)
 
   const update = <K extends Field>(field: K, value: InternshipRequestFormValues[K]) => {
     setValues((current) => ({ ...current, [field]: value }))
@@ -154,8 +137,8 @@ export function InternshipRequestForm({
 
         <section className="request-form-section" aria-labelledby="request-role-heading">
           <div className="request-form-section-heading">
-            <h3 id="request-role-heading">Role and lifecycle</h3>
-            <p>Define the role and request state for the selected company.</p>
+            <h3 id="request-role-heading">Role details</h3>
+            <p>Define the role details for the selected company.</p>
           </div>
           <FormField
             error={errors.title}
@@ -175,28 +158,6 @@ export function InternshipRequestForm({
             />
           </FormField>
           <div className="wireframe-form-grid">
-            <FormField
-              error={errors.status}
-              errorId="request-status-error"
-              htmlFor="request-status"
-              label="Request Status"
-            >
-              <SelectField
-                aria-invalid={Boolean(errors.status)}
-                disabled={pending}
-                id="request-status"
-                onChange={(event) =>
-                  update('status', event.target.value as ApiInternshipRequestStatus)
-                }
-                value={values.status}
-              >
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {formatInternshipRequestStatus(status)}
-                  </option>
-                ))}
-              </SelectField>
-            </FormField>
             <FormField
               error={errors.shortlistGuidanceValue}
               errorId="request-shortlistGuidanceValue-error"

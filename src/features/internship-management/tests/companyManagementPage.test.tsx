@@ -18,7 +18,6 @@ const company: Company = {
   contactEmail: 'nimali@acme.example',
   contactPhone: '+94 11 234 5678',
   notes: null,
-  active: true,
   version: 4,
   createdAt: '2026-07-01T08:00:00Z',
   updatedAt: '2026-07-18T09:30:00Z',
@@ -54,7 +53,7 @@ function renderPage(onCompanyList = vi.fn(), currentCompany: Company = company) 
 }
 
 describe('InternshipManagementPage production behavior', () => {
-  it('uses server pagination, lists active companies, and enables request creation after selection', async () => {
+  it('uses server pagination, lists companies, and keeps request creation available', async () => {
     const user = userEvent.setup()
     const companyList = vi.fn()
     renderPage(companyList)
@@ -64,9 +63,9 @@ describe('InternshipManagementPage production behavior', () => {
       screen.getByText('https://acme.example · HR representative: Nimali Perera'),
     ).toBeInTheDocument()
     expect(companyList).toHaveBeenCalledWith(
-      expect.stringContaining('page=0&size=3&sort=name%2Casc&active=true'),
+      expect.stringContaining('page=0&size=3&sort=name%2Casc'),
     )
-    expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeEnabled()
 
     await user.click(screen.getByText('Acme Lanka'))
     await waitFor(() =>
