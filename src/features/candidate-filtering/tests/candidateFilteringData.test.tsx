@@ -36,7 +36,6 @@ const run = {
     companyId: nextRequestId,
     companyName: 'Example Technologies',
     title: 'Software Engineering Intern',
-    status: 'ACTIVE' as const,
     shortlistGuidanceValue: 10,
   },
   criteria,

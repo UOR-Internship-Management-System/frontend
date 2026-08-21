@@ -18,7 +18,6 @@ const company: Company = {
   contactEmail: 'nimali@example.test',
   contactPhone: null,
   notes: null,
-  active: true,
   version: 2,
   createdAt: '2026-07-01T08:00:00Z',
   updatedAt: '2026-07-20T08:00:00Z',
@@ -28,7 +27,6 @@ const request: InternshipRequest = {
   company,
   title: 'Software Engineering Intern',
   description: 'Support product engineering work.',
-  status: 'ACTIVE',
   shortlistGuidanceValue: 12,
   requiredSkills: [
     {

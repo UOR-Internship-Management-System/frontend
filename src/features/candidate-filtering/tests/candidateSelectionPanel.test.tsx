@@ -21,7 +21,6 @@ const company = {
   contactEmail: null,
   contactPhone: null,
   notes: null,
-  active: true,
   version: 1,
   createdAt: now,
   updatedAt: now,
@@ -31,7 +30,6 @@ const internshipRequest = {
   company,
   title: 'Software Engineering Intern',
   description: null,
-  status: 'ACTIVE',
   shortlistGuidanceValue: 10,
   requiredSkills: [],
   version: 2,
@@ -73,7 +71,6 @@ function renderPanel(onRun: ReturnType<typeof vi.fn>) {
             companyId,
             companyName: company.name,
             title: internshipRequest.title,
-            status: 'ACTIVE',
             shortlistGuidanceValue: 10,
           },
           criteria: {

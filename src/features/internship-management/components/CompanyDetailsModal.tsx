@@ -1,6 +1,5 @@
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
-import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import type { Company } from '../types/internshipManagementTypes'
 
 export function CompanyDetailsModal({
@@ -20,14 +19,6 @@ export function CompanyDetailsModal({
         <div className="wireframe-details-wide">
           <dt>Company Name</dt>
           <dd>{company.name}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>
-            <StatusBadge tone={company.active ? 'success' : 'neutral'}>
-              {company.active ? 'Active' : 'Inactive'}
-            </StatusBadge>
-          </dd>
         </div>
         <div>
           <dt>Website</dt>

@@ -21,7 +21,6 @@ const company = companyResponseSchema.parse({
   contactEmail: 'hr@example.com',
   contactPhone: '+94 11 234 5678',
   notes: null,
-  active: true,
   version: 3,
   createdAt: now,
   updatedAt: now,
@@ -32,7 +31,6 @@ describe('Company metadata data layer', () => {
     expect(companyRequestSchema.parse({ name: 'Example Technologies' })).toEqual({
       name: 'Example Technologies',
     })
-    expect(companyUpdateRequestSchema.parse({ active: true })).toEqual({ active: true })
     expect(() => companyUpdateRequestSchema.parse({})).toThrow()
     expect(() => companyResponseSchema.parse({ ...company, unsupported: 'enabled' })).toThrow()
     expect(() =>
@@ -40,11 +38,11 @@ describe('Company metadata data layer', () => {
     ).toThrow()
   })
 
-  it('normalizes and serializes the company lifecycle filter', () => {
+  it('normalizes and serializes company list URL state', () => {
     const selected = companyId
     const parsed = parseCompaniesUrlState(
       new URLSearchParams(
-        `companySearch=Tech&companyActive=false&companySort=updatedAt%2Cdesc&companyPage=2&companySize=50&companyId=${selected}`,
+        `companySearch=Tech&companySort=updatedAt%2Cdesc&companyPage=2&companySize=50&companyId=${selected}`,
       ),
     )
     expect(parsed).toEqual({
@@ -52,16 +50,13 @@ describe('Company metadata data layer', () => {
       size: 50,
       sort: 'updatedAt,desc',
       search: 'Tech',
-      active: false,
       selectedCompanyId: selected,
     })
-    expect(serializeCompaniesUrlState(parsed).toString()).toContain('companyActive=false')
-    expect(parseCompaniesUrlState(new URLSearchParams('companyActive=all')).active).toBeUndefined()
-    expect(serializeCompaniesUrlState({ ...parsed, active: undefined }).toString()).toContain(
-      'companyActive=all',
-    )
     expect(parseCompaniesUrlState(new URLSearchParams('companySize=7&companyId=bad'))).toEqual(
       expect.objectContaining({ size: 3, selectedCompanyId: undefined }),
+    )
+    expect(serializeCompaniesUrlState(parsed).toString()).toBe(
+      `companySearch=Tech&companySort=updatedAt%2Cdesc&companyPage=2&companySize=50&companyId=${selected}`,
     )
   })
 

@@ -26,10 +26,9 @@ describe('Sprint 4 shared foundations', () => {
         search: 'React & TypeScript',
         categoryId: undefined,
         clusterId: '',
-        active: true,
         sort: ['name,asc', null],
       }),
-    ).toBe('?page=0&size=20&search=React+%26+TypeScript&active=true&sort=name%2Casc')
+    ).toBe('?page=0&size=20&search=React+%26+TypeScript&sort=name%2Casc')
   })
 
   it('clamps zero-based pages after totals shrink', () => {

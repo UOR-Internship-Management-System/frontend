@@ -68,7 +68,6 @@ export const companyFormSchema = z
     contactEmail: nullableFormEmailSchema.refine(Boolean, 'HR email address is required.'),
     contactPhone: nullableFormTextSchema(30).refine(Boolean, 'Direct line phone is required.'),
     notes: nullableFormTextSchema(4000),
-    active: z.boolean(),
   })
   .strict()
 
@@ -82,7 +81,6 @@ export const companyUpdateRequestSchema: z.ZodType<ApiCompanyUpdateRequest> = z
     contactEmail: companyFields.contactEmail,
     contactPhone: companyFields.contactPhone,
     notes: companyFields.notes,
-    active: z.boolean().optional(),
   })
   .strict()
   .refine((value) => Object.keys(value).length > 0, 'Change at least one company field.')
@@ -96,7 +94,6 @@ export const companyResponseSchema: z.ZodType<ApiCompanyResponse> = z
     contactEmail: z.string().email().max(254).nullable(),
     contactPhone: z.string().max(30).nullable(),
     notes: z.string().max(4000).nullable(),
-    active: z.boolean(),
     version: z.number().int().nonnegative(),
     createdAt: z.string().datetime({ offset: true }),
     updatedAt: z.string().datetime({ offset: true }),
@@ -106,12 +103,10 @@ export const companyResponseSchema: z.ZodType<ApiCompanyResponse> = z
 export const pagedCompanyResponseSchema: z.ZodType<ApiPagedCompanyResponse> =
   createPagedResponseSchema(companyResponseSchema)
 
-export const internshipRequestStatusSchema = z.enum(['DRAFT', 'ACTIVE', 'CLOSED', 'CANCELLED'])
 export const internshipRequestSortSchema = z.enum([
   'createdAt,desc',
   'title,asc',
   'companyName,asc',
-  'status,asc',
 ])
 export const internshipRequiredSkillRequestSchema: z.ZodType<ApiInternshipRequiredSkillRequest> = z
   .object({
@@ -140,7 +135,6 @@ const internshipRequestFields = {
   companyId: z.string().uuid(),
   title: z.string().min(1).max(200),
   description: z.string().max(10000).nullable().optional(),
-  status: internshipRequestStatusSchema,
   shortlistGuidanceValue: z.number().int().min(0).max(10000).nullable().optional(),
   requiredSkills: requiredSkillsSchema,
 }
@@ -153,7 +147,6 @@ export const internshipRequestUpdateSchema: z.ZodType<ApiInternshipRequestUpdate
   .object({
     title: internshipRequestFields.title.optional(),
     description: internshipRequestFields.description,
-    status: internshipRequestFields.status.optional(),
     shortlistGuidanceValue: internshipRequestFields.shortlistGuidanceValue,
     requiredSkills: internshipRequestFields.requiredSkills.optional(),
   })
@@ -166,7 +159,6 @@ export const internshipRequestResponseSchema: z.ZodType<ApiInternshipRequestResp
     company: companyResponseSchema,
     title: z.string().min(1).max(200),
     description: z.string().max(10000).nullable(),
-    status: internshipRequestStatusSchema,
     shortlistGuidanceValue: z.number().int().nonnegative().nullable(),
     requiredSkills: z.array(internshipRequiredSkillResponseSchema),
     version: z.number().int().nonnegative(),
@@ -182,7 +174,6 @@ export const internshipRequestSummaryResponseSchema: z.ZodType<ApiInternshipRequ
       companyId: z.string().uuid(),
       companyName: z.string().min(1),
       title: z.string().min(1).max(200),
-      status: internshipRequestStatusSchema,
       shortlistGuidanceValue: z.number().int().nonnegative().nullable(),
     })
     .strict()
@@ -195,10 +186,9 @@ export const pagedInternshipRequiredSkillResponseSchema: z.ZodType<ApiPagedInter
 
 export const internshipRequestFormValuesSchema = z
   .object({
-    companyId: z.string().uuid('Select an active company.'),
+    companyId: z.string().uuid('Select a company.'),
     title: z.string().trim().min(1, 'Role title is required.').max(200),
     description: z.string().trim().max(10000, 'Description cannot exceed 10000 characters.'),
-    status: internshipRequestStatusSchema,
     shortlistGuidanceValue: z
       .string()
       .trim()

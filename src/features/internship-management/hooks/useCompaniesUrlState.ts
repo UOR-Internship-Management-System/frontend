@@ -8,7 +8,6 @@ import type { CompaniesUrlState, CompanyPageSize } from '../types/internshipMana
 const allowedSizes = [3, 20, 50, 100] as const
 const companyUrlKeys = [
   'companySearch',
-  'companyActive',
   'companySort',
   'companyPage',
   'companySize',
@@ -20,7 +19,6 @@ export const defaultCompaniesUrlState: CompaniesUrlState = {
   size: 3,
   sort: 'name,asc',
   search: '',
-  active: true,
   selectedCompanyId: undefined,
 }
 
@@ -28,15 +26,11 @@ export function parseCompaniesUrlState(parameters: URLSearchParams): CompaniesUr
   const size = readNonnegativeInteger(parameters.get('companySize'), 3)
   const selectedCompanyId = parameters.get('companyId')
   const sort = companySortSchema.safeParse(parameters.get('companySort'))
-  const activeParameter = parameters.get('companyActive')
-  const active = activeParameter === 'false' ? false : activeParameter === 'all' ? undefined : true
-
   return {
     page: readNonnegativeInteger(parameters.get('companyPage'), 0),
     size: allowedSizes.includes(size as CompanyPageSize) ? (size as CompanyPageSize) : 3,
     sort: sort.success ? sort.data : 'name,asc',
     search: (parameters.get('companySearch') ?? '').trim().slice(0, 120),
-    active,
     selectedCompanyId:
       selectedCompanyId && z.string().uuid().safeParse(selectedCompanyId).success
         ? selectedCompanyId
@@ -47,8 +41,6 @@ export function parseCompaniesUrlState(parameters: URLSearchParams): CompaniesUr
 export function serializeCompaniesUrlState(state: CompaniesUrlState) {
   const parameters = new URLSearchParams()
   if (state.search) parameters.set('companySearch', state.search)
-  if (state.active === false) parameters.set('companyActive', 'false')
-  if (state.active === undefined) parameters.set('companyActive', 'all')
   if (state.sort !== 'name,asc') parameters.set('companySort', state.sort)
   if (state.page > 0) parameters.set('companyPage', String(state.page))
   if (state.size !== 3) parameters.set('companySize', String(state.size))

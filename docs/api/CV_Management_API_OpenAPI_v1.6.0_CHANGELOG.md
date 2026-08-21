@@ -1,5 +1,13 @@
 # OpenAPI v1.6.0 Sprint 7-8 Contract Changelog
 
+## Scope correction - 2026-08-15
+
+- Removed Company `active` state and the Company active/inactive list filter. Company management is ordinary CRUD.
+- Removed Internship Request `status`, lifecycle filtering/sorting, and DRAFT/ACTIVE/CLOSED/CANCELLED transition semantics.
+- Confirmed destructive Company DELETE with database cascade to linked Internship Requests and request-skill associations.
+- Confirmed destructive Internship Request DELETE with cascade to its request-skill associations.
+- Retained canonical taxonomy-skill selectability, optimistic concurrency, audit requirements, GPA exclusion, shortlist guidance, search, pagination, and required-skill management.
+
 ## Contract milestone - 2026-07-19
 
 Version 1.6.0 is a minor contract milestone. It preserves all valid Sprint 1-6 paths and operationIds from v1.5.0 and freezes the Sprint 7-8 Admin transport contracts.
