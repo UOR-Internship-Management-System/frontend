@@ -312,9 +312,8 @@ test('gateway remains overflow-safe in light and dark mode with stable reduced-m
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await expect(
-    page.getByRole('heading', { level: 1, name: 'Department Access Gateway' }),
-  ).toBeVisible()
+  await page.getByRole('button', { name: 'Skip intro' }).click()
+  await expect(page.getByRole('heading', { level: 2, name: 'Select your role' })).toBeVisible()
   await expectNoHorizontalOverflow(page)
   await capturePageScreenshot(page, testInfo, 'gateway-light-reduced-motion.png')
 
