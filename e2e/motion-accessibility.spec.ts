@@ -187,11 +187,13 @@ test('gateway and page entrances use centralized motion and fully stop for reduc
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
 
-  const gatewayMotion = await readMotionStyle(page.locator('.gateway-hero-content'))
-  expect(gatewayMotion.animationName).toBe('gatewayIntroRise')
-  expect(gatewayMotion.animationDuration).toBe('0.32s')
+  const gatewayMotion = await readMotionStyle(
+    page.locator('.logo-draw-reveal--once .logo-draw-reveal__mark-stroke'),
+  )
+  expect(gatewayMotion.animationName).toBe('gatewayV2DrawLogo')
+  expect(gatewayMotion.animationDuration).toBe('2s')
 
-  const gatewayCardMotion = await readMotionStyle(page.locator('.gateway-card').first())
+  const gatewayCardMotion = await readMotionStyle(page.locator('.gateway-v2-card').first())
   expect(transitionProperties(gatewayCardMotion.transitionProperty)).toContain('transform')
   expect(gatewayCardMotion.transitionDuration.split(',').map((value) => value.trim())).toContain(
     '0.22s',
@@ -204,8 +206,11 @@ test('gateway and page entrances use centralized motion and fully stop for reduc
 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  const reducedGateway = await readMotionStyle(page.locator('.gateway-hero-content'))
-  const reducedCard = await readMotionStyle(page.locator('.gateway-card').first())
+  await expect(page.getByRole('heading', { level: 2, name: 'Select your role' })).toBeVisible()
+  const reducedGateway = await readMotionStyle(
+    page.locator('.logo-draw-reveal--loop .logo-draw-reveal__mark-stroke'),
+  )
+  const reducedCard = await readMotionStyle(page.locator('.gateway-v2-card').first())
 
   expect(reducedGateway.animationName).toBe('none')
   expect(reducedCard.transitionDuration.split(',').every((value) => value.trim() === '0s')).toBe(
@@ -312,7 +317,6 @@ test('gateway remains overflow-safe in light and dark mode with stable reduced-m
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Skip intro' }).click()
   await expect(page.getByRole('heading', { level: 2, name: 'Select your role' })).toBeVisible()
   await expectNoHorizontalOverflow(page)
   await capturePageScreenshot(page, testInfo, 'gateway-light-reduced-motion.png')
