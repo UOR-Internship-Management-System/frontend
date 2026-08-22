@@ -39,7 +39,10 @@ describe('GatewayIntro', () => {
     const video = container.querySelector('video') as HTMLVideoElement
     fireEvent.ended(video)
 
-    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute(
+      'data-phase',
+      'exit',
+    )
     expect(onComplete).not.toHaveBeenCalled()
 
     act(() => {
@@ -55,7 +58,10 @@ describe('GatewayIntro', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /skip intro/i }))
 
-    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute(
+      'data-phase',
+      'exit',
+    )
 
     act(() => {
       vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
@@ -70,7 +76,10 @@ describe('GatewayIntro', () => {
 
     fireEvent.keyDown(window, { key: 'Escape' })
 
-    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute(
+      'data-phase',
+      'exit',
+    )
 
     act(() => {
       vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
@@ -86,7 +95,10 @@ describe('GatewayIntro', () => {
     const video = container.querySelector('video') as HTMLVideoElement
     fireEvent.error(video)
 
-    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute(
+      'data-phase',
+      'exit',
+    )
 
     act(() => {
       vi.advanceTimersByTime(gatewayIntroTiming.exitMs)

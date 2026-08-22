@@ -17,10 +17,7 @@ export const gatewayIntroTiming = {
 
 const DEFAULT_VIDEO_SRC = '/videos/Required%20Intro%20video.mp4'
 
-export function GatewayIntro({
-  onComplete,
-  videoSrc = DEFAULT_VIDEO_SRC,
-}: GatewayIntroProps) {
+export function GatewayIntro({ onComplete, videoSrc = DEFAULT_VIDEO_SRC }: GatewayIntroProps) {
   const prefersReducedMotion = usePrefersReducedMotion()
   const videoRef = useRef<HTMLVideoElement>(null)
   const skipButtonRef = useRef<HTMLButtonElement>(null)
@@ -122,7 +119,10 @@ export function GatewayIntro({
           <span className="gateway-v2-intro-cinema-skip-key" aria-hidden="true">
             ESC
           </span>
-          <span className="material-symbols-outlined gateway-v2-intro-cinema-skip-icon" aria-hidden="true">
+          <span
+            className="material-symbols-outlined gateway-v2-intro-cinema-skip-icon"
+            aria-hidden="true"
+          >
             arrow_forward
           </span>
         </button>
