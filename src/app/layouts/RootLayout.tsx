@@ -65,9 +65,7 @@ export function RootLayout() {
         isStudentWorkspace ? 'app-shell-student-workspace' : ''
       } ${isAdminWorkspace ? 'app-shell-admin-workspace' : ''}`.trim()}
     >
-      {isStandalone && location.pathname !== routePaths.home ? (
-        <ThemeToggle className="global-theme-toggle" />
-      ) : null}
+      {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
 
       {!isStandalone && !isWorkspace ? (
         <header className="app-header">
