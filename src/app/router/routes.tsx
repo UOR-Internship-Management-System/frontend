@@ -51,7 +51,6 @@ import {
   CandidateFilteringSkeleton,
   CvBuilderSkeleton,
   FormSkeleton,
-  GatewaySkeleton,
   RegisteredStudentsSkeleton,
   StudentDashboardSkeleton,
   StudentDeepDiveSkeleton,
