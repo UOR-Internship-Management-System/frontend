@@ -1,54 +1,45 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GatewayIntro, gatewayIntroTiming } from '../components/GatewayIntro'
-import { gatewayCaptions } from '../data/gatewayCaptions'
 
 describe('GatewayIntro', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+    window.HTMLMediaElement.prototype.pause = vi.fn()
   })
 
   afterEach(() => {
     vi.clearAllTimers()
     vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
-  it('runs the logo, slide, and exit phases in sequence', () => {
+  it('renders the full-screen cinematic video and minimalist skip control', () => {
     const onComplete = vi.fn()
-    const { container } = render(
-      <GatewayIntro captions={gatewayCaptions} onComplete={onComplete} />,
-    )
-    const intro = container.querySelector('.gateway-v2-intro')
+    const { container } = render(<GatewayIntro onComplete={onComplete} />)
 
-    expect(intro).toHaveAttribute('data-phase', 'logo')
-    expect(container.querySelector('.logo-draw-reveal--once')).toBeInTheDocument()
-    expect(container.querySelectorAll('.logo-draw-reveal__mark-stroke')).toHaveLength(1)
-    expect(container.querySelector('.logo-draw-reveal__trace')).not.toBeInTheDocument()
+    const intro = container.querySelector('.gateway-v2-intro-cinema')
+    expect(intro).toHaveAttribute('data-phase', 'playing')
 
-    act(() => {
-      vi.advanceTimersByTime(gatewayIntroTiming.logoRevealMs)
-    })
+    const video = container.querySelector('video')
+    expect(video).toBeInTheDocument()
+    expect(video).toHaveAttribute('src', '/videos/Required%20Intro%20video.mp4')
+    expect(video).toHaveProperty('muted', true)
+    expect(video).toHaveProperty('autoplay', true)
+    expect(video).toHaveProperty('playsInline', true)
 
-    expect(intro).toHaveAttribute('data-phase', 'slides')
-    expect(intro).toHaveAttribute('data-active-slide', '0')
+    expect(screen.getByRole('button', { name: /skip intro/i })).toBeInTheDocument()
+  })
 
-    act(() => {
-      vi.advanceTimersByTime(gatewayIntroTiming.slideHoldMs)
-    })
+  it('automatically finishes when the video ends', () => {
+    const onComplete = vi.fn()
+    const { container } = render(<GatewayIntro onComplete={onComplete} />)
 
-    expect(intro).toHaveAttribute('data-active-slide', '1')
+    const video = container.querySelector('video') as HTMLVideoElement
+    fireEvent.ended(video)
 
-    act(() => {
-      vi.advanceTimersByTime(gatewayIntroTiming.slideHoldMs)
-    })
-
-    expect(intro).toHaveAttribute('data-active-slide', '2')
-
-    act(() => {
-      vi.advanceTimersByTime(gatewayIntroTiming.slideHoldMs)
-    })
-
-    expect(intro).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
     expect(onComplete).not.toHaveBeenCalled()
 
     act(() => {
@@ -58,15 +49,44 @@ describe('GatewayIntro', () => {
     expect(onComplete).toHaveBeenCalledOnce()
   })
 
-  it('allows the sequence to be skipped', () => {
+  it('allows the sequence to be skipped via skip button', () => {
     const onComplete = vi.fn()
-    const { container } = render(
-      <GatewayIntro captions={gatewayCaptions} onComplete={onComplete} />,
-    )
+    const { container } = render(<GatewayIntro onComplete={onComplete} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Skip intro' }))
+    fireEvent.click(screen.getByRole('button', { name: /skip intro/i }))
 
-    expect(container.querySelector('.gateway-v2-intro')).toHaveAttribute('data-phase', 'exit')
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+
+    act(() => {
+      vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
+    })
+
+    expect(onComplete).toHaveBeenCalledOnce()
+  })
+
+  it('allows the sequence to be skipped via Escape key', () => {
+    const onComplete = vi.fn()
+    const { container } = render(<GatewayIntro onComplete={onComplete} />)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
+
+    act(() => {
+      vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
+    })
+
+    expect(onComplete).toHaveBeenCalledOnce()
+  })
+
+  it('gracefully exits if the video encounters an error', () => {
+    const onComplete = vi.fn()
+    const { container } = render(<GatewayIntro onComplete={onComplete} />)
+
+    const video = container.querySelector('video') as HTMLVideoElement
+    fireEvent.error(video)
+
+    expect(container.querySelector('.gateway-v2-intro-cinema')).toHaveAttribute('data-phase', 'exit')
 
     act(() => {
       vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
