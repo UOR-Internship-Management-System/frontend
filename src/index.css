@@ -295,6 +295,29 @@ textarea:focus-visible {
   padding: 24px 0;
 }
 
+.app-shell-standalone:has(.gateway-v2-page),
+.app-shell-standalone:has(.gateway-v2-intro-cinema) {
+  width: 100vw;
+  max-width: 100vw;
+  min-height: 100dvh;
+  height: 100dvh;
+  padding: 0;
+  margin: 0;
+  background: #020617;
+  overflow: hidden;
+}
+
+.app-main-standalone:has(.gateway-v2-page),
+.app-main-standalone:has(.gateway-v2-intro-cinema) {
+  width: 100vw;
+  max-width: 100vw;
+  min-height: 100dvh;
+  height: 100dvh;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+
 .page-transition {
   width: 100%;
   animation: pageTransitionIn var(--motion-duration-medium) var(--motion-standard) both;
@@ -306,7 +329,8 @@ textarea:focus-visible {
 }
 
 .page-transition:has(.gateway-page),
-.page-transition:has(.gateway-v2-page) {
+.page-transition:has(.gateway-v2-page),
+.page-transition:has(.gateway-v2-intro-cinema) {
   animation: none !important;
   transform: none !important;
 }

@@ -65,7 +65,9 @@ export function RootLayout() {
         isStudentWorkspace ? 'app-shell-student-workspace' : ''
       } ${isAdminWorkspace ? 'app-shell-admin-workspace' : ''}`.trim()}
     >
-      {isStandalone ? <ThemeToggle className="global-theme-toggle" /> : null}
+      {isStandalone && location.pathname !== routePaths.home ? (
+        <ThemeToggle className="global-theme-toggle" />
+      ) : null}
 
       {!isStandalone && !isWorkspace ? (
         <header className="app-header">
@@ -89,7 +91,7 @@ export function RootLayout() {
               } ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
         }
       >
-        {isWorkspace ? (
+        {isWorkspace || location.pathname === routePaths.home ? (
           outlet
         ) : (
           <div className="page-transition" key={location.pathname}>
