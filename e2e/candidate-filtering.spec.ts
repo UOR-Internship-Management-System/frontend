@@ -180,7 +180,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
 
   await expect(
     page.getByText(
-      'Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist.',
+      'Recruitment decision-support workspace. Select an internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist.',
     ),
   ).toBeVisible()
 
@@ -194,7 +194,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
 
   await expect(
     page.getByText(
-      'Select an active internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically.',
+      'Select an internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically.',
     ),
   ).toBeVisible()
 

@@ -242,7 +242,7 @@ export function SelectedCandidatesReviewModal({
 
               {candidate.hasExistingActiveShortlist ? (
                 <StatusBadge tone="neutral">
-                  {`Already shortlisted in ${candidate.existingActiveShortlistCount} active request${
+                  {`Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
                     candidate.existingActiveShortlistCount === 1 ? '' : 's'
                   }`}
                 </StatusBadge>

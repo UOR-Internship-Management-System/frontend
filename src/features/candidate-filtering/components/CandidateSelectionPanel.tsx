@@ -129,7 +129,7 @@ export function CandidateSelectionPanel({
         ) : selectedRequest.data ? (
           <div className="candidate-request-context-summary">
             <div>
-              <span>Active placement target</span>
+              <span>Selected company</span>
               <strong>{selectedRequest.data.company.name}</strong>
             </div>
             <div>

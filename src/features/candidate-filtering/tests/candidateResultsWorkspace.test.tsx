@@ -130,7 +130,7 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
       `/admin/students/${studentId}`,
     )
     expect(screen.getByRole('columnheader', { name: 'Cross-shortlist status' })).toBeInTheDocument()
-    expect(screen.getByText('Already shortlisted in 2 active requests')).toBeInTheDocument()
+    expect(screen.getByText('Already shortlisted in 2 other shortlists')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'View skills for Ayesha Perera' })).toBeEnabled()
     expect(
       screen.queryByText(

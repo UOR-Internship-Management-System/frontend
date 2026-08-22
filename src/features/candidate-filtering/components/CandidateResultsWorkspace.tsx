@@ -135,7 +135,7 @@ export function CandidateResultsWorkspace({
       {!state.runId ? (
         <div className="candidate-results-empty-canvas">
           <EmptyState
-            message="Select an active internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically."
+            message="Select an internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically."
             title="No internship request selected"
           />
         </div>
