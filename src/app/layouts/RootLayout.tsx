@@ -89,7 +89,7 @@ export function RootLayout() {
               } ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
         }
       >
-        {isWorkspace ? (
+        {isWorkspace || location.pathname === routePaths.home ? (
           outlet
         ) : (
           <div className="page-transition" key={location.pathname}>

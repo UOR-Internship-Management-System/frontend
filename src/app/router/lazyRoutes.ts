@@ -1,8 +1,5 @@
 import { lazy } from 'react'
 
-export const HomePage = lazy(() =>
-  import('../../features/home/pages/HomePage').then((module) => ({ default: module.HomePage })),
-)
 export const StudentSignUpPage = lazy(() =>
   import('../../features/student-auth/pages/StudentSignUpPage').then((module) => ({
     default: module.StudentSignUpPage,

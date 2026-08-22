@@ -15,6 +15,7 @@ import {
   RequireVerificationContextRoute,
 } from './routeGuards'
 import { fallbackRoutes } from './fallbackRoutes'
+import { HomePage } from '../../features/home/pages/HomePage'
 import {
   AdminCreatePasswordPage,
   AdminDashboardPage,
@@ -29,7 +30,6 @@ import {
   AdminVerifyResetOtpPage,
   CreatePasswordPage,
   ForgotPasswordPage,
-  HomePage,
   StudentDashboardPage,
   StudentProfilePage,
   StudentSkillsPage,
@@ -51,7 +51,6 @@ import {
   CandidateFilteringSkeleton,
   CvBuilderSkeleton,
   FormSkeleton,
-  GatewaySkeleton,
   RegisteredStudentsSkeleton,
   StudentDashboardSkeleton,
   StudentDeepDiveSkeleton,
@@ -72,7 +71,7 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: withSuspense(<HomePage />, <GatewaySkeleton />) },
+      { index: true, element: <HomePage /> },
       {
         element: <AuthLayout />,
         children: [
