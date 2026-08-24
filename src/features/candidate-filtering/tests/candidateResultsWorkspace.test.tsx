@@ -273,5 +273,12 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
 
     await waitFor(() => expect(finalizeCalls).toBe(2))
     expect(addCalls).toBe(1)
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('dialog', { name: 'Review Selected Shortlist' }),
+      ).not.toBeInTheDocument(),
+    )
+    expect(screen.getByText('Shortlist allocation finalized')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Matching Students' })).toBeInTheDocument()
   })
 })
