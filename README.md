@@ -642,8 +642,16 @@ Some historical architecture and sprint reports are retained as delivery evidenc
 
 ## License
 
-This repository does not currently include a license file. Unless the repository owners add an explicit license, no permission is granted to copy, modify, or redistribute the code outside the project's authorized use.
+Copyright (c) 2026 University of Ruhuna, Department of Computer Science.
 
----
+All rights reserved.
 
-Developed for the University of Ruhuna internship and CV management workflow.
+This software and associated documentation files (the "Software") are the
+proprietary property of the University of Ruhuna, Department of Computer
+Science. Unauthorized copying, distribution, modification, or use of this
+Software, in whole or in part, via any medium, is strictly prohibited without
+the prior written permission of the copyright holder.
+
+This Software is developed as part of the CV Management and Deterministic
+Internship Candidate Filtering System project.
+
