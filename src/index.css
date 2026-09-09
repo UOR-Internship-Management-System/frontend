@@ -715,6 +715,25 @@ textarea:focus-visible {
   padding: 0;
 }
 
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-self: start;
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: var(--color-text-muted, var(--color-text));
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  color: var(--primary);
+}
+
+.auth-back-link .material-symbols-outlined {
+  font-size: 20px;
+}
+
 .auth-form-card h1,
 .auth-centered-card h1 {
   margin: 0;

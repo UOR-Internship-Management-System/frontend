@@ -44,6 +44,12 @@ export function StudentLoginPage() {
       }
     >
       <section className="auth-form-card">
+        <Link className="auth-back-link" to={routePaths.home}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_back
+          </span>
+          Back
+        </Link>
         <h1>Login</h1>
         {message ? (
           <div className="inline-alert" role="alert">

@@ -121,6 +121,9 @@ describe('AdminLayout', () => {
     expect(screen.getAllByRole('button', { name: /switch to dark mode/i })).toHaveLength(1)
 
     await user.click(screen.getByRole('button', { name: 'Log Out' }))
+    const logoutDialog = await screen.findByRole('dialog', { name: 'Log Out' })
+    expect(logout).not.toHaveBeenCalled()
+    await user.click(within(logoutDialog).getByRole('button', { name: 'Log Out' }))
     expect(logout).toHaveBeenCalledOnce()
   })
 
