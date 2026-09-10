@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { FormField } from '../../../shared/components/forms/FormField'
+import { PasswordInput } from '../../../shared/components/forms/PasswordInput'
 import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Button } from '../../../shared/components/ui/Button'
 import { flattenZodErrors, loginSchema, type LoginFormValues } from '../schemas/studentAuthSchemas'
@@ -42,14 +43,13 @@ export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormPro
         />
       </FormField>
       <FormField error={errors.password} htmlFor="student-login-password" label="Password">
-        <TextInput
+        <PasswordInput
           autoComplete="current-password"
           id="student-login-password"
           onChange={(event) =>
             setValues((current) => ({ ...current, password: event.target.value }))
           }
           placeholder="Enter your password"
-          type="password"
           value={values.password}
         />
       </FormField>

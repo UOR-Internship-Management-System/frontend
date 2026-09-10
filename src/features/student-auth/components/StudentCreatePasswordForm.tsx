@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { PasswordInput } from '../../../shared/components/forms/PasswordInput'
 import { Button } from '../../../shared/components/ui/Button'
 import {
   flattenZodErrors,
@@ -45,13 +45,12 @@ export function StudentCreatePasswordForm({
         Use at least 8 characters with uppercase, lowercase, number, and special character.
       </p>
       <FormField error={errors.newPassword} htmlFor="student-new-password" label="New Password">
-        <TextInput
+        <PasswordInput
           autoComplete="new-password"
           id="student-new-password"
           onChange={(event) =>
             setValues((current) => ({ ...current, newPassword: event.target.value }))
           }
-          type="password"
           value={values.newPassword}
         />
       </FormField>
@@ -60,13 +59,12 @@ export function StudentCreatePasswordForm({
         htmlFor="student-confirm-password"
         label="Confirm New Password"
       >
-        <TextInput
+        <PasswordInput
           autoComplete="new-password"
           id="student-confirm-password"
           onChange={(event) =>
             setValues((current) => ({ ...current, confirmPassword: event.target.value }))
           }
-          type="password"
           value={values.confirmPassword}
         />
       </FormField>

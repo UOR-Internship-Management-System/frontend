@@ -2173,6 +2173,47 @@ p {
   outline: none;
 }
 
+.password-input-wrap {
+  position: relative;
+}
+
+.password-input-wrap .input {
+  padding-right: 44px;
+}
+
+.password-toggle-button {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--motion-duration-fast) var(--motion-standard),
+    color var(--motion-duration-fast) var(--motion-standard);
+}
+
+.password-toggle-button:hover {
+  background: var(--surface-container-high);
+  color: var(--color-text);
+}
+
+.password-toggle-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.password-toggle-button .material-symbols-outlined {
+  font-size: 20px;
+}
+
 .error-text {
   color: var(--color-danger);
   font-size: 0.9rem;
