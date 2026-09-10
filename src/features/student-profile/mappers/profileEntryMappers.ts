@@ -7,11 +7,26 @@ import type {
   CertificateRequest,
   ContactLinkFormValues,
   ContactLinkRequest,
+  EducationFormValues,
+  EducationRequest,
   ExperienceFormValues,
   ExperienceRequest,
 } from '../types/profileEntryTypes'
 
 const nullable = (value: string) => value.trim() || null
+const nullableMonth = (value: string) => (value.trim() ? `${value.trim()}-01` : null)
+
+export const mapEducationRequest = (value: EducationFormValues): EducationRequest => ({
+  degree: value.degree.trim(),
+  institution: value.institution.trim(),
+  institutionUrl: nullable(value.institutionUrl),
+  location: nullable(value.location),
+  startDate: nullableMonth(value.startDate),
+  endDate: value.current ? null : nullableMonth(value.endDate),
+  current: value.current,
+  resultNote: nullable(value.resultNote),
+  cvInclude: value.cvInclude,
+})
 
 export const mapContactLinkRequest = (value: ContactLinkFormValues): ContactLinkRequest => ({
   label: value.label.trim(),

@@ -122,3 +122,9 @@ export const ShortlistsPage = lazy(() =>
     default: module.ShortlistsPage,
   })),
 )
+
+export const EligibleStudentsPage = lazy(() =>
+  import('../../features/eligible-students/pages/EligibleStudentsPage').then((module) => ({
+    default: module.EligibleStudentsPage,
+  })),
+)

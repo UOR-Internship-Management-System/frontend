@@ -8,6 +8,7 @@ import {
   ActivitiesSection,
   AwardsSection,
   CertificatesSection,
+  EducationSection,
   ExperienceSection,
   ProfessionalLinksSection,
 } from '../components/ProfileSections'
@@ -73,6 +74,7 @@ export function StudentProfilePage() {
             </div>
           ) : null}
           <ProfessionalLinksSection />
+          <EducationSection />
           <CertificatesSection evidencePolicy={uploadPolicyQuery.data?.certificateEvidence} />
           <AwardsSection />
           <ActivitiesSection />

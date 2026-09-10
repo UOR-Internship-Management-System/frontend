@@ -1464,10 +1464,53 @@ body.admin-mobile-drawer-open {
   gap: 16px;
 }
 
+.profile-section-heading-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
 .profile-section-heading h2,
 .profile-section-heading p,
 .profile-form-alert p {
   margin: 0;
+}
+
+.profile-section-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-section-toggle:hover {
+  background: var(--surface-container-high);
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
+}
+
+.profile-section-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.profile-section-toggle[aria-expanded='false'] svg {
+  transform: rotate(-90deg);
+}
+
+.profile-section-body {
+  display: grid;
+  gap: 18px;
 }
 
 .profile-unsaved-indicator {
@@ -2168,6 +2211,15 @@ p {
   line-height: 1.5;
 }
 
+.inline-alert-success {
+  border: 1px solid color-mix(in srgb, var(--color-success) 35%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: var(--success-bg);
+  color: var(--color-text);
+  padding: 12px 14px;
+  line-height: 1.5;
+}
+
 .auth-test-credentials {
   display: grid;
   gap: 4px;
@@ -2249,6 +2301,38 @@ p {
 
 .table-responsive {
   overflow-x: auto;
+}
+
+.eligible-students-import-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.eligible-students-import-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.eligible-students-import-errors {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.eligible-students-import-errors li {
+  font-size: 0.9rem;
+}
+
+.eligible-students-list-card {
+  display: grid;
+  gap: 16px;
+}
+
+.eligible-students-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 table {

@@ -79,7 +79,30 @@ export function CvPreviewPanel({
   )
 }
 
+const previewStyles = `
+html{background:#eef0f3;color:#1c1c1c;font:14px/1.55 'Liberation Sans',Arial,Helvetica,sans-serif}
+body{margin:0;padding:40px 20px}
+.cv-document{max-width:760px;margin:0 auto;background:#fff;padding:48px 56px;border:1px solid #e2e2e2;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.cv-header{text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #1c385e}
+.cv-header h1{font-size:30px;margin:0 0 6px;letter-spacing:.4px}
+.cv-headline{font-style:italic;color:#444;margin:0 0 8px;font-size:14px}
+.cv-contact,.cv-links{margin:2px 0;font-size:12.5px;color:#333}
+.cv-links a{color:#1c385e;text-decoration:underline}
+section{margin-top:20px}
+section:first-of-type{margin-top:0}
+section>h2{font-size:13px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#1c385e;margin:0 0 8px;padding-bottom:4px;border-bottom:1px solid #1c385e}
+article{margin-bottom:14px}
+article:last-child{margin-bottom:0}
+article>h3{font-size:14.5px;margin:0;font-weight:700}
+.cv-meta{margin:2px 0 6px;font-size:12.5px;font-style:italic;color:#555}
+p{margin:4px 0;font-size:13.5px}
+ul{margin:6px 0;padding-left:20px}
+li{margin:3px 0;font-size:13.5px}
+a{color:#1c385e;text-decoration:none;border-bottom:1px solid #ccc}
+strong{font-weight:700}
+`.replace(/\n/g, '')
+
 export function buildPreviewDocument(htmlPreview: string) {
   const sanitizedPreview = sanitizeCvHtml(htmlPreview)
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none';"><meta name="referrer" content="no-referrer"><style>html{background:#fff;color:#191919;font:14px/1.5 'Google Sans',Arial,sans-serif}body{margin:0;padding:32px}article{max-width:760px;margin:auto}h1{font-size:28px;margin:0 0 8px}h2{font-size:16px;margin:22px 0 6px;border-bottom:1px solid #bbb;padding-bottom:4px}p,ul{margin:6px 0}a{color:inherit;text-decoration:none}</style></head><body>${sanitizedPreview}</body></html>`
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none';"><meta name="referrer" content="no-referrer"><style>${previewStyles}</style></head><body>${sanitizedPreview}</body></html>`
 }
