@@ -85,4 +85,10 @@ export const academicLedgerApi = {
     )
     return ledgerCommitResponseSchema.parse(response)
   },
+
+  async remove(uploadId: string) {
+    await httpClient<void>(`/admin/academic-ledger/uploads/${encodeURIComponent(uploadId)}`, {
+      method: 'DELETE',
+    })
+  },
 }

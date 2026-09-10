@@ -3,13 +3,17 @@ import { Button } from '../../../shared/components/ui/Button'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import { mapUploadStatus, mapValidationStatus } from '../mappers/academicLedgerMappers'
 
+const DELETE_BLOCKED_STATUSES = new Set(['PROCESSING', 'COMMITTING', 'COMMITTED'])
+
 export function LedgerUploadsTable({
   items,
+  onDelete,
   onSelect,
   selectedId,
 }: {
   items: ApiAcademicLedgerUploadSummaryResponse[]
   selectedId: string | null
+  onDelete: (item: ApiAcademicLedgerUploadSummaryResponse) => void
   onSelect: (uploadId: string) => void
 }) {
   return (
@@ -51,7 +55,7 @@ export function LedgerUploadsTable({
                   <StatusBadge tone={validation.tone}>{validation.label}</StatusBadge>
                 </td>
                 <td data-label="Rows">{item.totalRows}</td>
-                <td data-label="Action">
+                <td className="ledger-action-cell" data-label="Action">
                   <Button
                     aria-pressed={selectedId === item.uploadId}
                     onClick={() => onSelect(item.uploadId)}
@@ -59,6 +63,11 @@ export function LedgerUploadsTable({
                   >
                     Inspect
                   </Button>
+                  {!DELETE_BLOCKED_STATUSES.has(item.uploadStatus) ? (
+                    <Button onClick={() => onDelete(item)} variant="secondary">
+                      Remove
+                    </Button>
+                  ) : null}
                 </td>
               </tr>
             )

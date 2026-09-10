@@ -47,11 +47,16 @@ export const ledgerValidationErrorSchema: z.ZodType<ApiAcademicLedgerValidationE
   })
   .strict()
 
+const ledgerContentTypeSchema = z.enum([
+  'text/csv',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+])
+
 const ledgerUploadSummaryObject = z
   .object({
     uploadId: uuidSchema,
     originalFilename: z.string().min(1).max(255),
-    contentType: z.literal('text/csv'),
+    contentType: ledgerContentTypeSchema,
     fileSizeBytes: z.number().int().positive().max(5_242_880),
     uploadStatus: ledgerUploadStatusSchema,
     validationStatus: ledgerValidationStatusSchema,
@@ -64,19 +69,29 @@ const ledgerUploadSummaryObject = z
   })
   .strict()
 
-export const ledgerUploadSummarySchema: z.ZodType<ApiAcademicLedgerUploadSummaryResponse> =
-  ledgerUploadSummaryObject
+// The bundled OpenAPI contract still declares `contentType` as the `text/csv` literal only; the
+// backend and this schema now also accept Excel (.xlsx) uploads, so the generated API type is
+// widened locally here rather than narrowing the runtime schema to match a stale contract.
+type WithLedgerContentType<T> = Omit<T, 'contentType'> & { contentType: z.infer<typeof ledgerContentTypeSchema> }
 
-export const ledgerUploadDetailSchema: z.ZodType<ApiAcademicLedgerUploadDetailResponse> =
-  ledgerUploadSummaryObject
-    .extend({
-      statusMessage: z.string().min(1).max(500),
-      nextPollAfterSeconds: z.number().int().min(1).max(30).nullable(),
-    })
-    .strict()
+export const ledgerUploadSummarySchema: z.ZodType<
+  WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>
+> = ledgerUploadSummaryObject
 
-export const pagedLedgerUploadsSchema: z.ZodType<ApiPagedAcademicLedgerUploadResponse> =
-  createPagedResponseSchema(ledgerUploadSummarySchema)
+export const ledgerUploadDetailSchema: z.ZodType<
+  WithLedgerContentType<ApiAcademicLedgerUploadDetailResponse>
+> = ledgerUploadSummaryObject
+  .extend({
+    statusMessage: z.string().min(1).max(500),
+    nextPollAfterSeconds: z.number().int().min(1).max(30).nullable(),
+  })
+  .strict()
+
+export const pagedLedgerUploadsSchema: z.ZodType<
+  Omit<ApiPagedAcademicLedgerUploadResponse, 'items'> & {
+    items: WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>[]
+  }
+> = createPagedResponseSchema(ledgerUploadSummarySchema)
 
 export const ledgerStagedRowSchema: z.ZodType<ApiAcademicLedgerStagedRowResponse> = z
   .object({
@@ -140,8 +155,12 @@ export const ledgerCommitResponseSchema: z.ZodType<ApiAcademicLedgerCommitRespon
   .strict()
 
 export const academicLedgerFileSchema = createFileSchema({
-  extensions: ['.csv'],
+  extensions: ['.csv', '.xlsx'],
   maxBytes: 5_242_880,
-  allowedMimeTypes: ['text/csv'],
+  allowedMimeTypes: [
+    'text/csv',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/octet-stream',
+  ],
   allowEmptyMimeType: true,
 })
