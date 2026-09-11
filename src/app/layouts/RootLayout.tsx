@@ -34,6 +34,7 @@ const adminWorkspaceRoutes = [
   routePaths.adminInternships,
   routePaths.adminCandidateFiltering,
   routePaths.adminShortlists,
+  routePaths.adminEligibleStudents,
 ] as const
 
 function isAdminWorkspacePath(pathname: string) {
@@ -89,7 +90,7 @@ export function RootLayout() {
               } ${isAdminWorkspace ? 'app-main-admin-workspace' : ''}`.trim()
         }
       >
-        {isWorkspace ? (
+        {isWorkspace || location.pathname === routePaths.home ? (
           outlet
         ) : (
           <div className="page-transition" key={location.pathname}>

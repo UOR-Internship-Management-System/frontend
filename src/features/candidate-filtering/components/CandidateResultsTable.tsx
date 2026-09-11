@@ -145,10 +145,10 @@ export function CandidateResultsTable({
                       tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}
                     >
                       {candidate.hasExistingActiveShortlist
-                        ? `Already shortlisted in ${candidate.existingActiveShortlistCount} active request${
+                        ? `Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
                             candidate.existingActiveShortlistCount === 1 ? '' : 's'
                           }`
-                        : 'No other active shortlists'}
+                        : 'No other shortlists'}
                     </StatusBadge>
                   </div>
                 </td>

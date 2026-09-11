@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useOutlet } from 'react-router-dom'
+import { LogoutConfirmDialog } from '../../shared/components/overlays/LogoutConfirmDialog'
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle'
 import { useAuth } from '../../shared/hooks/useAuth'
 import { AdminSidebar } from './admin/AdminSidebar'
@@ -20,6 +21,7 @@ export function AdminLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(isMobileViewportNow)
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const sidebarRef = useRef<HTMLElement | null>(null)
   const firstNavigationItemRef = useRef<HTMLAnchorElement | null>(null)
@@ -105,7 +107,7 @@ export function AdminLayout() {
         isMobileViewport={isMobileViewport}
         navigationItems={adminNavigation}
         onCloseMobile={closeMobileDrawer}
-        onLogout={() => void auth.logout()}
+        onLogout={() => setIsLogoutConfirmOpen(true)}
         onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
         sidebarRef={sidebarRef}
       />
@@ -153,6 +155,16 @@ export function AdminLayout() {
           </div>
         </div>
       </div>
+
+      {isLogoutConfirmOpen ? (
+        <LogoutConfirmDialog
+          onClose={() => setIsLogoutConfirmOpen(false)}
+          onConfirm={async () => {
+            await auth.logout()
+            setIsLogoutConfirmOpen(false)
+          }}
+        />
+      ) : null}
     </section>
   )
 }

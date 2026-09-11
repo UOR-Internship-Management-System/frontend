@@ -1,8 +1,5 @@
 import { lazy } from 'react'
 
-export const HomePage = lazy(() =>
-  import('../../features/home/pages/HomePage').then((module) => ({ default: module.HomePage })),
-)
 export const StudentSignUpPage = lazy(() =>
   import('../../features/student-auth/pages/StudentSignUpPage').then((module) => ({
     default: module.StudentSignUpPage,
@@ -123,5 +120,11 @@ export const CandidateFilteringPage = lazy(() =>
 export const ShortlistsPage = lazy(() =>
   import('../../features/shortlists/pages/ShortlistsPage').then((module) => ({
     default: module.ShortlistsPage,
+  })),
+)
+
+export const EligibleStudentsPage = lazy(() =>
+  import('../../features/eligible-students/pages/EligibleStudentsPage').then((module) => ({
+    default: module.EligibleStudentsPage,
   })),
 )

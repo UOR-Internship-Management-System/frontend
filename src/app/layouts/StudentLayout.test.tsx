@@ -132,6 +132,9 @@ describe('StudentLayout', () => {
     expect(drawerCloseButton).toHaveFocus()
 
     await user.click(screen.getByRole('button', { name: 'Log Out' }))
+    const logoutDialog = await screen.findByRole('dialog', { name: 'Log Out' })
+    expect(logout).not.toHaveBeenCalled()
+    await user.click(within(logoutDialog).getByRole('button', { name: 'Log Out' }))
     expect(logout).toHaveBeenCalledOnce()
 
     await user.keyboard('{Escape}')

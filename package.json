@@ -22,7 +22,10 @@
     "openapi:generate": "node scripts/generate-api-client.mjs",
     "verify:scope": "node scripts/verify-removed-scope.mjs",
     "verify:removed-scope": "node scripts/verify-removed-scope.mjs",
-    "validate-env": "node scripts/validate-env.mjs"
+    "validate-env": "node scripts/validate-env.mjs",
+    "e2e:cv-live": "playwright test --config=playwright.cv-live.config.ts",
+    "e2e:shortlists-live": "playwright test --config=playwright.shortlist-live.config.ts",
+    "e2e:candidate-filtering-live": "playwright test --config=playwright.candidate-filtering-live.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.62.16",

@@ -8,16 +8,16 @@ type TypewriterTextProps = {
   className?: string
 }
 
-const fullCaptionHoldMs = 1500
-const betweenCaptionPauseMs = 260
-const reducedMotionCaptionHoldMs = 2800
-const deletingDelayMs = 26
+const fullCaptionHoldMs = 2600
+const betweenCaptionPauseMs = 500
+const reducedMotionCaptionHoldMs = 3200
+const deletingDelayMs = 45
 
 function getTypingDelay(character: string) {
-  if (/[.!?]/.test(character)) return 180
-  if (/[,;:]/.test(character)) return 110
-  if (character === ' ') return 34
-  return 58
+  if (/[.!?]/.test(character)) return 320
+  if (/[,;:]/.test(character)) return 200
+  if (character === ' ') return 80
+  return 95
 }
 
 export function TypewriterText({ captions, className = '' }: TypewriterTextProps) {

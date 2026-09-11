@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
@@ -44,6 +44,12 @@ export function AdminLoginPage() {
       }
     >
       <section className="auth-form-card admin-auth-card">
+        <Link className="auth-back-link" to={routePaths.home}>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_back
+          </span>
+          Back
+        </Link>
         <h1>Admin Login</h1>
         {message ? (
           <div className="inline-alert" role="alert">

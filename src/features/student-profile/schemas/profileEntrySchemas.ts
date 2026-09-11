@@ -31,6 +31,19 @@ export const contactLinkSchema = z
     displayOrder: z.number().int().nonnegative(),
   })
   .strict()
+export const educationSchema = z
+  .object({
+    ...baseResponse,
+    degree: z.string().min(1).max(200),
+    institution: z.string().min(1).max(200),
+    institutionUrl: safeWebUrlSchema.nullable(),
+    location: z.string().nullable(),
+    startDate: nullableDateSchema,
+    endDate: nullableDateSchema,
+    current: z.boolean(),
+    resultNote: z.string().nullable(),
+  })
+  .strict()
 export const certificateSchema = z
   .object({
     ...baseResponse,
@@ -91,6 +104,33 @@ export const contactLinkFormSchema = z.object({
   displayOrder: z.string().regex(/^\d+$/, 'Display Order must be zero or greater.'),
   cvInclude: z.boolean(),
 })
+const monthOnlySchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Use the MM/YYYY format.')
+export const educationFormSchema = z
+  .object({
+    degree: z.string().trim().min(1, 'Degree / Field of Study is required.').max(200),
+    institution: z.string().trim().min(1, 'School / Institution is required.').max(200),
+    institutionUrl: optionalSafeUrl,
+    location: nullableText,
+    startDate: z.union([z.literal(''), monthOnlySchema]),
+    endDate: z.union([z.literal(''), monthOnlySchema]),
+    current: z.boolean(),
+    resultNote: z.string().trim().max(500),
+    cvInclude: z.boolean(),
+  })
+  .superRefine((value, context) => {
+    if (value.current && value.endDate)
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endDate'],
+        message: 'Currently studying entries cannot have an End Date.',
+      })
+    if (value.startDate && value.endDate && value.endDate < value.startDate)
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endDate'],
+        message: 'End Date cannot be before Start Date.',
+      })
+  })
 export const certificateFormSchema = z.object({
   title: z.string().trim().min(1, 'Title is required.').max(200),
   issuer: z.string().trim().min(1, 'Issuer is required.').max(200),

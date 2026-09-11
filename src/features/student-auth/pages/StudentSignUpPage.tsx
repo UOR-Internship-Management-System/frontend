@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { authStorage } from '../../../shared/auth/authStorage'
@@ -42,6 +42,12 @@ export function StudentSignUpPage() {
         title="Launch your placement profile."
       >
         <section className="auth-form-card">
+          <Link className="auth-back-link" to={routePaths.home}>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              arrow_back
+            </span>
+            Back
+          </Link>
           <div className="form-header">
             <h1>Student Registration</h1>
             <p>Initialize your passwordless account authorization request below.</p>

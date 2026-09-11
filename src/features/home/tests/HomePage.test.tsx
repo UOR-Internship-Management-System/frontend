@@ -7,11 +7,14 @@ import { HomePage } from '../pages/HomePage'
 describe('HomePage', () => {
   beforeEach(() => {
     vi.useFakeTimers()
+    window.HTMLMediaElement.prototype.play = vi.fn().mockResolvedValue(undefined)
+    window.HTMLMediaElement.prototype.pause = vi.fn()
   })
 
   afterEach(() => {
     vi.clearAllTimers()
     vi.useRealTimers()
+    vi.restoreAllMocks()
   })
 
   it('reveals the gateway after the intro finishes', () => {
@@ -26,16 +29,19 @@ describe('HomePage', () => {
     expect(screen.getByRole('region', { name: 'Gateway introduction' })).toBeInTheDocument()
     expect(gateway).toHaveAttribute('aria-hidden', 'true')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Skip intro' }))
+    fireEvent.click(screen.getByRole('button', { name: /skip intro/i }))
 
     act(() => {
       vi.advanceTimersByTime(gatewayIntroTiming.exitMs)
     })
 
     expect(screen.queryByRole('region', { name: 'Gateway introduction' })).not.toBeInTheDocument()
-    expect(gateway).toHaveAttribute('aria-hidden', 'false')
+    expect(screen.getByRole('img', { name: 'University logo' })).toHaveAttribute(
+      'src',
+      '/assets/cv-logo.png',
+    )
     expect(screen.getByRole('img', { name: 'University logo' })).toHaveClass(
-      'logo-draw-reveal--loop',
+      'gateway-v2-static-logo',
     )
     expect(screen.getByRole('link', { name: 'Register' })).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: 'Login' })).toHaveLength(2)

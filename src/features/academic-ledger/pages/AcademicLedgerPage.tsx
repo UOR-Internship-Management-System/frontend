@@ -1,41 +1,38 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
+import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
+import { Button } from '../../../shared/components/ui/Button'
 import { LedgerSelectedBatchSkeleton, LedgerUploadsTableSkeleton } from '../../../shared/skeletons'
-import { LedgerAcademicInspection } from '../components/LedgerAcademicInspection'
 import { LedgerCommitControl } from '../components/LedgerCommitControl'
 import { LedgerReviewSection } from '../components/LedgerReviewSection'
 import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
-import { useLedgerUploadDetail, useLedgerUploads, useUploadLedger } from '../hooks/useLedgerUpload'
+import {
+  useDeleteLedgerUpload,
+  useLedgerUploadDetail,
+  useLedgerUploads,
+  useUploadLedger,
+} from '../hooks/useLedgerUpload'
+import type { ApiAcademicLedgerUploadSummaryResponse } from '../../../shared/api/generated/cvManagementApi.types'
 
 const pageTitle = 'Academic Ledger Management | CV Management & Filtering System'
-const pageDescription =
-  'Centralized academic data validation repository. Import official undergraduate transcripts ' +
-  'via batch files to evaluate data parameters, review staged records, and protect academic data ' +
-  'from unauthorized modification.'
+const pageDescription = 'Upload official transcripts, review them, and commit academic records.'
 
 export function AcademicLedgerPage() {
-  const {
-    state,
-    rowSearchInput,
-    studentSearchInput,
-    selectUpload,
-    setRowSearchInput,
-    setStudentSearchInput,
-    updateRows,
-    updateStudents,
-    updateUploads,
-  } = useAcademicLedgerUrlState()
+  const { state, rowSearchInput, selectUpload, setRowSearchInput, updateRows, updateUploads } =
+    useAcademicLedgerUrlState()
   const uploads = useLedgerUploads(state.uploads)
   const selected = useLedgerUploadDetail(state.uploadId)
   const upload = useUploadLedger()
+  const deleteUpload = useDeleteLedgerUpload()
+  const [deleting, setDeleting] = useState<ApiAcademicLedgerUploadSummaryResponse | null>(null)
 
   useEffect(() => {
     const previousTitle = document.title
@@ -67,13 +64,6 @@ export function AcademicLedgerPage() {
         onUpload={(file) =>
           upload.mutate(file, { onSuccess: ({ data }) => selectUpload(data.uploadId) })
         }
-      />
-
-      <LedgerAcademicInspection
-        onQueryChange={updateStudents}
-        onSearchChange={setStudentSearchInput}
-        query={state.students}
-        searchInput={studentSearchInput}
       />
 
       {state.uploadId && selected.isPending ? <LedgerSelectedBatchSkeleton /> : null}
@@ -147,6 +137,7 @@ export function AcademicLedgerPage() {
         {uploads.data?.items.length ? (
           <LedgerUploadsTable
             items={uploads.data.items}
+            onDelete={setDeleting}
             selectedId={state.uploadId}
             onSelect={selectUpload}
           />
@@ -170,6 +161,45 @@ export function AcademicLedgerPage() {
           />
         ) : null}
       </section>
+
+      {deleting ? (
+        <ConfirmDialog
+          closeDisabled={deleteUpload.isPending}
+          onClose={() => setDeleting(null)}
+          title="Remove upload"
+        >
+          <p>
+            Remove <strong>{deleting.originalFilename}</strong>? This cannot be undone.
+          </p>
+          {deleteUpload.isError ? (
+            <p className="error-text" role="alert">
+              {mapApiError(deleteUpload.error, 'protected').message}
+            </p>
+          ) : null}
+          <div className="modal-actions">
+            <Button
+              disabled={deleteUpload.isPending}
+              onClick={() => setDeleting(null)}
+              variant="secondary"
+            >
+              Cancel
+            </Button>
+            <Button
+              isLoading={deleteUpload.isPending}
+              onClick={() => {
+                deleteUpload.mutate(deleting.uploadId, {
+                  onSuccess: () => {
+                    if (state.uploadId === deleting.uploadId) selectUpload(null)
+                    setDeleting(null)
+                  },
+                })
+              }}
+            >
+              Remove
+            </Button>
+          </div>
+        </ConfirmDialog>
+      ) : null}
     </main>
   )
 }

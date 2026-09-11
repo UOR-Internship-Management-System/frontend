@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { GatewayIntro } from '../components/GatewayIntro'
-import { LogoDrawReveal } from '../components/LogoDrawReveal'
 import { TypewriterText } from '../components/TypewriterText'
 import { gatewayCaptions, gatewayCaptionTexts } from '../data/gatewayCaptions'
 
@@ -41,7 +40,13 @@ export function HomePage() {
           <div aria-hidden="true" className="gateway-v2-hero-bg" />
 
           <div className="gateway-v2-brand-lockup">
-            <LogoDrawReveal alt="University logo" className="gateway-v2-logo" loop />
+            <img
+              alt="University logo"
+              className="gateway-v2-static-logo"
+              height={100}
+              src="/assets/cv-logo.png"
+              width={160}
+            />
           </div>
 
           <div className="gateway-v2-hero-content">
@@ -67,7 +72,6 @@ export function HomePage() {
 
         <section className="gateway-v2-access" aria-labelledby="gateway-access-title">
           <div className="gateway-v2-access-header">
-            <p className="gateway-v2-access-kicker">Secure role-based access</p>
             <h2 id="gateway-access-title">Select your role</h2>
           </div>
 

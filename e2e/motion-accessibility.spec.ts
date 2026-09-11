@@ -187,11 +187,12 @@ test('gateway and page entrances use centralized motion and fully stop for reduc
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
 
-  const gatewayMotion = await readMotionStyle(
-    page.locator('.logo-draw-reveal--once .logo-draw-reveal__mark-stroke'),
-  )
-  expect(gatewayMotion.animationName).toBe('gatewayV2DrawLogo')
-  expect(gatewayMotion.animationDuration).toBe('2s')
+  await expect(page.getByRole('button', { name: /skip intro/i })).toBeVisible()
+  const skipButtonMotion = await readMotionStyle(page.locator('.gateway-v2-intro-cinema-skip'))
+  expect(transitionProperties(skipButtonMotion.transitionProperty)).toContain('transform')
+
+  await page.getByRole('button', { name: /skip intro/i }).click()
+  await expect(page.getByRole('heading', { level: 2, name: 'Select your role' })).toBeVisible()
 
   const gatewayCardMotion = await readMotionStyle(page.locator('.gateway-v2-card').first())
   expect(transitionProperties(gatewayCardMotion.transitionProperty)).toContain('transform')
@@ -207,12 +208,12 @@ test('gateway and page entrances use centralized motion and fully stop for reduc
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('heading', { level: 2, name: 'Select your role' })).toBeVisible()
-  const reducedGateway = await readMotionStyle(
-    page.locator('.logo-draw-reveal--loop .logo-draw-reveal__mark-stroke'),
-  )
+  const reducedLogo = await readMotionStyle(page.locator('.gateway-v2-static-logo'))
   const reducedCard = await readMotionStyle(page.locator('.gateway-v2-card').first())
 
-  expect(reducedGateway.animationName).toBe('none')
+  expect(reducedLogo.transitionDuration.split(',').every((value) => value.trim() === '0s')).toBe(
+    true,
+  )
   expect(reducedCard.transitionDuration.split(',').every((value) => value.trim() === '0s')).toBe(
     true,
   )

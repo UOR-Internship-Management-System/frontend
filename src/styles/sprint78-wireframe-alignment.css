@@ -1639,6 +1639,7 @@
 }
 
 .registered-students-page .registered-students-controls {
+  min-width: 0;
   grid-template-columns: minmax(280px, 1.35fr) minmax(220px, 0.65fr);
 }
 

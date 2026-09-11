@@ -24,7 +24,7 @@ export function CandidateFilteringPage() {
   return (
     <div className="content-stack candidate-filtering-page">
       <PageHeader
-        description="Recruitment decision-support workspace. Select an active internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist."
+        description="Recruitment decision-support workspace. Select an internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist."
         title="Interactive Candidate Filtering Dashboard"
       />
 

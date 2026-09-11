@@ -15,6 +15,7 @@ import {
   RequireVerificationContextRoute,
 } from './routeGuards'
 import { fallbackRoutes } from './fallbackRoutes'
+import { HomePage } from '../../features/home/pages/HomePage'
 import {
   AdminCreatePasswordPage,
   AdminDashboardPage,
@@ -24,12 +25,12 @@ import {
   InternshipManagementPage,
   CandidateFilteringPage,
   ShortlistsPage,
+  EligibleStudentsPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
   CreatePasswordPage,
   ForgotPasswordPage,
-  HomePage,
   StudentDashboardPage,
   StudentProfilePage,
   StudentSkillsPage,
@@ -51,7 +52,6 @@ import {
   CandidateFilteringSkeleton,
   CvBuilderSkeleton,
   FormSkeleton,
-  GatewaySkeleton,
   RegisteredStudentsSkeleton,
   StudentDashboardSkeleton,
   StudentDeepDiveSkeleton,
@@ -72,7 +72,7 @@ export const routes: RouteObject[] = [
     element: <RootLayout />,
     errorElement: <RouteErrorElement />,
     children: [
-      { index: true, element: withSuspense(<HomePage />, <GatewaySkeleton />) },
+      { index: true, element: <HomePage /> },
       {
         element: <AuthLayout />,
         children: [
@@ -270,6 +270,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminShortlists,
             element: withSuspense(<ShortlistsPage />, <ShortlistExportSkeleton />),
+          },
+          {
+            path: routePaths.adminEligibleStudents,
+            element: withSuspense(<EligibleStudentsPage />),
           },
         ],
       },

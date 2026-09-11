@@ -136,7 +136,7 @@ export function SelectedCandidatesReviewModal({
         title: 'Shortlist allocation finalized',
         message: `${finalized.selectedCandidateCount} manually selected candidate${finalized.selectedCandidateCount === 1 ? '' : 's'} finalized.`,
       })
-      navigate(shortlistLocation(checkpoint.shortlistId))
+      onClose()
     } catch (reason) {
       const mapped = mapApiError(reason, 'protected')
 
@@ -242,7 +242,7 @@ export function SelectedCandidatesReviewModal({
 
               {candidate.hasExistingActiveShortlist ? (
                 <StatusBadge tone="neutral">
-                  {`Already shortlisted in ${candidate.existingActiveShortlistCount} active request${
+                  {`Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
                     candidate.existingActiveShortlistCount === 1 ? '' : 's'
                   }`}
                 </StatusBadge>

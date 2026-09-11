@@ -12,6 +12,12 @@ import { resetSprint78Mocks } from '../mocks/handlers/sprint78Handlers'
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'error' })
 
+  if (typeof window !== 'undefined' && window.HTMLMediaElement) {
+    window.HTMLMediaElement.prototype.play = async () => undefined
+    window.HTMLMediaElement.prototype.pause = () => {}
+    window.HTMLMediaElement.prototype.load = () => {}
+  }
+
   // MSW/Undici strict AbortSignal checking throws TypeError when receiving JSDOM's AbortSignal.
   // We strip the signal from the test fetch wrapper AFTER MSW has patched fetch.
   // This makes our wrapper the outermost layer, allowing MSW interception to succeed,
