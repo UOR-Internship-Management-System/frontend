@@ -34,6 +34,7 @@ const adminWorkspaceRoutes = [
   routePaths.adminInternships,
   routePaths.adminCandidateFiltering,
   routePaths.adminShortlists,
+  routePaths.adminEligibleStudents,
 ] as const
 
 function isAdminWorkspacePath(pathname: string) {

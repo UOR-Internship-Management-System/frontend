@@ -1,4 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { adminDashboardKeys } from '../../admin-dashboard/hooks/adminDashboardQueryKeys'
 import { eligibleStudentsApi } from '../api/eligibleStudentsApi'
 import type { EligibleStudentQuery, EligibleStudentRequest } from '../types/eligibleStudentTypes'
 
@@ -17,7 +18,12 @@ export function useEligibleStudents(query: EligibleStudentQuery) {
 
 export function useEligibleStudentMutations() {
   const queryClient = useQueryClient()
-  const refresh = () => queryClient.invalidateQueries({ queryKey: keys.all })
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: keys.all })
+    // The Admin Dashboard's "Total Students" / "Registered Students" metrics are derived from the
+    // eligible-students roster, so they go stale the moment a roster entry is added or removed.
+    return queryClient.invalidateQueries({ queryKey: adminDashboardKeys.all })
+  }
   return {
     create: useMutation({
       mutationFn: (values: EligibleStudentRequest) => eligibleStudentsApi.create(values),
