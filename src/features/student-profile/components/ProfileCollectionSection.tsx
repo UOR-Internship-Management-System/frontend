@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchInput } from '../../../shared/components/data/SearchInput'
@@ -44,57 +45,85 @@ export function ProfileCollectionSection({
   title: string
 }) {
   const mappedError = error ? mapApiError(error, 'protected') : null
+  const [isOpen, setIsOpen] = useState(true)
+  const slug = title.replaceAll(' ', '-').toLowerCase()
+  const headingId = `${slug}-title`
+  const bodyId = `${slug}-body`
   return (
     <section
       className="section-card profile-collection"
-      aria-labelledby={`${title.replaceAll(' ', '-').toLowerCase()}-title`}
+      aria-labelledby={headingId}
       aria-busy={isFetching || undefined}
     >
       <div className="profile-section-heading">
-        <div>
-          <h2 id={`${title.replaceAll(' ', '-').toLowerCase()}-title`}>{title}</h2>
-          <p>{description}</p>
+        <div className="profile-section-heading-main">
+          <button
+            aria-controls={bodyId}
+            aria-expanded={isOpen}
+            aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}
+            className="profile-section-toggle"
+            onClick={() => setIsOpen((current) => !current)}
+            type="button"
+          >
+            <svg aria-hidden="true" fill="none" height="16" viewBox="0 0 16 16" width="16">
+              <path
+                d="M4 6l4 4 4-4"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.6"
+              />
+            </svg>
+          </button>
+          <div className="profile-section-heading-text">
+            <h2 id={headingId}>{title}</h2>
+            <p>{description}</p>
+          </div>
         </div>
         <Button aria-label={addAriaLabel} onClick={onAdd}>
           {addLabel}
         </Button>
       </div>
-      <h3 className="profile-saved-list-title">{savedTitle}</h3>
-      <SearchInput
-        aria-label={searchLabel}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder={searchLabel}
-        value={search}
-      />
-      {isFetching && !isPending ? (
-        <p className="profile-refresh-status" role="status">
-          Updating results…
-        </p>
-      ) : null}
-      {isPending ? (
-        <div aria-label={`Loading ${title}`} className="profile-section-skeleton" role="status">
-          <SkeletonBlock lines={3} />
-          <SkeletonBlock lines={3} />
+      {isOpen ? (
+        <div className="profile-section-body" id={bodyId}>
+          <h3 className="profile-saved-list-title">{savedTitle}</h3>
+          <SearchInput
+            aria-label={searchLabel}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder={searchLabel}
+            value={search}
+          />
+          {isFetching && !isPending ? (
+            <p className="profile-refresh-status" role="status">
+              Updating results…
+            </p>
+          ) : null}
+          {isPending ? (
+            <div aria-label={`Loading ${title}`} className="profile-section-skeleton" role="status">
+              <SkeletonBlock lines={3} />
+              <SkeletonBlock lines={3} />
+            </div>
+          ) : null}
+          {mappedError ? (
+            <ErrorState
+              correlationId={mappedError.correlationId}
+              message={mappedError.message}
+              onAction={onRetry}
+              title={`${title} unavailable`}
+            />
+          ) : null}
+          {!isPending && !mappedError ? children : null}
+          {page && page.totalPages > 0 ? (
+            <PaginationBar
+              label={`${title} pagination`}
+              onPageChange={onPageChange}
+              page={page.page}
+              size={page.size}
+              totalElements={page.totalElements}
+              totalPages={page.totalPages}
+            />
+          ) : null}
         </div>
-      ) : null}
-      {mappedError ? (
-        <ErrorState
-          correlationId={mappedError.correlationId}
-          message={mappedError.message}
-          onAction={onRetry}
-          title={`${title} unavailable`}
-        />
-      ) : null}
-      {!isPending && !mappedError ? children : null}
-      {page && page.totalPages > 0 ? (
-        <PaginationBar
-          label={`${title} pagination`}
-          onPageChange={onPageChange}
-          page={page.page}
-          size={page.size}
-          totalElements={page.totalElements}
-          totalPages={page.totalPages}
-        />
       ) : null}
     </section>
   )

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { FormField } from '../../../shared/components/forms/FormField'
+import { PasswordInput } from '../../../shared/components/forms/PasswordInput'
 import { TextInput } from '../../../shared/components/forms/TextInput'
 import { Button } from '../../../shared/components/ui/Button'
 import {
@@ -46,14 +47,13 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
         />
       </FormField>
       <FormField error={errors.password} htmlFor="admin-password" label="Security Password">
-        <TextInput
+        <PasswordInput
           autoComplete="current-password"
           id="admin-password"
           onChange={(event) =>
             setValues((current) => ({ ...current, password: event.target.value }))
           }
           placeholder="Enter your security password"
-          type="password"
           value={values.password}
         />
       </FormField>

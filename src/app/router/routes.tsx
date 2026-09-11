@@ -25,6 +25,7 @@ import {
   InternshipManagementPage,
   CandidateFilteringPage,
   ShortlistsPage,
+  EligibleStudentsPage,
   AdminForgotPasswordPage,
   AdminLoginPage,
   AdminVerifyResetOtpPage,
@@ -269,6 +270,10 @@ export const routes: RouteObject[] = [
           {
             path: routePaths.adminShortlists,
             element: withSuspense(<ShortlistsPage />, <ShortlistExportSkeleton />),
+          },
+          {
+            path: routePaths.adminEligibleStudents,
+            element: withSuspense(<EligibleStudentsPage />),
           },
         ],
       },

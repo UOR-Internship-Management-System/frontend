@@ -3,7 +3,7 @@ import type { FileAsset } from './profileFileTypes'
 export const PROFILE_SECTION_PAGE_SIZE = 5
 
 export type ProfileCollectionKind =
-  'contact-links' | 'certificates' | 'awards' | 'activities' | 'experience'
+  'contact-links' | 'education' | 'certificates' | 'awards' | 'activities' | 'experience'
 
 export type ProfileCollectionQuery = {
   page: number
@@ -34,6 +34,16 @@ export type ContactLink = VersionedProfileEntry & {
   label: string
   url: string
   displayOrder: number
+}
+export type Education = VersionedProfileEntry & {
+  degree: string
+  institution: string
+  institutionUrl: string | null
+  location: string | null
+  startDate: string | null
+  endDate: string | null
+  current: boolean
+  resultNote: string | null
 }
 export type Certificate = VersionedProfileEntry & {
   title: string
@@ -69,6 +79,17 @@ export type ContactLinkFormValues = {
   label: string
   url: string
   displayOrder: string
+  cvInclude: boolean
+}
+export type EducationFormValues = {
+  degree: string
+  institution: string
+  institutionUrl: string
+  location: string
+  startDate: string
+  endDate: string
+  current: boolean
+  resultNote: string
   cvInclude: boolean
 }
 export type CertificateFormValues = {
@@ -108,6 +129,17 @@ export type ContactLinkRequest = {
   label: string
   url: string
   displayOrder: number
+  cvInclude: boolean
+}
+export type EducationRequest = {
+  degree: string
+  institution: string
+  institutionUrl: string | null
+  location: string | null
+  startDate: string | null
+  endDate: string | null
+  current: boolean
+  resultNote: string | null
   cvInclude: boolean
 }
 export type CertificateRequest = {

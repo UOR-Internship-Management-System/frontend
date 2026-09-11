@@ -45,3 +45,13 @@ export function useUploadLedger() {
     },
   })
 }
+
+export function useDeleteLedgerUpload() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (uploadId: string) => academicLedgerApi.remove(uploadId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: academicLedgerKeys.uploads() })
+    },
+  })
+}

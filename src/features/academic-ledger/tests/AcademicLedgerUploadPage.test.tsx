@@ -10,7 +10,6 @@ import {
   ledgerUploadDetailFixture,
   ledgerUploadsFixture,
 } from '../../../mocks/fixtures/academicLedger.fixture'
-import { registeredStudentsFixture } from '../../../mocks/fixtures/registeredStudents.fixture'
 import { server } from '../../../mocks/server'
 import { AcademicLedgerPage } from '../pages/AcademicLedgerPage'
 
@@ -56,16 +55,16 @@ describe('AcademicLedgerPage upload workflow', () => {
   it('rejects non-CSV files before upload and accepts a valid CSV', async () => {
     const user = userEvent.setup({ applyAccept: false })
     renderPage()
-    const input = await screen.findByLabelText('Official academic ledger CSV')
+    const input = await screen.findByLabelText('Official academic ledger file')
     await user.upload(input, new File(['not csv'], 'results.txt', { type: 'text/plain' }))
-    expect(screen.getByRole('alert')).toHaveTextContent('Choose a .csv file')
-    expect(screen.getByRole('button', { name: 'Process and Stage Ledger' })).toBeDisabled()
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose a .csv or .xlsx file')
+    expect(screen.getByRole('button', { name: 'Upload' })).toBeDisabled()
 
     await user.upload(
       input,
       new File(['student,course\n1,CS4010'], 'results.csv', { type: 'text/csv' }),
     )
-    await user.click(screen.getByRole('button', { name: 'Process and Stage Ledger' }))
+    await user.click(screen.getByRole('button', { name: 'Upload' }))
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('uploadId='))
     expect(
       await screen.findByText('The file was accepted and processing has started.'),
@@ -98,26 +97,13 @@ describe('AcademicLedgerPage upload workflow', () => {
             uploadId: String(params.uploadId),
           })
         }),
-        http.get('/api/v1/admin/students', async () => {
-          await delay(120)
-          return HttpResponse.json({
-            items: registeredStudentsFixture,
-            page: {
-              page: 0,
-              size: 5,
-              totalElements: registeredStudentsFixture.length,
-              totalPages: 2,
-              sort: 'fullName,asc',
-            },
-          })
-        }),
       )
 
       const view = renderPage(`${routePaths.adminAcademicLedger}?uploadId=${uploadId}`)
       expect(
         view.getAllByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
       ).toHaveLength(1)
-      expect(view.getAllByLabelText('Official academic ledger CSV')).toHaveLength(1)
+      expect(view.getAllByLabelText('Official academic ledger file')).toHaveLength(1)
       expect(
         view.getByRole('status', { name: 'Loading selected ledger batch' }),
       ).toBeInTheDocument()
@@ -131,7 +117,7 @@ describe('AcademicLedgerPage upload workflow', () => {
       expect(
         view.getAllByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
       ).toHaveLength(1)
-      expect(view.getAllByLabelText('Official academic ledger CSV')).toHaveLength(1)
+      expect(view.getAllByLabelText('Official academic ledger file')).toHaveLength(1)
     },
   )
 })

@@ -24,6 +24,7 @@ export const routePaths = {
   adminInternships: '/admin/internships',
   adminCandidateFiltering: '/admin/candidate-filtering',
   adminShortlists: '/admin/shortlists',
+  adminEligibleStudents: '/admin/eligible-students',
   unauthorized: '/unauthorized',
 } as const
 

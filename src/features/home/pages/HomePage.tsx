@@ -72,7 +72,6 @@ export function HomePage() {
 
         <section className="gateway-v2-access" aria-labelledby="gateway-access-title">
           <div className="gateway-v2-access-header">
-            <p className="gateway-v2-access-kicker">Secure role-based access</p>
             <h2 id="gateway-access-title">Select your role</h2>
           </div>
 

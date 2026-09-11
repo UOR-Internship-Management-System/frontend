@@ -4,6 +4,7 @@ import {
   awardsApi,
   certificatesApi,
   contactLinksApi,
+  educationApi,
   experienceApi,
 } from '../api/studentProfileEntriesApi'
 import type {
@@ -15,6 +16,8 @@ import type {
   CertificateRequest,
   ContactLink,
   ContactLinkRequest,
+  Education,
+  EducationRequest,
   Experience,
   ExperienceRequest,
   PagedResponse,
@@ -68,6 +71,8 @@ function useCollectionMutations<TItem, TRequest>(
 
 export const useContactLinks = (query: ProfileCollectionQuery) =>
   useCollection<ContactLink, ContactLinkRequest>('contact-links', contactLinksApi, query)
+export const useEducation = (query: ProfileCollectionQuery) =>
+  useCollection<Education, EducationRequest>('education', educationApi, query)
 export const useCertificates = (query: ProfileCollectionQuery) =>
   useCollection<Certificate, CertificateRequest>('certificates', certificatesApi, query)
 export const useAwards = (query: ProfileCollectionQuery) =>
@@ -78,6 +83,8 @@ export const useExperience = (query: ProfileCollectionQuery) =>
   useCollection<Experience, ExperienceRequest>('experience', experienceApi, query)
 export const useContactLinkMutations = () =>
   useCollectionMutations<ContactLink, ContactLinkRequest>('contact-links', contactLinksApi)
+export const useEducationMutations = () =>
+  useCollectionMutations<Education, EducationRequest>('education', educationApi)
 export const useCertificateMutations = () =>
   useCollectionMutations<Certificate, CertificateRequest>('certificates', certificatesApi)
 export const useAwardMutations = () =>

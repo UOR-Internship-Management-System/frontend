@@ -6,6 +6,7 @@ import {
   awardSchema,
   certificateSchema,
   contactLinkSchema,
+  educationSchema,
   experienceSchema,
   pagedResponseSchema,
 } from '../schemas/profileEntrySchemas'
@@ -18,6 +19,8 @@ import type {
   CertificateRequest,
   ContactLink,
   ContactLinkRequest,
+  Education,
+  EducationRequest,
   Experience,
   ExperienceRequest,
   PagedResponse,
@@ -68,6 +71,10 @@ function createCollectionApi<TItem, TRequest>(path: string, itemSchema: ZodType<
 export const contactLinksApi = createCollectionApi<ContactLink, ContactLinkRequest>(
   '/me/profile/contact-links',
   contactLinkSchema,
+)
+export const educationApi = createCollectionApi<Education, EducationRequest>(
+  '/me/profile/education',
+  educationSchema,
 )
 export const certificatesApi = createCollectionApi<Certificate, CertificateRequest>(
   '/me/profile/certificates',

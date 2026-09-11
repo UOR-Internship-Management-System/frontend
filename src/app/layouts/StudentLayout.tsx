@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useOutlet } from 'react-router-dom'
+import { LogoutConfirmDialog } from '../../shared/components/overlays/LogoutConfirmDialog'
 import { ThemeToggle } from '../../shared/components/ui/ThemeToggle'
 import { useAuth } from '../../shared/hooks/useAuth'
 import { StudentSidebar } from './student/StudentSidebar'
@@ -23,6 +24,7 @@ export function StudentLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const [isMobileViewport, setIsMobileViewport] = useState(isMobileViewportNow)
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement | null>(null)
   const sidebarRef = useRef<HTMLElement | null>(null)
   const firstNavigationItemRef = useRef<HTMLAnchorElement | null>(null)
@@ -136,7 +138,7 @@ export function StudentLayout() {
         isMobileViewport={isMobileViewport}
         navigationItems={studentNavigation}
         onCloseMobile={closeMobileDrawer}
-        onLogout={() => void auth.logout()}
+        onLogout={() => setIsLogoutConfirmOpen(true)}
         onToggleCollapsed={() => setIsSidebarCollapsed((current) => !current)}
         sidebarRef={sidebarRef}
         studentName={studentName}
@@ -185,6 +187,16 @@ export function StudentLayout() {
           </div>
         </div>
       </div>
+
+      {isLogoutConfirmOpen ? (
+        <LogoutConfirmDialog
+          onClose={() => setIsLogoutConfirmOpen(false)}
+          onConfirm={async () => {
+            await auth.logout()
+            setIsLogoutConfirmOpen(false)
+          }}
+        />
+      ) : null}
     </section>
   )
 }

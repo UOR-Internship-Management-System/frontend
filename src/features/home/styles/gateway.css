@@ -288,8 +288,8 @@
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: clamp(24px, 4vw, 40px);
-  padding: clamp(48px, 6vw, 88px);
+  gap: clamp(16px, 2.5vw, 28px);
+  padding: clamp(28px, 4vw, 56px);
   background: linear-gradient(180deg, var(--gateway-surface) 0%, var(--gateway-bg) 100%);
 }
 
@@ -303,14 +303,14 @@
 .gateway-v2-access-header {
   display: grid;
   justify-items: start;
-  gap: 14px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .gateway-v2-access-header h2 {
   margin: 0;
   color: var(--sidebar-text);
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.7rem, 3.2vw, 2.6rem);
   font-weight: 900;
   line-height: 1.05;
   text-transform: uppercase;
@@ -337,13 +337,13 @@
 }
 
 .gateway-v2-card {
-  min-height: 170px;
+  min-height: 140px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 12px;
-  padding: clamp(24px, 3vw, 34px);
+  gap: 10px;
+  padding: clamp(18px, 2.4vw, 26px);
   background: var(--gateway-surface);
   text-align: left;
   transition:
@@ -360,21 +360,21 @@
 }
 
 .gateway-v2-card .material-symbols-outlined {
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   display: grid;
   place-items: center;
   margin-bottom: 2px;
   border-radius: 50%;
   background: var(--sidebar-surface);
   color: var(--sidebar-accent);
-  font-size: 31px;
+  font-size: 27px;
 }
 
 .gateway-v2-card h3 {
   margin: 0;
   color: var(--sidebar-text);
-  font-size: clamp(1.55rem, 2.6vw, 2.1rem);
+  font-size: clamp(1.3rem, 2.1vw, 1.75rem);
   font-weight: 800;
   line-height: 1.05;
   text-transform: uppercase;
@@ -471,14 +471,14 @@
     min-height: auto;
     height: auto;
     overflow-y: visible;
-    gap: 24px;
-    padding: 40px 24px 64px;
+    gap: 18px;
+    padding: 28px 24px 48px;
   }
 
   .gateway-v2-card {
     min-height: auto;
-    gap: 16px;
-    padding: 24px;
+    gap: 12px;
+    padding: 20px;
   }
 
   .gateway-v2-card .material-symbols-outlined {

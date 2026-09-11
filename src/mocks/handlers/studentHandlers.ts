@@ -8,6 +8,8 @@ import type {
   CertificateRequest,
   ContactLink,
   ContactLinkRequest,
+  Education,
+  EducationRequest,
   Experience,
   ExperienceRequest,
   VersionedProfileEntry,
@@ -53,6 +55,7 @@ function baseEntry(id = nextId(), version = 1) {
 type MockProfileState = {
   profile: StudentProfileResponseDto
   contactLinks: ContactLink[]
+  education: Education[]
   certificates: Certificate[]
   awards: Award[]
   activities: Activity[]
@@ -106,6 +109,20 @@ function createInitialState(): MockProfileState {
         cvInclude: false,
       },
     ] satisfies ContactLink[],
+    education: [
+      {
+        ...baseEntry('15000000-0000-4000-8000-000000000001'),
+        degree: 'Bachelor of Computer Science',
+        institution: 'University of Ruhuna',
+        institutionUrl: 'https://ruh.ac.lk',
+        location: 'Sri Lanka',
+        startDate: '2022-01-01',
+        endDate: null,
+        current: true,
+        resultNote: 'Current GPA - 3.74 / 4.00',
+        cvInclude: true,
+      },
+    ] satisfies Education[],
     certificates: [
       {
         ...baseEntry('20000000-0000-4000-8000-000000000001'),
@@ -310,6 +327,28 @@ const contactHandlers = collectionHandlers<
     cvInclude: body.cvInclude ?? previous?.cvInclude ?? true,
   }),
 })
+const educationHandlers = collectionHandlers<
+  Education,
+  EducationRequest & Record<string, unknown>
+>({
+  path: `${apiBase}/me/profile/education`,
+  get: () => state.education,
+  set: (items) => {
+    state.education = items
+  },
+  searchable: (item) => `${item.degree} ${item.institution}`,
+  build: (body, previous) => ({
+    degree: body.degree ?? previous!.degree,
+    institution: body.institution ?? previous!.institution,
+    institutionUrl: body.institutionUrl ?? null,
+    location: body.location ?? null,
+    startDate: body.startDate ?? null,
+    endDate: body.current ? null : (body.endDate ?? null),
+    current: body.current ?? previous?.current ?? false,
+    resultNote: body.resultNote ?? null,
+    cvInclude: body.cvInclude ?? previous?.cvInclude ?? true,
+  }),
+})
 const certificateHandlers = collectionHandlers<
   Certificate,
   CertificateRequest & Record<string, unknown>
@@ -467,6 +506,7 @@ export const studentHandlers = [
     return HttpResponse.json(state.profile)
   }),
   ...contactHandlers,
+  ...educationHandlers,
   ...certificateHandlers,
   http.put(`${apiBase}/me/profile/certificates/:id/evidence`, async ({ params, request }) => {
     const index = state.certificates.findIndex((item) => item.id === params.id)

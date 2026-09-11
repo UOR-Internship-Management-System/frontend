@@ -272,15 +272,6 @@ export function CvBuilderPage() {
       />
 
       <div className="s5-cv-workspace-grid">
-        <CvPreviewPanel
-          dirty={configurationDirty}
-          error={previewError}
-          expired={previewExpired}
-          isPending={previewMutation.isPending}
-          onRetry={generatePreview}
-          preview={preview}
-        />
-
         <CvOutputPanel
           configurationDirty={configurationDirty}
           configurationReady={configurationReady}
@@ -299,6 +290,15 @@ export function CvBuilderPage() {
           savedCvPending={currentCvEnabled && currentCv.isPending}
           savedCvUnavailable={currentCvEnabled && currentCv.isError}
           savePending={saveMutation.isPending}
+        />
+
+        <CvPreviewPanel
+          dirty={configurationDirty}
+          error={previewError}
+          expired={previewExpired}
+          isPending={previewMutation.isPending}
+          onRetry={generatePreview}
+          preview={preview}
         />
       </div>
     </main>

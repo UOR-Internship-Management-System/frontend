@@ -15,6 +15,8 @@ import {
   useCertificateMutations,
   useContactLinkMutations,
   useContactLinks,
+  useEducation,
+  useEducationMutations,
   useExperience,
   useExperienceMutations,
 } from '../hooks/useProfileEntries'
@@ -28,6 +30,8 @@ import type {
   CertificateRequest,
   ContactLink,
   ContactLinkRequest,
+  Education,
+  EducationRequest,
   Experience,
   ExperienceRequest,
   ProfileCollectionQuery,
@@ -38,6 +42,7 @@ import { ActivityEditor } from './ActivityEditor'
 import { AwardEditor } from './AwardEditor'
 import { CertificateEditor } from './CertificateEditor'
 import { ContactLinkEditor } from './ContactLinkEditor'
+import { EducationEditor } from './EducationEditor'
 import { ExperienceEditor } from './ExperienceEditor'
 import { ProfileCollectionEmpty, ProfileCollectionSection } from './ProfileCollectionSection'
 import { ProfileEntryCard } from './ProfileEntryCard'
@@ -235,6 +240,108 @@ export function ProfessionalLinksSection() {
       {deleting ? (
         <DeleteDialog
           entryName="Professional Link"
+          isPending={mutations.remove.isPending}
+          onCancel={() => setDeleting(null)}
+          onConfirm={() => void remove()}
+        />
+      ) : null}
+    </>
+  )
+}
+
+export function EducationSection() {
+  const state = useProfileSectionState('startDate,desc')
+  const query = useEducation(state.query)
+  const mutations = useEducationMutations()
+  const { notify } = useNotifications()
+  const [editing, setEditing] = useState<Education | 'new' | null>(null)
+  const [deleting, setDeleting] = useState<Education | null>(null)
+  const pending =
+    mutations.create.isPending || mutations.update.isPending || mutations.remove.isPending
+  const save = async (values: EducationRequest) => {
+    const item =
+      editing === 'new'
+        ? await mutations.create.mutateAsync(values)
+        : await mutations.update.mutateAsync({ id: editing!.id, version: editing!.version, values })
+    notify({
+      tone: 'success',
+      title: editing === 'new' ? 'Education added' : 'Education updated',
+      message: `${item.degree} was saved.`,
+    })
+    setEditing(null)
+  }
+  const remove = async () => {
+    if (!deleting) return
+    try {
+      await mutations.remove.mutateAsync({ id: deleting.id, version: deleting.version })
+      afterDelete(query.data?.items ?? [], state.page, state.setPage)
+      setDeleting(null)
+      notify({ tone: 'success', title: 'Education deleted', message: 'The entry was removed.' })
+    } catch (error) {
+      notifyFailure(notify, error, 'Unable to delete Education entry')
+    }
+  }
+  const items = query.data?.items ?? []
+  return (
+    <>
+      <ProfileCollectionSection
+        addAriaLabel="Add Education"
+        addLabel="Add"
+        description="Record your academic history, from school through ongoing programs."
+        error={query.isError ? query.error : null}
+        isFetching={query.isFetching}
+        isPending={query.isPending}
+        onAdd={() => setEditing('new')}
+        onPageChange={state.setPage}
+        onRetry={() => void query.refetch()}
+        onSearchChange={state.setSearch}
+        page={query.data?.page}
+        savedTitle="Saved Education"
+        search={state.search}
+        searchLabel="Search education entries"
+        title="Education"
+      >
+        {items.length === 0 ? (
+          <ProfileCollectionEmpty onAdd={() => setEditing('new')} search={state.search} title="Education" />
+        ) : (
+          <div className="profile-entry-list">
+            {items.map((item) => (
+              <ProfileEntryCard
+                actions={
+                  <EntryActions
+                    disabled={pending}
+                    onDelete={() => setDeleting(item)}
+                    onEdit={() => setEditing(item)}
+                  />
+                }
+                cvInclude={item.cvInclude}
+                key={item.id}
+                subtitle={`${item.institution}${item.location ? ` · ${item.location}` : ''}${item.startDate ? ` · ${item.startDate} – ${item.current ? 'Present' : item.endDate ?? ''}` : ''}`}
+                title={item.degree}
+              >
+                {item.resultNote ? <p>{item.resultNote}</p> : null}
+              </ProfileEntryCard>
+            ))}
+          </div>
+        )}
+      </ProfileCollectionSection>
+      {editing ? (
+        <Modal
+          closeDisabled={pending}
+          onClose={() => setEditing(null)}
+          title={editing === 'new' ? 'Add Education' : 'Edit Education'}
+        >
+          <EducationEditor
+            isPending={pending}
+            item={editing === 'new' ? undefined : editing}
+            onCancel={() => setEditing(null)}
+            onSubmit={save}
+          />
+        </Modal>
+      ) : null}
+      {deleting ? (
+        <DeleteDialog
+          entryName="Education entry"
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}

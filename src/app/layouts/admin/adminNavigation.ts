@@ -17,4 +17,5 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     icon: 'filter_alt',
   },
   { label: 'Shortlists', route: routePaths.adminShortlists, icon: 'assignment_turned_in' },
+  { label: 'Eligible Students', route: routePaths.adminEligibleStudents, icon: 'how_to_reg' },
 ]
