@@ -39,7 +39,7 @@ export function ProfileIdentityCard({
           <dd>Level {profile.studentLevel}</dd>
         </div>
         <div>
-          <dt>Cohort / Batch</dt>
+          <dt>Batch</dt>
           <dd>{profile.cohortYear ?? 'Not available'}</dd>
         </div>
       </dl>

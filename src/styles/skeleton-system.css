@@ -99,11 +99,13 @@
 
 .loading-boundary {
   display: grid;
+  min-width: 0;
 }
 
 .loading-boundary__skeleton,
 .loading-boundary__content {
   grid-area: 1 / 1;
+  min-width: 0;
 }
 
 .loading-boundary__skeleton {

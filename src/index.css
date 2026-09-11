@@ -1604,6 +1604,7 @@ body.admin-mobile-drawer-open {
 .registered-students-controls,
 .registered-students-toolbar-heading {
   display: grid;
+  min-width: 0;
   gap: 18px;
 }
 
@@ -1627,6 +1628,7 @@ body.admin-mobile-drawer-open {
 .registered-students-levels,
 .pagination-size-control {
   display: grid;
+  min-width: 0;
   gap: 8px;
 }
 
@@ -5107,6 +5109,21 @@ body.dark-mode .s5-records-page {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-card-muted);
+}
+
+.s5-cv-always-included-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.s5-cv-always-included-list span {
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-card);
+  font-size: 0.85rem;
 }
 
 .s5-cv-source-grid {
