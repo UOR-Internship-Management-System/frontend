@@ -1,8 +1,8 @@
 import type {
-  ApiAcademicLedgerUploadDetailResponse,
   ApiAcademicLedgerUploadStatus,
   ApiAcademicLedgerValidationStatus,
 } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadDetail } from '../schemas/ledgerSchemas'
 import type { CommitEligibilityInput, LedgerStatusView } from '../types/academicLedgerTypes'
 
 const uploadStatusLabels: Record<ApiAcademicLedgerUploadStatus, LedgerStatusView> = {
@@ -33,7 +33,7 @@ const pollableStatuses = new Set<ApiAcademicLedgerUploadStatus>([
   'COMMITTING',
 ])
 
-export function shouldPollLedgerUpload(detail: ApiAcademicLedgerUploadDetailResponse) {
+export function shouldPollLedgerUpload(detail: LedgerUploadDetail) {
   if (detail.uploadStatus === 'STAGED') {
     return detail.validationStatus === 'NOT_STARTED' || detail.validationStatus === 'IN_PROGRESS'
   }
@@ -41,7 +41,7 @@ export function shouldPollLedgerUpload(detail: ApiAcademicLedgerUploadDetailResp
 }
 
 export function ledgerPollInterval(
-  detail: ApiAcademicLedgerUploadDetailResponse | undefined,
+  detail: LedgerUploadDetail | undefined,
   retryAfterSeconds?: number | null,
 ) {
   if (!detail || !shouldPollLedgerUpload(detail)) return false as const

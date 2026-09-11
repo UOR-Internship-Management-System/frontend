@@ -72,15 +72,14 @@ const ledgerUploadSummaryObject = z
 // The bundled OpenAPI contract still declares `contentType` as the `text/csv` literal only; the
 // backend and this schema now also accept Excel (.xlsx) uploads, so the generated API type is
 // widened locally here rather than narrowing the runtime schema to match a stale contract.
-type WithLedgerContentType<T> = Omit<T, 'contentType'> & { contentType: z.infer<typeof ledgerContentTypeSchema> }
+export type WithLedgerContentType<T> = Omit<T, 'contentType'> & { contentType: z.infer<typeof ledgerContentTypeSchema> }
 
-export const ledgerUploadSummarySchema: z.ZodType<
-  WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>
-> = ledgerUploadSummaryObject
+export type LedgerUploadSummary = WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>
+export type LedgerUploadDetail = WithLedgerContentType<ApiAcademicLedgerUploadDetailResponse>
 
-export const ledgerUploadDetailSchema: z.ZodType<
-  WithLedgerContentType<ApiAcademicLedgerUploadDetailResponse>
-> = ledgerUploadSummaryObject
+export const ledgerUploadSummarySchema: z.ZodType<LedgerUploadSummary> = ledgerUploadSummaryObject
+
+export const ledgerUploadDetailSchema: z.ZodType<LedgerUploadDetail> = ledgerUploadSummaryObject
   .extend({
     statusMessage: z.string().min(1).max(500),
     nextPollAfterSeconds: z.number().int().min(1).max(30).nullable(),
@@ -89,7 +88,7 @@ export const ledgerUploadDetailSchema: z.ZodType<
 
 export const pagedLedgerUploadsSchema: z.ZodType<
   Omit<ApiPagedAcademicLedgerUploadResponse, 'items'> & {
-    items: WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>[]
+    items: LedgerUploadSummary[]
   }
 > = createPagedResponseSchema(ledgerUploadSummarySchema)
 

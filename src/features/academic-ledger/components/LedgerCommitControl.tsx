@@ -1,12 +1,12 @@
 import { useState } from 'react'
-import type { ApiAcademicLedgerUploadDetailResponse } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadDetail } from '../schemas/ledgerSchemas'
 import { Button } from '../../../shared/components/ui/Button'
 import { canCommitLedger } from '../mappers/academicLedgerMappers'
 import { useCommitLedger } from '../hooks/useCommitLedger'
 import { useLedgerValidation } from '../hooks/useLedgerRecords'
 import { LedgerCommitDialog } from './LedgerCommitDialog'
 
-export function LedgerCommitControl({ detail }: { detail: ApiAcademicLedgerUploadDetailResponse }) {
+export function LedgerCommitControl({ detail }: { detail: LedgerUploadDetail }) {
   const [isOpen, setIsOpen] = useState(false)
   const validation = useLedgerValidation(detail.uploadId)
   const commit = useCommitLedger(detail.uploadId)

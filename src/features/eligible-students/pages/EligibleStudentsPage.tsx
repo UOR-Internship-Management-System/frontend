@@ -11,6 +11,7 @@ import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
+import { RegisteredStudentsSectionSkeleton } from '../../../shared/skeletons'
 import { EligibleStudentForm } from '../components/EligibleStudentForm'
 import { EligibleStudentImportPanel } from '../components/EligibleStudentImportPanel'
 import { EligibleStudentsTable } from '../components/EligibleStudentsTable'
@@ -98,7 +99,11 @@ export function EligibleStudentsPage() {
           placeholder="Search by index number, name, or email"
           value={search}
         />
-        <LoadingBoundary isLoading={query.isPending} label="Loading eligible students">
+        <LoadingBoundary
+          isLoading={query.isPending}
+          label="Loading eligible students"
+          skeleton={<RegisteredStudentsSectionSkeleton announce={false} />}
+        >
           {mappedError ? (
             <ErrorState
               correlationId={mappedError.correlationId}

@@ -1,8 +1,8 @@
-import type { ApiAcademicLedgerUploadDetailResponse } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadDetail } from '../schemas/ledgerSchemas'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import { mapUploadStatus, mapValidationStatus } from '../mappers/academicLedgerMappers'
 
-export function LedgerUploadStatus({ detail }: { detail: ApiAcademicLedgerUploadDetailResponse }) {
+export function LedgerUploadStatus({ detail }: { detail: LedgerUploadDetail }) {
   const upload = mapUploadStatus(detail.uploadStatus)
   const validation = mapValidationStatus(detail.validationStatus)
   return (

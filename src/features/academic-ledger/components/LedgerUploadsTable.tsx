@@ -1,4 +1,4 @@
-import type { ApiAcademicLedgerUploadSummaryResponse } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadSummary } from '../schemas/ledgerSchemas'
 import { Button } from '../../../shared/components/ui/Button'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 import { mapUploadStatus, mapValidationStatus } from '../mappers/academicLedgerMappers'
@@ -11,9 +11,9 @@ export function LedgerUploadsTable({
   onSelect,
   selectedId,
 }: {
-  items: ApiAcademicLedgerUploadSummaryResponse[]
+  items: LedgerUploadSummary[]
   selectedId: string | null
-  onDelete: (item: ApiAcademicLedgerUploadSummaryResponse) => void
+  onDelete: (item: LedgerUploadSummary) => void
   onSelect: (uploadId: string) => void
 }) {
   return (

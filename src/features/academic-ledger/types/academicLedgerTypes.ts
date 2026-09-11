@@ -1,12 +1,12 @@
 import type {
   ApiAcademicLedgerRowValidationStatus,
   ApiAcademicLedgerStagedRowSort,
-  ApiAcademicLedgerUploadDetailResponse,
   ApiAcademicLedgerUploadSort,
   ApiAcademicLedgerUploadStatus,
   ApiAcademicLedgerValidationResultResponse,
   ApiAcademicLedgerValidationStatus,
 } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadDetail } from '../schemas/ledgerSchemas'
 
 export type LedgerUploadsQuery = {
   page: number
@@ -26,7 +26,7 @@ export type LedgerStagedRowsQuery = {
 }
 
 export type LedgerUploadAcceptance = {
-  data: ApiAcademicLedgerUploadDetailResponse
+  data: LedgerUploadDetail
   location: string | null
   retryAfterSeconds: number | null
 }
@@ -37,7 +37,7 @@ export type LedgerStatusView = {
 }
 
 export type CommitEligibilityInput = {
-  detail: ApiAcademicLedgerUploadDetailResponse | null | undefined
+  detail: LedgerUploadDetail | null | undefined
   validation: ApiAcademicLedgerValidationResultResponse | null | undefined
   isPending: boolean
 }

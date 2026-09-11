@@ -20,7 +20,7 @@ import {
   useLedgerUploads,
   useUploadLedger,
 } from '../hooks/useLedgerUpload'
-import type { ApiAcademicLedgerUploadSummaryResponse } from '../../../shared/api/generated/cvManagementApi.types'
+import type { LedgerUploadSummary } from '../schemas/ledgerSchemas'
 
 const pageTitle = 'Academic Ledger Management | CV Management & Filtering System'
 const pageDescription = 'Upload official transcripts, review them, and commit academic records.'
@@ -32,7 +32,7 @@ export function AcademicLedgerPage() {
   const selected = useLedgerUploadDetail(state.uploadId)
   const upload = useUploadLedger()
   const deleteUpload = useDeleteLedgerUpload()
-  const [deleting, setDeleting] = useState<ApiAcademicLedgerUploadSummaryResponse | null>(null)
+  const [deleting, setDeleting] = useState<LedgerUploadSummary | null>(null)
 
   useEffect(() => {
     const previousTitle = document.title
