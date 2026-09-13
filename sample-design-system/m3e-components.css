@@ -1,0 +1,694 @@
+/**
+ * Material Design 3 Expressive (M3E) - Component Library
+ * Implements Google MDC Android M3 Expressive visual architecture:
+ * - 5-Size Button Scale (XS=28, SM=40, MD=48, LG=56, XL=96)
+ * - Shape Morphing on Press & Selection (Spring-driven)
+ * - Split Button with dual connected segments & animated chevron
+ * - Floating Toolbar (Standard & Vibrant, Horizontal & Vertical)
+ * - Morphing Loading Indicator (Contained & Uncontained fluid shape animation)
+ * - Centered Search Bar with Squircle Focus Morph
+ * - 28px Corner Cards & Spring Dialogs
+ * - Filter/Assist/Suggestion Chips with animated selection
+ * - Expressive Switch with expanding thumb
+ */
+
+/* ==========================================================================
+   BASE & RESET
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-large);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-spring-default-effects),
+              color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-spring-default-effects);
+}
+
+/* Material Symbols Variable Font helper */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  vertical-align: middle;
+}
+
+/* ==========================================================================
+   1. BUTTONS (5 Sizes, Round & Square, Shape Morphing on Press)
+   ========================================================================== */
+.m3e-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font: var(--md-sys-typescale-label-large);
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  overflow: hidden;
+  outline: none;
+  transition: 
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    box-shadow var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-spatial),
+    border-radius var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-fast-spatial),
+    transform var(--md-sys-motion-duration-short2) var(--md-sys-motion-spring-fast-spatial);
+}
+
+/* 5 Sizes */
+.m3e-button--xs {
+  min-height: var(--md-comp-btn-height-xs);
+  padding: var(--md-comp-btn-padding-xs);
+  font: var(--md-sys-typescale-label-small);
+}
+.m3e-button--xs .material-symbols-rounded { font-size: 16px; }
+
+.m3e-button--sm {
+  min-height: var(--md-comp-btn-height-sm);
+  padding: var(--md-comp-btn-padding-sm);
+  font: var(--md-sys-typescale-label-medium);
+}
+.m3e-button--sm .material-symbols-rounded { font-size: 18px; }
+
+.m3e-button--md {
+  min-height: var(--md-comp-btn-height-md); /* 48px M3E default */
+  padding: var(--md-comp-btn-padding-md);
+  font: var(--md-sys-typescale-label-large);
+}
+.m3e-button--md .material-symbols-rounded { font-size: 20px; }
+
+.m3e-button--lg {
+  min-height: var(--md-comp-btn-height-lg); /* 56px */
+  padding: var(--md-comp-btn-padding-lg);
+  font: var(--md-sys-typescale-title-medium);
+}
+.m3e-button--lg .material-symbols-rounded { font-size: 24px; }
+
+.m3e-button--xl {
+  min-height: var(--md-comp-btn-height-xl); /* 96px */
+  padding: var(--md-comp-btn-padding-xl);
+  font: var(--md-sys-typescale-headline-small);
+  border-radius: 36px;
+}
+.m3e-button--xl .material-symbols-rounded { font-size: 36px; }
+
+/* Shapes */
+.m3e-button--round {
+  border-radius: var(--md-sys-shape-button-round);
+}
+.m3e-button--square {
+  border-radius: var(--md-sys-shape-button-square);
+}
+
+/* M3E Signature Interaction: Shape Morphing on Press */
+.m3e-button--round:active {
+  border-radius: var(--md-sys-shape-corner-large); /* Morphs from pill (9999px) to squircle (16px) */
+  transform: scale(0.97);
+}
+.m3e-button--square:active {
+  border-radius: var(--md-sys-shape-corner-extra-small); /* Morphs from 12px to 4px */
+  transform: scale(0.97);
+}
+
+/* Button Variants */
+/* 1. Filled (Primary) */
+.m3e-button--filled {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-0);
+}
+.m3e-button--filled:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 92%, white);
+  box-shadow: var(--md-sys-elevation-1);
+}
+.m3e-button--filled:active {
+  box-shadow: var(--md-sys-elevation-0);
+}
+
+/* 2. Filled Tonal */
+.m3e-button--tonal {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+.m3e-button--tonal:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-secondary-container) 92%, black);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+/* 3. Outlined */
+.m3e-button--outlined {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
+}
+.m3e-button--outlined:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+  border-color: var(--md-sys-color-primary);
+}
+
+/* 4. Elevated */
+.m3e-button--elevated {
+  background-color: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-primary);
+  box-shadow: var(--md-sys-elevation-1);
+}
+.m3e-button--elevated:hover {
+  background-color: var(--md-sys-color-surface-container);
+  box-shadow: var(--md-sys-elevation-2);
+}
+
+/* 5. Text */
+.m3e-button--text {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.m3e-button--text:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
+}
+
+/* Toggle Button (Checked state with shape morph & color swap) */
+.m3e-button[aria-pressed="true"],
+.m3e-button.is-selected {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border-radius: var(--md-sys-shape-corner-medium);
+}
+.m3e-button[aria-pressed="true"] .m3e-toggle-check,
+.m3e-button.is-selected .m3e-toggle-check {
+  display: inline-block;
+}
+.m3e-button .m3e-toggle-check {
+  display: none;
+}
+
+/* ==========================================================================
+   2. SPLIT BUTTON (M3 Expressive Connected Group with Animated Chevron)
+   ========================================================================== */
+.m3e-split-button {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.m3e-split-button .m3e-split-leading {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  padding-right: 16px;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+.m3e-split-button .m3e-split-trailing {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.m3e-split-button .m3e-split-trailing .material-symbols-rounded {
+  transition: transform var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-fast-spatial);
+}
+.m3e-split-button.is-open .m3e-split-trailing .material-symbols-rounded {
+  transform: rotate(180deg);
+}
+
+/* Split Button Dropdown Menu */
+.m3e-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-sys-shape-corner-extra-large);
+  box-shadow: var(--md-sys-elevation-3);
+  padding: 8px;
+  z-index: 100;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  transform-origin: top left;
+  animation: m3eMenuEnter var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-fast-spatial);
+}
+.m3e-split-button.is-open .m3e-dropdown-menu {
+  display: flex;
+}
+
+.m3e-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: none;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-medium);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color var(--md-sys-motion-duration-short2) ease;
+}
+.m3e-dropdown-item:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
+  color: var(--md-sys-color-primary);
+}
+
+@keyframes m3eMenuEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ==========================================================================
+   3. FLOATING TOOLBAR (M3E Signature: Pill Container, Standard & Vibrant)
+   ========================================================================== */
+.m3e-floating-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--md-sys-shape-corner-full);
+  box-shadow: var(--md-sys-elevation-3);
+  transition: 
+    box-shadow var(--md-sys-motion-duration-medium1) var(--md-sys-motion-spring-default-spatial),
+    transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-spring-default-spatial);
+}
+.m3e-floating-toolbar:hover {
+  box-shadow: var(--md-sys-elevation-4);
+  transform: translateY(-2px);
+}
+
+/* Standard Floating Toolbar */
+.m3e-floating-toolbar--standard {
+  background-color: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+
+/* Vibrant Floating Toolbar */
+.m3e-floating-toolbar--vibrant {
+  background-color: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-on-primary-container);
+  border: 1px solid transparent;
+}
+
+/* Vertical Floating Toolbar */
+.m3e-floating-toolbar--vertical {
+  flex-direction: column;
+  padding: 12px 8px;
+}
+
+/* Toolbar Icon Buttons */
+.m3e-toolbar-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--md-sys-shape-corner-full);
+  border: none;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    transform var(--md-sys-motion-duration-short2) var(--md-sys-motion-spring-fast-spatial),
+    border-radius var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-spatial);
+}
+.m3e-toolbar-btn:hover {
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
+.m3e-toolbar-btn:active {
+  transform: scale(0.9);
+  border-radius: var(--md-sys-shape-corner-small);
+}
+.m3e-toolbar-btn.is-active {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+
+/* Toolbar Divider */
+.m3e-toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--md-sys-color-outline-variant);
+  margin: 0 4px;
+}
+.m3e-floating-toolbar--vertical .m3e-toolbar-divider {
+  width: 24px;
+  height: 1px;
+  margin: 4px 0;
+}
+
+/* ==========================================================================
+   4. LOADING INDICATOR (M3E Signature: Fluid Morphing Shape <5s Process)
+   ========================================================================== */
+/* Contained loading indicator (48px container) */
+.m3e-loading-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--md-sys-shape-corner-full);
+  background-color: var(--md-sys-color-surface-container-high);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+/* The morphing shape element */
+.m3e-morphing-blob {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-tertiary));
+  animation: m3eShapeMorph 2.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.m3e-loading-uncontained .m3e-morphing-blob {
+  width: 38px;
+  height: 38px;
+}
+
+@keyframes m3eShapeMorph {
+  0% {
+    border-radius: 50%;
+    transform: rotate(0deg) scale(0.95);
+  }
+  25% {
+    border-radius: 4px 28px 4px 28px; /* Teardrop diagonal morph */
+    transform: rotate(90deg) scale(1.05);
+  }
+  50% {
+    border-radius: 28px 4px 28px 4px;
+    transform: rotate(180deg) scale(0.9);
+  }
+  75% {
+    border-radius: 28px 28px 4px 28px;
+    transform: rotate(270deg) scale(1.02);
+  }
+  100% {
+    border-radius: 50%;
+    transform: rotate(360deg) scale(0.95);
+  }
+}
+
+/* Multi-color pulsing ring effect */
+.m3e-loading-indicator-wrapper {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ==========================================================================
+   5. SEARCH BAR & SEARCH VIEW (Centered Text, Squircle Morph on Focus)
+   ========================================================================== */
+.m3e-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+  height: 56px;
+  padding: 0 20px;
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-sys-shape-corner-full);
+  box-shadow: var(--md-sys-elevation-0);
+  border: 1px solid transparent;
+  transition: 
+    border-radius var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-default-spatial),
+    box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-default-spatial),
+    background-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-default-effects),
+    border-color var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-default-effects);
+}
+.m3e-search-bar:hover {
+  background-color: var(--md-sys-color-surface-container-highest);
+  box-shadow: var(--md-sys-elevation-1);
+}
+.m3e-search-bar:focus-within {
+  border-radius: var(--md-sys-shape-corner-large-increased); /* Morphs to 20px squircle */
+  background-color: var(--md-sys-color-surface-container-lowest);
+  box-shadow: var(--md-sys-elevation-3);
+  border-color: var(--md-sys-color-outline-variant);
+}
+
+.m3e-search-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-large);
+  text-align: center; /* M3E Centered Search Text Spec */
+  outline: none;
+}
+.m3e-search-bar input:focus {
+  text-align: left;
+}
+.m3e-search-bar input::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ==========================================================================
+   6. CARDS (28px Corners, Primary Tinted Elevation, Spring Lift)
+   ========================================================================== */
+.m3e-card {
+  position: relative;
+  border-radius: var(--md-sys-shape-corner-extra-large); /* 28px corners */
+  padding: 24px;
+  transition: 
+    transform var(--md-sys-motion-duration-medium2) var(--md-sys-motion-spring-default-spatial),
+    box-shadow var(--md-sys-motion-duration-medium2) var(--md-sys-motion-spring-default-spatial),
+    border-color var(--md-sys-motion-duration-short3) ease;
+}
+
+/* Elevated Card */
+.m3e-card--elevated {
+  background-color: var(--md-sys-color-surface-container-low);
+  box-shadow: var(--md-sys-elevation-1);
+  border: 1px solid transparent;
+}
+.m3e-card--elevated:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--md-sys-elevation-3);
+}
+
+/* Filled Card */
+.m3e-card--filled {
+  background-color: var(--md-sys-color-surface-container-highest);
+  border: 1px solid transparent;
+}
+.m3e-card--filled:hover {
+  box-shadow: var(--md-sys-elevation-1);
+  transform: translateY(-2px);
+}
+
+/* Outlined Card */
+.m3e-card--outlined {
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+}
+.m3e-card--outlined:hover {
+  border-color: var(--md-sys-color-outline);
+  box-shadow: var(--md-sys-elevation-1);
+}
+
+/* Card Header & Content */
+.m3e-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.m3e-card__title {
+  font: var(--md-sys-typescale-title-large);
+  color: var(--md-sys-color-on-surface);
+}
+.m3e-card__subtitle {
+  font: var(--md-sys-typescale-body-medium);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* ==========================================================================
+   7. CHIPS (Pill Shape, Animated Toggle Checkmark)
+   ========================================================================== */
+.m3e-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--md-sys-shape-corner-small); /* 8px resting */
+  border: 1px solid var(--md-sys-color-outline);
+  background-color: transparent;
+  color: var(--md-sys-color-on-surface-variant);
+  font: var(--md-sys-typescale-label-large);
+  cursor: pointer;
+  user-select: none;
+  transition: 
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    border-radius var(--md-sys-motion-duration-short4) var(--md-sys-motion-spring-fast-spatial),
+    border-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    transform var(--md-sys-motion-duration-short2) ease;
+}
+.m3e-chip:hover {
+  background-color: color-mix(in srgb, var(--md-sys-color-on-surface-variant) 8%, transparent);
+}
+.m3e-chip:active {
+  transform: scale(0.95);
+}
+
+/* Selected Chip (Morphs to Pill full corner with primary container tint) */
+.m3e-chip.is-selected {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-color: transparent;
+  border-radius: var(--md-sys-shape-corner-full); /* Morphs to pill */
+}
+.m3e-chip .m3e-chip-check {
+  font-size: 18px;
+  display: none;
+}
+.m3e-chip.is-selected .m3e-chip-check {
+  display: inline-block;
+}
+
+/* ==========================================================================
+   8. EXPRESSIVE SWITCH (Thumb grows on press/active)
+   ========================================================================== */
+.m3e-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 32px;
+  cursor: pointer;
+}
+.m3e-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.m3e-switch__track {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--md-sys-color-surface-container-highest);
+  border: 2px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-full);
+  transition: 
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects),
+    border-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects);
+}
+.m3e-switch__thumb {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--md-sys-color-outline);
+  border-radius: 50%;
+  transition: 
+    transform var(--md-sys-motion-duration-medium1) var(--md-sys-motion-spring-fast-spatial),
+    width var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-spatial),
+    height var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-spatial),
+    background-color var(--md-sys-motion-duration-short3) var(--md-sys-motion-spring-fast-effects);
+}
+
+/* Thumb expands when pressed */
+.m3e-switch:active .m3e-switch__thumb {
+  width: 24px;
+  height: 24px;
+  top: 2px;
+}
+
+/* Checked State */
+.m3e-switch input:checked + .m3e-switch__track {
+  background-color: var(--md-sys-color-primary);
+  border-color: var(--md-sys-color-primary);
+}
+.m3e-switch input:checked + .m3e-switch__track .m3e-switch__thumb {
+  transform: translateX(20px);
+  background-color: var(--md-sys-color-on-primary);
+  width: 24px;
+  height: 24px;
+  top: 2px;
+  left: 4px;
+}
+
+/* ==========================================================================
+   9. MODAL DIALOG (28px Corners, Spring Entry Motion)
+   ========================================================================== */
+.m3e-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity var(--md-sys-motion-duration-medium2) ease;
+}
+.m3e-dialog-scrim.is-open {
+  display: flex;
+  opacity: 1;
+}
+
+.m3e-dialog {
+  width: 100%;
+  max-width: 540px;
+  background-color: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-sys-shape-corner-extra-large); /* 28px corners */
+  padding: 28px;
+  box-shadow: var(--md-sys-elevation-4);
+  transform: scale(0.9) translateY(20px);
+  transition: transform var(--md-sys-motion-duration-medium3) var(--md-sys-motion-spring-default-spatial);
+}
+.m3e-dialog-scrim.is-open .m3e-dialog {
+  transform: scale(1) translateY(0);
+}
+
+.m3e-dialog__icon {
+  font-size: 32px;
+  color: var(--md-sys-color-secondary);
+  margin-bottom: 16px;
+}
+.m3e-dialog__title {
+  font: var(--md-sys-typescale-headline-small-emphasized);
+  margin-bottom: 12px;
+}
+.m3e-dialog__body {
+  font: var(--md-sys-typescale-body-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+.m3e-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}

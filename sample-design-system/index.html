@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Design 3 Expressive — Complete Design System Showcase</title>
+  
+  <!-- Google Fonts: Google Sans / Outfit / Inter & Material Symbols Rounded -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  
+  <!-- Design System CSS -->
+  <link rel="stylesheet" href="m3e-tokens.css">
+  <link rel="stylesheet" href="m3e-components.css">
+  <link rel="stylesheet" href="m3e-showcase.css">
+</head>
+<body>
+
+  <div class="m3e-showcase">
+    <!-- Sidebar Navigation -->
+    <nav class="m3e-showcase-nav">
+      <div class="m3e-brand">
+        <div class="m3e-brand__badge">M3E</div>
+        <div>
+          <div class="m3e-brand__title">M3 Expressive</div>
+          <div class="m3e-brand__subtitle">Official Spec Reference</div>
+        </div>
+      </div>
+
+      <ul class="m3e-nav-list">
+        <li class="m3e-nav-item active"><a href="#overview"><span class="material-symbols-rounded">auto_awesome</span>Overview</a></li>
+        <li class="m3e-nav-item"><a href="#colors"><span class="material-symbols-rounded">palette</span>Color & Surfaces</a></li>
+        <li class="m3e-nav-item"><a href="#shapes"><span class="material-symbols-rounded">category</span>9-Tier Shape Scale</a></li>
+        <li class="m3e-nav-item"><a href="#motion"><span class="material-symbols-rounded">animation</span>Spring Motion</a></li>
+        <li class="m3e-nav-item"><a href="#typography"><span class="material-symbols-rounded">match_case</span>Typography Scale</a></li>
+        <li class="m3e-nav-item"><a href="#buttons"><span class="material-symbols-rounded">smart_button</span>5-Size Buttons</a></li>
+        <li class="m3e-nav-item"><a href="#split-button"><span class="material-symbols-rounded">call_split</span>Split Button</a></li>
+        <li class="m3e-nav-item"><a href="#floating-toolbar"><span class="material-symbols-rounded">toolbar</span>Floating Toolbar</a></li>
+        <li class="m3e-nav-item"><a href="#loading-indicator"><span class="material-symbols-rounded">progress_activity</span>Loading Indicator</a></li>
+        <li class="m3e-nav-item"><a href="#search"><span class="material-symbols-rounded">search</span>Search Bar</a></li>
+        <li class="m3e-nav-item"><a href="#cards-dialogs"><span class="material-symbols-rounded">dashboard</span>Cards & Dialogs</a></li>
+        <li class="m3e-nav-item"><a href="#chips-controls"><span class="material-symbols-rounded">toggle_on</span>Chips & Controls</a></li>
+        <li class="m3e-nav-item"><a href="#canonical-layouts"><span class="material-symbols-rounded">devices</span>Canonical Layouts</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="m3e-showcase-main">
+      <!-- Top Header -->
+      <header class="m3e-showcase-header">
+        <div class="m3e-header-left">
+          <h1>Material Design 3 Expressive</h1>
+          <p>Living Interactive Design System based on Google MDC reference specifications</p>
+        </div>
+        <div class="m3e-header-controls">
+          <button class="m3e-button m3e-button--md m3e-button--outlined m3e-button--round" id="theme-toggle">
+            <span class="material-symbols-rounded">dark_mode</span>
+            <span class="theme-text">Dark Mode</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section class="m3e-section" id="overview">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">info</span>Key Innovations in M3 Expressive</h2>
+          <p class="m3e-section-desc">M3 Expressive transforms static functional UI into lively, communicative, and playful experiences.</p>
+        </div>
+
+        <div class="m3e-grid m3e-grid-3">
+          <div class="m3e-card m3e-card--elevated">
+            <div class="m3e-card__header">
+              <span class="material-symbols-rounded" style="font-size: 32px; color: var(--md-sys-color-primary);">shape_line</span>
+              <span class="m3e-chip m3e-chip--small">Shape</span>
+            </div>
+            <h3 class="m3e-card__title">Shape Morphing</h3>
+            <p class="m3e-card__body">Buttons, chips, and search bars actively morph geometry on press, hover, and selection using spring physics.</p>
+          </div>
+
+          <div class="m3e-card m3e-card--elevated">
+            <div class="m3e-card__header">
+              <span class="material-symbols-rounded" style="font-size: 32px; color: var(--md-sys-color-tertiary);">motion_mode</span>
+              <span class="m3e-chip m3e-chip--small">Physics</span>
+            </div>
+            <h3 class="m3e-card__title">Spring Motion</h3>
+            <p class="m3e-card__body">Replaces generic cubic-bezier transitions with 6 physics spring profiles (Fast, Default, Slow across Spatial & Effects).</p>
+          </div>
+
+          <div class="m3e-card m3e-card--elevated">
+            <div class="m3e-card__header">
+              <span class="material-symbols-rounded" style="font-size: 32px; color: var(--md-sys-color-secondary);">layers</span>
+              <span class="m3e-chip m3e-chip--small">Surfaces</span>
+            </div>
+            <h3 class="m3e-card__title">5 Surface Containers</h3>
+            <p class="m3e-card__body">Structured tonal hierarchy replaces grey shadows with primary-tinted elevation levels 0 through 5.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Color System & Surface Hierarchy -->
+      <section class="m3e-section" id="colors">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">palette</span>Color Roles & Surface Containers</h2>
+          <p class="m3e-section-desc">Algorithmic SchemeExpressive palettes with rotational hues and 5 tonal surface containers.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-caption">Accent Color Roles</div>
+          <div class="m3e-grid m3e-grid-3">
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">
+                Primary (40/80)
+              </div>
+              <div class="m3e-swatch-info">
+                <div>Container: Primary Container</div>
+                <div>Fixed: Primary Fixed Dim</div>
+              </div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-secondary); color: var(--md-sys-color-on-secondary);">
+                Secondary (Rotated ~45-95°)
+              </div>
+              <div class="m3e-swatch-info">
+                <div>Container: Secondary Container</div>
+                <div>Fixed: Secondary Fixed Dim</div>
+              </div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-tertiary); color: var(--md-sys-color-on-tertiary);">
+                Tertiary (Teal/Coral High-Chroma)
+              </div>
+              <div class="m3e-swatch-info">
+                <div>Container: Tertiary Container</div>
+                <div>Fixed: Tertiary Fixed Dim</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">The 5 Surface Containers (Tonal Elevation Hierarchy)</div>
+          <div class="m3e-grid m3e-grid-4">
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-surface-container-lowest); color: var(--md-sys-color-on-surface); border: 1px solid var(--md-sys-color-outline-variant);">
+                Lowest
+              </div>
+              <div class="m3e-swatch-info">Pure base / cards in low-contrast</div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-surface-container-low); color: var(--md-sys-color-on-surface);">
+                Low
+              </div>
+              <div class="m3e-swatch-info">Elevated cards & lists resting</div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface);">
+                Container
+              </div>
+              <div class="m3e-swatch-info">Standard floating toolbar & chips</div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);">
+                High
+              </div>
+              <div class="m3e-swatch-info">Dialogs & search bars resting</div>
+            </div>
+
+            <div class="m3e-swatch-card">
+              <div class="m3e-swatch-box" style="background: var(--md-sys-color-surface-container-highest); color: var(--md-sys-color-on-surface);">
+                Highest
+              </div>
+              <div class="m3e-swatch-info">Filled cards & hover overlays</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: 9-Tier Shape Scale -->
+      <section class="m3e-section" id="shapes">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">category</span>9-Tier Shape Scale (0dp to 9999dp)</h2>
+          <p class="m3e-section-desc">From micro-tags (4dp) to expansive dialogs (28dp) and pill controls (Full). Hover to see spring bounce!</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-row" style="justify-content: space-around;">
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-extra-small);">
+              XS<br>4px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-small);">
+              Small<br>8px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-medium);">
+              Medium<br>12px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-large);">
+              Large<br>16px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-large-increased);">
+              Large +<br>20px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-extra-large);">
+              XL<br>28px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-extra-large-increased);">
+              XL +<br>32px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-extra-extra-large);">
+              XXL<br>48px
+            </div>
+            <div class="m3e-shape-box" style="border-radius: var(--md-sys-shape-corner-full); width: 140px;">
+              Full Pill<br>9999px
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Physics Spring Motion -->
+      <section class="m3e-section" id="motion">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">animation</span>Physics Spring Motion Simulator</h2>
+          <p class="m3e-section-desc">Click the trigger buttons to test spatial overshoot springs vs non-overshooting effect springs.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-spring-tester">
+            <div>
+              <strong>Fast Spatial Spring</strong> (damping: 0.9, stiffness: 1400)
+              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">Used for small interactive elements: buttons, chips, switches</div>
+            </div>
+            <div class="m3e-spring-ball m3e-spring-trigger" data-target="spring-ball-fast">
+              <span class="material-symbols-rounded">play_arrow</span>
+            </div>
+          </div>
+
+          <div class="m3e-spring-tester">
+            <div>
+              <strong>Default Spatial Spring</strong> (damping: 0.9, stiffness: 700)
+              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">Used for medium partial-screen components: dialogs, bottom sheets, cards</div>
+            </div>
+            <div class="m3e-spring-ball m3e-spring-trigger" data-target="spring-ball-default">
+              <span class="material-symbols-rounded">play_arrow</span>
+            </div>
+          </div>
+
+          <div class="m3e-spring-tester">
+            <div>
+              <strong>Slow Spatial Spring</strong> (damping: 0.9, stiffness: 300)
+              <div style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);">Used for expansive full-screen container transforms and page transitions</div>
+            </div>
+            <div class="m3e-spring-ball m3e-spring-trigger" data-target="spring-ball-slow">
+              <span class="material-symbols-rounded">play_arrow</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Typography Scale -->
+      <section class="m3e-section" id="typography">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">match_case</span>15-Tier Typography: Baseline vs Emphasized</h2>
+          <p class="m3e-section-desc">M3 Expressive pairs standard editorial text with bold Emphasized scales for high-impact visual clarity.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div>
+              <div class="m3e-demo-caption">Display Large (57px) — Baseline vs Emphasized</div>
+              <div style="font: var(--md-sys-typescale-display-large);">Display Large Baseline</div>
+              <div style="font: var(--md-sys-typescale-display-large-emphasized); color: var(--md-sys-color-primary);">Display Large Emphasized</div>
+            </div>
+
+            <div>
+              <div class="m3e-demo-caption">Headline Medium (28px)</div>
+              <div style="font: var(--md-sys-typescale-headline-medium);">Headline Medium Baseline</div>
+              <div style="font: var(--md-sys-typescale-headline-medium-emphasized); color: var(--md-sys-color-secondary);">Headline Medium Emphasized</div>
+            </div>
+
+            <div>
+              <div class="m3e-demo-caption">Title Medium (16px)</div>
+              <div style="font: var(--md-sys-typescale-title-medium);">Title Medium Regular 500</div>
+              <div style="font: var(--md-sys-typescale-title-medium-emphasized); color: var(--md-sys-color-primary);">Title Medium Bold 700 Emphasized</div>
+            </div>
+
+            <div>
+              <div class="m3e-demo-caption">Label Large (14px Button & Chip Standard)</div>
+              <div style="font: var(--md-sys-typescale-label-large);">Label Large 500</div>
+              <div style="font: var(--md-sys-typescale-label-large-emphasized); color: var(--md-sys-color-tertiary);">Label Large Emphasized 700</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: 5-Size Buttons & Shape Morphing -->
+      <section class="m3e-section" id="buttons">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">smart_button</span>5-Size Buttons with Shape Morphing</h2>
+          <p class="m3e-section-desc">XS (28px) to XL (96px). Press and hold any button to observe the spring shape morph from pill to squircle!</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-caption">The 5 Sizes (XS to XL)</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-button m3e-button--filled m3e-button--xs m3e-button--round">
+              <span class="material-symbols-rounded">send</span>XS (28px)
+            </button>
+            <button class="m3e-button m3e-button--filled m3e-button--sm m3e-button--round">
+              <span class="material-symbols-rounded">send</span>Small (40px)
+            </button>
+            <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">send</span>Medium (48px Default)
+            </button>
+            <button class="m3e-button m3e-button--filled m3e-button--lg m3e-button--round">
+              <span class="material-symbols-rounded">send</span>Large (56px)
+            </button>
+            <button class="m3e-button m3e-button--filled m3e-button--xl m3e-button--round">
+              <span class="material-symbols-rounded">send</span>Extra Large (96px)
+            </button>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">Button Configurations (Filled, Tonal, Outlined, Elevated, Text)</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">check</span>Filled
+            </button>
+            <button class="m3e-button m3e-button--tonal m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">bookmark</span>Filled Tonal
+            </button>
+            <button class="m3e-button m3e-button--outlined m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">edit</span>Outlined
+            </button>
+            <button class="m3e-button m3e-button--elevated m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">upload</span>Elevated
+            </button>
+            <button class="m3e-button m3e-button--text m3e-button--md m3e-button--round">
+              <span class="material-symbols-rounded">arrow_forward</span>Text
+            </button>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">Square Shape Option (12px Corner)</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--square">
+              <span class="material-symbols-rounded">folder</span>Square Filled
+            </button>
+            <button class="m3e-button m3e-button--tonal m3e-button--md m3e-button--square">
+              <span class="material-symbols-rounded">download</span>Square Tonal
+            </button>
+            <button class="m3e-button m3e-button--outlined m3e-button--md m3e-button--square">
+              <span class="material-symbols-rounded">settings</span>Square Outlined
+            </button>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">Toggle (Checkable) Buttons — Click to Toggle State & Shape</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-button m3e-button--outlined m3e-button--md m3e-button--round js-toggle-btn" aria-pressed="false">
+              <span class="material-symbols-rounded m3e-toggle-check">check</span>
+              <span>Filter: Verified Students</span>
+            </button>
+            <button class="m3e-button m3e-button--outlined m3e-button--md m3e-button--round js-toggle-btn is-selected" aria-pressed="true">
+              <span class="material-symbols-rounded m3e-toggle-check">check</span>
+              <span>Active Selection (Toggled)</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7: Split Button -->
+      <section class="m3e-section" id="split-button">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">call_split</span>M3 Expressive Split Button</h2>
+          <p class="m3e-section-desc">Connected primary action with an animated trailing menu button that rotates 180° upon trigger.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-row">
+            <!-- Filled Split Button -->
+            <div class="m3e-split-button" id="split-button-demo">
+              <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--round m3e-split-leading">
+                <span class="material-symbols-rounded">file_download</span>
+                <span>Export Shortlist</span>
+              </button>
+              <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--round m3e-split-trailing" aria-label="More export options">
+                <span class="material-symbols-rounded">expand_more</span>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div class="m3e-dropdown-menu">
+                <button class="m3e-dropdown-item">
+                  <span class="material-symbols-rounded">picture_as_pdf</span>
+                  <span>Export as PDF</span>
+                </button>
+                <button class="m3e-dropdown-item">
+                  <span class="material-symbols-rounded">table_chart</span>
+                  <span>Export as CSV</span>
+                </button>
+                <button class="m3e-dropdown-item">
+                  <span class="material-symbols-rounded">folder_zip</span>
+                  <span>Export All as ZIP</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tonal Split Button -->
+            <div class="m3e-split-button">
+              <button class="m3e-button m3e-button--tonal m3e-button--md m3e-button--round m3e-split-leading">
+                <span class="material-symbols-rounded">add</span>
+                <span>New Project</span>
+              </button>
+              <button class="m3e-button m3e-button--tonal m3e-button--md m3e-button--round m3e-split-trailing" aria-label="More options">
+                <span class="material-symbols-rounded">expand_more</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 8: Floating Toolbar -->
+      <section class="m3e-section" id="floating-toolbar">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">toolbar</span>Floating Toolbar (Standard & Vibrant)</h2>
+          <p class="m3e-section-desc">Floating pill action container supporting horizontal & vertical layouts, standard and vibrant themes.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-toolbar-stage">
+            <!-- Standard Floating Toolbar -->
+            <div class="m3e-floating-toolbar m3e-floating-toolbar--standard">
+              <button class="m3e-toolbar-btn is-active" title="Select Pointer"><span class="material-symbols-rounded">near_me</span></button>
+              <button class="m3e-toolbar-btn" title="Edit Content"><span class="material-symbols-rounded">edit</span></button>
+              <button class="m3e-toolbar-btn" title="Add Note"><span class="material-symbols-rounded">comment</span></button>
+              <div class="m3e-toolbar-divider"></div>
+              <button class="m3e-toolbar-btn" title="Format Bold"><span class="material-symbols-rounded">format_bold</span></button>
+              <button class="m3e-toolbar-btn" title="Format Color"><span class="material-symbols-rounded">palette</span></button>
+              <div class="m3e-toolbar-divider"></div>
+              <button class="m3e-toolbar-btn" title="Share Document"><span class="material-symbols-rounded">share</span></button>
+            </div>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">Vibrant Floating Toolbar & Vertical Layout</div>
+          <div class="m3e-demo-row">
+            <!-- Vibrant Horizontal -->
+            <div class="m3e-floating-toolbar m3e-floating-toolbar--vibrant">
+              <button class="m3e-toolbar-btn is-active"><span class="material-symbols-rounded">home</span></button>
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">school</span></button>
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">work</span></button>
+              <div class="m3e-toolbar-divider"></div>
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">notifications</span></button>
+            </div>
+
+            <!-- Vertical Toolbar -->
+            <div class="m3e-floating-toolbar m3e-floating-toolbar--standard m3e-floating-toolbar--vertical">
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">zoom_in</span></button>
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">zoom_out</span></button>
+              <div class="m3e-toolbar-divider"></div>
+              <button class="m3e-toolbar-btn"><span class="material-symbols-rounded">fit_screen</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 9: Loading Indicator -->
+      <section class="m3e-section" id="loading-indicator">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">progress_activity</span>Morphing Shape Loading Indicator</h2>
+          <p class="m3e-section-desc">Replaces generic circular spinners for fast tasks (&lt;5s) with attention-capturing fluid shape morphing.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-row" style="gap: 48px; justify-content: center; padding: 32px 0;">
+            <!-- Contained Loading Indicator -->
+            <div class="m3e-loading-indicator-wrapper">
+              <div class="m3e-loading-container">
+                <div class="m3e-morphing-blob"></div>
+              </div>
+              <span class="m3e-demo-caption">Contained (48px Pill)</span>
+            </div>
+
+            <!-- Uncontained Loading Indicator -->
+            <div class="m3e-loading-indicator-wrapper">
+              <div class="m3e-loading-uncontained">
+                <div class="m3e-morphing-blob"></div>
+              </div>
+              <span class="m3e-demo-caption">Uncontained (Fluid Morph)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 10: Centered Search Bar -->
+      <section class="m3e-section" id="search">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">search</span>Centered Search Bar with Squircle Morph</h2>
+          <p class="m3e-section-desc">Starts centered in resting state; morphs smoothly into an expanded 20px squircle upon focus.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-search-bar">
+            <span class="material-symbols-rounded" style="color: var(--md-sys-color-on-surface-variant);">search</span>
+            <input type="text" placeholder="Search candidates, skills, or degree cohorts...">
+            <button class="m3e-toolbar-btn" style="width: 32px; height: 32px;" title="Voice or Filter">
+              <span class="material-symbols-rounded" style="font-size: 20px;">tune</span>
+            </button>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 12px;">Suggested Filters</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-chip js-chip"><span class="material-symbols-rounded m3e-chip-check">check</span>Level 3 BCS</button>
+            <button class="m3e-chip js-chip"><span class="material-symbols-rounded m3e-chip-check">check</span>Level 4 Computer Science</button>
+            <button class="m3e-chip js-chip is-selected"><span class="material-symbols-rounded m3e-chip-check">check</span>GPA &ge; 3.50</button>
+            <button class="m3e-chip js-chip"><span class="material-symbols-rounded m3e-chip-check">check</span>React + TypeScript</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 11: Cards & Dialogs -->
+      <section class="m3e-section" id="cards-dialogs">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">dashboard</span>28px Corner Cards & Spring Dialogs</h2>
+          <p class="m3e-section-desc">Modern container geometry with primary-tinted elevation and spring entry animations.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-grid m3e-grid-3">
+            <div class="m3e-card m3e-card--elevated">
+              <div class="m3e-card__header">
+                <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary);">verified</span>
+                <span class="m3e-chip">Elevated</span>
+              </div>
+              <h3 class="m3e-card__title">Candidate Profile</h3>
+              <p class="m3e-card__subtitle">Amaya Rodrigo &bull; Level 4 BCS</p>
+              <p class="m3e-card__body" style="margin-top: 12px;">Verified academic credentials, dean's list honors, and completed industry internships.</p>
+              <div style="margin-top: 16px;">
+                <button class="m3e-button m3e-button--filled m3e-button--sm m3e-button--round">View Portfolio</button>
+              </div>
+            </div>
+
+            <div class="m3e-card m3e-card--filled">
+              <div class="m3e-card__header">
+                <span class="material-symbols-rounded" style="color: var(--md-sys-color-secondary);">badge</span>
+                <span class="m3e-chip">Filled</span>
+              </div>
+              <h3 class="m3e-card__title">Shortlist Batch</h3>
+              <p class="m3e-card__subtitle">Sysco LABS &bull; 8 Shortlisted</p>
+              <p class="m3e-card__body" style="margin-top: 12px;">Automated candidate matching completed with 94% skills compatibility score.</p>
+              <div style="margin-top: 16px;">
+                <button class="m3e-button m3e-button--tonal m3e-button--sm m3e-button--round">Download ZIP</button>
+              </div>
+            </div>
+
+            <div class="m3e-card m3e-card--outlined">
+              <div class="m3e-card__header">
+                <span class="material-symbols-rounded" style="color: var(--md-sys-color-tertiary);">open_in_new</span>
+                <span class="m3e-chip">Outlined</span>
+              </div>
+              <h3 class="m3e-card__title">Interactive Modal</h3>
+              <p class="m3e-card__subtitle">Spring Physics Dialog</p>
+              <p class="m3e-card__body" style="margin-top: 12px;">Trigger a 28px rounded modal dialog utilizing M3E spring entry and backdrop blur.</p>
+              <div style="margin-top: 16px;">
+                <button class="m3e-button m3e-button--outlined m3e-button--sm m3e-button--round" id="open-dialog-btn">Launch Dialog</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 12: Chips & Expressive Controls -->
+      <section class="m3e-section" id="chips-controls">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">toggle_on</span>Chips & Expressive Switches</h2>
+          <p class="m3e-section-desc">Interactive state morphs: switch thumb dynamically grows on press and drags seamlessly.</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-caption">Expressive Switch (Click and hold to see thumb expansion)</div>
+          <div class="m3e-demo-row" style="gap: 32px;">
+            <label class="m3e-switch">
+              <input type="checkbox">
+              <span class="m3e-switch__track"><span class="m3e-switch__thumb"></span></span>
+            </label>
+
+            <label class="m3e-switch">
+              <input type="checkbox" checked>
+              <span class="m3e-switch__track"><span class="m3e-switch__thumb"></span></span>
+            </label>
+          </div>
+
+          <div class="m3e-demo-caption" style="margin-top: 16px;">M3E Filter, Assist, and Suggestion Chips</div>
+          <div class="m3e-demo-row">
+            <button class="m3e-chip js-chip is-selected"><span class="material-symbols-rounded m3e-chip-check">check</span>Spring Boot</button>
+            <button class="m3e-chip js-chip"><span class="material-symbols-rounded m3e-chip-check">check</span>PostgreSQL</button>
+            <button class="m3e-chip js-chip"><span class="material-symbols-rounded m3e-chip-check">check</span>Docker</button>
+            <button class="m3e-chip js-chip is-selected"><span class="material-symbols-rounded m3e-chip-check">check</span>TypeScript</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 13: Canonical Layouts -->
+      <section class="m3e-section" id="canonical-layouts">
+        <div class="m3e-section-header">
+          <h2 class="m3e-section-title"><span class="material-symbols-rounded">devices</span>Adaptive Canonical Layouts</h2>
+          <p class="m3e-section-desc">Demonstrates canonical responsive transitions: Bottom Bar (Compact), Rail (Medium), Drawer + Split Pane (Expanded).</p>
+        </div>
+
+        <div class="m3e-demo-stage">
+          <div class="m3e-demo-row">
+            <button class="m3e-button m3e-button--outlined m3e-button--sm m3e-button--round js-viewport-btn" data-mode="compact">Mobile (Compact)</button>
+            <button class="m3e-button m3e-button--outlined m3e-button--sm m3e-button--round js-viewport-btn" data-mode="medium">Tablet (Medium Rail)</button>
+            <button class="m3e-button m3e-button--outlined m3e-button--sm m3e-button--round js-viewport-btn is-selected" data-mode="expanded">Desktop (Expanded)</button>
+          </div>
+
+          <div class="m3e-canonical-frame" id="canonical-frame">
+            <!-- Frame Nav Rail -->
+            <div class="m3e-frame-nav">
+              <span class="material-symbols-rounded" style="color: var(--md-sys-color-primary);">dashboard</span>
+              <span class="material-symbols-rounded" style="color: var(--md-sys-color-on-surface-variant);">group</span>
+              <span class="material-symbols-rounded" style="color: var(--md-sys-color-on-surface-variant);">assignment</span>
+              <span class="material-symbols-rounded" style="color: var(--md-sys-color-on-surface-variant);">settings</span>
+            </div>
+
+            <!-- Frame Main Content (List-Detail) -->
+            <div class="m3e-frame-content">
+              <div style="font: var(--md-sys-typescale-title-large-emphasized);">Candidate Selection Workspace</div>
+              <div class="m3e-card m3e-card--elevated" style="padding: 16px;">
+                <div style="font-weight: 600;">Amaya Rodrigo (BCS Hons)</div>
+                <div style="font-size: 13px; color: var(--md-sys-color-on-surface-variant);">GPA: 3.84 &bull; Major: Software Engineering &bull; Shortlisted</div>
+              </div>
+              <div class="m3e-card m3e-card--elevated" style="padding: 16px;">
+                <div style="font-weight: 600;">Kavin Jayasuriya (BCS Hons)</div>
+                <div style="font-size: 13px; color: var(--md-sys-color-on-surface-variant);">GPA: 3.79 &bull; Major: Cloud & Data Systems &bull; Shortlisted</div>
+              </div>
+            </div>
+
+            <!-- Frame Supporting Panel -->
+            <div class="m3e-frame-side">
+              <div style="font: var(--md-sys-typescale-title-medium-emphasized);">Supporting Panel</div>
+              <div style="font-size: 13px; color: var(--md-sys-color-on-surface-variant);">Detailed academic inspection & verification details populate here dynamically on wide viewports.</div>
+              <button class="m3e-button m3e-button--filled m3e-button--sm m3e-button--round" style="margin-top: auto;">Inspect Ledger</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal Dialog Element -->
+  <div class="m3e-dialog-scrim" id="m3e-dialog-demo">
+    <div class="m3e-dialog">
+      <div class="m3e-dialog__icon">
+        <span class="material-symbols-rounded">help</span>
+      </div>
+      <h3 class="m3e-dialog__title">Confirm Shortlist Export?</h3>
+      <p class="m3e-dialog__body">
+        This action will generate a zip archive of all approved candidate CVs formatted with institutional branding and digital signatures.
+      </p>
+      <div class="m3e-dialog__actions">
+        <button class="m3e-button m3e-button--text m3e-button--md m3e-button--round js-close-dialog">Cancel</button>
+        <button class="m3e-button m3e-button--filled m3e-button--md m3e-button--round js-close-dialog">Confirm &amp; Export</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Scripts -->
+  <script src="m3e-interactive.js"></script>
+</body>
+</html>
