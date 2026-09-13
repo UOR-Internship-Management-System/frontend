@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UOR IMS — Design System (M3 Expressive)</title>
+<style>
+/* ==========================================================================
+   UOR Internship Management System — Design Tokens
+   Material Design 3 Expressive adaptation
+   -------------------------------------------------------------------------
+   Seed colors
+     Primary   "Scholar Violet"  h252 — academic, distinct from generic SaaS blue
+     Secondary "Ledger Amber"    h35  — achievement, CV/credential highlights
+     Tertiary  "Verified Teal"   h174 — confirmation, growth, success states
+     Error     standard M3 red  h6
+   Tonal steps generated on a perceptual lightness curve (HCT-approximate).
+   ========================================================================== */
+
+/* Google Sans is a Google-restricted-license font (not on the public Google
+   Fonts API), so it can't be @imported here. The stack below picks it up
+   automatically on any device/browser that already has it installed
+   (ChromeOS, Android, machines with Workspace apps) and falls back to
+   Roboto — the actual default face Material 3 ships on every other
+   platform — for everyone else. Self-host licensed Google Sans .woff2
+   files and add an @font-face rule above this block to force it everywhere. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ---------------------------------------------------------------------
+     1. Reference palettes (raw tones — rarely used directly)
+     --------------------------------------------------------------------- */
+  --ref-primary-0: #000000;   --ref-primary-10: #120C27;  --ref-primary-20: #23184E;
+  --ref-primary-25: #2C1F61;  --ref-primary-30: #352574;  --ref-primary-35: #3D2B88;
+  --ref-primary-40: #432F93;  --ref-primary-50: #543BBA;  --ref-primary-60: #7964CE;
+  --ref-primary-70: #9B8BDA;  --ref-primary-80: #BFB5E8;  --ref-primary-90: #DED8F3;
+  --ref-primary-95: #EEECF9;  --ref-primary-98: #F9F9FB;  --ref-primary-99: #FCFCFD;
+  --ref-primary-100: #FFFFFF;
+
+  --ref-secondary-0: #000000; --ref-secondary-10: #241B0F; --ref-secondary-20: #48371E;
+  --ref-secondary-25: #5B4425; --ref-secondary-30: #6D522C; --ref-secondary-40: #8A6838;
+  --ref-secondary-50: #AE8347; --ref-secondary-60: #C4A06E; --ref-secondary-70: #D3B892;
+  --ref-secondary-80: #E3D2BA; --ref-secondary-90: #F0E7DB; --ref-secondary-95: #F8F3ED;
+  --ref-secondary-98: #FBFAF9; --ref-secondary-100: #FFFFFF;
+
+  --ref-tertiary-0: #000000;  --ref-tertiary-10: #102321;  --ref-tertiary-20: #204643;
+  --ref-tertiary-25: #285853;  --ref-tertiary-30: #2F6A64; --ref-tertiary-40: #3C867E;
+  --ref-tertiary-50: #4CA9A0; --ref-tertiary-60: #72C0B8;  --ref-tertiary-70: #95D0CA;
+  --ref-tertiary-80: #BCE1DD; --ref-tertiary-90: #DCEFED;  --ref-tertiary-95: #EDF7F6;
+  --ref-tertiary-98: #F9FBFB; --ref-tertiary-100: #FFFFFF;
+
+  --ref-error-0: #000000;  --ref-error-10: #2C0A07;  --ref-error-20: #59150D;
+  --ref-error-25: #6F1A11; --ref-error-30: #851F14;  --ref-error-40: #A92819;
+  --ref-error-50: #D53220; --ref-error-60: #E45D4E;  --ref-error-70: #EB857A;
+  --ref-error-80: #F2B2AB; --ref-error-90: #F8D6D3;  --ref-error-95: #FCEBE9;
+  --ref-error-98: #FCF8F8; --ref-error-100: #FFFFFF;
+
+  --ref-neutral-0: #000000;  --ref-neutral-4: #0A0A0B;  --ref-neutral-6: #0F0F10;
+  --ref-neutral-10: #19171C; --ref-neutral-12: #201E24; --ref-neutral-17: #2A282F;
+  --ref-neutral-20: #312F37; --ref-neutral-22: #36343D; --ref-neutral-24: #3B3842;
+  --ref-neutral-30: #4A4653; --ref-neutral-87: #DDDBE1; --ref-neutral-90: #E5E3E8;
+  --ref-neutral-92: #EAE9EC; --ref-neutral-94: #EFEEF1; --ref-neutral-95: #F2F1F3;
+  --ref-neutral-96: #F5F4F5; --ref-neutral-98: #FAFAFA; --ref-neutral-99: #FCFCFD;
+  --ref-neutral-100: #FFFFFF;
+
+  --ref-neutral-variant-10: #18161D; --ref-neutral-variant-30: #484257;
+  --ref-neutral-variant-50: #72698C; --ref-neutral-variant-60: #928BA7;
+  --ref-neutral-variant-80: #CBC8D5; --ref-neutral-variant-90: #E4E2E9;
+
+  /* ---------------------------------------------------------------------
+     2. Color roles — LIGHT scheme (default)
+     --------------------------------------------------------------------- */
+  --md-primary: var(--ref-primary-40);
+  --md-on-primary: var(--ref-primary-100);
+  --md-primary-container: var(--ref-primary-90);
+  --md-on-primary-container: var(--ref-primary-10);
+  --md-inverse-primary: var(--ref-primary-80);
+
+  --md-secondary: var(--ref-secondary-40);
+  --md-on-secondary: var(--ref-secondary-100);
+  --md-secondary-container: var(--ref-secondary-90);
+  --md-on-secondary-container: var(--ref-secondary-10);
+
+  --md-tertiary: var(--ref-tertiary-40);
+  --md-on-tertiary: var(--ref-tertiary-100);
+  --md-tertiary-container: var(--ref-tertiary-90);
+  --md-on-tertiary-container: var(--ref-tertiary-10);
+
+  --md-error: var(--ref-error-40);
+  --md-on-error: var(--ref-error-100);
+  --md-error-container: var(--ref-error-90);
+  --md-on-error-container: var(--ref-error-10);
+
+  --md-surface-dim: var(--ref-neutral-87);
+  --md-surface: var(--ref-neutral-98);
+  --md-surface-bright: var(--ref-neutral-98);
+  --md-surface-container-lowest: var(--ref-neutral-100);
+  --md-surface-container-low: var(--ref-neutral-96);
+  --md-surface-container: var(--ref-neutral-94);
+  --md-surface-container-high: var(--ref-neutral-92);
+  --md-surface-container-highest: var(--ref-neutral-90);
+  --md-on-surface: var(--ref-neutral-10);
+  --md-on-surface-variant: var(--ref-neutral-variant-30);
+
+  --md-outline: var(--ref-neutral-variant-50);
+  --md-outline-variant: var(--ref-neutral-variant-80);
+  --md-inverse-surface: var(--ref-neutral-20);
+  --md-inverse-on-surface: var(--ref-neutral-95);
+  --md-scrim: #000000;
+  --md-shadow: #000000;
+
+  /* Semantic aliases used by feature code (status meanings, not raw color) */
+  --md-success: var(--ref-tertiary-30);
+  --md-success-container: var(--ref-tertiary-90);
+  --md-on-success-container: var(--ref-tertiary-10);
+  --md-warning: #7A4E00;
+  --md-warning-container: #FFDEA6;
+  --md-on-warning-container: #271900;
+
+  /* ---------------------------------------------------------------------
+     3. Typography — M3 Expressive scale, single family (Google Sans)
+     One face across every role, per the real M3 spec — weight and size
+     carry the hierarchy, not a second typeface. --md-font-plain is kept
+     as an alias so existing code that references it still resolves.
+     --------------------------------------------------------------------- */
+  --md-font: 'Google Sans', 'Google Sans Text', Roboto, system-ui, -apple-system, sans-serif;
+  --md-font-brand: var(--md-font);
+  --md-font-plain: var(--md-font);
+
+  --md-display-large: 700 3.5rem/4rem var(--md-font);
+  --md-display-medium: 700 2.8rem/3.25rem var(--md-font);
+  --md-display-small: 700 2.25rem/2.75rem var(--md-font);
+
+  --md-headline-large: 700 2rem/2.5rem var(--md-font);
+  --md-headline-medium: 700 1.75rem/2.25rem var(--md-font);
+  --md-headline-small: 700 1.5rem/2rem var(--md-font);
+
+  --md-title-large: 500 1.375rem/1.75rem var(--md-font);
+  --md-title-medium: 500 1rem/1.5rem var(--md-font);
+  --md-title-small: 500 0.875rem/1.25rem var(--md-font);
+
+  --md-label-large: 500 0.875rem/1.25rem var(--md-font);
+  --md-label-medium: 500 0.75rem/1rem var(--md-font);
+  --md-label-small: 500 0.6875rem/1rem var(--md-font);
+
+  --md-body-large: 400 1rem/1.5rem var(--md-font);
+  --md-body-medium: 400 0.875rem/1.25rem var(--md-font);
+  --md-body-small: 400 0.75rem/1rem var(--md-font);
+
+  /* ---------------------------------------------------------------------
+     4. Shape scale — Expressive extends the classic 7 steps with
+        "increased" stops for a livelier, more varied silhouette
+     --------------------------------------------------------------------- */
+  --md-shape-none: 0px;
+  --md-shape-xs: 4px;
+  --md-shape-xs-increased: 8px;
+  --md-shape-sm: 8px;
+  --md-shape-sm-increased: 12px;
+  --md-shape-md: 12px;
+  --md-shape-md-increased: 16px;
+  --md-shape-lg: 16px;
+  --md-shape-lg-increased: 20px;
+  --md-shape-xl: 28px;
+  --md-shape-xl-increased: 32px;
+  --md-shape-xxl: 48px;
+  --md-shape-full: 999px;
+
+  /* ---------------------------------------------------------------------
+     5. Elevation (tonal shadow pairs, level 0–5)
+     --------------------------------------------------------------------- */
+  --md-elevation-0: none;
+  --md-elevation-1: 0 1px 2px rgb(0 0 0 / 30%), 0 1px 3px 1px rgb(0 0 0 / 15%);
+  --md-elevation-2: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 6px 2px rgb(0 0 0 / 15%);
+  --md-elevation-3: 0 1px 3px rgb(0 0 0 / 30%), 0 4px 8px 3px rgb(0 0 0 / 15%);
+  --md-elevation-4: 0 2px 3px rgb(0 0 0 / 30%), 0 6px 10px 4px rgb(0 0 0 / 15%);
+  --md-elevation-5: 0 4px 4px rgb(0 0 0 / 30%), 0 8px 12px 6px rgb(0 0 0 / 15%);
+
+  /* ---------------------------------------------------------------------
+     6. State layer opacities
+     --------------------------------------------------------------------- */
+  --md-state-hover: 0.08;
+  --md-state-focus: 0.10;
+  --md-state-pressed: 0.10;
+  --md-state-dragged: 0.16;
+  --md-state-disabled-content: 0.38;
+  --md-state-disabled-container: 0.12;
+
+  /* ---------------------------------------------------------------------
+     7. Motion — Expressive spatial springs (bouncy, physical) vs.
+        standard effects easing (calm, for opacity/color only)
+     --------------------------------------------------------------------- */
+  --md-spring-fast: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-spring-default: 500ms cubic-bezier(0.32, 1.28, 0.68, 1);
+  --md-spring-slow: 650ms cubic-bezier(0.28, 1.4, 0.6, 1);
+  --md-motion-standard: 300ms cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-standard-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-emphasized: 500ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ===========================================================================
+   DARK scheme
+   =========================================================================== */
+:root.dark,
+body.dark-mode {
+  --md-primary: var(--ref-primary-80);
+  --md-on-primary: var(--ref-primary-20);
+  --md-primary-container: var(--ref-primary-30);
+  --md-on-primary-container: var(--ref-primary-90);
+  --md-inverse-primary: var(--ref-primary-40);
+
+  --md-secondary: var(--ref-secondary-80);
+  --md-on-secondary: var(--ref-secondary-20);
+  --md-secondary-container: var(--ref-secondary-30);
+  --md-on-secondary-container: var(--ref-secondary-90);
+
+  --md-tertiary: var(--ref-tertiary-80);
+  --md-on-tertiary: var(--ref-tertiary-20);
+  --md-tertiary-container: var(--ref-tertiary-30);
+  --md-on-tertiary-container: var(--ref-tertiary-90);
+
+  --md-error: var(--ref-error-80);
+  --md-on-error: var(--ref-error-20);
+  --md-error-container: var(--ref-error-30);
+  --md-on-error-container: var(--ref-error-90);
+
+  --md-surface-dim: var(--ref-neutral-6);
+  --md-surface: var(--ref-neutral-6);
+  --md-surface-bright: var(--ref-neutral-24);
+  --md-surface-container-lowest: var(--ref-neutral-4);
+  --md-surface-container-low: var(--ref-neutral-10);
+  --md-surface-container: var(--ref-neutral-12);
+  --md-surface-container-high: var(--ref-neutral-17);
+  --md-surface-container-highest: var(--ref-neutral-22);
+  --md-on-surface: var(--ref-neutral-90);
+  --md-on-surface-variant: var(--ref-neutral-variant-80);
+
+  --md-outline: var(--ref-neutral-variant-60);
+  --md-outline-variant: var(--ref-neutral-variant-30);
+  --md-inverse-surface: var(--ref-neutral-90);
+  --md-inverse-on-surface: var(--ref-neutral-20);
+
+  --md-success: var(--ref-tertiary-80);
+  --md-success-container: var(--ref-tertiary-30);
+  --md-on-success-container: var(--ref-tertiary-90);
+  --md-warning: #FFBB59;
+  --md-warning-container: #5C3F00;
+  --md-on-warning-container: #FFDEA6;
+}
+
+
+/* ==========================================================================
+   UOR Internship Management System — Component Library
+   Material Design 3 Expressive
+   Depends on tokens.css. Prefixed `m3-` to sit alongside legacy classes
+   during migration.
+   ========================================================================== */
+
+.m3-scope, body {
+  color: var(--md-on-surface);
+  background: var(--md-surface);
+  font: var(--md-body-large);
+}
+
+/* -------------------------------------------------------------------------
+   Buttons — filled / tonal / outlined / text / elevated
+   Expressive detail: shape morphs from "large" to "full" rounding on press,
+   giving buttons a soft squeeze instead of a flat color change.
+   ------------------------------------------------------------------------- */
+.m3-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 28px;
+  border: none;
+  border-radius: var(--md-shape-xl);
+  font: var(--md-title-medium);
+  cursor: pointer;
+  isolation: isolate;
+  transition: border-radius var(--md-spring-fast), transform var(--md-spring-fast),
+    box-shadow var(--md-motion-standard), background-color var(--md-motion-standard);
+}
+.m3-button:active { border-radius: var(--md-shape-md); transform: scale(0.98); }
+.m3-button::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit;
+  background: currentColor; opacity: 0; z-index: -1;
+  transition: opacity var(--md-motion-standard-fast);
+}
+.m3-button:hover::before { opacity: var(--md-state-hover); }
+.m3-button:focus-visible::before { opacity: var(--md-state-focus); }
+.m3-button:focus-visible { outline: 2px solid var(--md-outline); outline-offset: 2px; }
+.m3-button:disabled {
+  cursor: not-allowed;
+  background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--md-on-surface) 38%, transparent);
+}
+
+.m3-button--filled { background: var(--md-primary); color: var(--md-on-primary); }
+.m3-button--tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.m3-button--outlined { background: transparent; color: var(--md-primary); border: 1px solid var(--md-outline); }
+.m3-button--text { background: transparent; color: var(--md-primary); padding: 0 16px; }
+.m3-button--elevated { background: var(--md-surface-container-low); color: var(--md-primary); box-shadow: var(--md-elevation-1); }
+.m3-button--elevated:hover { box-shadow: var(--md-elevation-2); }
+.m3-button--danger { background: var(--md-error); color: var(--md-on-error); }
+
+.m3-button--small { height: 40px; padding: 0 20px; font: var(--md-label-large); border-radius: var(--md-shape-lg); }
+
+/* Icon button ------------------------------------------------------------ */
+.m3-icon-button {
+  position: relative;
+  display: inline-grid; place-items: center;
+  width: 48px; height: 48px;
+  border-radius: var(--md-shape-full);
+  border: none; background: transparent; color: var(--md-on-surface-variant);
+  cursor: pointer; transition: background-color var(--md-motion-standard-fast);
+}
+.m3-icon-button:hover { background: color-mix(in srgb, var(--md-on-surface-variant) 8%, transparent); }
+.m3-icon-button--filled { background: var(--md-primary); color: var(--md-on-primary); }
+.m3-icon-button--tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.m3-icon-button--outlined { border: 1px solid var(--md-outline); }
+.m3-icon-button[aria-pressed="true"] { background: var(--md-primary); color: var(--md-on-primary); }
+
+/* FAB ---------------------------------------------------------------------
+   Expressive FABs use the extra-large-increased shape and can morph into
+   an extended pill when a label appears (e.g. "Save profile"). */
+.m3-fab {
+  display: inline-flex; align-items: center; gap: 12px;
+  height: 64px; min-width: 64px; padding: 0 20px;
+  border: none; border-radius: var(--md-shape-xl-increased);
+  background: var(--md-primary-container); color: var(--md-on-primary-container);
+  box-shadow: var(--md-elevation-3); cursor: pointer;
+  transition: box-shadow var(--md-motion-standard), border-radius var(--md-spring-fast), width var(--md-spring-default);
+}
+.m3-fab:hover { box-shadow: var(--md-elevation-4); }
+.m3-fab--small { height: 48px; min-width: 48px; border-radius: var(--md-shape-md-increased); }
+.m3-fab--large { height: 96px; min-width: 96px; border-radius: var(--md-shape-xxl); }
+.m3-fab--surface { background: var(--md-surface-container-high); color: var(--md-primary); }
+
+/* Segmented control (e.g. Student / Admin scope, Draft / Final toggle) --- */
+.m3-segmented {
+  display: inline-flex; border: 1px solid var(--md-outline); border-radius: var(--md-shape-full); overflow: hidden;
+}
+.m3-segmented__item {
+  padding: 10px 20px; font: var(--md-label-large); background: transparent; border: none;
+  color: var(--md-on-surface); cursor: pointer; border-right: 1px solid var(--md-outline);
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: background-color var(--md-motion-standard-fast);
+}
+.m3-segmented__item:last-child { border-right: none; }
+.m3-segmented__item[aria-pressed="true"] { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+
+/* -------------------------------------------------------------------------
+   Chips — assist / filter / input / suggestion
+   Used for skill tags (candidate filtering), CV section toggles, statuses.
+   ------------------------------------------------------------------------- */
+.m3-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 32px; padding: 0 16px; border-radius: var(--md-shape-sm);
+  border: 1px solid var(--md-outline); background: transparent; color: var(--md-on-surface-variant);
+  font: var(--md-label-large); cursor: pointer;
+  transition: background-color var(--md-motion-standard-fast), border-radius var(--md-spring-fast);
+}
+.m3-chip--selected {
+  background: var(--md-secondary-container); color: var(--md-on-secondary-container);
+  border-color: transparent; border-radius: var(--md-shape-sm-increased);
+}
+.m3-chip--input { border-radius: var(--md-shape-sm); }
+.m3-chip--suggestion { border-style: dashed; }
+.m3-chip .m3-chip__remove { border: none; background: none; color: inherit; cursor: pointer; margin-left: 2px; }
+
+/* -------------------------------------------------------------------------
+   Status pill — semantic states for CVs, internship requests, shortlists
+   ------------------------------------------------------------------------- */
+.m3-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: var(--md-shape-full);
+  font: var(--md-label-medium); text-transform: none;
+}
+.m3-status::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.m3-status--draft { background: var(--md-surface-container-high); color: var(--md-on-surface-variant); }
+.m3-status--submitted { background: var(--md-primary-container); color: var(--md-on-primary-container); }
+.m3-status--under-review { background: var(--md-warning-container); color: var(--md-on-warning-container); }
+.m3-status--shortlisted { background: var(--md-success-container); color: var(--md-on-success-container); }
+.m3-status--verified { background: var(--md-tertiary-container); color: var(--md-on-tertiary-container); }
+.m3-status--rejected { background: var(--md-error-container); color: var(--md-on-error-container); }
+
+/* -------------------------------------------------------------------------
+   Cards — elevated / filled / outlined
+   Expressive detail: hovering an interactive card (internship, candidate,
+   student record) increases corner radius slightly — a soft "lift & bloom".
+   ------------------------------------------------------------------------- */
+.m3-card {
+  display: block; padding: 20px; border-radius: var(--md-shape-lg);
+  background: var(--md-surface-container-low); color: var(--md-on-surface);
+  transition: border-radius var(--md-spring-fast), box-shadow var(--md-motion-standard), transform var(--md-spring-default);
+}
+.m3-card--elevated { box-shadow: var(--md-elevation-1); }
+.m3-card--filled { background: var(--md-surface-container-highest); }
+.m3-card--outlined { background: var(--md-surface); border: 1px solid var(--md-outline-variant); }
+.m3-card--interactive { cursor: pointer; }
+.m3-card--interactive:hover { border-radius: var(--md-shape-lg-increased); box-shadow: var(--md-elevation-2); transform: translateY(-2px); }
+
+.m3-card__title { font: var(--md-title-large); margin: 0 0 4px; }
+.m3-card__subtitle { font: var(--md-body-medium); color: var(--md-on-surface-variant); margin: 0 0 12px; }
+
+/* -------------------------------------------------------------------------
+   Text field — filled / outlined (forms: registration, CV entries)
+   ------------------------------------------------------------------------- */
+.m3-field { position: relative; display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.m3-field__control {
+  height: 56px; padding: 20px 16px 6px; border-radius: var(--md-shape-xs) var(--md-shape-xs) 0 0;
+  border: none; border-bottom: 1px solid var(--md-outline); background: var(--md-surface-container-highest);
+  font: var(--md-body-large); color: var(--md-on-surface);
+  transition: border-color var(--md-motion-standard-fast), background-color var(--md-motion-standard-fast);
+}
+.m3-field__control:focus { outline: none; border-bottom: 2px solid var(--md-primary); }
+.m3-field--outlined .m3-field__control {
+  border-radius: var(--md-shape-xs); border: 1px solid var(--md-outline); background: transparent; padding: 16px;
+}
+.m3-field--outlined .m3-field__control:focus { border: 2px solid var(--md-primary); }
+.m3-field__label { position: absolute; left: 16px; top: 18px; font: var(--md-body-large); color: var(--md-on-surface-variant); pointer-events: none; transition: all var(--md-motion-standard-fast); }
+.m3-field__control:focus + .m3-field__label,
+.m3-field__control:not(:placeholder-shown) + .m3-field__label { top: 6px; font: var(--md-label-small); }
+.m3-field__support { font: var(--md-body-small); color: var(--md-on-surface-variant); padding: 0 16px; }
+.m3-field--error .m3-field__control { border-color: var(--md-error); }
+.m3-field--error .m3-field__support { color: var(--md-error); }
+
+/* -------------------------------------------------------------------------
+   Top app bar
+   ------------------------------------------------------------------------- */
+.m3-topbar {
+  display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 16px;
+  background: var(--md-surface); color: var(--md-on-surface);
+}
+.m3-topbar__title { font: var(--md-title-large); flex: 1; }
+
+/* Navigation rail (admin desktop) ----------------------------------------- */
+.m3-nav-rail {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  width: 96px; padding: 24px 0; background: var(--md-surface); border-right: 1px solid var(--md-outline-variant);
+}
+.m3-nav-rail__item {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 80px; padding: 6px 0; border-radius: var(--md-shape-lg); background: none; border: none;
+  color: var(--md-on-surface-variant); font: var(--md-label-medium); cursor: pointer;
+}
+.m3-nav-rail__icon { width: 56px; height: 32px; display: grid; place-items: center; border-radius: var(--md-shape-full); transition: background-color var(--md-spring-fast); }
+.m3-nav-rail__item[aria-current="page"] .m3-nav-rail__icon { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+.m3-nav-rail__item[aria-current="page"] { color: var(--md-on-surface); }
+
+/* Navigation bar (student mobile) ------------------------------------------ */
+.m3-nav-bar {
+  display: flex; justify-content: space-around; align-items: center;
+  height: 80px; background: var(--md-surface-container); border-top: 1px solid var(--md-outline-variant);
+}
+.m3-nav-bar__item { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; border: none; color: var(--md-on-surface-variant); font: var(--md-label-medium); }
+.m3-nav-bar__item[aria-current="page"] { color: var(--md-on-surface); }
+.m3-nav-bar__icon { width: 56px; height: 32px; display: grid; place-items: center; border-radius: var(--md-shape-full); }
+.m3-nav-bar__item[aria-current="page"] .m3-nav-bar__icon { background: var(--md-secondary-container); }
+
+/* Tabs ---------------------------------------------------------------------*/
+.m3-tabs { display: flex; border-bottom: 1px solid var(--md-outline-variant); }
+.m3-tabs__item {
+  padding: 14px 20px; background: none; border: none; font: var(--md-title-small);
+  color: var(--md-on-surface-variant); position: relative; cursor: pointer;
+}
+.m3-tabs__item[aria-selected="true"] { color: var(--md-primary); }
+.m3-tabs__item[aria-selected="true"]::after {
+  content: ''; position: absolute; left: 8px; right: 8px; bottom: -1px; height: 3px;
+  border-radius: var(--md-shape-full) var(--md-shape-full) 0 0; background: var(--md-primary);
+}
+
+/* -------------------------------------------------------------------------
+   Data table (candidate filtering, academic ledger)
+   ------------------------------------------------------------------------- */
+.m3-table { width: 100%; border-collapse: collapse; font: var(--md-body-medium); }
+.m3-table th {
+  text-align: left; font: var(--md-label-large); color: var(--md-on-surface-variant);
+  padding: 12px 16px; border-bottom: 1px solid var(--md-outline-variant); position: sticky; top: 0; background: var(--md-surface);
+}
+.m3-table td { padding: 12px 16px; border-bottom: 1px solid var(--md-outline-variant); }
+.m3-table tbody tr { transition: background-color var(--md-motion-standard-fast); }
+.m3-table tbody tr:hover { background: var(--md-surface-container-low); }
+.m3-table tbody tr[aria-selected="true"] { background: var(--md-secondary-container); }
+
+/* -------------------------------------------------------------------------
+   Dialog / modal
+   ------------------------------------------------------------------------- */
+.m3-dialog {
+  background: var(--md-surface-container-high); color: var(--md-on-surface);
+  border-radius: var(--md-shape-xl); padding: 24px; max-width: 480px;
+  box-shadow: var(--md-elevation-3);
+}
+.m3-dialog__title { font: var(--md-headline-small); margin: 0 0 12px; }
+.m3-dialog__body { font: var(--md-body-medium); color: var(--md-on-surface-variant); margin: 0 0 24px; }
+.m3-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Snackbar ------------------------------------------------------------------*/
+.m3-snackbar {
+  display: flex; align-items: center; gap: 16px; padding: 14px 16px; border-radius: var(--md-shape-xs);
+  background: var(--md-inverse-surface); color: var(--md-inverse-on-surface); box-shadow: var(--md-elevation-3);
+  font: var(--md-body-medium); max-width: 420px;
+}
+.m3-snackbar__action { background: none; border: none; color: var(--md-inverse-primary); font: var(--md-label-large); cursor: pointer; }
+
+/* -------------------------------------------------------------------------
+   Loading indicator — expressive organic shape-morph (replaces plain spinner)
+   ------------------------------------------------------------------------- */
+.m3-loader {
+  width: 40px; height: 40px; border-radius: var(--md-shape-xl);
+  background: var(--md-primary); animation: m3-loader-morph 1.6s var(--md-spring-slow) infinite;
+}
+@keyframes m3-loader-morph {
+  0% { border-radius: var(--md-shape-xl); transform: rotate(0deg); }
+  35% { border-radius: var(--md-shape-full); transform: rotate(160deg); }
+  70% { border-radius: var(--md-shape-sm); transform: rotate(270deg); }
+  100% { border-radius: var(--md-shape-xl); transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m3-loader { animation: none; border-radius: var(--md-shape-full); }
+  .m3-button, .m3-card, .m3-fab, .m3-chip { transition: none; }
+}
+
+/* Skeleton (loading placeholders already used across routes) --------------*/
+.m3-skeleton {
+  border-radius: var(--md-shape-sm);
+  background: linear-gradient(100deg, var(--md-surface-container-high) 30%, var(--md-surface-container-highest) 50%, var(--md-surface-container-high) 70%);
+  background-size: 200% 100%; animation: m3-skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes m3-skeleton-shimmer { to { background-position: -200% 0; } }
+
+</style>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--md-surface); }
+  .page { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .side { position: sticky; top: 0; height: 100vh; overflow-y: auto; padding: 24px 16px; background: var(--md-surface-container-low); border-right: 1px solid var(--md-outline-variant); }
+  .side a { display: block; padding: 10px 12px; border-radius: var(--md-shape-lg); color: var(--md-on-surface-variant); text-decoration: none; font: var(--md-label-large); margin-bottom: 2px; }
+  .side a:hover { background: var(--md-surface-container-high); color: var(--md-on-surface); }
+  .side .brand { font: var(--md-title-large); color: var(--md-on-surface); padding: 0 12px 20px; }
+  main { padding: 48px 56px 120px; max-width: 1100px; }
+  section { margin-bottom: 72px; }
+  section h2 { font: var(--md-headline-medium); margin: 0 0 6px; }
+  section .desc { font: var(--md-body-large); color: var(--md-on-surface-variant); max-width: 68ch; margin: 0 0 28px; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 16px; }
+  .swatch { width: 96px; }
+  .swatch__block { height: 64px; border-radius: var(--md-shape-md); border: 1px solid var(--md-outline-variant); }
+  .swatch__label { font: var(--md-label-small); color: var(--md-on-surface-variant); margin-top: 6px; }
+  .type-row { display: flex; align-items: baseline; gap: 20px; border-bottom: 1px solid var(--md-outline-variant); padding: 14px 0; }
+  .type-row .tag { width: 160px; font: var(--md-label-medium); color: var(--md-on-surface-variant); flex-shrink: 0; }
+  .shape-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .shape-box { width: 80px; height: 80px; background: var(--md-primary-container); display: grid; place-items: center; font: var(--md-label-small); color: var(--md-on-primary-container); }
+  .theme-toggle { position: fixed; top: 20px; right: 32px; z-index: 10; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+</style>
+</head>
+<body>
+<button class="m3-button m3-button--tonal theme-toggle" id="themeToggle">Toggle dark mode</button>
+<div class="page">
+  <nav class="side">
+    <div class="brand">UOR IMS<br/>Design System</div>
+    <a href="#colors">Color</a>
+    <a href="#type">Typography</a>
+    <a href="#shape">Shape</a>
+    <a href="#buttons">Buttons</a>
+    <a href="#fab">FAB</a>
+    <a href="#chips">Chips &amp; status</a>
+    <a href="#cards">Cards</a>
+    <a href="#fields">Text fields</a>
+    <a href="#nav">Navigation</a>
+    <a href="#table">Data table</a>
+    <a href="#feedback">Dialog &amp; snackbar</a>
+    <a href="#loading">Loading</a>
+  </nav>
+  <main>
+
+    <section id="intro">
+      <h2>CV Management &amp; Internship System</h2>
+      <p class="desc">A Material Design 3 Expressive system built for a role-aware academic platform — bolder shape and type for the parts students touch daily, calmer density for the tables and forms administrators live in.</p>
+    </section>
+
+    <section id="colors">
+      <h2>Color</h2>
+      <p class="desc">Three tonal families: Scholar Violet (primary actions), Ledger Amber (achievement/CV content), Verified Teal (confirmation states) — plus a neutral surface family with five container steps for layering.</p>
+      <div class="row">
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-primary)"></div><div class="swatch__label">primary</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-primary-container)"></div><div class="swatch__label">primary container</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-secondary)"></div><div class="swatch__label">secondary</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-secondary-container)"></div><div class="swatch__label">secondary container</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-tertiary)"></div><div class="swatch__label">tertiary</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-tertiary-container)"></div><div class="swatch__label">tertiary container</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-error)"></div><div class="swatch__label">error</div></div>
+      </div>
+      <div class="row">
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-surface-container-lowest)"></div><div class="swatch__label">container lowest</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-surface-container-low)"></div><div class="swatch__label">container low</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-surface-container)"></div><div class="swatch__label">container</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-surface-container-high)"></div><div class="swatch__label">container high</div></div>
+        <div class="swatch"><div class="swatch__block" style="background:var(--md-surface-container-highest)"></div><div class="swatch__label">container highest</div></div>
+      </div>
+    </section>
+
+    <section id="type">
+      <h2>Typography</h2>
+      <p class="desc">One family — Google Sans — across every role, per the real M3 spec; weight and size carry the hierarchy instead of a second typeface. Falls back to Roboto where Google Sans isn't licensed/installed.</p>
+      <div class="type-row"><div class="tag">Display large</div><div style="font:var(--md-display-large)">Career workspace</div></div>
+      <div class="type-row"><div class="tag">Headline medium</div><div style="font:var(--md-headline-medium)">Internship shortlist</div></div>
+      <div class="type-row"><div class="tag">Title large</div><div style="font:var(--md-title-large)">Academic records</div></div>
+      <div class="type-row"><div class="tag">Body large</div><div style="font:var(--md-body-large)">Declared skills feed directly into deterministic candidate filtering.</div></div>
+      <div class="type-row"><div class="tag">Label large</div><div style="font:var(--md-label-large)">SUBMIT FOR REVIEW</div></div>
+    </section>
+
+    <section id="shape">
+      <h2>Shape</h2>
+      <p class="desc">Expressive shape adds "increased" stops between the classic sizes, and components morph between two neighboring shapes on interaction rather than staying static.</p>
+      <div class="shape-row">
+        <div class="shape-box" style="border-radius:var(--md-shape-xs)">xs</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-sm)">sm</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-md)">md</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-lg)">lg</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-lg-increased)">lg+</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-xl)">xl</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-xxl)">xxl</div>
+        <div class="shape-box" style="border-radius:var(--md-shape-full)">full</div>
+      </div>
+    </section>
+
+    <section id="buttons">
+      <h2>Buttons</h2>
+      <p class="desc">Press any button — the corner radius squeezes from extra-large toward medium on click, a signature Expressive detail.</p>
+      <div class="row">
+        <button class="m3-button m3-button--elevated">Elevated</button>
+        <button class="m3-button m3-button--filled">Save changes</button>
+        <button class="m3-button m3-button--tonal">Generate CV</button>
+        <button class="m3-button m3-button--outlined">Cancel</button>
+        <button class="m3-button m3-button--text">Learn more</button>
+        <button class="m3-button m3-button--danger">Reject candidate</button>
+        <button class="m3-button m3-button--small m3-button--filled">Small</button>
+        <button class="m3-button m3-button--filled" disabled>Disabled</button>
+      </div>
+      <div class="row">
+        <button class="m3-icon-button" aria-label="Notifications">🔔</button>
+        <button class="m3-icon-button m3-icon-button--tonal" aria-label="Filter">🔎</button>
+        <button class="m3-icon-button m3-icon-button--filled" aria-label="Add">＋</button>
+        <button class="m3-icon-button m3-icon-button--outlined" aria-pressed="true" aria-label="Bookmark">★</button>
+      </div>
+      <div class="row">
+        <div class="m3-segmented" role="group" aria-label="Shortlist stage">
+          <button class="m3-segmented__item" aria-pressed="true">Draft</button>
+          <button class="m3-segmented__item" aria-pressed="false">Final</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="fab">
+      <h2>Floating action button</h2>
+      <div class="row" style="background:var(--md-surface-container); padding:32px; border-radius:var(--md-shape-lg);">
+        <button class="m3-fab m3-fab--small">＋</button>
+        <button class="m3-fab">＋ <span>New project</span></button>
+        <button class="m3-fab m3-fab--large">＋</button>
+        <button class="m3-fab m3-fab--surface">↑ Export CVs</button>
+      </div>
+    </section>
+
+    <section id="chips">
+      <h2>Chips &amp; status</h2>
+      <div class="row">
+        <span class="m3-chip">React</span>
+        <span class="m3-chip m3-chip--selected">TypeScript ✓</span>
+        <span class="m3-chip m3-chip--input">Node.js <button class="m3-chip__remove">✕</button></span>
+        <span class="m3-chip m3-chip--suggestion">+ Add skill</span>
+      </div>
+      <div class="row">
+        <span class="m3-status m3-status--draft" style="color:var(--md-on-surface-variant)">Draft</span>
+        <span class="m3-status m3-status--submitted" style="color:var(--md-primary)">Submitted</span>
+        <span class="m3-status m3-status--under-review" style="color:var(--md-warning)">Under review</span>
+        <span class="m3-status m3-status--shortlisted" style="color:var(--md-success)">Shortlisted</span>
+        <span class="m3-status m3-status--verified" style="color:var(--md-tertiary)">Verified</span>
+        <span class="m3-status m3-status--rejected" style="color:var(--md-error)">Rejected</span>
+      </div>
+    </section>
+
+    <section id="cards">
+      <h2>Cards</h2>
+      <div class="grid-3">
+        <div class="m3-card m3-card--elevated m3-card--interactive">
+          <p class="m3-card__title">Software Engineering Intern</p>
+          <p class="m3-card__subtitle">Acme Labs · Colombo</p>
+          <span class="m3-status m3-status--submitted" style="color:var(--md-primary)">Submitted</span>
+        </div>
+        <div class="m3-card m3-card--filled">
+          <p class="m3-card__title">GPA summary</p>
+          <p class="m3-card__subtitle">Official academic record</p>
+          <div style="font:var(--md-display-small)">3.72</div>
+        </div>
+        <div class="m3-card m3-card--outlined">
+          <p class="m3-card__title">CV freshness</p>
+          <p class="m3-card__subtitle">Last generated 2 days ago</p>
+          <button class="m3-button m3-button--text" style="padding-left:0">Regenerate →</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="fields">
+      <h2>Text fields</h2>
+      <div class="row" style="max-width:340px; flex-direction:column; align-items:stretch;">
+        <div class="m3-field">
+          <input class="m3-field__control" placeholder=" " id="f1" />
+          <label class="m3-field__label" for="f1">Full name</label>
+        </div>
+        <div class="m3-field m3-field--outlined">
+          <input class="m3-field__control" placeholder=" " id="f2" />
+          <label class="m3-field__label" for="f2">GitHub URL</label>
+        </div>
+        <div class="m3-field m3-field--error">
+          <input class="m3-field__control" placeholder=" " id="f3" />
+          <label class="m3-field__label" for="f3">University email</label>
+          <span class="m3-field__support">Must end in @uor.ac.lk</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="nav">
+      <h2>Navigation</h2>
+      <p class="desc">A nav rail for the administrator's wide admin console; a bottom nav bar for the student's mobile workspace.</p>
+      <div class="row" style="align-items:stretch;">
+        <div class="m3-nav-rail">
+          <button class="m3-nav-rail__item" aria-current="page"><span class="m3-nav-rail__icon">🏠</span>Dashboard</button>
+          <button class="m3-nav-rail__item"><span class="m3-nav-rail__icon">🎓</span>Students</button>
+          <button class="m3-nav-rail__item"><span class="m3-nav-rail__icon">🧭</span>Filtering</button>
+        </div>
+        <div style="width:360px;">
+          <div class="m3-nav-bar">
+            <button class="m3-nav-bar__item" aria-current="page"><span class="m3-nav-bar__icon">🏠</span>Home</button>
+            <button class="m3-nav-bar__item"><span class="m3-nav-bar__icon">📄</span>CV</button>
+            <button class="m3-nav-bar__item"><span class="m3-nav-bar__icon">🏆</span>Awards</button>
+          </div>
+        </div>
+      </div>
+      <div class="m3-tabs" role="tablist">
+        <button class="m3-tabs__item" role="tab" aria-selected="true">Overview</button>
+        <button class="m3-tabs__item" role="tab" aria-selected="false">Experience</button>
+        <button class="m3-tabs__item" role="tab" aria-selected="false">Projects</button>
+      </div>
+    </section>
+
+    <section id="table">
+      <h2>Data table</h2>
+      <table class="m3-table">
+        <thead><tr><th>Candidate</th><th>GPA</th><th>Skills matched</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr aria-selected="true"><td>W.A.D. Perera</td><td>3.81</td><td>5/5</td><td><span class="m3-status m3-status--shortlisted" style="color:var(--md-success)">Shortlisted</span></td></tr>
+          <tr><td>K.L. Fernando</td><td>3.42</td><td>4/5</td><td><span class="m3-status m3-status--under-review" style="color:var(--md-warning)">Under review</span></td></tr>
+          <tr><td>S.N. Jayawardena</td><td>3.65</td><td>3/5</td><td><span class="m3-status m3-status--rejected" style="color:var(--md-error)">Rejected</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="feedback">
+      <h2>Dialog &amp; snackbar</h2>
+      <div class="row">
+        <div class="m3-dialog">
+          <p class="m3-dialog__title">Finalize shortlist?</p>
+          <p class="m3-dialog__body">This locks the candidate list for this internship request. Exports remain available afterward.</p>
+          <div class="m3-dialog__actions">
+            <button class="m3-button m3-button--text">Cancel</button>
+            <button class="m3-button m3-button--filled">Finalize</button>
+          </div>
+        </div>
+        <div class="m3-snackbar">CV exported as PDF <button class="m3-snackbar__action">Undo</button></div>
+      </div>
+    </section>
+
+    <section id="loading">
+      <h2>Loading</h2>
+      <div class="row">
+        <div class="m3-loader" aria-label="Loading"></div>
+        <div style="width:220px;">
+          <div class="m3-skeleton" style="height:16px; width:70%; margin-bottom:8px;"></div>
+          <div class="m3-skeleton" style="height:16px; width:100%; margin-bottom:8px;"></div>
+          <div class="m3-skeleton" style="height:16px; width:40%;"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+<script>
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+  });
+</script>
+</body>
+</html>
