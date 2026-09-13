@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     splitBtn.querySelectorAll('.m3e-dropdown-item').forEach(item => {
       item.addEventListener('click', () => {
-        const text = item.querySelector('span').textContent;
+        const text = item.querySelector('span:last-child').textContent;
         splitBtn.querySelector('.m3e-split-leading span:last-child').textContent = text;
         splitBtn.classList.remove('is-open');
       });
@@ -48,9 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Chip Toggles
+  // 4. Chip Toggles & Dismiss
   document.querySelectorAll('.js-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('m3e-chip-close')) {
+        chip.style.display = 'none';
+        return;
+      }
       chip.classList.toggle('is-selected');
     });
   });
@@ -76,28 +80,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 6. Spring Physics Simulator
+  // 6. Snackbar Trigger
+  const snackbar = document.getElementById('m3e-snackbar-demo');
+  const openSnackbarBtn = document.getElementById('open-snackbar-btn');
+  if (openSnackbarBtn && snackbar) {
+    openSnackbarBtn.addEventListener('click', () => {
+      snackbar.classList.add('is-visible');
+      setTimeout(() => {
+        snackbar.classList.remove('is-visible');
+      }, 4000);
+    });
+    const actionBtn = snackbar.querySelector('.m3e-snackbar__action');
+    if (actionBtn) {
+      actionBtn.addEventListener('click', () => {
+        snackbar.classList.remove('is-visible');
+      });
+    }
+  }
+
+  // 7. Spring Physics Simulator
   document.querySelectorAll('.m3e-spring-trigger').forEach(trigger => {
     trigger.addEventListener('click', () => {
       const targetId = trigger.getAttribute('data-target');
       const target = document.getElementById(targetId);
       if (target) {
         target.classList.remove('animate');
-        void target.offsetWidth; // Force reflow
+        void target.offsetWidth;
         target.classList.add('animate');
       }
     });
   });
 
-  // 7. Floating Toolbar Active Item Toggle
+  // 8. Floating Toolbar Active Item Toggle
   document.querySelectorAll('.m3e-toolbar-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      btn.parentElement.querySelectorAll('.m3e-toolbar-btn').forEach(b => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
+      if (btn.parentElement) {
+        btn.parentElement.querySelectorAll('.m3e-toolbar-btn').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+      }
     });
   });
 
-  // 8. Canonical Layout Viewport Switcher
+  // 9. Table Row Selection
+  const selectAllCheckbox = document.getElementById('table-select-all');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', (e) => {
+      document.querySelectorAll('.js-row-select').forEach(cb => {
+        cb.checked = e.target.checked;
+      });
+    });
+  }
+
+  // 10. Canonical Layout Viewport Switcher
   const frame = document.getElementById('canonical-frame');
   const viewportBtns = document.querySelectorAll('.js-viewport-btn');
   viewportBtns.forEach(btn => {
@@ -118,8 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 9. Smooth Scroll for Sidebar Navigation
-  document.querySelectorAll('.m3e-nav-item a').forEach(anchor => {
+  // 11. Smooth Scroll for Sidebar Navigation
+  document.querySelectorAll('.m3e-showcase-nav a').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
       e.preventDefault();
       const targetId = this.getAttribute('href').substring(1);
