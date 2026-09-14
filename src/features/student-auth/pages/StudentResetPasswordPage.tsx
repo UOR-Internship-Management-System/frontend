@@ -35,7 +35,10 @@ export function StudentResetPasswordPage() {
       title="Create your new password."
     >
       {message ? (
-        <div className="inline-alert" role="alert">
+        <div className="inline-alert auth-inline-alert" role="alert">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            error
+          </span>
           {message}
         </div>
       ) : null}

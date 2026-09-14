@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
 import { adminForgotPasswordSchema, flattenAdminZodErrors } from '../schemas/adminAuthSchemas'
 
@@ -31,16 +30,16 @@ export function AdminForgotPasswordForm({ isSubmitting, onSubmit }: AdminForgotP
         onSubmit(result.data.email)
       }}
     >
-      <FormField error={error} htmlFor="admin-reset-email" label="Admin Email Address">
-        <TextInput
-          autoComplete="email"
-          id="admin-reset-email"
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="e.g., admin.name@ruh.ac.lk"
-          type="email"
-          value={email}
-        />
-      </FormField>
+      <TextField
+        autoComplete="email"
+        error={error}
+        id="admin-reset-email"
+        label="Admin Email Address"
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder="e.g., admin.name@ruh.ac.lk"
+        type="email"
+        value={email}
+      />
       <div className="form-actions auth-form-footer">
         <Button isLoading={isSubmitting} type="submit">
           Send OTP

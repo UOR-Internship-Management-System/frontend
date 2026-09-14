@@ -1,5 +1,5 @@
 import type { ChangeEvent, ClipboardEvent, KeyboardEvent } from 'react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 type OtpInputProps = {
   id: string
@@ -24,6 +24,10 @@ export function OtpInput({
 }: OtpInputProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([])
   const digits = value.padEnd(OTP_LENGTH, ' ').slice(0, OTP_LENGTH).split('')
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus()
+  }, [])
 
   function focusAt(index: number) {
     inputRefs.current[Math.max(0, Math.min(OTP_LENGTH - 1, index))]?.focus()
@@ -91,7 +95,7 @@ export function OtpInput({
 
   return (
     <div
-      className={`otp-input-group ${className}`.trim()}
+      className={`m3-otp-group ${className}`.trim()}
       role="group"
       aria-describedby={ariaDescribedBy}
     >
@@ -99,7 +103,7 @@ export function OtpInput({
         <input
           aria-label={index === 0 ? undefined : `OTP digit ${index + 1}`}
           autoComplete={index === 0 ? 'one-time-code' : 'off'}
-          className="input otp-digit-input"
+          className="m3-otp-digit"
           disabled={disabled}
           id={index === 0 ? id : `${id}-${index + 1}`}
           inputMode="numeric"

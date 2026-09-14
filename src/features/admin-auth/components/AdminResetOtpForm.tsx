@@ -53,19 +53,22 @@ export function AdminResetOtpForm({
         <Button isLoading={isSubmitting} type="submit">
           Verify Code
         </Button>
-        <p className="otp-resend-copy">
+        <p className="otp-resend-copy m3-body-medium">
           Didn't receive the code?{' '}
-          <button
-            className="link-button"
-            disabled={cooldown > 0 || isResending}
-            onClick={() => {
-              onResend()
-              setCooldown(60)
-            }}
-            type="button"
-          >
-            {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
-          </button>
+          <span aria-live="polite">
+            <Button
+              disabled={cooldown > 0 || isResending}
+              onClick={() => {
+                onResend()
+                setCooldown(60)
+              }}
+              size="sm"
+              type="button"
+              variant="text"
+            >
+              {cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend OTP'}
+            </Button>
+          </span>
         </p>
       </div>
     </form>
