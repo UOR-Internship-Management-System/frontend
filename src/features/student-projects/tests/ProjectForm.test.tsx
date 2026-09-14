@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { fireEvent, waitFor, within } from '@testing-library/react'
+import { waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -9,7 +9,7 @@ import { server } from '../../../mocks/server'
 import { renderWithProviders } from '../../../test/renderWithProviders'
 import { mapStudentProjectToForm } from '../mappers/studentProjectMapper'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
-import { ProjectDetailsModal } from '../components/ProjectDetailsModal'
+import { ProjectDetailsPanel } from '../components/ProjectDetailsPanel'
 import { ProjectForm } from '../components/ProjectForm'
 
 describe('ProjectForm and project dialogs', () => {
@@ -21,9 +21,8 @@ describe('ProjectForm and project dialogs', () => {
     )
 
     await user.type(view.getByLabelText('Repository URL'), 'javascript:alert(1)')
-    await user.click(view.getByRole('button', { name: 'Timeline' }))
-    fireEvent.change(view.getByLabelText('Start Date'), { target: { value: '2026-05-16' } })
-    fireEvent.change(view.getByLabelText('End Date'), { target: { value: '2026-05-15' } })
+    await user.type(view.getByLabelText('Start date'), '2026-05-16')
+    await user.type(view.getByLabelText('End date'), '2026-05-15')
     await user.click(view.getByRole('button', { name: 'Save' }))
 
     expect(await view.findByText('Enter a project title.')).toBeInTheDocument()
@@ -42,6 +41,7 @@ describe('ProjectForm and project dialogs', () => {
     expect(view.queryByLabelText('LinkedIn URL')).not.toBeInTheDocument()
     expect(view.queryByLabelText('Documentation URL')).not.toBeInTheDocument()
     expect(view.queryByLabelText('Skill usage notes')).not.toBeInTheDocument()
+    expect(view.queryByLabelText(/skill usage notes/i)).not.toBeInTheDocument()
   })
 
   it('adds unique taxonomy skills, removes chips, and submits controlled values', async () => {
@@ -50,19 +50,22 @@ describe('ProjectForm and project dialogs', () => {
     const view = renderWithProviders(
       <ProjectForm mode="create" onCancel={vi.fn()} onSubmit={onSubmit} />,
     )
-    const taxonomy = await view.findByLabelText('Taxonomy skill')
 
     await user.type(view.getByLabelText('Title'), 'Portfolio API')
-    await user.selectOptions(taxonomy, skillIds.typescript)
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
+    const results = await view.findByRole('list', { name: 'Taxonomy skill results' })
+    await user.click(within(results).getByRole('button', { name: 'TypeScript' }))
     expect(
       within(view.getByRole('list', { name: 'Project skills' })).getByText('TypeScript'),
     ).toBeVisible()
-    expect(within(taxonomy).getByRole('option', { name: 'TypeScript' })).toBeDisabled()
+    expect(within(results).getByRole('button', { name: 'TypeScript' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    )
 
-    await user.selectOptions(taxonomy, skillIds.react)
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
-    await user.click(view.getByRole('button', { name: 'Remove React' }))
+    await user.click(within(results).getByRole('button', { name: 'React' }))
+    const projectSkillsList = view.getByRole('list', { name: 'Project skills' })
+    const reactChip = within(projectSkillsList).getByText('React').closest('li')!
+    await user.click(within(reactChip).getByRole('button', { name: 'Remove' }))
     await user.click(view.getByRole('button', { name: 'Save' }))
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
@@ -79,13 +82,12 @@ describe('ProjectForm and project dialogs', () => {
     )
 
     await user.type(view.getByLabelText('Title'), 'Ongoing research tool')
-    await user.click(view.getByRole('button', { name: 'Timeline' }))
-    fireEvent.change(view.getByLabelText('Start Date'), { target: { value: '2026-06-01' } })
-    fireEvent.change(view.getByLabelText('End Date'), { target: { value: '2026-07-01' } })
-    await user.click(view.getByLabelText('Under Development'))
+    await user.type(view.getByLabelText('Start date'), '2026-06-01')
+    await user.type(view.getByLabelText('End date'), '2026-07-01')
+    await user.click(view.getByLabelText('This project is still in progress'))
 
-    expect(view.getByLabelText('End Date')).toBeDisabled()
-    expect(view.getByLabelText('End Date')).toHaveValue('')
+    expect(view.getByLabelText('End date')).toBeDisabled()
+    expect(view.getByLabelText('End date')).toHaveValue('')
     await user.click(view.getByRole('button', { name: 'Save' }))
     await waitFor(() => expect(onSubmit).toHaveBeenCalledOnce())
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ endDate: '' }))
@@ -98,7 +100,7 @@ describe('ProjectForm and project dialogs', () => {
       name: 'Web Performance',
       description: 'Browser performance engineering.',
     }
-    const firstPageSkills = Array.from({ length: 10 }, (_, index) => ({
+    const firstPageSkills = Array.from({ length: 8 }, (_, index) => ({
       skillId: `aaaaaaaa-aaaa-4aaa-8aaa-${String(index).padStart(12, '0')}`,
       name: `Skill ${String(index + 1).padStart(2, '0')}`,
       description: null,
@@ -114,8 +116,8 @@ describe('ProjectForm and project dialogs', () => {
           items,
           page: {
             page,
-            size: 10,
-            totalElements: search ? 1 : 11,
+            size: 8,
+            totalElements: search ? 1 : 9,
             totalPages: search ? 1 : 2,
             sort: 'name,asc',
           },
@@ -130,12 +132,11 @@ describe('ProjectForm and project dialogs', () => {
       name: 'Project taxonomy skills pagination',
     })
     await user.click(within(pagination).getByRole('button', { name: 'Next' }))
-    const taxonomy = view.getByLabelText('Taxonomy skill')
+    const results = view.getByRole('list', { name: 'Taxonomy skill results' })
     await waitFor(() =>
-      expect(within(taxonomy).getByRole('option', { name: lateSkill.name })).toBeVisible(),
+      expect(within(results).getByRole('button', { name: lateSkill.name })).toBeVisible(),
     )
-    await user.selectOptions(taxonomy, lateSkill.skillId)
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
+    await user.click(within(results).getByRole('button', { name: lateSkill.name }))
 
     expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent(lateSkill.name)
     await user.type(
@@ -179,9 +180,9 @@ describe('ProjectForm and project dialogs', () => {
     }
 
     const view = renderWithProviders(<Harness />)
-    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
+    await user.clear(view.getByLabelText('Project abstract / high-level description'))
     await user.type(
-      view.getByLabelText('Project Abstract / High-Level Description'),
+      view.getByLabelText('Project abstract / high-level description'),
       'Student-owned draft change',
     )
     await user.click(view.getByRole('button', { name: 'Refresh server project' }))
@@ -189,10 +190,10 @@ describe('ProjectForm and project dialogs', () => {
     await waitFor(() =>
       expect(view.getByLabelText('Title')).toHaveValue('Server-renamed portfolio'),
     )
-    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
+    expect(view.getByLabelText('Project abstract / high-level description')).toHaveValue(
       'Student-owned draft change',
     )
-    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    await user.click(view.getByRole('button', { name: 'Save changes' }))
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Server-renamed portfolio',
@@ -222,20 +223,20 @@ describe('ProjectForm and project dialogs', () => {
       />,
     )
 
-    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
+    await user.clear(view.getByLabelText('Project abstract / high-level description'))
     await user.clear(view.getByLabelText('Repository URL'))
     await user.type(
-      view.getByLabelText('Project Abstract / High-Level Description'),
+      view.getByLabelText('Project abstract / high-level description'),
       'Intended replacement',
     )
-    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    await user.click(view.getByRole('button', { name: 'Save changes' }))
 
     expect(await view.findByText(/entered values are preserved/i)).toBeInTheDocument()
-    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
+    expect(view.getByLabelText('Project abstract / high-level description')).toHaveValue(
       'Intended replacement',
     )
     expect(view.getByLabelText('Repository URL')).toHaveValue('')
-    expect(view.getByRole('button', { name: 'Save Changes' })).toBeEnabled()
+    expect(view.getByRole('button', { name: 'Save changes' })).toBeEnabled()
     expect(onSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ description: 'Intended replacement', repositoryUrl: '' }),
     )
@@ -275,39 +276,13 @@ describe('ProjectForm and project dialogs', () => {
     expect(view.getByRole('list', { name: 'Project skills' })).toHaveTextContent('TypeScript')
   })
 
-  it('closes with Escape and restores focus to the launcher', async () => {
-    const user = userEvent.setup()
-
-    function Harness() {
-      const [open, setOpen] = useState(false)
-      return (
-        <>
-          <button onClick={() => setOpen(true)} type="button">
-            Launch project form
-          </button>
-          {open ? (
-            <ProjectForm mode="create" onCancel={() => setOpen(false)} onSubmit={vi.fn()} />
-          ) : null}
-        </>
-      )
-    }
-
-    const view = renderWithProviders(<Harness />)
-    const launcher = view.getByRole('button', { name: 'Launch project form' })
-    await user.click(launcher)
-    expect(view.getByRole('dialog', { name: 'Create New Project' })).toBeInTheDocument()
-    await user.keyboard('{Escape}')
-    await waitFor(() => expect(view.queryByRole('dialog')).not.toBeInTheDocument())
-    await waitFor(() => expect(launcher).toHaveFocus())
-  })
-
   it('renders read-only details with safe external-link attributes and action entry points', async () => {
     const user = userEvent.setup()
     const project = getStudentProjectsFixture()[0]!
     const onEdit = vi.fn()
     const onDelete = vi.fn()
     const view = renderWithProviders(
-      <ProjectDetailsModal
+      <ProjectDetailsPanel
         onClose={vi.fn()}
         onDelete={onDelete}
         onEdit={onEdit}
@@ -315,12 +290,12 @@ describe('ProjectForm and project dialogs', () => {
       />,
     )
 
-    const repository = view.getByRole('link', { name: 'Open Repository' })
+    const repository = view.getByRole('link', { name: 'Open repository' })
     expect(repository).toHaveAttribute('href', project.repositoryUrl)
     expect(repository).toHaveAttribute('target', '_blank')
     expect(repository).toHaveAttribute('rel', expect.stringContaining('noopener'))
     await user.click(view.getByRole('button', { name: 'Edit' }))
-    await user.click(view.getByRole('button', { name: 'Remove Project' }))
+    await user.click(view.getByRole('button', { name: 'Remove project' }))
     expect(onEdit).toHaveBeenCalledOnce()
     expect(onDelete).toHaveBeenCalledOnce()
   })
