@@ -61,7 +61,7 @@ async function mockProfileSupportingEndpoints(page: Page) {
     }),
   )
   await page.route(
-    /\/api\/v1\/me\/profile\/(contact-links|certificates|awards|activities|experience)(\?.*)?$/,
+    /\/api\/v1\/me\/profile\/(contact-links|education|certificates|awards|activities|experience)(\?.*)?$/,
     (route) =>
       route.fulfill({
         status: 200,
@@ -101,13 +101,13 @@ test('student updates only editable core Profile fields and retains server-confi
   await expect(page.getByRole('heading', { level: 1, name: 'Profile' })).toBeVisible()
   await expect(page.getByText(initialProfile.indexNumber)).toBeVisible()
   await expect(page.getByText(initialProfile.universityEmail)).toBeVisible()
-  await expect(page.getByRole('textbox', { name: 'Index Number' })).toHaveCount(0)
-  await expect(page.getByRole('textbox', { name: 'University Email' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'Index number' })).toHaveCount(0)
+  await expect(page.getByRole('textbox', { name: 'University email' })).toHaveCount(0)
 
-  await page.getByLabel('Full Name').fill('Committed E2E Student')
-  await page.getByLabel('Profile Summary / Objective').fill('Updated server-confirmed summary.')
-  await page.getByLabel('Phone Number').fill('+94 77 123 4567')
-  await page.getByRole('button', { name: 'Save Profile' }).click()
+  await page.getByLabel('Full name').fill('Committed E2E Student')
+  await page.getByLabel('Profile summary or objective').fill('Updated server-confirmed summary.')
+  await page.getByLabel('Phone number').fill('+94 77 123 4567')
+  await page.getByRole('button', { name: 'Save profile' }).click()
 
   await expect(page.getByText('Profile saved')).toBeVisible()
   expect(submittedBody).toEqual({
@@ -117,8 +117,8 @@ test('student updates only editable core Profile fields and retains server-confi
   })
 
   await page.reload({ waitUntil: 'domcontentloaded' })
-  await expect(page.getByLabel('Full Name')).toHaveValue('Committed E2E Student')
-  await expect(page.getByLabel('Phone Number')).toHaveValue('+94 77 123 4567')
+  await expect(page.getByLabel('Full name')).toHaveValue('Committed E2E Student')
+  await expect(page.getByLabel('Phone number')).toHaveValue('+94 77 123 4567')
 })
 
 test('student Profile navigation remains keyboard-safe at a mobile viewport', async ({ page }) => {
@@ -134,7 +134,7 @@ test('student Profile navigation remains keyboard-safe at a mobile viewport', as
   await page.setViewportSize({ width: 390, height: 844 })
 
   await page.goto('/student/profile', { waitUntil: 'domcontentloaded' })
-  const menuButton = page.getByRole('button', { name: 'Open student navigation' })
+  const menuButton = page.getByRole('button', { name: 'Open navigation' })
   await menuButton.click()
 
   await expect(page.getByRole('link', { name: 'Dashboard' })).toBeFocused()

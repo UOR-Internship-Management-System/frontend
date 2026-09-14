@@ -53,7 +53,7 @@ const scenarios = [
   {
     name: 'student-dashboard',
     path: '/student/dashboard',
-    heading: 'Student Dashboard',
+    heading: 'Student dashboard',
     role: 'student',
     loading: 'Loading student dashboard',
   },
