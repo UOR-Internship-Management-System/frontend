@@ -1,150 +1,357 @@
 import type { RefObject } from 'react'
-import { NavLink } from 'react-router-dom'
-import { Button } from '../../../shared/components/ui/Button'
+import { NavLink, useLocation } from 'react-router-dom'
+import {
+  NavigationBar,
+  NavigationBarItem,
+} from '../../../shared/components/navigation/NavigationBar'
+import {
+  NavigationDrawer,
+  NavigationDrawerItem,
+} from '../../../shared/components/navigation/NavigationDrawer'
+import {
+  NavigationRail,
+  NavigationRailItem,
+} from '../../../shared/components/navigation/NavigationRail'
 import type { StudentNavigationItem } from './studentNavigation'
 
 export type StudentSidebarProps = {
   studentName?: string | null
-  isCollapsed: boolean
-  isMobileViewport: boolean
+  isExpanded: boolean
   isMobileOpen: boolean
+  viewport: 'mobile' | 'tablet' | 'desktop'
   navigationItems: readonly StudentNavigationItem[]
   sidebarRef: RefObject<HTMLElement | null>
   firstNavigationItemRef: RefObject<HTMLAnchorElement | null>
-  onToggleCollapsed: () => void
+  onToggleExpanded: () => void
   onCloseMobile: (restoreFocus?: boolean) => void
   onLogout: () => void
+}
+
+function initialsFor(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || 'ST'
+  )
 }
 
 function displayNameFor(studentName?: string | null) {
   return studentName?.trim() || 'Student'
 }
 
-function initialsFor(studentName: string) {
-  const initials = studentName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('')
+/** Icon element for a nav item */
+function NavIcon({ icon }: { icon: string }) {
+  return (
+    <span aria-hidden="true" className="material-symbols-outlined">
+      {icon}
+    </span>
+  )
+}
 
-  return initials || 'ST'
+/** Rail header: brand + toggle button */
+function RailHeader({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="m3-app-rail-header">
+      {isExpanded ? (
+        <div className="m3-app-rail-brand">
+          <span className="m3-app-rail-brand-mark" aria-hidden="true">
+            CV
+          </span>
+          <span className="m3-app-rail-brand-name">CV Management</span>
+        </div>
+      ) : (
+        <span className="m3-app-rail-brand-mark" aria-hidden="true">
+          CV
+        </span>
+      )}
+      <button
+        aria-label={isExpanded ? 'Collapse navigation' : 'Expand navigation'}
+        className="m3-app-rail-toggle"
+        onClick={onToggle}
+        type="button"
+      >
+        <span aria-hidden="true" className="material-symbols-outlined">
+          {isExpanded ? 'menu_open' : 'menu'}
+        </span>
+      </button>
+    </div>
+  )
+}
+
+/** Rail footer: user avatar + logout */
+function RailFooter({
+  studentName,
+  isExpanded,
+  onLogout,
+}: {
+  studentName: string
+  isExpanded: boolean
+  onLogout: () => void
+}) {
+  const initials = initialsFor(studentName)
+  return (
+    <div className="m3-app-rail-footer">
+      {isExpanded && (
+        <div className="m3-app-rail-identity">
+          <span className="m3-app-rail-avatar" aria-hidden="true">
+            {initials}
+          </span>
+          <div className="m3-app-rail-identity-copy">
+            <span>Student workspace</span>
+            <strong>{studentName}</strong>
+          </div>
+        </div>
+      )}
+      {!isExpanded && (
+        <span className="m3-app-rail-avatar" aria-hidden="true" title={studentName}>
+          {initials}
+        </span>
+      )}
+      <button
+        aria-label="Log Out"
+        className="m3-app-rail-logout"
+        data-student-logout
+        onClick={onLogout}
+        title="Log Out"
+        type="button"
+      >
+        <span aria-hidden="true" className="material-symbols-outlined">
+          logout
+        </span>
+        {isExpanded && <span className="m3-app-rail-logout-label">Log Out</span>}
+      </button>
+    </div>
+  )
+}
+
+/** Drawer header: brand + close button */
+function DrawerHeader({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="m3-app-drawer-header">
+      <div className="m3-app-drawer-brand">
+        <span className="m3-app-rail-brand-mark" aria-hidden="true">
+          CV
+        </span>
+        <span className="m3-app-rail-brand-name">CV Management</span>
+      </div>
+      <button
+        aria-label="Close navigation"
+        className="m3-app-drawer-close"
+        data-student-mobile-focus
+        onClick={onClose}
+        type="button"
+      >
+        <span aria-hidden="true" className="material-symbols-outlined">
+          close
+        </span>
+      </button>
+    </div>
+  )
+}
+
+/** Drawer footer: user info + logout */
+function DrawerFooter({ studentName, onLogout }: { studentName: string; onLogout: () => void }) {
+  const initials = initialsFor(studentName)
+  return (
+    <div className="m3-app-drawer-footer">
+      <div className="m3-app-drawer-identity">
+        <span className="m3-app-rail-avatar" aria-hidden="true">
+          {initials}
+        </span>
+        <div className="m3-app-rail-identity-copy">
+          <span>Student workspace</span>
+          <strong>{studentName}</strong>
+        </div>
+      </div>
+      <button
+        aria-label="Log Out"
+        className="m3-app-drawer-logout"
+        data-student-logout
+        onClick={onLogout}
+        type="button"
+      >
+        <span aria-hidden="true" className="material-symbols-outlined">
+          logout
+        </span>
+        <span>Log Out</span>
+      </button>
+    </div>
+  )
 }
 
 export function StudentSidebar({
   firstNavigationItemRef,
-  isCollapsed,
+  isExpanded,
   isMobileOpen,
-  isMobileViewport,
+  viewport,
   navigationItems,
   onCloseMobile,
   onLogout,
-  onToggleCollapsed,
+  onToggleExpanded,
   sidebarRef,
   studentName,
 }: StudentSidebarProps) {
+  const location = useLocation()
   const displayName = displayNameFor(studentName)
-  const isModal = isMobileViewport && isMobileOpen
-  const isInactiveMobileDrawer = isMobileViewport && !isMobileOpen
 
+  // ── MOBILE: Bottom Navigation Bar ────────────────────────────────────────
+  if (viewport === 'mobile') {
+    return (
+      <NavigationBar aria-label="Student navigation">
+        {navigationItems.slice(0, 5).map((item, index) => {
+          const isActive = location.pathname.startsWith(item.route)
+          return (
+            <NavigationBarItem
+              key={item.route}
+              as={NavLink}
+              to={item.route}
+              active={isActive}
+              icon={<NavIcon icon={item.icon} />}
+              label={item.label}
+              ref={index === 0 ? firstNavigationItemRef : undefined}
+              data-student-navigation-link
+            />
+          )
+        })}
+      </NavigationBar>
+    )
+  }
+
+  // ── TABLET: Navigation Rail (compact 80px) ────────────────────────────────
+  if (viewport === 'tablet') {
+    return (
+      <NavigationRail
+        aria-label="Student navigation"
+        expanded={false}
+        header={<RailHeader isExpanded={false} onToggle={onToggleExpanded} />}
+        footer={<RailFooter studentName={displayName} isExpanded={false} onLogout={onLogout} />}
+        ref={sidebarRef}
+      >
+        {navigationItems.map((item, index) => {
+          const isActive = location.pathname.startsWith(item.route)
+          return (
+            <NavigationRailItem
+              key={item.route}
+              as={NavLink}
+              to={item.route}
+              active={isActive}
+              icon={<NavIcon icon={item.icon} />}
+              label={item.label}
+              ref={index === 0 ? firstNavigationItemRef : undefined}
+              data-student-navigation-link
+            />
+          )
+        })}
+      </NavigationRail>
+    )
+  }
+
+  // ── DESKTOP: Standard Navigation Drawer (docked, expanded or compact) ────
   return (
-    <aside
-      aria-hidden={isInactiveMobileDrawer || undefined}
-      aria-label="Student workspace"
-      aria-modal={isModal || undefined}
-      className={`student-sidebar ${isCollapsed ? 'student-sidebar-collapsed' : ''} ${isMobileOpen ? 'student-sidebar-mobile-open' : ''}`.trim()}
-      id="student-navigation-panel"
-      inert={isInactiveMobileDrawer || undefined}
-      ref={sidebarRef}
-      role={isModal ? 'dialog' : undefined}
-    >
-      <div className="student-sidebar-header">
-        <div className="student-sidebar-brand">
-          <span aria-hidden="true" className="student-sidebar-brand-mark">
-            CV
-          </span>
-          <span className="student-sidebar-collapsible-label">CV Management</span>
-        </div>
+    <>
+      <NavigationDrawer
+        aria-label="Student navigation"
+        modal={false}
+        header={
+          <div className="m3-app-drawer-header-desktop">
+            <div className="m3-app-drawer-brand">
+              <span className="m3-app-rail-brand-mark" aria-hidden="true">
+                CV
+              </span>
+              <span className="m3-app-rail-brand-name">CV Management</span>
+            </div>
+            <button
+              aria-label={isExpanded ? 'Collapse navigation' : 'Expand navigation'}
+              className="m3-app-rail-toggle"
+              onClick={onToggleExpanded}
+              type="button"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                {isExpanded ? 'menu_open' : 'menu'}
+              </span>
+            </button>
+          </div>
+        }
+        footer={
+          <div className="m3-app-drawer-footer">
+            <div className="m3-app-drawer-identity">
+              <span className="m3-app-rail-avatar" aria-hidden="true">
+                {initialsFor(displayName)}
+              </span>
+              <div className="m3-app-rail-identity-copy">
+                <span>Student workspace</span>
+                <strong>{displayName}</strong>
+              </div>
+            </div>
+            <button
+              aria-label="Log Out"
+              className="m3-app-drawer-logout"
+              data-student-logout
+              onClick={onLogout}
+              type="button"
+            >
+              <span aria-hidden="true" className="material-symbols-outlined">
+                logout
+              </span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        }
+        className={isExpanded ? '' : 'm3-navigation-drawer--compact'}
+        ref={sidebarRef}
+        id="student-navigation-panel"
+      >
+        {navigationItems.map((item, index) => {
+          const isActive = location.pathname.startsWith(item.route)
+          return (
+            <NavigationDrawerItem
+              key={item.route}
+              as={NavLink}
+              to={item.route}
+              active={isActive}
+              icon={<NavIcon icon={item.icon} />}
+              label={item.label}
+              ref={index === 0 ? firstNavigationItemRef : undefined}
+              data-student-navigation-link
+            />
+          )
+        })}
+      </NavigationDrawer>
 
-        <button
-          aria-controls="student-navigation-panel"
-          aria-expanded={!isCollapsed}
-          aria-label={isCollapsed ? 'Expand student sidebar' : 'Collapse student sidebar'}
-          className="student-sidebar-icon-button student-sidebar-toggle"
-          onClick={onToggleCollapsed}
-          title={isCollapsed ? 'Expand student sidebar' : 'Collapse student sidebar'}
-          type="button"
+      {/* Modal drawer overlay for mobile (triggered by top bar menu button) */}
+      {isMobileOpen && (
+        <NavigationDrawer
+          aria-label="Student navigation"
+          modal
+          isOpen={isMobileOpen}
+          onClose={() => onCloseMobile(true)}
+          header={<DrawerHeader onClose={() => onCloseMobile(true)} />}
+          footer={<DrawerFooter studentName={displayName} onLogout={onLogout} />}
+          scrimTestId="student-sidebar-backdrop"
+          ref={sidebarRef}
+          id="student-navigation-panel"
         >
-          <span aria-hidden="true" className="material-symbols-outlined">
-            {isCollapsed ? 'chevron_right' : 'chevron_left'}
-          </span>
-        </button>
-
-        <button
-          aria-label="Close student navigation"
-          className="student-sidebar-icon-button student-sidebar-mobile-close"
-          data-student-mobile-focus
-          onClick={() => onCloseMobile(true)}
-          type="button"
-        >
-          <span aria-hidden="true" className="material-symbols-outlined">
-            close
-          </span>
-        </button>
-      </div>
-
-      <div className="student-sidebar-identity">
-        <span aria-hidden="true" className="student-sidebar-avatar">
-          {initialsFor(displayName)}
-        </span>
-        <div className="student-sidebar-collapsible-label student-sidebar-identity-copy">
-          <span>Student workspace</span>
-          <strong>{displayName}</strong>
-        </div>
-      </div>
-
-      <nav aria-label="Student navigation" className="student-sidebar-nav">
-        <ul className="student-sidebar-list">
-          {navigationItems.map((item, index) => (
-            <li key={item.route}>
-              <NavLink
-                aria-label={item.label}
-                className={({ isActive }) =>
-                  `student-sidebar-item ${isActive ? 'student-sidebar-item-selected' : ''}`.trim()
-                }
-                data-student-navigation-link
-                data-tooltip={item.label}
+          {navigationItems.map((item, index) => {
+            const isActive = location.pathname.startsWith(item.route)
+            return (
+              <NavigationDrawerItem
+                key={item.route}
+                as={NavLink}
+                to={item.route}
+                active={isActive}
+                icon={<NavIcon icon={item.icon} />}
+                label={item.label}
                 onClick={() => onCloseMobile(false)}
                 ref={index === 0 ? firstNavigationItemRef : undefined}
-                title={isCollapsed ? item.label : undefined}
-                to={item.route}
-              >
-                <span aria-hidden="true" className="material-symbols-outlined student-sidebar-icon">
-                  {item.icon}
-                </span>
-                <span className="student-sidebar-collapsible-label">{item.label}</span>
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      <Button
-        aria-label="Log Out"
-        className="student-sidebar-logout"
-        data-tooltip="Log Out"
-        data-student-logout
-        icon={
-          <span aria-hidden="true" className="material-symbols-outlined student-sidebar-icon">
-            logout
-          </span>
-        }
-        onClick={onLogout}
-        title={isCollapsed ? 'Log Out' : undefined}
-        variant="secondary"
-      >
-        <span className="student-sidebar-collapsible-label">Log Out</span>
-      </Button>
-    </aside>
+                data-student-navigation-link
+              />
+            )
+          })}
+        </NavigationDrawer>
+      )}
+    </>
   )
 }

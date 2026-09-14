@@ -62,6 +62,7 @@ describe('application route registration', () => {
       routePaths.adminInternships,
       routePaths.adminCandidateFiltering,
       routePaths.adminShortlists,
+      routePaths.adminEligibleStudents,
     ])
   })
 })

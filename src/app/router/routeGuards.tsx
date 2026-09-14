@@ -5,8 +5,19 @@ import { useAuth } from '../../shared/hooks/useAuth'
 import { authStorage } from '../../shared/auth/authStorage'
 import type { AuthRole } from '../../shared/auth/authTypes'
 import { getDashboardPathForRole, getLoginPathForRole } from '../../shared/auth/redirects'
-import { AuthSkeleton } from '../../shared/skeletons'
+import { SkeletonShape, SkeletonStatusRegion } from '../../shared/skeletons'
 import { ErrorState } from '../../shared/components/feedback/ErrorState'
+
+function SessionCheckSkeleton() {
+  return (
+    <div className="route-skeleton route-skeleton-session">
+      <SkeletonStatusRegion className="session-skeleton-card" label="Verifying your session">
+        <SkeletonShape height={40} radius="circle" width={40} />
+        <SkeletonShape height={16} width={160} />
+      </SkeletonStatusRegion>
+    </div>
+  )
+}
 
 type RoleGuardProps = PropsWithChildren<{
   role: AuthRole
@@ -22,7 +33,7 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
   const auth = useAuth()
 
   if (auth.status === 'loading') {
-    return <AuthSkeleton variant="session" />
+    return <SessionCheckSkeleton />
   }
 
   if (auth.status === 'error' && !auth.currentUser) {
@@ -51,7 +62,7 @@ export function RequireRole({ children, role }: RoleGuardProps) {
   const location = useLocation()
 
   if (auth.status === 'loading') {
-    return <AuthSkeleton variant="session" />
+    return <SessionCheckSkeleton />
   }
 
   if (auth.status === 'error' && !auth.currentUser) {
