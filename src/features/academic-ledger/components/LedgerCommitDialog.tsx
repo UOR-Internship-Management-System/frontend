@@ -24,17 +24,15 @@ export function LedgerCommitDialog({
       onClose={onClose}
       title="Commit official academic records"
     >
-      <div className="ledger-commit-dialog-content">
+      <div className="al-commit-dialog-content">
         <p>
-          <strong>
-            This action writes {totalRows} staged rows to the official academic record.
-          </strong>
+          <strong>This action writes {totalRows} staged rows to the official academic record.</strong>
         </p>
         <p>
           The commit is transactional and cannot be undone from this screen. Official GPA values may
           be recalculated.
         </p>
-        <dl className="ledger-stat-grid">
+        <dl className="al-stat-grid">
           <div>
             <dt>Rows to commit</dt>
             <dd>{totalRows}</dd>
@@ -45,19 +43,19 @@ export function LedgerCommitDialog({
           </div>
         </dl>
         {mappedError ? (
-          <div className="ledger-validation-summary" role="alert">
+          <div className="al-validation-summary" role="alert">
             <strong>Commit failed</strong>
             <p>{mappedError.message}</p>
             <p>No partial commit is shown. Reload the batch before trying again.</p>
             {mappedError.correlationId ? <p>Reference: {mappedError.correlationId}</p> : null}
           </div>
         ) : null}
-        <div className="button-row ledger-dialog-actions">
+        <div className="modal-actions">
+          <Button disabled={isPending} onClick={onClose} variant="outlined">
+            Cancel
+          </Button>
           <Button disabled={invalidRows > 0} isLoading={isPending} onClick={onConfirm}>
             Confirm commit
-          </Button>
-          <Button disabled={isPending} onClick={onClose} variant="secondary">
-            Cancel
           </Button>
         </div>
       </div>
