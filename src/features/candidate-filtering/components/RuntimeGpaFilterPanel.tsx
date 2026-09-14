@@ -34,16 +34,16 @@ export function RuntimeGpaFilterPanel({
   }
 
   return (
-    <fieldset className="filtering-gpa-panel" disabled={disabled}>
+    <fieldset className="cf-gpa-panel" disabled={disabled}>
       <legend>GPA Filtering</legend>
 
-      <div className="gpa-range-output" aria-live="polite">
+      <div className="cf-gpa-output" aria-live="polite">
         <span>Min GPA: {visualMin.toFixed(2)}</span>
         <span>Max GPA: {visualMax.toFixed(2)}</span>
       </div>
 
       <div
-        className="gpa-range-control"
+        className="cf-gpa-control"
         style={
           {
             '--gpa-min-position': `${minimumPercent}%`,
@@ -51,7 +51,7 @@ export function RuntimeGpaFilterPanel({
           } as React.CSSProperties
         }
       >
-        <div aria-hidden="true" className="gpa-range-track">
+        <div aria-hidden="true" className="cf-gpa-track">
           <span />
         </div>
         <input
@@ -74,7 +74,7 @@ export function RuntimeGpaFilterPanel({
         />
       </div>
 
-      <div className="filtering-gpa-fields">
+      <div className="cf-gpa-fields">
         <FormField htmlFor="filter-min-gpa" label="Min Bound">
           <TextInput
             aria-describedby={error ? 'filter-gpa-error' : undefined}
@@ -103,20 +103,20 @@ export function RuntimeGpaFilterPanel({
         </FormField>
       </div>
 
-      <div aria-label="GPA quick presets" className="gpa-preset-row">
-        <Button onClick={() => setPreset(3, 4)} variant="secondary">
+      <div aria-label="GPA quick presets" className="cf-gpa-presets">
+        <Button onClick={() => setPreset(3, 4)} size="sm" variant="outlined">
           GPA &gt; 3.0
         </Button>
-        <Button onClick={() => setPreset(3.5, 4)} variant="secondary">
+        <Button onClick={() => setPreset(3.5, 4)} size="sm" variant="outlined">
           GPA &gt; 3.5
         </Button>
-        <Button onClick={() => setPreset(0, 2)} variant="secondary">
+        <Button onClick={() => setPreset(0, 2)} size="sm" variant="outlined">
           GPA &lt; 2.0
         </Button>
       </div>
 
       {error ? (
-        <p className="error-text" id="filter-gpa-error">
+        <p className="cf-error-text" id="filter-gpa-error">
           {error}
         </p>
       ) : null}

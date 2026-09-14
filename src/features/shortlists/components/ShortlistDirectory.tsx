@@ -1,9 +1,15 @@
 import { useEffect, useMemo } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { PaginationBar } from '../../../shared/components/data/PaginationBar'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
+import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
+import { List } from '../../../shared/components/ui/List'
+import { SkeletonListRows } from '../../../shared/skeletons'
 import type { Company } from '../../internship-management/types/internshipManagementTypes'
 import type { useShortlists } from '../hooks/useShortlists'
 import type { ShortlistsUrlState } from '../types/shortlistTypes'
@@ -57,68 +63,62 @@ export function ShortlistDirectory({
   }, [onStateChange, page, state.page])
 
   return (
-    <section aria-labelledby="active-request-matrix-title" className="shortlist-matrix-card">
-      <div className="shortlist-section-header">
-        <h2 id="active-request-matrix-title">Active Request Matrix</h2>
-      </div>
-
-      <div className="shortlist-matrix-toolbar">
-        <label className="shortlist-control shortlist-search-control">
+    <Card aria-labelledby="active-request-matrix-title" className="sl-matrix-card" variant="outlined">
+      <CardHeader className="sl-section-header">
+        <h2 className="m3-card-title" id="active-request-matrix-title">
+          Active Request Matrix
+        </h2>
+      </CardHeader>
+      <CardContent className="sl-matrix-content">
+      <div className="sl-matrix-toolbar">
+        <label className="sl-toolbar-field sl-search-field">
           <span>Search Company</span>
-          <span className="shortlist-search-input">
-            <span aria-hidden="true" className="material-symbols-outlined">
-              search
-            </span>
-            <input
-              aria-label="Search Company"
-              maxLength={120}
-              onChange={(event) => onSearchInputChange(event.target.value)}
-              placeholder="Search by company name..."
-              type="search"
-              value={searchInput}
-            />
-          </span>
+          <SearchBar
+            aria-label="Search Company"
+            maxLength={120}
+            onChange={(event) => onSearchInputChange(event.target.value)}
+            placeholder="Search by company name..."
+            value={searchInput}
+          />
         </label>
 
-        <label className="shortlist-control">
-          <span>Select Company</span>
-          <select
-            aria-describedby={companyLoadError ? 'shortlist-company-error' : undefined}
-            disabled={companyLoading}
-            onChange={(event) => onStateChange({ companyId: event.target.value || undefined })}
-            value={state.companyId ?? ''}
-          >
-            <option value="">All Companies</option>
-            {companies.map((company) => (
-              <option key={company.companyId} value={company.companyId}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <M3SelectField
+          className="sl-toolbar-field"
+          label="Select Company"
+          aria-describedby={companyLoadError ? 'shortlist-company-error' : undefined}
+          disabled={companyLoading}
+          onChange={(value) => onStateChange({ companyId: value || undefined })}
+          value={state.companyId ?? ''}
+          options={[
+            { value: '', label: 'All Companies' },
+            ...companies.map((company) => ({
+              value: company.companyId,
+              label: company.name,
+            })),
+          ]}
+        />
 
-        <label className="shortlist-control">
-          <span>Internship Track</span>
-          <select
-            onChange={(event) => onSelectedTrackChange(event.target.value)}
-            value={selectedTrack}
-          >
-            <option value="">All Placement Rows</option>
-            {tracks.map((track) => (
-              <option key={track} value={track}>
-                {track}
-              </option>
-            ))}
-          </select>
-        </label>
+        <M3SelectField
+          className="sl-toolbar-field"
+          label="Internship Track"
+          onChange={(value) => onSelectedTrackChange(value)}
+          value={selectedTrack}
+          options={[
+            { value: '', label: 'All Placement Rows' },
+            ...tracks.map((track) => ({
+              value: track,
+              label: track,
+            })),
+          ]}
+        />
       </div>
 
       {companyLoadError ? (
-        <p className="shortlist-inline-message" id="shortlist-company-error" role="alert">
+        <p className="sl-inline-message" id="shortlist-company-error" role="alert">
           Company options are unavailable. Search and shortlisted records remain available.
         </p>
       ) : null}
-      <p aria-live="polite" className="shortlist-live-region">
+      <p aria-live="polite" className="sl-live-region">
         {shortlists.isFetching && !shortlists.isPending ? 'Updating active records…' : ''}
       </p>
 
@@ -126,7 +126,7 @@ export function ShortlistDirectory({
         isLoading={shortlists.isPending}
         label="Loading active shortlist records"
         minHeight={430}
-        skeleton={<SkeletonBlock height={390} lines={0} variant="card" />}
+        skeleton={<SkeletonListRows count={5} />}
       >
         {listError ? (
           <ErrorState
@@ -136,29 +136,29 @@ export function ShortlistDirectory({
             title="Shortlisted records unavailable"
           />
         ) : visibleShortlists.length ? (
-          <div className="shortlist-matrix-list">
+          <List className="sl-matrix-list">
             {visibleShortlists.map((shortlist) => (
-              <article className="shortlist-matrix-row" key={shortlist.shortlistId}>
-                <div>
-                  <h3>{shortlist.request.title}</h3>
-                  <p>
+              <li className="m3-list-item sl-matrix-row" key={shortlist.shortlistId}>
+                <div className="m3-list-item-content">
+                  <span className="m3-list-item-headline">{shortlist.request.title}</span>
+                  <p className="sl-row-subline">
                     Company: {shortlist.request.companyName} • {shortlist.selectedCandidateCount}{' '}
                     Candidates Shortlisted
                   </p>
                 </div>
-                <button
-                  className="shortlist-outlined-button"
-                  onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
-                  type="button"
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined">
-                    visibility
-                  </span>
-                  Details
-                </button>
-              </article>
+                <span className="m3-list-item-trailing">
+                  <Button
+                    icon={<span className="material-symbols-outlined">visibility</span>}
+                    onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
+                    size="sm"
+                    variant="outlined"
+                  >
+                    Details
+                  </Button>
+                </span>
+              </li>
             ))}
-          </div>
+          </List>
         ) : (
           <EmptyState
             message={
@@ -172,47 +172,18 @@ export function ShortlistDirectory({
       </LoadingBoundary>
 
       {page && page.totalPages > 0 ? (
-        <nav aria-label="Active request pages" className="shortlist-pagination">
-          <p>
-            Showing {page.page * page.size + 1} to{' '}
-            {Math.min((page.page + 1) * page.size, page.totalElements)} of {page.totalElements}{' '}
-            active records
-          </p>
-          <div>
-            <button
-              aria-label="Previous page"
-              disabled={page.page === 0}
-              onClick={() => onStateChange({ page: page.page - 1 })}
-              type="button"
-            >
-              <span aria-hidden="true" className="material-symbols-outlined">
-                chevron_left
-              </span>
-            </button>
-            {Array.from({ length: page.totalPages }, (_, index) => (
-              <button
-                aria-current={index === page.page ? 'page' : undefined}
-                className={index === page.page ? 'is-active' : undefined}
-                key={index}
-                onClick={() => onStateChange({ page: index })}
-                type="button"
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              aria-label="Next page"
-              disabled={page.page >= page.totalPages - 1}
-              onClick={() => onStateChange({ page: page.page + 1 })}
-              type="button"
-            >
-              <span aria-hidden="true" className="material-symbols-outlined">
-                chevron_right
-              </span>
-            </button>
-          </div>
-        </nav>
+        <PaginationBar
+          label="Active request pages"
+          onPageChange={(p) => onStateChange({ page: p })}
+          onPageSizeChange={(s) => onStateChange({ size: s as 5 | 20 | 50 | 100 })}
+          page={page.page}
+          pageSizeOptions={[5, 20, 50, 100]}
+          size={page.size}
+          totalElements={page.totalElements}
+          totalPages={page.totalPages}
+        />
       ) : null}
-    </section>
+      </CardContent>
+    </Card>
   )
 }

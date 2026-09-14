@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SelectField } from '../../../shared/components/forms/SelectField'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import type { SkillTaxonomy } from '../../../shared/skill-taxonomy'
@@ -89,10 +89,10 @@ export function AdditionalSkillsModal({
       size="wide"
       title="Select additional declared skills"
     >
-      <div className="additional-skills-modal">
-        <label className="additional-skills-search">
+      <div className="cf-skills-modal">
+        <label className="cf-modal-field">
           <span>Global taxonomy search</span>
-          <SearchInput
+          <SearchBar
             aria-label="Search additional declared skills"
             onChange={(event) => {
               setSearch(event.target.value)
@@ -103,62 +103,63 @@ export function AdditionalSkillsModal({
           />
         </label>
 
-        <div className="additional-skills-browse-grid">
-          <label>
-            <span>Core cluster</span>
-            <SelectField
-              aria-label="Additional skill cluster"
-              onChange={(event) => {
-                setClusterId(event.target.value)
-                setCategoryId('')
-                resetPage()
-              }}
-              value={clusterId}
-            >
-              <option value="">All clusters</option>
-              {taxonomy.clusters.map((cluster) => (
-                <option key={cluster.clusterId} value={cluster.clusterId}>
-                  {cluster.name}
-                </option>
-              ))}
-            </SelectField>
-          </label>
-          <label>
-            <span>Skill category</span>
-            <SelectField
-              aria-label="Additional skill category"
-              disabled={!clusterId}
-              onChange={(event) => {
-                setCategoryId(event.target.value)
-                resetPage()
-              }}
-              value={categoryId}
-            >
-              <option value="">{clusterId ? 'All categories' : 'Select a cluster first'}</option>
-              {categories.map((category) => (
-                <option key={category.categoryId} value={category.categoryId}>
-                  {category.name}
-                </option>
-              ))}
-            </SelectField>
-          </label>
+        <div className="cf-skills-browse-grid">
+          <M3SelectField
+            className="cf-modal-field"
+            label="Core cluster"
+            aria-label="Additional skill cluster"
+            onChange={(value) => {
+              setClusterId(value)
+              setCategoryId('')
+              resetPage()
+            }}
+            value={clusterId}
+            options={[
+              { value: '', label: 'All clusters' },
+              ...taxonomy.clusters.map((cluster) => ({
+                value: cluster.clusterId,
+                label: cluster.name,
+              })),
+            ]}
+          />
+          <M3SelectField
+            className="cf-modal-field"
+            label="Skill category"
+            aria-label="Additional skill category"
+            disabled={!clusterId}
+            onChange={(value) => {
+              setCategoryId(value)
+              resetPage()
+            }}
+            value={categoryId}
+            options={[
+              {
+                value: '',
+                label: clusterId ? 'All categories' : 'Select a cluster first',
+              },
+              ...categories.map((category) => ({
+                value: category.categoryId,
+                label: category.name,
+              })),
+            ]}
+          />
         </div>
 
-        <div className="additional-skills-result-heading">
+        <div className="cf-skills-result-heading">
           <strong>{filtered.length} available skills</strong>
           <span>{staged.size} selected for this run</span>
         </div>
 
         <div
           aria-label="Additional taxonomy skills"
-          className="additional-skills-options"
+          className="cf-skills-options"
           role="list"
         >
           {visible.map((skill) => {
             const checked = staged.has(skill.skillId)
             return (
               <label
-                className={checked ? 'additional-skill-option selected' : 'additional-skill-option'}
+                className={checked ? 'cf-skill-option cf-skill-option--selected' : 'cf-skill-option'}
                 key={skill.skillId}
               >
                 <input
@@ -184,12 +185,12 @@ export function AdditionalSkillsModal({
             )
           })}
           {visible.length === 0 ? (
-            <p className="taxonomy-empty-result">No skills match the selected controls.</p>
+            <p className="cf-taxonomy-empty-result">No skills match the selected controls.</p>
           ) : null}
         </div>
 
         {totalPages > 1 ? (
-          <div className="compact-modal-pagination" aria-label="Additional skill result pages">
+          <div className="cf-modal-pagination" aria-label="Additional skill result pages">
             <span>
               Page {safePage + 1} of {totalPages}
             </span>
@@ -197,14 +198,16 @@ export function AdditionalSkillsModal({
               <Button
                 disabled={safePage === 0}
                 onClick={() => setPage((current) => Math.max(0, current - 1))}
-                variant="secondary"
+                size="sm"
+                variant="outlined"
               >
                 Previous
               </Button>
               <Button
                 disabled={safePage >= totalPages - 1}
                 onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
-                variant="secondary"
+                size="sm"
+                variant="outlined"
               >
                 Next
               </Button>
@@ -213,7 +216,7 @@ export function AdditionalSkillsModal({
         ) : null}
 
         <div className="modal-actions">
-          <Button onClick={onClose} variant="secondary">
+          <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>
           <Button

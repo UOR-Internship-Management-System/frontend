@@ -42,7 +42,7 @@ export function ShortlistsPage() {
   const companies = useCompanies({ page: 0, size: 100, sort: 'name,asc', search: '' })
 
   return (
-    <div className="content-stack shortlists-page">
+    <div className="sl-page shortlists-page">
       <PageHeader
         description="Review, filter, and track shortlisted student applications grouped by structural institutional internship requirements."
         title="Shortlisted Candidates"

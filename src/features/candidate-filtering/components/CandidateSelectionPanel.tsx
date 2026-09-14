@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { Switch } from '../../../shared/components/forms/Switch'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { Button } from '../../../shared/components/ui/Button'
 import { useInternshipRequest } from '../../internship-management/hooks/useInternshipRequests'
 import { useCreateCandidateFilteringRun } from '../hooks/useCandidateFiltering'
@@ -105,61 +106,59 @@ export function CandidateSelectionPanel({
   const mappedRequestError = requestError ? mapApiError(requestError, 'protected') : null
 
   return (
-    <aside className="candidate-filtering-sidebar" aria-label="Candidate filtering controls">
-      <SectionCard aria-labelledby="request-context-title" className="candidate-request-card">
-        <div className="candidate-sidebar-heading">
-          <h2 id="request-context-title">Select Internship Request</h2>
-        </div>
+    <aside className="cf-sidebar" aria-label="Candidate filtering controls">
+      <Card className="cf-card" variant="outlined">
+        <CardHeader className="cf-card-heading">
+          <CardTitle>Select Internship Request</CardTitle>
+        </CardHeader>
+        <CardContent className="cf-card-content">
+          <Button
+            className="cf-full-width"
+            icon={<span className="material-symbols-outlined">assignment_ind</span>}
+            onClick={() => setRequestSelectorOpen(true)}
+          >
+            Select Internship Request
+          </Button>
 
-        <Button
-          className="btn-full-sidebar"
-          icon={<span className="material-symbols-outlined">assignment_ind</span>}
-          onClick={() => setRequestSelectorOpen(true)}
-        >
-          Select Internship Request
-        </Button>
+          {mappedRequestError ? (
+            <ErrorState
+              correlationId={mappedRequestError.correlationId}
+              message={mappedRequestError.message}
+              onAction={() => void selectedRequest.refetch()}
+              title="Selected request unavailable"
+            />
+          ) : selectedRequest.data ? (
+            <div className="cf-request-summary">
+              <div>
+                <span>Selected company</span>
+                <strong>{selectedRequest.data.company.name}</strong>
+              </div>
+              <div>
+                <span>Assigned role context</span>
+                <strong>{selectedRequest.data.title}</strong>
+              </div>
+              <div>
+                <span>Shortlist guidance</span>
+                <strong>
+                  {selectedRequest.data.shortlistGuidanceValue === null
+                    ? 'Not set'
+                    : `${selectedRequest.data.shortlistGuidanceValue} candidates`}
+                </strong>
+              </div>
+            </div>
+          ) : (
+            <div className="cf-request-empty">
+              No request selected. Filtering remains disabled until an Admin chooses one explicitly.
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-        {mappedRequestError ? (
-          <ErrorState
-            correlationId={mappedRequestError.correlationId}
-            message={mappedRequestError.message}
-            onAction={() => void selectedRequest.refetch()}
-            title="Selected request unavailable"
-          />
-        ) : selectedRequest.data ? (
-          <div className="candidate-request-context-summary">
-            <div>
-              <span>Selected company</span>
-              <strong>{selectedRequest.data.company.name}</strong>
-            </div>
-            <div>
-              <span>Assigned role context</span>
-              <strong>{selectedRequest.data.title}</strong>
-            </div>
-            <div>
-              <span>Shortlist guidance</span>
-              <strong>
-                {selectedRequest.data.shortlistGuidanceValue === null
-                  ? 'Not set'
-                  : `${selectedRequest.data.shortlistGuidanceValue} candidates`}
-              </strong>
-            </div>
-          </div>
-        ) : (
-          <div className="candidate-request-context-empty">
-            No request selected. Filtering remains disabled until an Admin chooses one explicitly.
-          </div>
-        )}
-      </SectionCard>
-
-      <SectionCard aria-labelledby="filtering-panel-title" className="candidate-criteria-card">
-        <div className="candidate-selection-panel">
-          <div className="candidate-sidebar-heading">
-            <div>
-              <h2 id="filtering-panel-title">Filtering Panel</h2>
-            </div>
-          </div>
-
+      <Card className="cf-card" variant="outlined">
+        <CardHeader className="cf-card-heading">
+          <CardTitle>Filtering Panel</CardTitle>
+        </CardHeader>
+        <CardContent className="cf-card-content">
           <RuntimeGpaFilterPanel
             disabled={createRun.isPending || !selectedRequest.data}
             error={formError?.includes('GPA') ? formError : undefined}
@@ -169,23 +168,16 @@ export function CandidateSelectionPanel({
             onMinGpaChange={(minGpa) => updateState({ minGpa })}
           />
 
-          <fieldset className="filtering-match-mode">
+          <fieldset className="cf-match-mode">
             <legend>Skill matching logic</legend>
-            <button
-              aria-checked={state.matchMode === 'AND'}
+            <Switch
               aria-label="Toggle technical skill matching logic mode"
-              className="logic-switch-wrapper"
+              checked={state.matchMode === 'AND'}
               disabled={createRun.isPending || !selectedRequest.data}
-              onClick={() => updateState({ matchMode: state.matchMode === 'AND' ? 'OR' : 'AND' })}
-              role="switch"
-              type="button"
-            >
-              <span style={{ fontSize: '14px', fontWeight: 500 }}>Matching logic</span>
-              <span aria-hidden="true" className="logic-switch-axis">
-                <span className="logic-switch-handle">{state.matchMode}</span>
-              </span>
-            </button>
-            <p className="active-logic-text">
+              label="Matching logic"
+              onChange={() => updateState({ matchMode: state.matchMode === 'AND' ? 'OR' : 'AND' })}
+            />
+            <p className="cf-active-logic-text">
               {state.matchMode === 'AND'
                 ? 'All selected skills must be declared.'
                 : 'One or more selected skills may be declared.'}
@@ -207,11 +199,11 @@ export function CandidateSelectionPanel({
             </div>
           ) : null}
 
-          <p aria-live="polite" className="candidate-filtering-live-status">
+          <p aria-live="polite" className="cf-live-status">
             {createRun.isPending ? 'Updating deterministic results…' : ''}
           </p>
-        </div>
-      </SectionCard>
+        </CardContent>
+      </Card>
 
       {requestSelectorOpen ? (
         <InternshipRequestSelectorModal

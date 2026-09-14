@@ -19,12 +19,12 @@ export function CandidateSkillsModal({
       onClose={onClose}
       title="Matching declared skills"
     >
-      <div className="candidate-skills-modal">
+      <div className="cf-skills-modal-body">
         <p>
           {candidate.matchingDeclaredSkills.length} matching skill
           {candidate.matchingDeclaredSkills.length === 1 ? '' : 's'} from the current run.
         </p>
-        <ul>
+        <ul className="cf-matching-skill-list">
           {candidate.matchingDeclaredSkills.map((skill) => (
             <li key={skill.declaredSkillId}>
               <strong>{skill.skillName}</strong>
