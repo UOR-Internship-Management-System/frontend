@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { CvBuilderSkeleton } from '../../../shared/skeletons/CvBuilderSkeleton'
+import { Tabs } from '../../../shared/components/navigation/Tabs'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
+import { SkeletonCard, SkeletonFormFields, SkeletonStatusRegion } from '../../../shared/skeletons'
 import { CvConfigurationPanel } from '../components/CvConfigurationPanel'
 import type { CvSelectionItem } from '../components/CvRecordSelectionGroup'
 import { CvOutputPanel } from '../components/CvOutputPanel'
@@ -33,6 +35,8 @@ import type { CvPreview } from '../types/cvBuilderTypes'
 type SelectionSources = Record<keyof CvRecordSelections, CvSelectionItem[] | undefined>
 
 export function CvBuilderPage() {
+  const isCompact = useIsCompactLayout()
+  const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
   const [selections, setSelections] = useState<CvRecordSelections>(() =>
     cloneSelections(emptyCvRecordSelections),
   )
@@ -227,14 +231,61 @@ export function CvBuilderPage() {
   }
 
   if (freshness.isPending && sourceQueries.every((query) => query.isPending)) {
-    return <CvBuilderSkeleton />
+    return (
+      <SkeletonStatusRegion className="content-stack s5-cv-builder-page" label="Loading CV builder">
+        <SkeletonCard><SkeletonFormFields count={4} /></SkeletonCard>
+        <SkeletonCard><SkeletonFormFields count={4} /></SkeletonCard>
+      </SkeletonStatusRegion>
+    )
   }
+
+  const editPane = (
+    <div className="s5-cv-edit-pane">
+      <CvConfigurationPanel
+        activitySources={mapSourceQuery(activitySources)}
+        awardSources={mapSourceQuery(awardSources)}
+        certificateSources={mapSourceQuery(certificateSources)}
+        experienceSources={mapSourceQuery(experienceSources)}
+        onToggleRecord={toggleRecord}
+        projectSources={mapSourceQuery(projectOptions, projectItems)}
+        selections={selections}
+      />
+      <CvOutputPanel
+        configurationDirty={configurationDirty}
+        configurationReady={configurationReady}
+        currentCv={currentCv.data}
+        downloadPending={downloadMutation.pendingTargetKey === 'current'}
+        expired={previewExpired}
+        hasPreview={preview !== null}
+        hasSavedCv={hasSavedCv}
+        onDownload={() => downloadMutation.mutate({ kind: 'current' })}
+        onGenerate={generatePreview}
+        onSave={savePreview}
+        previewPending={previewMutation.isPending}
+        previewSaved={
+          preview !== null && !configurationDirty && savedPreviewId === preview.previewId
+        }
+        savedCvPending={currentCvEnabled && currentCv.isPending}
+        savedCvUnavailable={currentCvEnabled && currentCv.isError}
+        savePending={saveMutation.isPending}
+      />
+    </div>
+  )
+  const previewPane = (
+    <CvPreviewPanel
+      dirty={configurationDirty}
+      error={previewError}
+      expired={previewExpired}
+      isPending={previewMutation.isPending}
+      onRetry={generatePreview}
+      preview={preview}
+    />
+  )
 
   return (
     <main className="content-stack s5-cv-builder-page">
       <PageHeader
         description="Customize the included records, generate an ATS-compliant preview, save the current CV version, and download the saved PDF."
-        eyebrow="Student workspace"
         title="LaTeX CV Builder"
       />
 
@@ -261,46 +312,24 @@ export function CvBuilderPage() {
         </p>
       ) : null}
 
-      <CvConfigurationPanel
-        activitySources={mapSourceQuery(activitySources)}
-        awardSources={mapSourceQuery(awardSources)}
-        certificateSources={mapSourceQuery(certificateSources)}
-        experienceSources={mapSourceQuery(experienceSources)}
-        onToggleRecord={toggleRecord}
-        projectSources={mapSourceQuery(projectOptions, projectItems)}
-        selections={selections}
-      />
-
-      <div className="s5-cv-workspace-grid">
-        <CvOutputPanel
-          configurationDirty={configurationDirty}
-          configurationReady={configurationReady}
-          currentCv={currentCv.data}
-          downloadPending={downloadMutation.pendingTargetKey === 'current'}
-          expired={previewExpired}
-          hasPreview={preview !== null}
-          hasSavedCv={hasSavedCv}
-          onDownload={() => downloadMutation.mutate({ kind: 'current' })}
-          onGenerate={generatePreview}
-          onSave={savePreview}
-          previewPending={previewMutation.isPending}
-          previewSaved={
-            preview !== null && !configurationDirty && savedPreviewId === preview.previewId
-          }
-          savedCvPending={currentCvEnabled && currentCv.isPending}
-          savedCvUnavailable={currentCvEnabled && currentCv.isError}
-          savePending={saveMutation.isPending}
-        />
-
-        <CvPreviewPanel
-          dirty={configurationDirty}
-          error={previewError}
-          expired={previewExpired}
-          isPending={previewMutation.isPending}
-          onRetry={generatePreview}
-          preview={preview}
-        />
-      </div>
+      {isCompact ? (
+        <div className="s5-cv-workspace-tabs">
+          <Tabs
+            activeId={activeTab}
+            onChange={(id) => setActiveTab(id as 'edit' | 'preview')}
+            tabs={[
+              { id: 'edit', label: 'Edit' },
+              { id: 'preview', label: 'Preview' },
+            ]}
+          />
+          {activeTab === 'edit' ? editPane : previewPane}
+        </div>
+      ) : (
+        <div className="s5-cv-workspace-grid">
+          {editPane}
+          {previewPane}
+        </div>
+      )}
     </main>
   )
 }

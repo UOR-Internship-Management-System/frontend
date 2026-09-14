@@ -56,7 +56,7 @@ export function CvActionBar({
         }
         isLoading={savePending}
         onClick={onSave}
-        variant="secondary"
+        variant="tonal"
       >
         Save Current CV Version
       </Button>
@@ -69,7 +69,7 @@ export function CvActionBar({
         }
         isLoading={downloadPending}
         onClick={onDownload}
-        variant="secondary"
+        variant="outlined"
       >
         Download Current CV PDF
       </Button>
