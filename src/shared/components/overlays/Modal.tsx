@@ -152,7 +152,7 @@ export function Modal({
         aria-describedby={description ? descriptionId : undefined}
         aria-labelledby={titleId}
         aria-modal="true"
-        className={`modal-card modal-card-${size} card ${className}`.trim()}
+        className={`modal-card modal-card-${size} card m3-dialog ${className}`.trim()}
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}

@@ -1,4 +1,5 @@
 import type { Notification } from '../../../app/providers/NotificationProvider'
+import { Snackbar } from './Snackbar'
 
 export type ToastViewportProps = {
   notifications: Notification[]
@@ -7,15 +8,20 @@ export type ToastViewportProps = {
 
 export function ToastViewport({ notifications, onDismiss }: ToastViewportProps) {
   return (
-    <div aria-live="polite" className="toast-viewport">
+    <div className="toast-viewport">
       {notifications.map((notification) => (
-        <div className="toast" key={notification.id}>
-          <strong>{notification.title}</strong>
-          {notification.message ? <p>{notification.message}</p> : null}
-          <button onClick={() => onDismiss(notification.id)} type="button">
-            Dismiss
-          </button>
-        </div>
+        <Snackbar
+          className="toast"
+          key={notification.id}
+          message={
+            <span className="toast-copy">
+              <strong>{notification.title}</strong>
+              {notification.message ? <span>{notification.message}</span> : null}
+            </span>
+          }
+          onClose={() => onDismiss(notification.id)}
+          tone={notification.tone}
+        />
       ))}
     </div>
   )
