@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { mapExperienceRequest } from '../mappers/profileEntryMappers'
 import { experienceFormSchema } from '../schemas/profileEntrySchemas'
 import type { Experience, ExperienceRequest } from '../types/profileEntryTypes'
@@ -11,11 +12,13 @@ export function ExperienceEditor({
   isPending,
   item,
   onCancel,
+  onDirtyChange,
   onSubmit,
 }: {
   isPending: boolean
   item?: Experience
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (values: ExperienceRequest) => Promise<void>
 }) {
   const [values, setValues] = useState({
@@ -44,93 +47,87 @@ export function ExperienceEditor({
     }
   }
   return (
-    <form className="profile-editor-form" noValidate onSubmit={submit}>
+    <form
+      className="profile-editor-form"
+      noValidate
+      onChange={() => onDirtyChange?.(true)}
+      onSubmit={submit}
+    >
       {error ? (
         <div className="inline-alert" role="alert">
           {error}
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="experience-organization" label="Company">
-          <TextInput
-            id="experience-organization"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, organization: event.target.value })}
-            required
-            value={values.organization}
-          />
-        </FormField>
-        <FormField htmlFor="experience-position" label="Job Title">
-          <TextInput
-            id="experience-position"
-            maxLength={150}
-            onChange={(event) => setValues({ ...values, positionTitle: event.target.value })}
-            required
-            value={values.positionTitle}
-          />
-        </FormField>
-        <FormField htmlFor="experience-location" label="Job Location">
-          <TextInput
-            id="experience-location"
-            onChange={(event) => setValues({ ...values, location: event.target.value })}
-            value={values.location}
-          />
-        </FormField>
-        <FormField htmlFor="experience-start" label="Start Date">
-          <TextInput
-            id="experience-start"
-            onChange={(event) => setValues({ ...values, startDate: event.target.value })}
-            required
-            type="date"
-            value={values.startDate}
-          />
-        </FormField>
-        <FormField htmlFor="experience-end" label="End Date">
-          <TextInput
-            disabled={values.currentRole}
-            id="experience-end"
-            onChange={(event) => setValues({ ...values, endDate: event.target.value })}
-            required={!values.currentRole}
-            type="date"
-            value={values.endDate}
-          />
-        </FormField>
-      </div>
-      <label className="profile-checkbox">
-        <input
-          checked={values.currentRole}
-          onChange={(event) =>
-            setValues({
-              ...values,
-              currentRole: event.target.checked,
-              endDate: event.target.checked ? '' : values.endDate,
-            })
-          }
-          type="checkbox"
-        />{' '}
-        Is Current Role
-      </label>
-      <FormField htmlFor="experience-description" label="Core Responsibilities / Bulleted Duties">
-        <textarea
-          className="input"
-          id="experience-description"
-          onChange={(event) => setValues({ ...values, description: event.target.value })}
-          rows={4}
-          value={values.description}
+        <TextField
+          id="experience-organization"
+          label="Company"
+          maxLength={200}
+          onChange={(event) => setValues({ ...values, organization: event.target.value })}
+          required
+          value={values.organization}
         />
-      </FormField>
-      <label className="profile-checkbox">
-        <input
-          checked={values.cvInclude}
-          onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
-          type="checkbox"
-        />{' '}
-        Include this Experience in the CV
-      </label>
+        <TextField
+          id="experience-position"
+          label="Job title"
+          maxLength={150}
+          onChange={(event) => setValues({ ...values, positionTitle: event.target.value })}
+          required
+          value={values.positionTitle}
+        />
+        <TextField
+          id="experience-location"
+          label="Job location"
+          onChange={(event) => setValues({ ...values, location: event.target.value })}
+          value={values.location}
+        />
+        <TextField
+          id="experience-start"
+          label="Start date"
+          onChange={(event) => setValues({ ...values, startDate: event.target.value })}
+          placeholder=" "
+          required
+          type="date"
+          value={values.startDate}
+        />
+        <TextField
+          disabled={values.currentRole}
+          id="experience-end"
+          label="End date"
+          onChange={(event) => setValues({ ...values, endDate: event.target.value })}
+          placeholder=" "
+          required={!values.currentRole}
+          type="date"
+          value={values.endDate}
+        />
+      </div>
+      <Checkbox
+        checked={values.currentRole}
+        label="This is my current role"
+        onChange={(event) =>
+          setValues({
+            ...values,
+            currentRole: event.target.checked,
+            endDate: event.target.checked ? '' : values.endDate,
+          })
+        }
+      />
+      <TextArea
+        id="experience-description"
+        label="Core responsibilities or duties"
+        onChange={(event) => setValues({ ...values, description: event.target.value })}
+        rows={4}
+        value={values.description}
+      />
+      <Checkbox
+        checked={values.cvInclude}
+        label="Include this experience in the CV"
+        onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
+      />
       <ProfileEditorActions
         isPending={isPending}
         onCancel={onCancel}
-        submitLabel={item ? 'Save Experience' : 'Add Experience'}
+        submitLabel={item ? 'Save experience' : 'Add experience'}
       />
     </form>
   )

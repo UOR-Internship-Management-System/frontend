@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { useUpdateStudentProfile } from '../hooks/useUpdateStudentProfile'
 import { mapStudentProfileToForm } from '../mappers/studentProfileMapper'
 import { studentProfileFormSchema } from '../schemas/studentProfileSchemas'
@@ -147,143 +148,100 @@ export function ProfileForm({ onReload, profile }: ProfileFormProps) {
   }
 
   return (
-    <section className="section-card profile-form-card" aria-labelledby="profile-details-title">
-      <div className="profile-section-heading">
+    <Card aria-labelledby="profile-details-title" variant="outlined">
+      <CardHeader className="s5-section-heading">
         <div>
-          <h2 id="profile-details-title">Profile details</h2>
+          <CardTitle id="profile-details-title">Profile details</CardTitle>
           <p>Update the professional and contact information used in your profile.</p>
         </div>
         {isDirty ? <span className="profile-unsaved-indicator">Unsaved changes</span> : null}
-      </div>
+      </CardHeader>
 
-      <form className="profile-form" noValidate onSubmit={handleSubmit}>
-        {formError ? (
-          <div className="inline-alert profile-form-alert" role="alert">
-            <p>{formError}</p>
-            {conflict ? (
-              <Button onClick={() => void handleReload()} variant="secondary">
-                Reload latest profile
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
+      <CardContent>
+        <form className="profile-form" noValidate onSubmit={handleSubmit}>
+          {formError ? (
+            <div className="inline-alert profile-form-alert" role="alert">
+              <p>{formError}</p>
+              {conflict ? (
+                <Button onClick={() => void handleReload()} variant="tonal">
+                  Reload latest profile
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
 
-        <div className="profile-form-grid">
-          <FormField
-            error={fieldErrors.fullName}
-            errorId="profile-full-name-error"
-            htmlFor="profile-full-name"
-            label="Full Name"
-          >
-            <TextInput
-              aria-describedby={fieldErrors.fullName ? 'profile-full-name-error' : undefined}
-              aria-invalid={Boolean(fieldErrors.fullName)}
-              autoComplete="name"
+          <div className="profile-form-grid">
+            <TextField
+              error={fieldErrors.fullName}
               id="profile-full-name"
-              maxLength={150}
+              label="Full name"
               onChange={(event) => updateField('fullName', event.target.value)}
+              autoComplete="name"
+              maxLength={150}
               ref={fullNameRef}
               value={values.fullName}
             />
-          </FormField>
-          <FormField
-            error={fieldErrors.personalEmail}
-            errorId="profile-personal-email-error"
-            htmlFor="profile-personal-email"
-            label="Personal Email Address"
-          >
-            <TextInput
-              aria-describedby={
-                fieldErrors.personalEmail ? 'profile-personal-email-error' : undefined
-              }
-              aria-invalid={Boolean(fieldErrors.personalEmail)}
-              autoComplete="email"
+            <TextField
+              error={fieldErrors.personalEmail}
               id="profile-personal-email"
+              label="Personal email address"
+              onChange={(event) => updateField('personalEmail', event.target.value)}
+              autoComplete="email"
               inputMode="email"
               maxLength={254}
-              onChange={(event) => updateField('personalEmail', event.target.value)}
               ref={personalEmailRef}
               type="email"
               value={values.personalEmail}
             />
-          </FormField>
-          <FormField
-            error={fieldErrors.headline}
-            errorId="profile-headline-error"
-            htmlFor="profile-headline"
-            label="Professional Headline"
-          >
-            <TextInput
-              aria-describedby={fieldErrors.headline ? 'profile-headline-error' : undefined}
-              aria-invalid={Boolean(fieldErrors.headline)}
+            <TextField
+              error={fieldErrors.headline}
               id="profile-headline"
-              maxLength={200}
+              label="Professional headline"
               onChange={(event) => updateField('headline', event.target.value)}
+              maxLength={200}
               ref={headlineRef}
               value={values.headline}
             />
-          </FormField>
-          <FormField
-            error={fieldErrors.phone}
-            errorId="profile-phone-error"
-            htmlFor="profile-phone"
-            label="Phone Number"
-          >
-            <TextInput
-              aria-describedby={fieldErrors.phone ? 'profile-phone-error' : undefined}
-              aria-invalid={Boolean(fieldErrors.phone)}
-              autoComplete="tel"
+            <TextField
+              error={fieldErrors.phone}
               id="profile-phone"
+              label="Phone number"
+              onChange={(event) => updateField('phone', event.target.value)}
+              autoComplete="tel"
               inputMode="tel"
               maxLength={30}
-              onChange={(event) => updateField('phone', event.target.value)}
               ref={phoneRef}
               value={values.phone}
             />
-          </FormField>
-          <FormField
-            error={fieldErrors.location}
-            errorId="profile-location-error"
-            htmlFor="profile-location"
-            label="City and State"
-          >
-            <TextInput
-              aria-describedby={fieldErrors.location ? 'profile-location-error' : undefined}
-              aria-invalid={Boolean(fieldErrors.location)}
-              autoComplete="address-level2"
+            <TextField
+              error={fieldErrors.location}
               id="profile-location"
-              maxLength={150}
+              label="City and state"
               onChange={(event) => updateField('location', event.target.value)}
+              autoComplete="address-level2"
+              maxLength={150}
               ref={locationRef}
               value={values.location}
             />
-          </FormField>
-        </div>
+          </div>
 
-        <FormField
-          error={fieldErrors.summary}
-          errorId="profile-summary-error"
-          htmlFor="profile-summary"
-          label="Profile Summary / Objective"
-        >
-          <textarea
-            aria-describedby={fieldErrors.summary ? 'profile-summary-error' : undefined}
-            aria-invalid={Boolean(fieldErrors.summary)}
-            className="input profile-summary-input"
+          <TextArea
+            error={fieldErrors.summary}
             id="profile-summary"
+            label="Profile summary or objective"
             onChange={(event) => updateField('summary', event.target.value)}
             ref={summaryRef}
             rows={6}
             value={values.summary}
           />
-        </FormField>
 
-        <div className="form-actions profile-form-actions">
-          <Button disabled={!isDirty} isLoading={updateProfile.isPending} type="submit">
-            Save Profile
-          </Button>
-        </div>
-      </form>
-    </section>
+          <div className="form-actions profile-form-actions">
+            <Button disabled={!isDirty} isLoading={updateProfile.isPending} type="submit">
+              Save profile
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

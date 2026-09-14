@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { FileUploadField } from '../../../shared/components/forms/FileUploadField'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { mapCertificateRequest } from '../mappers/profileEntryMappers'
 import {
   fileAcceptValue,
@@ -19,12 +19,14 @@ export function CertificateEditor({
   isPending,
   item,
   onCancel,
+  onDirtyChange,
   onSubmit,
 }: {
   evidencePolicy?: FileUploadConstraint
   isPending: boolean
   item?: Certificate
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (values: CertificateRequest, evidence?: File) => Promise<void>
 }) {
   const [values, setValues] = useState({
@@ -58,77 +60,76 @@ export function CertificateEditor({
     }
   }
   return (
-    <form className="profile-editor-form" noValidate onSubmit={submit}>
+    <form
+      className="profile-editor-form"
+      noValidate
+      onChange={() => onDirtyChange?.(true)}
+      onSubmit={submit}
+    >
       {error ? (
         <div className="inline-alert" role="alert">
           {error}
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="certificate-title" label="Certification Name">
-          <TextInput
-            id="certificate-title"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, title: event.target.value })}
-            required
-            value={values.title}
-          />
-        </FormField>
-        <FormField htmlFor="certificate-issuer" label="Issuing Authority">
-          <TextInput
-            id="certificate-issuer"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, issuer: event.target.value })}
-            required
-            value={values.issuer}
-          />
-        </FormField>
-        <FormField htmlFor="certificate-date" label="Date Issued">
-          <TextInput
-            id="certificate-date"
-            onChange={(event) => setValues({ ...values, issueDate: event.target.value })}
-            required
-            type="date"
-            value={values.issueDate}
-          />
-        </FormField>
-        <FormField htmlFor="certificate-url" label="Credential URL Reference">
-          <TextInput
-            id="certificate-url"
-            onChange={(event) => setValues({ ...values, credentialUrl: event.target.value })}
-            type="url"
-            value={values.credentialUrl}
-          />
-        </FormField>
+        <TextField
+          id="certificate-title"
+          label="Certification name"
+          maxLength={200}
+          onChange={(event) => setValues({ ...values, title: event.target.value })}
+          required
+          value={values.title}
+        />
+        <TextField
+          id="certificate-issuer"
+          label="Issuing authority"
+          maxLength={200}
+          onChange={(event) => setValues({ ...values, issuer: event.target.value })}
+          required
+          value={values.issuer}
+        />
+        <TextField
+          id="certificate-date"
+          label="Date issued"
+          onChange={(event) => setValues({ ...values, issueDate: event.target.value })}
+          placeholder=" "
+          required
+          type="date"
+          value={values.issueDate}
+        />
+        <TextField
+          id="certificate-url"
+          label="Credential URL"
+          onChange={(event) => setValues({ ...values, credentialUrl: event.target.value })}
+          type="url"
+          value={values.credentialUrl}
+        />
       </div>
-      <FormField
-        htmlFor="certificate-evidence"
-        label={item?.evidence ? 'Replace Certificate Evidence' : 'Certificate Evidence (Optional)'}
-      >
+      <div className="profile-file-field">
+        <label className="profile-file-field-label" htmlFor="certificate-evidence">
+          {item?.evidence ? 'Replace certificate evidence' : 'Certificate evidence (optional)'}
+        </label>
         <FileUploadField
           accept={evidencePolicy ? fileAcceptValue(evidencePolicy) : undefined}
           disabled={!evidencePolicy || isPending}
           id="certificate-evidence"
           onChange={(event) => setEvidence(event.target.files?.[0])}
         />
-      </FormField>
+      </div>
       <p className="field-hint">
         {evidencePolicy
           ? `${evidencePolicy.allowedExtensions.join(', ')} · Maximum ${formatFileSize(evidencePolicy.maxSizeBytes)}`
           : 'Evidence upload is unavailable until the server policy loads.'}
       </p>
-      <label className="profile-checkbox">
-        <input
-          checked={values.cvInclude}
-          onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
-          type="checkbox"
-        />{' '}
-        Include this Certificate in the CV
-      </label>
+      <Checkbox
+        checked={values.cvInclude}
+        label="Include this certificate in the CV"
+        onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
+      />
       <ProfileEditorActions
         isPending={isPending}
         onCancel={onCancel}
-        submitLabel={item ? 'Save Certificate' : 'Add Certificate'}
+        submitLabel={item ? 'Save certificate' : 'Add certificate'}
       />
     </form>
   )

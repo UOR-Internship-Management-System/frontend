@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
-import { Modal } from '../../../shared/components/overlays/Modal'
+import { Dialog, type DialogSize } from '../../../shared/components/overlays/Dialog'
+import { Menu, MenuItem } from '../../../shared/components/overlays/Menu'
 import { Button } from '../../../shared/components/ui/Button'
+import { IconButton } from '../../../shared/components/ui/IconButton'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { useCertificateEvidenceMutations } from '../hooks/useCertificateEvidenceMutations'
 import {
@@ -66,48 +68,133 @@ function useProfileSectionState(sort: string) {
 
 function EntryActions({
   disabled,
+  entryLabel,
+  extraItems,
   onDelete,
   onEdit,
 }: {
   disabled: boolean
+  entryLabel: string
+  extraItems?: (closeMenu: () => void) => ReactNode
   onDelete: () => void
   onEdit: () => void
 }) {
+  const [isOpen, setIsOpen] = useState(false)
+  return (
+    <div className="profile-entry-actions-row">
+      <IconButton
+        aria-label={`Actions for ${entryLabel}`}
+        disabled={disabled}
+        icon={<span className="material-symbols-outlined" aria-hidden="true">more_vert</span>}
+        onClick={() => setIsOpen((current) => !current)}
+        onMouseDown={(event) => event.stopPropagation()}
+        size="sm"
+      />
+      <Menu
+        aria-label={`Actions for ${entryLabel}`}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+      >
+        <MenuItem
+          icon={<span className="material-symbols-outlined" aria-hidden="true">edit</span>}
+          onClick={() => {
+            setIsOpen(false)
+            onEdit()
+          }}
+        >
+          Edit
+        </MenuItem>
+        {extraItems?.(() => setIsOpen(false))}
+        <MenuItem
+          destructive
+          icon={<span className="material-symbols-outlined" aria-hidden="true">delete</span>}
+          onClick={() => {
+            setIsOpen(false)
+            onDelete()
+          }}
+        >
+          Delete
+        </MenuItem>
+      </Menu>
+    </div>
+  )
+}
+
+function ProfileEditorDialog({
+  children,
+  closeDisabled,
+  onClose,
+  size,
+  title,
+}: {
+  children: (controls: {
+    onCancel: () => void
+    onDirtyChange: (isDirty: boolean) => void
+  }) => ReactNode
+  closeDisabled: boolean
+  onClose: () => void
+  size: DialogSize
+  title: string
+}) {
+  const [isDirty, setIsDirty] = useState(false)
+  const [isDiscardOpen, setIsDiscardOpen] = useState(false)
+  const requestClose = () => {
+    if (isDirty) setIsDiscardOpen(true)
+    else onClose()
+  }
+
   return (
     <>
-      <Button disabled={disabled} onClick={onEdit} variant="secondary">
-        Edit
-      </Button>
-      <Button disabled={disabled} onClick={onDelete} variant="secondary">
-        Delete
-      </Button>
+      <Dialog
+        adaptiveFullscreen
+        closeDisabled={closeDisabled}
+        closeOnBackdrop={false}
+        isOpen
+        onClose={requestClose}
+        size={size}
+        title={title}
+      >
+        {children({ onCancel: requestClose, onDirtyChange: setIsDirty })}
+      </Dialog>
+      {isDiscardOpen ? (
+        <ConfirmDialog onClose={() => setIsDiscardOpen(false)} title="Discard unsaved changes?">
+          <p>Your changes in this editor will be lost.</p>
+          <div className="modal-actions">
+            <Button onClick={() => setIsDiscardOpen(false)} variant="secondary">
+              Keep editing
+            </Button>
+            <Button onClick={onClose}>Discard changes</Button>
+          </div>
+        </ConfirmDialog>
+      ) : null}
     </>
   )
 }
 
 function DeleteDialog({
   entryName,
+  itemTitle,
   isPending,
   onCancel,
   onConfirm,
 }: {
   entryName: string
+  itemTitle: string
   isPending: boolean
   onCancel: () => void
   onConfirm: () => void
 }) {
   return (
-    <ConfirmDialog closeDisabled={isPending} onClose={onCancel} title="Confirm Deletion">
+    <ConfirmDialog closeDisabled={isPending} onClose={onCancel} title={`Remove ${entryName}`}>
       <p>
-        This permanently removes this {entryName.toLowerCase()} from your profile. This action
-        cannot be undone.
+        “{itemTitle}” will be permanently removed from your profile. This action cannot be undone.
       </p>
       <div className="modal-actions">
-        <Button disabled={isPending} onClick={onCancel} variant="secondary">
+        <Button disabled={isPending} onClick={onCancel} variant="outlined">
           Cancel
         </Button>
-        <Button isLoading={isPending} onClick={onConfirm}>
-          Delete {entryName}
+        <Button isLoading={isPending} onClick={onConfirm} variant="danger">
+          Remove {entryName}
         </Button>
       </div>
     </ConfirmDialog>
@@ -177,7 +264,7 @@ export function ProfessionalLinksSection() {
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Professional Link"
+        addAriaLabel="Add professional link"
         addLabel="Add"
         description="Add safe links to professional profiles and portfolio sites."
         error={query.isError ? query.error : null}
@@ -188,16 +275,16 @@ export function ProfessionalLinksSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Professional Links"
+        savedTitle="Saved professional links"
         search={state.search}
         searchLabel="Search professional links"
-        title="Professional Links"
+        title="Professional links"
       >
         {items.length === 0 ? (
           <ProfileCollectionEmpty
             onAdd={() => setEditing('new')}
             search={state.search}
-            title="Professional Links"
+            title="Professional links"
           />
         ) : (
           <div className="profile-entry-list">
@@ -206,6 +293,7 @@ export function ProfessionalLinksSection() {
                 actions={
                   <EntryActions
                     disabled={pending}
+                    entryLabel={item.label}
                     onDelete={() => setDeleting(item)}
                     onEdit={() => setEditing(item)}
                   />
@@ -224,22 +312,27 @@ export function ProfessionalLinksSection() {
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Professional Link' : 'Edit Professional Link'}
+          size="medium"
+          title={editing === 'new' ? 'Add professional link' : 'Edit professional link'}
         >
-          <ContactLinkEditor
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <ContactLinkEditor
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Professional Link"
+          entryName="professional link"
+          itemTitle={deleting.label}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -285,7 +378,7 @@ export function EducationSection() {
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Education"
+        addAriaLabel="Add education"
         addLabel="Add"
         description="Record your academic history, from school through ongoing programs."
         error={query.isError ? query.error : null}
@@ -296,13 +389,17 @@ export function EducationSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Education"
+        savedTitle="Saved education"
         search={state.search}
         searchLabel="Search education entries"
         title="Education"
       >
         {items.length === 0 ? (
-          <ProfileCollectionEmpty onAdd={() => setEditing('new')} search={state.search} title="Education" />
+          <ProfileCollectionEmpty
+            onAdd={() => setEditing('new')}
+            search={state.search}
+            title="Education"
+          />
         ) : (
           <div className="profile-entry-list">
             {items.map((item) => (
@@ -310,13 +407,14 @@ export function EducationSection() {
                 actions={
                   <EntryActions
                     disabled={pending}
+                    entryLabel={item.degree}
                     onDelete={() => setDeleting(item)}
                     onEdit={() => setEditing(item)}
                   />
                 }
                 cvInclude={item.cvInclude}
                 key={item.id}
-                subtitle={`${item.institution}${item.location ? ` · ${item.location}` : ''}${item.startDate ? ` · ${item.startDate} – ${item.current ? 'Present' : item.endDate ?? ''}` : ''}`}
+                subtitle={`${item.institution}${item.location ? ` · ${item.location}` : ''}${item.startDate ? ` · ${item.startDate} – ${item.current ? 'Present' : (item.endDate ?? '')}` : ''}`}
                 title={item.degree}
               >
                 {item.resultNote ? <p>{item.resultNote}</p> : null}
@@ -326,22 +424,27 @@ export function EducationSection() {
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Education' : 'Edit Education'}
+          size="large"
+          title={editing === 'new' ? 'Add education' : 'Edit education'}
         >
-          <EducationEditor
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <EducationEditor
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Education entry"
+          entryName="education entry"
+          itemTitle={deleting.degree}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -427,7 +530,7 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Certificate"
+        addAriaLabel="Add certificate"
         addLabel="Add"
         description="Record credentials and attach optional supporting evidence."
         error={query.isError ? query.error : null}
@@ -438,7 +541,7 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Certificates"
+        savedTitle="Saved certificates"
         search={state.search}
         searchLabel="Search certificates"
         title="Certificates"
@@ -454,22 +557,29 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
             {items.map((item) => (
               <ProfileEntryCard
                 actions={
-                  <>
-                    <EntryActions
-                      disabled={pending}
-                      onDelete={() => setDeleting(item)}
-                      onEdit={() => setEditing(item)}
-                    />
-                    {item.evidence ? (
-                      <Button
-                        disabled={pending}
-                        onClick={() => setRemovingEvidence(item)}
-                        variant="secondary"
-                      >
-                        Remove Evidence
-                      </Button>
-                    ) : null}
-                  </>
+                  <EntryActions
+                    disabled={pending}
+                    entryLabel={item.title}
+                    extraItems={(closeMenu) =>
+                      item.evidence ? (
+                        <MenuItem
+                          icon={
+                            <span className="material-symbols-outlined" aria-hidden="true">
+                              attach_file_off
+                            </span>
+                          }
+                          onClick={() => {
+                            closeMenu()
+                            setRemovingEvidence(item)
+                          }}
+                        >
+                          Remove evidence
+                        </MenuItem>
+                      ) : null
+                    }
+                    onDelete={() => setDeleting(item)}
+                    onEdit={() => setEditing(item)}
+                  />
                 }
                 cvInclude={item.cvInclude}
                 key={item.id}
@@ -498,23 +608,28 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Certificate' : 'Edit Certificate'}
+          size="large"
+          title={editing === 'new' ? 'Add certificate' : 'Edit certificate'}
         >
-          <CertificateEditor
-            evidencePolicy={evidencePolicy}
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <CertificateEditor
+              evidencePolicy={evidencePolicy}
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Certificate"
+          entryName="certificate"
+          itemTitle={deleting.title}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -524,9 +639,9 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
         <ConfirmDialog
           closeDisabled={evidenceMutations.remove.isPending}
           onClose={() => setRemovingEvidence(null)}
-          title="Remove Certificate Evidence"
+          title="Remove certificate evidence"
         >
-          <p>This removes only the supporting file. The Certificate remains saved.</p>
+          <p>This removes only the supporting file. The certificate remains saved.</p>
           <div className="modal-actions">
             <Button
               disabled={evidenceMutations.remove.isPending}
@@ -539,7 +654,7 @@ export function CertificatesSection({ evidencePolicy }: { evidencePolicy?: FileU
               isLoading={evidenceMutations.remove.isPending}
               onClick={() => void removeEvidence()}
             >
-              Remove Evidence
+              Remove evidence
             </Button>
           </div>
         </ConfirmDialog>
@@ -584,7 +699,7 @@ export function AwardsSection() {
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Award or Achievement"
+        addAriaLabel="Add award or achievement"
         addLabel="Add"
         description="Record awards, achievements, and recognitions."
         error={query.isError ? query.error : null}
@@ -595,10 +710,10 @@ export function AwardsSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Awards and Achievements"
+        savedTitle="Saved awards and achievements"
         search={state.search}
         searchLabel="Search awards and achievements"
-        title="Awards and Achievements"
+        title="Awards and achievements"
       >
         {items.length === 0 ? (
           <ProfileCollectionEmpty
@@ -613,6 +728,7 @@ export function AwardsSection() {
                 actions={
                   <EntryActions
                     disabled={pending}
+                    entryLabel={item.title}
                     onDelete={() => setDeleting(item)}
                     onEdit={() => setEditing(item)}
                   />
@@ -629,22 +745,27 @@ export function AwardsSection() {
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Award or Achievement' : 'Edit Award or Achievement'}
+          size="large"
+          title={editing === 'new' ? 'Add award or achievement' : 'Edit award or achievement'}
         >
-          <AwardEditor
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <AwardEditor
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Award or Achievement"
+          entryName="award or achievement"
+          itemTitle={deleting.title}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -690,7 +811,7 @@ export function ActivitiesSection() {
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Extracurricular Activity"
+        addAriaLabel="Add extracurricular activity"
         addLabel="Add"
         description="Record extracurricular, volunteer, and organizational roles."
         error={query.isError ? query.error : null}
@@ -701,10 +822,10 @@ export function ActivitiesSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Extracurricular Activities"
+        savedTitle="Saved extracurricular activities"
         search={state.search}
         searchLabel="Search extracurricular activities"
-        title="Extracurricular Activities"
+        title="Extracurricular activities"
       >
         {items.length === 0 ? (
           <ProfileCollectionEmpty
@@ -719,6 +840,7 @@ export function ActivitiesSection() {
                 actions={
                   <EntryActions
                     disabled={pending}
+                    entryLabel={item.activityName}
                     onDelete={() => setDeleting(item)}
                     onEdit={() => setEditing(item)}
                   />
@@ -735,24 +857,29 @@ export function ActivitiesSection() {
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
+          size="large"
           title={
-            editing === 'new' ? 'Add Extracurricular Activity' : 'Edit Extracurricular Activity'
+            editing === 'new' ? 'Add extracurricular activity' : 'Edit extracurricular activity'
           }
         >
-          <ActivityEditor
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <ActivityEditor
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Extracurricular Activity"
+          entryName="extracurricular activity"
+          itemTitle={deleting.activityName}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}
@@ -802,7 +929,7 @@ export function ExperienceSection() {
   return (
     <>
       <ProfileCollectionSection
-        addAriaLabel="Add Professional Experience"
+        addAriaLabel="Add professional experience"
         addLabel="Add"
         description="Record professional roles and responsibilities."
         error={query.isError ? query.error : null}
@@ -813,10 +940,10 @@ export function ExperienceSection() {
         onRetry={() => void query.refetch()}
         onSearchChange={state.setSearch}
         page={query.data?.page}
-        savedTitle="Saved Professional Experience"
+        savedTitle="Saved professional experience"
         search={state.search}
         searchLabel="Search professional experience"
-        title="Professional Experience"
+        title="Professional experience"
       >
         {items.length === 0 ? (
           <ProfileCollectionEmpty
@@ -831,6 +958,7 @@ export function ExperienceSection() {
                 actions={
                   <EntryActions
                     disabled={pending}
+                    entryLabel={item.positionTitle}
                     onDelete={() => setDeleting(item)}
                     onEdit={() => setEditing(item)}
                   />
@@ -847,22 +975,27 @@ export function ExperienceSection() {
         )}
       </ProfileCollectionSection>
       {editing ? (
-        <Modal
+        <ProfileEditorDialog
           closeDisabled={pending}
           onClose={() => setEditing(null)}
-          title={editing === 'new' ? 'Add Professional Experience' : 'Edit Professional Experience'}
+          size="large"
+          title={editing === 'new' ? 'Add professional experience' : 'Edit professional experience'}
         >
-          <ExperienceEditor
-            isPending={pending}
-            item={editing === 'new' ? undefined : editing}
-            onCancel={() => setEditing(null)}
-            onSubmit={save}
-          />
-        </Modal>
+          {({ onCancel, onDirtyChange }) => (
+            <ExperienceEditor
+              isPending={pending}
+              item={editing === 'new' ? undefined : editing}
+              onCancel={onCancel}
+              onDirtyChange={onDirtyChange}
+              onSubmit={save}
+            />
+          )}
+        </ProfileEditorDialog>
       ) : null}
       {deleting ? (
         <DeleteDialog
-          entryName="Professional Experience"
+          entryName="professional experience"
+          itemTitle={deleting.positionTitle}
           isPending={mutations.remove.isPending}
           onCancel={() => setDeleting(null)}
           onConfirm={() => void remove()}

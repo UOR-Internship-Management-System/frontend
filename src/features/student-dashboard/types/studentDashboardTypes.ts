@@ -5,10 +5,3 @@ export type StudentDashboardMetrics = {
   officialCumulativeGpa: number | null
   lastUpdatedAt: string
 }
-
-export type StudentMetricCardProps = {
-  label: string
-  value: string
-  description: string
-  icon: string
-}

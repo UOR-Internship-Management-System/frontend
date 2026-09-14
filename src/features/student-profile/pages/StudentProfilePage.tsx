@@ -1,7 +1,13 @@
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { StudentProfileSkeleton } from '../../../shared/skeletons'
+import { Button } from '../../../shared/components/ui/Button'
+import {
+  SkeletonCard,
+  SkeletonFormFields,
+  SkeletonPageHeader,
+  SkeletonStatusRegion,
+} from '../../../shared/skeletons'
 import { ProfileForm } from '../components/ProfileForm'
 import { ProfileIdentityCard } from '../components/ProfileIdentityCard'
 import {
@@ -20,7 +26,19 @@ export function StudentProfilePage() {
   const uploadPolicyQuery = useProfileUploadPolicy()
 
   if (profileQuery.isPending) {
-    return <StudentProfileSkeleton />
+    return (
+      <SkeletonStatusRegion className="content-stack profile-page" label="Loading form content">
+        <SkeletonPageHeader />
+        <div className="profile-layout">
+          <SkeletonCard>
+            <SkeletonFormFields count={4} />
+          </SkeletonCard>
+          <SkeletonCard title={false}>
+            <SkeletonFormFields columns={2} count={8} />
+          </SkeletonCard>
+        </div>
+      </SkeletonStatusRegion>
+    )
   }
 
   if (profileQuery.isError || !profileQuery.data) {
@@ -29,7 +47,6 @@ export function StudentProfilePage() {
       <article className="content-stack profile-page">
         <PageHeader
           description="Manage the profile details that you own."
-          eyebrow="Student profile"
           title="Profile"
         />
         <ErrorState
@@ -48,7 +65,6 @@ export function StudentProfilePage() {
     <article className="content-stack profile-page">
       <PageHeader
         description="Keep your Student-owned professional details current. Verified identity values remain read-only."
-        eyebrow="Student profile"
         title="Profile"
       />
       <div className="profile-layout">
@@ -64,13 +80,9 @@ export function StudentProfilePage() {
                 The upload policy is unavailable. Profile and supporting entries remain available,
                 but file controls are disabled.
               </p>
-              <button
-                className="link-button"
-                onClick={() => void uploadPolicyQuery.refetch()}
-                type="button"
-              >
+              <Button onClick={() => void uploadPolicyQuery.refetch()} variant="text">
                 Retry upload policy
-              </button>
+              </Button>
             </div>
           ) : null}
           <ProfessionalLinksSection />

@@ -1,8 +1,8 @@
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
+import { MetricCard } from '../../../shared/components/layout/MetricCard'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { StudentDashboardSkeleton } from '../../../shared/skeletons'
-import { StudentMetricCard } from '../components/StudentMetricCard'
+import { SkeletonMetricGrid, SkeletonPageHeader, SkeletonStatusRegion } from '../../../shared/skeletons'
 import { useStudentDashboard } from '../hooks/useStudentDashboard'
 
 const dashboardDateFormatter = new Intl.DateTimeFormat(undefined, {
@@ -18,7 +18,15 @@ export function StudentDashboardPage() {
   const dashboardQuery = useStudentDashboard()
 
   if (dashboardQuery.isPending) {
-    return <StudentDashboardSkeleton />
+    return (
+      <SkeletonStatusRegion
+        className="content-stack student-dashboard-page"
+        label="Loading student dashboard"
+      >
+        <SkeletonPageHeader />
+        <SkeletonMetricGrid count={4} />
+      </SkeletonStatusRegion>
+    )
   }
 
   if (dashboardQuery.isError || !dashboardQuery.data) {
@@ -28,8 +36,7 @@ export function StudentDashboardPage() {
       <article className="content-stack student-dashboard-page">
         <PageHeader
           description="Review your current CV-building and internship summary information."
-          eyebrow="Student workspace"
-          title="Student Dashboard"
+          title="Student dashboard"
         />
 
         <ErrorState
@@ -48,15 +55,14 @@ export function StudentDashboardPage() {
     <article className="content-stack student-dashboard-page">
       <PageHeader
         description="Review your current CV-building and internship summary information."
-        eyebrow="Student workspace"
-        title="Student Dashboard"
+        title="Student dashboard"
       />
 
       <section
         aria-labelledby="student-dashboard-welcome-title"
-        className="section-card student-dashboard-welcome"
+        className="card m3-card m3-card--filled section-card student-dashboard-welcome"
       >
-        <div>
+        <div className="student-dashboard-welcome-copy">
           <p className="student-dashboard-kicker">Your professional profile at a glance</p>
 
           <h2 id="student-dashboard-welcome-title">Keep your information current</h2>
@@ -79,7 +85,7 @@ export function StudentDashboardPage() {
         <div className="student-dashboard-summary-header">
           <div>
             <h2 id="student-dashboard-summary-title">Current summary</h2>
-            <p>Values are loaded from the Student dashboard API contract.</p>
+            <p>Your latest saved profile and department-managed records.</p>
           </div>
 
           <p className="student-dashboard-updated-at">
@@ -91,31 +97,51 @@ export function StudentDashboardPage() {
         </div>
 
         <div className="student-dashboard-metrics-grid">
-          <StudentMetricCard
+          <MetricCard
             description="Student-owned portfolio entries available for your CV."
-            icon="folder_copy"
+            icon={
+              <span aria-hidden="true" className="material-symbols-outlined">
+                folder_copy
+              </span>
+            }
             label="Portfolio projects"
+            tone="primary"
             value={metrics.projectCount.toLocaleString()}
           />
 
-          <StudentMetricCard
+          <MetricCard
             description="Skills you selected from the developer-managed taxonomy."
-            icon="psychology"
+            icon={
+              <span aria-hidden="true" className="material-symbols-outlined">
+                psychology
+              </span>
+            }
             label="Declared skills"
+            tone="tertiary"
             value={metrics.declaredSkillCount.toLocaleString()}
           />
 
-          <StudentMetricCard
+          <MetricCard
             description="Internships where you are included in an Admin-managed shortlist."
-            icon="work_history"
+            icon={
+              <span aria-hidden="true" className="material-symbols-outlined">
+                work_history
+              </span>
+            }
             label="Shortlisted internships"
+            tone="secondary"
             value={metrics.shortlistedInternshipCount.toLocaleString()}
           />
 
-          <StudentMetricCard
+          <MetricCard
             description="Official GPA derived from the latest committed academic records."
-            icon="school"
+            icon={
+              <span aria-hidden="true" className="material-symbols-outlined">
+                school
+              </span>
+            }
             label="Official cumulative GPA"
+            tone="primary"
             value={formatOfficialGpa(metrics.officialCumulativeGpa)}
           />
         </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { mapEducationRequest } from '../mappers/profileEntryMappers'
 import { educationFormSchema } from '../schemas/profileEntrySchemas'
 import type { Education, EducationRequest } from '../types/profileEntryTypes'
@@ -13,11 +13,13 @@ export function EducationEditor({
   isPending,
   item,
   onCancel,
+  onDirtyChange,
   onSubmit,
 }: {
   isPending: boolean
   item?: Education
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (values: EducationRequest) => Promise<void>
 }) {
   const [values, setValues] = useState({
@@ -47,102 +49,94 @@ export function EducationEditor({
     }
   }
   return (
-    <form className="profile-editor-form" noValidate onSubmit={submit}>
+    <form
+      className="profile-editor-form"
+      noValidate
+      onChange={() => onDirtyChange?.(true)}
+      onSubmit={submit}
+    >
       {error ? (
         <div className="inline-alert" role="alert">
           {error}
         </div>
       ) : null}
-      <FormField htmlFor="education-degree" label="Degree / Field of Study / Exchange Semester">
-        <TextInput
-          id="education-degree"
+      <TextField
+        id="education-degree"
+        label="Degree, field of study, or exchange semester"
+        maxLength={200}
+        onChange={(event) => setValues({ ...values, degree: event.target.value })}
+        placeholder="Enter degree, field of study, or exchange semester"
+        required
+        value={values.degree}
+      />
+      <div className="profile-editor-grid">
+        <TextField
+          id="education-institution"
+          label="School or university"
           maxLength={200}
-          onChange={(event) => setValues({ ...values, degree: event.target.value })}
-          placeholder="Enter Degree / Field Of Study / Exchange Semester"
+          onChange={(event) => setValues({ ...values, institution: event.target.value })}
+          placeholder="Enter school / university"
           required
-          value={values.degree}
+          value={values.institution}
         />
-      </FormField>
-      <div className="profile-editor-grid">
-        <FormField htmlFor="education-institution" label="School / University">
-          <TextInput
-            id="education-institution"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, institution: event.target.value })}
-            placeholder="Enter school / university"
-            required
-            value={values.institution}
-          />
-        </FormField>
-        <FormField htmlFor="education-institution-url" label="Institution Link (optional)">
-          <TextInput
-            id="education-institution-url"
-            onChange={(event) => setValues({ ...values, institutionUrl: event.target.value })}
-            placeholder="https://"
-            type="url"
-            value={values.institutionUrl}
-          />
-        </FormField>
+        <TextField
+          id="education-institution-url"
+          label="Institution link (optional)"
+          onChange={(event) => setValues({ ...values, institutionUrl: event.target.value })}
+          placeholder="https://"
+          type="url"
+          value={values.institutionUrl}
+        />
       </div>
       <div className="profile-editor-grid">
-        <FormField htmlFor="education-start" label="Start Date">
-          <TextInput
-            id="education-start"
-            onChange={(event) => setValues({ ...values, startDate: event.target.value })}
-            type="month"
-            value={values.startDate}
-          />
-        </FormField>
-        <FormField htmlFor="education-end" label="End Date">
-          <TextInput
-            disabled={values.current}
-            id="education-end"
-            onChange={(event) => setValues({ ...values, endDate: event.target.value })}
-            type="month"
-            value={values.current ? '' : values.endDate}
-          />
-        </FormField>
-        <FormField htmlFor="education-location" label="Location">
-          <TextInput
-            id="education-location"
-            maxLength={150}
-            onChange={(event) => setValues({ ...values, location: event.target.value })}
-            placeholder="City, Country"
-            value={values.location}
-          />
-        </FormField>
-      </div>
-      <label className="profile-checkbox">
-        <input
-          checked={values.current}
-          onChange={(event) =>
-            setValues({ ...values, current: event.target.checked, endDate: '' })
-          }
-          type="checkbox"
-        />{' '}
-        I am currently studying here
-      </label>
-      <FormField htmlFor="education-result" label="Result / GPA (optional)">
-        <TextInput
-          id="education-result"
-          maxLength={500}
-          onChange={(event) => setValues({ ...values, resultNote: event.target.value })}
-          placeholder="e.g. Current GPA - 3.74 / 4.00"
-          value={values.resultNote}
+        <TextField
+          id="education-start"
+          label="Start date"
+          onChange={(event) => setValues({ ...values, startDate: event.target.value })}
+          placeholder=" "
+          type="month"
+          value={values.startDate}
         />
-      </FormField>
-      <label className="profile-checkbox">
-        <input
-          checked={values.cvInclude}
-          onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
-          type="checkbox"
-        />{' '}
-        Include this Education entry in the CV
-      </label>
+        <TextField
+          disabled={values.current}
+          id="education-end"
+          label="End date"
+          onChange={(event) => setValues({ ...values, endDate: event.target.value })}
+          placeholder=" "
+          type="month"
+          value={values.current ? '' : values.endDate}
+        />
+        <TextField
+          id="education-location"
+          label="Location"
+          maxLength={150}
+          onChange={(event) => setValues({ ...values, location: event.target.value })}
+          placeholder="City, Country"
+          value={values.location}
+        />
+      </div>
+      <Checkbox
+        checked={values.current}
+        label="I am currently studying here"
+        onChange={(event) => setValues({ ...values, current: event.target.checked, endDate: '' })}
+      />
+      <TextField
+        id="education-result"
+        label="Result or GPA (optional)"
+        maxLength={500}
+        onChange={(event) => setValues({ ...values, resultNote: event.target.value })}
+        placeholder="e.g. Current GPA - 3.74 / 4.00"
+        value={values.resultNote}
+      />
+      <Checkbox
+        checked={values.cvInclude}
+        label="Include this education entry in the CV"
+        onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
+      />
       <ProfileEditorActions
         isPending={isPending}
         onCancel={onCancel}
-        submitLabel={item ? 'Save Education' : 'Add Education'}
+        submitLabel={item ? 'Save education' : 'Add education'}
       />
     </form>
   )
