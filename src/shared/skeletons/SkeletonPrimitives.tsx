@@ -134,3 +134,106 @@ export function SkeletonStatusRegion({
     </section>
   )
 }
+
+/** Bordered M3 card container shape — mirrors Card/CardHeader/CardContent. */
+export function SkeletonCard({
+  children,
+  className = '',
+  title = true,
+}: {
+  children?: ReactNode
+  className?: string
+  title?: boolean
+}) {
+  return (
+    <div aria-hidden="true" className={`skeleton-card-block ${className}`.trim()}>
+      {title ? (
+        <div className="skeleton-card-block-header">
+          <SkeletonShape height={20} width="42%" />
+        </div>
+      ) : null}
+      {children ? <div className="skeleton-card-block-content">{children}</div> : null}
+    </div>
+  )
+}
+
+/** A horizontal row of controls (search field + filter/select shapes). */
+export function SkeletonToolbar({ fields = 2 }: { fields?: number }) {
+  return (
+    <div aria-hidden="true" className="skeleton-toolbar-row">
+      <SkeletonShape height={44} radius="pill" width="min(280px, 100%)" />
+      {Array.from({ length: Math.max(0, fields - 1) }, (_, index) => (
+        <SkeletonShape height={44} key={index} radius="md" width={160} />
+      ))}
+    </div>
+  )
+}
+
+/** A list of row placeholders — covers item rows, cards, and directory rows alike. */
+export function SkeletonListRows({
+  count = 4,
+  showAvatar = false,
+  showActions = true,
+}: {
+  count?: number
+  showAvatar?: boolean
+  showActions?: boolean
+}) {
+  return (
+    <div aria-hidden="true" className="skeleton-list-rows">
+      {Array.from({ length: count }, (_, index) => (
+        <div className="skeleton-list-row" key={index}>
+          {showAvatar ? <SkeletonShape height={40} radius="circle" width={40} /> : null}
+          <div className="skeleton-list-row-copy">
+            <SkeletonShape height={16} width="46%" />
+            <SkeletonShape height={12} width="72%" />
+          </div>
+          {showActions ? (
+            <div className="skeleton-list-row-actions">
+              <SkeletonShape height={36} radius="pill" width={92} />
+              <SkeletonShape height={36} radius="pill" width={92} />
+            </div>
+          ) : null}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** A stack of labelled form-field shapes. */
+export function SkeletonFormFields({
+  columns = 1,
+  count = 4,
+}: {
+  columns?: number
+  count?: number
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className="skeleton-form-fields"
+      style={columns > 1 ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` } : undefined}
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <div className="skeleton-form-field" key={index}>
+          <SkeletonShape height={12} radius="pill" width="34%" />
+          <SkeletonShape height={44} radius="md" width="100%" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** A grid of stat/metric-card shapes, for dashboards. */
+export function SkeletonMetricGrid({ count = 4 }: { count?: number }) {
+  return (
+    <div aria-hidden="true" className="skeleton-metrics-grid">
+      {Array.from({ length: count }, (_, index) => (
+        <div className="skeleton-metric-card" key={index}>
+          <SkeletonShape height={14} width="50%" />
+          <SkeletonShape height={30} width="66%" />
+        </div>
+      ))}
+    </div>
+  )
+}
