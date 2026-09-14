@@ -12,9 +12,7 @@
   }
 }
 @media (max-width: 600px) {
-  .shortlists-page .page-header h1 {
-    font-size: 1.8rem;
-  }
+  /* .page-header h1 sizing now lives solely in material-theme.css's clamp() rule. */
   .shortlist-matrix-card,
   .modal-card-wide:has(.shortlist-modal-content) {
     padding: 24px;
@@ -180,6 +178,7 @@
 }
 .shortlist-outlined-button,
 .shortlist-filled-button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,10 +186,40 @@
   min-width: 160px;
   min-height: 40px;
   padding: 0 16px;
-  border-radius: 12px;
+  border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
+  isolation: isolate;
+  transition:
+    transform var(--md-spring-fast, 350ms cubic-bezier(0.34, 1.56, 0.64, 1)),
+    background-color var(--motion-duration-fast) var(--motion-standard),
+    border-color var(--motion-duration-fast) var(--motion-standard),
+    border-radius var(--md-spring-fast, 350ms cubic-bezier(0.34, 1.56, 0.64, 1)),
+    color var(--motion-duration-fast) var(--motion-standard);
+}
+
+.shortlist-outlined-button:active:not(:disabled),
+.shortlist-filled-button:active:not(:disabled) {
+  transform: scale(0.97);
+  border-radius: var(--md-sys-shape-corner-medium, 12px);
+}
+
+.shortlist-outlined-button::before,
+.shortlist-filled-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 100ms var(--motion-standard);
+}
+
+.shortlist-outlined-button:hover:not(:disabled)::before,
+.shortlist-filled-button:hover:not(:disabled)::before {
+  opacity: 0.08;
 }
 .shortlist-outlined-button {
   border: 1px solid var(--color-border);

@@ -5,8 +5,7 @@
   --space-4: 16px;
   --space-5: 20px;
   --space-6: 24px;
-  --font-size-xs: 0.75rem;
-  --font-size-lg: 1.125rem;
+  /* --font-size-xs/--font-size-lg now come from styles/tokens.css (M3 type scale aliases) */
 }
 
 /* Sprint 7–8 wireframe alignment.
@@ -1563,11 +1562,7 @@
 }
 
 @media (max-width: 760px) {
-  .internship-management-page .page-header h1,
-  .student-deep-dive-page .page-header h1,
-  .shortlists-page .page-header h1 {
-    font-size: 1.65rem;
-  }
+  /* .page-header h1 sizing now lives solely in material-theme.css's clamp() rule. */
 
   .student-deep-dive-page .section-card,
   .shortlists-page .section-card {
