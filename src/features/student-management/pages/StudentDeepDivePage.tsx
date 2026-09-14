@@ -5,7 +5,7 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { StudentDeepDiveSkeleton } from '../../../shared/skeletons/StudentDeepDiveSkeleton'
+import { SkeletonCard, SkeletonFormFields, SkeletonStatusRegion } from '../../../shared/skeletons'
 import { LatestSavedCvPanel } from '../components/LatestSavedCvPanel'
 import { ReadOnlyStudentProfile } from '../components/ReadOnlyStudentProfile'
 import { StudentDeepDiveSections } from '../components/StudentDeepDiveSections'
@@ -46,7 +46,7 @@ export function StudentDeepDivePage() {
     )
   }
 
-  if (deepDive.detail.isPending) return <StudentDeepDiveSkeleton />
+  if (deepDive.detail.isPending) return <StudentDeepDiveLoading />
 
   if (deepDive.detail.isError) {
     const error = mapApiError(deepDive.detail.error, 'protected')
@@ -66,43 +66,56 @@ export function StudentDeepDivePage() {
     )
   }
 
-  if (!deepDive.detail.data) return <StudentDeepDiveSkeleton />
+  if (!deepDive.detail.data) return <StudentDeepDiveLoading />
   const { profile, student, cvSupportingData } = deepDive.detail.data
 
   return (
-    <div className="content-stack student-deep-dive-page">
+    <div className="sdd-page">
       <PageHeader
         description={`Index Number: ${student.indexNumber} | Last Synchronized: Current Session`}
         title={student.fullName}
       />
-      <div className="student-deep-dive-layout">
-        <aside className="section-card student-identity-panel">
+      <div className="sdd-layout">
+        <aside className="sdd-identity-card">
           <StudentAvatar name={student.fullName} photoUrl={profile.profilePhoto?.url ?? null} />
-          <dl className="student-identity-details">
+          <dl className="sdd-identity-details">
             <IdentityDetail label="Degree Programme" value={student.degreeProgram} />
             <IdentityDetail label="Current Level" value={`Level ${student.currentLevel}`} />
             <IdentityDetail label="Batch" value={student.academicBatch} />
           </dl>
-          <div className="student-gpa-panel">
-            <span>Official Ledger CGPA</span>
-            <strong>
+          <div className="sdd-gpa-panel">
+            <span className="sdd-gpa-label">Official Ledger CGPA</span>
+            <strong className="sdd-gpa-value">
               {student.officialGpa === null ? 'Not available' : student.officialGpa.toFixed(2)}
             </strong>
-            <small>Computer Science courses only · derived from committed academic records</small>
+            <small className="sdd-gpa-caption">
+              Computer Science courses only · derived from committed academic records
+            </small>
           </div>
           <LatestSavedCvPanel latestCv={deepDive.latestCv} studentId={deepDive.studentId} />
         </aside>
-        <div className="student-deep-dive-content">
+        <div className="sdd-content">
           <ReadOnlyStudentProfile profile={profile} />
           <StudentDeepDiveSections deepDive={deepDive} supportingData={cvSupportingData} />
         </div>
       </div>
-      <footer className="student-deep-dive-footer">
+      <footer className="sdd-footer">
         <Link className="button button-secondary" to={routePaths.adminStudents}>
           Return to Student Roster
         </Link>
       </footer>
     </div>
+  )
+}
+
+function StudentDeepDiveLoading() {
+  return (
+    <SkeletonStatusRegion className="sdd-page" label="Loading student details">
+      <div className="sdd-layout">
+        <SkeletonCard className="sdd-identity-card"><SkeletonFormFields count={3} /></SkeletonCard>
+        <SkeletonCard className="sdd-content" title={false}><SkeletonFormFields count={6} /></SkeletonCard>
+      </div>
+    </SkeletonStatusRegion>
   )
 }
 
@@ -117,7 +130,7 @@ function IdentityDetail({ label, value }: { label: string; value: string }) {
 
 function StudentAvatar({ name, photoUrl }: { name: string; photoUrl: string | null }) {
   if (photoUrl)
-    return <img alt={`${name} profile`} className="student-identity-avatar" src={photoUrl} />
+    return <img alt={`${name} profile`} className="sdd-avatar" src={photoUrl} />
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -127,7 +140,7 @@ function StudentAvatar({ name, photoUrl }: { name: string; photoUrl: string | nu
   return (
     <div
       aria-label={`${name} initials`}
-      className="student-identity-avatar student-identity-initials"
+      className="sdd-avatar sdd-avatar--initials"
       role="img"
     >
       {initials || 'ST'}

@@ -1,3 +1,4 @@
+import { MetricCard } from '../../../shared/components/layout/MetricCard'
 import type { GpaSummaryView } from '../types/academicRecordTypes'
 
 export function GpaSummaryCards({ summary }: { summary: GpaSummaryView }) {
@@ -5,20 +6,21 @@ export function GpaSummaryCards({ summary }: { summary: GpaSummaryView }) {
 
   return (
     <div className="s5-records-gpa-summary" role={isAvailable ? undefined : 'status'}>
-      <div className="s5-records-gpa-icon" aria-hidden="true">
-        <span className="material-symbols-outlined">{isAvailable ? 'analytics' : 'info'}</span>
-      </div>
-      <div className="s5-records-gpa-meta">
-        <span className="s5-records-gpa-label">Computer Science GPA</span>
-        <strong className={`s5-records-gpa-score ${isAvailable ? '' : 'is-unavailable'}`.trim()}>
-          {isAvailable ? summary.gpaLabel : 'Not available'}
-        </strong>
-        {!isAvailable ? (
-          <p>
-            Your GPA will appear after official academic results are committed by the university.
-          </p>
-        ) : null}
-      </div>
+      <MetricCard
+        icon={
+          <span className="material-symbols-outlined" aria-hidden="true">
+            {isAvailable ? 'analytics' : 'info'}
+          </span>
+        }
+        label="Computer Science GPA"
+        tone={isAvailable ? 'primary' : 'neutral'}
+        value={isAvailable ? (summary.gpaLabel ?? '') : 'Not available'}
+      />
+      {!isAvailable ? (
+        <p className="s5-records-gpa-note">
+          Your GPA will appear after official academic results are committed by the university.
+        </p>
+      ) : null}
     </div>
   )
 }

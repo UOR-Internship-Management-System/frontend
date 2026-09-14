@@ -14,8 +14,8 @@ export function EligibleStudentsTable({
   onEdit: (student: EligibleStudent) => void
 }) {
   return (
-    <div className="table-responsive">
-      <table>
+    <div className="table-responsive es-table-wrapper">
+      <table className="es-table">
         <caption className="visually-hidden">Eligible student roster</caption>
         <thead>
           <tr>
@@ -30,24 +30,34 @@ export function EligibleStudentsTable({
         <tbody>
           {items.map((student) => (
             <tr key={student.id}>
-              <td data-label="Index Number">{student.indexNumber}</td>
+              <td data-label="Index Number">
+                <span className="es-index-number">{student.indexNumber}</span>
+              </td>
               <td data-label="Full Name">{student.fullName}</td>
-              <td data-label="University Email">{student.universityEmail}</td>
-              <td data-label="Level">{student.academicLevel}</td>
+              <td data-label="University Email">
+                <span className="es-email">{student.universityEmail}</span>
+              </td>
+              <td data-label="Level">Level {student.academicLevel}</td>
               <td data-label="Status">
                 <StatusBadge tone={student.registered ? 'success' : 'neutral'}>
                   {student.registered ? 'Registered' : 'Not registered'}
                 </StatusBadge>
               </td>
-              <td className="eligible-students-actions" data-label="Actions">
-                <Button disabled={disabled} onClick={() => onEdit(student)} variant="secondary">
+              <td className="es-actions" data-label="Actions">
+                <Button
+                  disabled={disabled}
+                  onClick={() => onEdit(student)}
+                  size="sm"
+                  variant="outlined"
+                >
                   Edit
                 </Button>
                 <Button
                   disabled={disabled || student.registered}
                   onClick={() => onDelete(student)}
+                  size="sm"
                   title={student.registered ? 'Registered students cannot be removed.' : undefined}
-                  variant="secondary"
+                  variant="danger"
                 >
                   Delete
                 </Button>

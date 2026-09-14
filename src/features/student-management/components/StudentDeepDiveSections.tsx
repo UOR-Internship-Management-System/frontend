@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import type {
   ApiActivityResponse,
@@ -9,11 +9,13 @@ import type {
   ApiProjectResponse,
 } from '../../../shared/api/generated/cvManagementApi.types'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
+import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
 import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
+import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import type { useStudentDeepDive } from '../hooks/useStudentDeepDive'
 
 type DeepDiveState = ReturnType<typeof useStudentDeepDive>
@@ -58,11 +60,11 @@ function DeclaredSkillsSection({ state }: { state: DeepDiveState['declaredSkills
         isPending={state.result.isPending}
         onRetry={() => void state.result.refetch()}
       >
-        <div className="deep-dive-skill-grid">
+        <div className="sdd-skill-grid">
           {data?.items.map((skill) => (
-            <article className="deep-dive-skill-card" key={skill.declaredSkillId}>
+            <article className="sdd-item-card" key={skill.declaredSkillId}>
               <strong>{skill.skillName}</strong>
-              <span>{formatEnum(skill.competencyLevel)} competency</span>
+              <span className="sdd-skill-competency">{formatEnum(skill.competencyLevel)} competency</span>
               <StatusBadge tone="neutral">Declared skill</StatusBadge>
             </article>
           ))}
@@ -103,7 +105,7 @@ function ProjectsSection({ state }: { state: DeepDiveState['projects'] }) {
         isPending={state.result.isPending}
         onRetry={() => void state.result.refetch()}
       >
-        <div className="deep-dive-record-list">
+        <div className="sdd-record-list">
           {data?.items.map((project) => (
             <ProjectCard key={project.projectId} project={project} />
           ))}
@@ -125,8 +127,8 @@ function ProjectsSection({ state }: { state: DeepDiveState['projects'] }) {
 
 function ProjectCard({ project }: { project: ApiProjectResponse }) {
   return (
-    <article className="deep-dive-record-card">
-      <div className="deep-dive-record-heading">
+    <article className="sdd-item-card">
+      <div className="sdd-record-heading">
         <div>
           <h3>{project.title}</h3>
           <p>{formatDateRange(project.startDate, project.endDate)}</p>
@@ -135,14 +137,14 @@ function ProjectCard({ project }: { project: ApiProjectResponse }) {
       </div>
       <p>{project.description || 'No project description provided.'}</p>
       {project.skills.length > 0 ? (
-        <ul aria-label={`${project.title} skills`} className="deep-dive-chip-list">
+        <ul aria-label={`${project.title} skills`} className="sdd-chip-list">
           {project.skills.map((skill) => (
             <li key={skill.skillId}>{skill.name}</li>
           ))}
         </ul>
       ) : null}
       {project.repositoryUrl || project.demoUrl ? (
-        <div className="deep-dive-link-row">
+        <div className="sdd-link-row">
           {project.repositoryUrl ? (
             <SafeExternalLink href={project.repositoryUrl}>Repository</SafeExternalLink>
           ) : null}
@@ -176,7 +178,7 @@ function AcademicRecordsSection({ state }: { state: DeepDiveState['academicRecor
         isPending={state.result.isPending}
         onRetry={() => void state.result.refetch()}
       >
-        <div className="table-responsive deep-dive-academic-table">
+        <div className="table-responsive sdd-academic-table">
           <table>
             <caption className="visually-hidden">Committed official academic records</caption>
             <thead>
@@ -225,8 +227,8 @@ function ExperienceSection({ items }: { items: ApiExperienceResponse[] }) {
       title="Work Experience"
     >
       {(experience) => (
-        <article className="deep-dive-record-card" key={experience.id}>
-          <div className="deep-dive-record-heading">
+        <article className="sdd-item-card" key={experience.id}>
+          <div className="sdd-record-heading">
             <div>
               <h3>{experience.positionTitle}</h3>
               <p>
@@ -236,7 +238,7 @@ function ExperienceSection({ items }: { items: ApiExperienceResponse[] }) {
             </div>
             {experience.currentRole ? <StatusBadge tone="success">Current role</StatusBadge> : null}
           </div>
-          <p className="deep-dive-record-period">
+          <p className="sdd-record-period">
             {formatDateRange(experience.startDate, experience.endDate, experience.currentRole)}
           </p>
           {experience.description ? <p>{experience.description}</p> : null}
@@ -255,8 +257,8 @@ function CertificateSection({ items }: { items: ApiCertificateResponse[] }) {
       title="Credentials & Certifications"
     >
       {(certificate) => (
-        <article className="deep-dive-record-card" key={certificate.id}>
-          <div className="deep-dive-record-heading">
+        <article className="sdd-item-card" key={certificate.id}>
+          <div className="sdd-record-heading">
             <div>
               <h3>{certificate.title}</h3>
               <p>
@@ -264,7 +266,7 @@ function CertificateSection({ items }: { items: ApiCertificateResponse[] }) {
               </p>
             </div>
           </div>
-          <div className="deep-dive-link-row">
+          <div className="sdd-link-row">
             {certificate.credentialUrl ? (
               <SafeExternalLink href={certificate.credentialUrl}>
                 Credential reference
@@ -291,8 +293,8 @@ function AwardSection({ items }: { items: ApiAwardResponse[] }) {
       title="Awards & Achievements"
     >
       {(award) => (
-        <article className="deep-dive-record-card" key={award.id}>
-          <div className="deep-dive-record-heading">
+        <article className="sdd-item-card" key={award.id}>
+          <div className="sdd-record-heading">
             <div>
               <h3>{award.title}</h3>
               <p>
@@ -316,8 +318,8 @@ function ActivitySection({ items }: { items: ApiActivityResponse[] }) {
       title="Extracurricular Activities"
     >
       {(activity) => (
-        <article className="deep-dive-record-card" key={activity.id}>
-          <div className="deep-dive-record-heading">
+        <article className="sdd-item-card" key={activity.id}>
+          <div className="sdd-record-heading">
             <div>
               <h3>{activity.activityName}</h3>
               <p>
@@ -350,7 +352,7 @@ function SupportingSection<T>({
       {items.length === 0 ? (
         <EmptyState message={emptyMessage} />
       ) : (
-        <div className="deep-dive-record-list">{items.map(children)}</div>
+        <div className="sdd-record-list">{items.map(children)}</div>
       )}
     </DeepDiveSection>
   )
@@ -368,13 +370,13 @@ function DeepDiveSection({
   title: string
 }) {
   return (
-    <SectionCard aria-labelledby={`${id}-title`} className="deep-dive-section" id={id}>
-      <header className="deep-dive-section-heading">
+    <SectionCard aria-labelledby={`${id}-title`} className="sdd-section-card" id={id}>
+      <header className="sdd-section-heading">
         <h2 id={`${id}-title`}>{title}</h2>
-        <div className="deep-dive-heading-meta">
-          <span className="read-only-indicator">Read only</span>
+        <div className="sdd-heading-meta">
+          <span className="sdd-read-only">Read only</span>
           {count !== undefined ? (
-            <span className="deep-dive-count">
+            <span className="sdd-count">
               {count} {count === 1 ? 'record' : 'records'}
             </span>
           ) : null}
@@ -406,13 +408,13 @@ function SectionQueryState({
   if (isError) {
     const mapped = mapApiError(error, 'protected')
     return (
-      <div className="deep-dive-section-error" role="alert">
-        <strong>Unable to load this section</strong>
-        <p>{mapped.message}</p>
-        <button className="button button-secondary" onClick={onRetry} type="button">
-          Try again
-        </button>
-      </div>
+      <ErrorState
+        actionLabel="Try again"
+        correlationId={mapped.correlationId}
+        message={mapped.message}
+        onAction={onRetry}
+        title="Unable to load this section"
+      />
     )
   }
   if (empty) return <EmptyState message={emptyMessage} />
@@ -429,35 +431,24 @@ function CollectionSearch({
   value: string
 }) {
   const [input, setInput] = useState(value)
-  useEffect(() => setInput(value), [value])
-  function submit(event: FormEvent) {
-    event.preventDefault()
-    onSearch(input.trim().slice(0, 120))
-  }
+  const debouncedInput = useDebouncedValue(input)
+  const onSearchRef = useRef(onSearch)
+  onSearchRef.current = onSearch
+
+  useEffect(() => { setInput(value) }, [value])
+
+  useEffect(() => {
+    onSearchRef.current(debouncedInput.trim().slice(0, 120))
+  }, [debouncedInput])
+
   return (
-    <form className="deep-dive-search" onSubmit={submit}>
-      <SearchInput
-        aria-label={label}
-        onChange={(event) => setInput(event.target.value)}
-        placeholder={label}
-        value={input}
-      />
-      <button className="button button-secondary" type="submit">
-        Search
-      </button>
-      {value ? (
-        <button
-          className="button button-secondary"
-          onClick={() => {
-            setInput('')
-            onSearch('')
-          }}
-          type="button"
-        >
-          Clear
-        </button>
-      ) : null}
-    </form>
+    <SearchBar
+      aria-label={label}
+      onChange={(e) => setInput(e.target.value)}
+      onClear={() => { setInput(''); onSearch('') }}
+      placeholder={label}
+      value={input}
+    />
   )
 }
 

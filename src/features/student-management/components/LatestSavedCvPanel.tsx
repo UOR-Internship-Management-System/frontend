@@ -21,7 +21,7 @@ export function LatestSavedCvPanel({
   const download = useAdminLatestCvDownload(studentId)
   if (latestCv.isPending) {
     return (
-      <div aria-label="Loading latest saved CV" className="deep-dive-cv-panel" role="status">
+      <div aria-label="Loading latest saved CV" className="sdd-cv-panel" role="status">
         <SkeletonBlock decorative lines={3} variant="inline" />
       </div>
     )
@@ -42,8 +42,8 @@ export function LatestSavedCvPanel({
 
   if (!latestCv.data || latestCv.data.availability === 'NOT_SAVED') {
     return (
-      <div className="deep-dive-cv-panel">
-        <div className="deep-dive-cv-heading">
+      <div className="sdd-cv-panel">
+        <div className="sdd-cv-heading">
           <strong>Latest saved CV</strong>
           <StatusBadge tone="neutral">Not saved</StatusBadge>
         </div>
@@ -54,14 +54,14 @@ export function LatestSavedCvPanel({
 
   const cv = latestCv.data
   return (
-    <div className="deep-dive-cv-panel">
-      <div className="deep-dive-cv-heading">
+    <div className="sdd-cv-panel">
+      <div className="sdd-cv-heading">
         <strong>Latest saved CV</strong>
         <StatusBadge tone={cv.freshnessStatus === 'CURRENT' ? 'success' : 'neutral'}>
           {cv.freshnessStatus === 'CURRENT' ? 'Current' : 'Outdated'}
         </StatusBadge>
       </div>
-      <dl className="deep-dive-cv-metadata">
+      <dl className="sdd-cv-metadata">
         <div>
           <dt>Revision</dt>
           <dd>{cv.revision}</dd>
@@ -83,16 +83,16 @@ export function LatestSavedCvPanel({
           <dd>{formatFileSize(cv.fileSizeBytes)}</dd>
         </div>
       </dl>
-      <Button isLoading={download.isPending} onClick={() => download.mutate()} variant="secondary">
+      <Button isLoading={download.isPending} onClick={() => download.mutate()} variant="tonal">
         Download latest CV
       </Button>
       {download.isError ? (
-        <p className="deep-dive-download-message is-error" role="alert">
+        <p className="sdd-cv-download-message is-error" role="alert">
           {getAdminCvDownloadErrorMessage(download.error)}
         </p>
       ) : null}
       {download.isSuccess ? (
-        <p aria-live="polite" className="deep-dive-download-message is-success">
+        <p aria-live="polite" className="sdd-cv-download-message is-success">
           Download started: {download.data.filename}
         </p>
       ) : null}
