@@ -1,3 +1,4 @@
+import { List, ListItem } from '../../../shared/components/ui/List'
 import { Button } from '../../../shared/components/ui/Button'
 import type { InternshipRequest } from '../types/internshipManagementTypes'
 
@@ -11,42 +12,49 @@ export function InternshipRequestTable({
   requests: InternshipRequest[]
 }) {
   return (
-    <div aria-label="Internship request directory" className="wireframe-row-list" role="list">
+    <List aria-label="Internship request directory" className="im-list">
       {requests.map((request) => (
-        <article className="wireframe-management-row" key={request.requestId} role="listitem">
-          <div className="wireframe-row-meta">
-            <h3>{request.title}</h3>
-            <p>
-              Shortlist guidance:{' '}
-              {request.shortlistGuidanceValue === null
-                ? 'Not set'
-                : `${request.shortlistGuidanceValue} candidates`}{' '}
-              · Advisory only
-            </p>
-            <p>
-              Required skills:{' '}
-              {request.requiredSkills.map((skill) => skill.skillName).join(', ') || 'None'}
-            </p>
-          </div>
-          <div className="wireframe-row-actions">
-            <Button
-              icon={<span className="material-symbols-outlined">visibility</span>}
-              onClick={() => onSelect(request.requestId)}
-              variant="secondary"
-            >
-              View Details
-            </Button>
-            <Button
-              className="wireframe-danger-button"
-              icon={<span className="material-symbols-outlined">delete_sweep</span>}
-              onClick={() => onDelete(request.requestId)}
-              variant="secondary"
-            >
-              Delete Internship Request
-            </Button>
-          </div>
-        </article>
+        <ListItem
+          className="im-row"
+          headline={<span className="im-row-title">{request.title}</span>}
+          key={request.requestId}
+          supportingText={
+            <>
+              <span className="im-row-line">
+                Shortlist guidance:{' '}
+                {request.shortlistGuidanceValue === null
+                  ? 'Not set'
+                  : `${request.shortlistGuidanceValue} candidates`}{' '}
+                · Advisory only
+              </span>
+              <span className="im-row-line">
+                Required skills:{' '}
+                {request.requiredSkills.map((skill) => skill.skillName).join(', ') || 'None'}
+              </span>
+            </>
+          }
+          trailing={
+            <div className="im-row-actions">
+              <Button
+                icon={<span className="material-symbols-outlined">visibility</span>}
+                onClick={() => onSelect(request.requestId)}
+                size="sm"
+                variant="outlined"
+              >
+                View Details
+              </Button>
+              <Button
+                icon={<span className="material-symbols-outlined">delete_sweep</span>}
+                onClick={() => onDelete(request.requestId)}
+                size="sm"
+                variant="danger"
+              >
+                Delete Internship Request
+              </Button>
+            </div>
+          }
+        />
       ))}
-    </div>
+    </List>
   )
 }

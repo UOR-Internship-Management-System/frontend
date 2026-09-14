@@ -15,8 +15,8 @@ export function CompanyDetailsModal({
 }) {
   return (
     <Modal onClose={onClose} title="Company Details">
-      <dl className="wireframe-details-grid">
-        <div className="wireframe-details-wide">
+      <dl className="im-details-grid">
+        <div className="im-details-wide">
           <dt>Company Name</dt>
           <dd>{company.name}</dd>
         </div>
@@ -50,16 +50,16 @@ export function CompanyDetailsModal({
           <dt>Phone Number</dt>
           <dd>{company.contactPhone ?? 'Not provided'}</dd>
         </div>
-        <div className="wireframe-details-wide">
+        <div className="im-details-wide">
           <dt>Internal Notes</dt>
           <dd>{company.notes ?? 'Not provided'}</dd>
         </div>
       </dl>
       <div className="modal-actions">
-        <Button onClick={onClose} variant="secondary">
+        <Button onClick={onClose} variant="outlined">
           Close
         </Button>
-        <Button className="wireframe-danger-button" onClick={onDelete} variant="secondary">
+        <Button onClick={onDelete} variant="danger">
           Delete Company
         </Button>
         <Button icon={<span className="material-symbols-outlined">edit</span>} onClick={onEdit}>

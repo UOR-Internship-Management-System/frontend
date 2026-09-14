@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { companyFormSchema } from '../schemas/internshipSchemas'
@@ -103,7 +103,7 @@ export function CompanyForm({
       onClose={onCancel}
       title={mode === 'create' ? 'Create Company' : 'Edit Company'}
     >
-      <form className="company-form" noValidate onSubmit={submit}>
+      <form className="im-form" noValidate onSubmit={submit}>
         {formError ? (
           <div className="inline-alert" role="alert">
             <p>{formError}</p>
@@ -111,126 +111,89 @@ export function CompanyForm({
           </div>
         ) : null}
 
-        <FormField
+        <TextField
           error={errors.name}
-          errorId="company-name-error"
-          htmlFor="company-name"
+          id="company-name"
           label="Company Name"
-        >
-          <TextInput
-            aria-describedby={describedBy('name')}
-            aria-invalid={Boolean(errors.name)}
-            autoComplete="organization"
-            disabled={isPending}
-            id="company-name"
-            maxLength={200}
-            onChange={(event) => update('name', event.target.value)}
-            placeholder="e.g., WSO2 Lanka (Pvt) Ltd"
-            ref={nameRef}
-            value={values.name}
-          />
-        </FormField>
+          autoComplete="organization"
+          disabled={isPending}
+          maxLength={200}
+          onChange={(event) => update('name', event.target.value)}
+          placeholder="e.g., WSO2 Lanka (Pvt) Ltd"
+          ref={nameRef}
+          value={values.name}
+          aria-describedby={describedBy('name')}
+        />
 
-        <FormField
+        <TextField
           error={errors.websiteUrl}
-          errorId="company-websiteUrl-error"
-          htmlFor="company-website"
+          id="company-website"
           label="Website"
-        >
-          <TextInput
-            aria-describedby={describedBy('websiteUrl')}
-            aria-invalid={Boolean(errors.websiteUrl)}
-            disabled={isPending}
-            id="company-website"
-            inputMode="url"
-            maxLength={500}
-            onChange={(event) => update('websiteUrl', event.target.value)}
-            placeholder="e.g., https://wso2.com"
-            type="url"
-            value={values.websiteUrl}
-          />
-        </FormField>
+          disabled={isPending}
+          inputMode="url"
+          maxLength={500}
+          onChange={(event) => update('websiteUrl', event.target.value)}
+          placeholder="e.g., https://wso2.com"
+          type="url"
+          value={values.websiteUrl}
+          aria-describedby={describedBy('websiteUrl')}
+        />
 
-        <div className="company-form-grid">
-          <FormField
+        <div className="im-form-grid">
+          <TextField
             error={errors.contactPerson}
-            errorId="company-contactPerson-error"
-            htmlFor="company-contact-person"
+            id="company-contact-person"
             label="HR Representative"
-          >
-            <TextInput
-              aria-describedby={describedBy('contactPerson')}
-              aria-invalid={Boolean(errors.contactPerson)}
-              autoComplete="name"
-              disabled={isPending}
-              id="company-contact-person"
-              maxLength={150}
-              onChange={(event) => update('contactPerson', event.target.value)}
-              placeholder="e.g., Jane Public"
-              value={values.contactPerson}
-            />
-          </FormField>
-          <FormField
+            autoComplete="name"
+            disabled={isPending}
+            maxLength={150}
+            onChange={(event) => update('contactPerson', event.target.value)}
+            placeholder="e.g., Jane Public"
+            value={values.contactPerson}
+            aria-describedby={describedBy('contactPerson')}
+          />
+          <TextField
             error={errors.contactEmail}
-            errorId="company-contactEmail-error"
-            htmlFor="company-contact-email"
+            id="company-contact-email"
             label="HR Email Address"
-          >
-            <TextInput
-              aria-describedby={describedBy('contactEmail')}
-              aria-invalid={Boolean(errors.contactEmail)}
-              autoComplete="email"
-              disabled={isPending}
-              id="company-contact-email"
-              maxLength={254}
-              onChange={(event) => update('contactEmail', event.target.value)}
-              placeholder="e.g., careers@corporate.com"
-              type="email"
-              value={values.contactEmail}
-            />
-          </FormField>
-          <FormField
+            autoComplete="email"
+            disabled={isPending}
+            maxLength={254}
+            onChange={(event) => update('contactEmail', event.target.value)}
+            placeholder="e.g., careers@corporate.com"
+            type="email"
+            value={values.contactEmail}
+            aria-describedby={describedBy('contactEmail')}
+          />
+          <TextField
             error={errors.contactPhone}
-            errorId="company-contactPhone-error"
-            htmlFor="company-contact-phone"
+            id="company-contact-phone"
             label="Phone Number"
-          >
-            <TextInput
-              aria-describedby={describedBy('contactPhone')}
-              aria-invalid={Boolean(errors.contactPhone)}
-              autoComplete="tel"
-              disabled={isPending}
-              id="company-contact-phone"
-              maxLength={30}
-              onChange={(event) => update('contactPhone', event.target.value)}
-              placeholder="e.g., +94 11 234 5678"
-              type="tel"
-              value={values.contactPhone}
-            />
-          </FormField>
+            autoComplete="tel"
+            disabled={isPending}
+            maxLength={30}
+            onChange={(event) => update('contactPhone', event.target.value)}
+            placeholder="e.g., +94 11 234 5678"
+            type="tel"
+            value={values.contactPhone}
+            aria-describedby={describedBy('contactPhone')}
+          />
         </div>
 
-        <FormField
+        <TextArea
           error={errors.notes}
-          errorId="company-notes-error"
-          htmlFor="company-notes"
+          id="company-notes"
           label="Internal Notes (Optional)"
-        >
-          <textarea
-            aria-describedby={describedBy('notes')}
-            aria-invalid={Boolean(errors.notes)}
-            className="input request-textarea"
-            disabled={isPending}
-            id="company-notes"
-            maxLength={4000}
-            onChange={(event) => update('notes', event.target.value)}
-            placeholder="Add internal context for department administrators"
-            value={values.notes}
-          />
-        </FormField>
+          disabled={isPending}
+          maxLength={4000}
+          onChange={(event) => update('notes', event.target.value)}
+          placeholder="Add internal context for department administrators"
+          value={values.notes}
+          aria-describedby={describedBy('notes')}
+        />
 
         <div className="modal-actions">
-          <Button disabled={isPending} onClick={onCancel} variant="secondary">
+          <Button disabled={isPending} onClick={onCancel} variant="outlined">
             Close
           </Button>
           <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">

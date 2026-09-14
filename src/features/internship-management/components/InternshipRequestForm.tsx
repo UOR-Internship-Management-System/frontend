@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
-import { Modal } from '../../../shared/components/overlays/Modal'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
+import { Dialog } from '../../../shared/components/overlays/Dialog'
 import { Button } from '../../../shared/components/ui/Button'
 import { internshipRequestFormValuesSchema } from '../schemas/internshipSchemas'
 import type {
@@ -121,13 +121,15 @@ export function InternshipRequestForm({
   }
 
   return (
-    <Modal
-      className="internship-request-modal"
+    <Dialog
+      adaptiveFullscreen
       closeDisabled={pending}
+      isOpen
       onClose={onCancel}
+      size="large"
       title={mode === 'create' ? 'Create Internship Request' : 'Edit Internship Request'}
     >
-      <form className="internship-request-form wireframe-request-form" noValidate onSubmit={submit}>
+      <form className="im-form im-request-form" noValidate onSubmit={submit}>
         {formError ? (
           <div className="inline-alert" role="alert">
             <p>{formError}</p>
@@ -135,74 +137,51 @@ export function InternshipRequestForm({
           </div>
         ) : null}
 
-        <section className="request-form-section" aria-labelledby="request-role-heading">
-          <div className="request-form-section-heading">
+        <section className="im-form-section" aria-labelledby="request-role-heading">
+          <div className="im-form-section-heading">
             <h3 id="request-role-heading">Role details</h3>
             <p>Define the role details for the selected company.</p>
           </div>
-          <FormField
+          <TextField
             error={errors.title}
-            errorId="request-title-error"
-            htmlFor="request-title"
+            id="request-title"
             label="Internship Role Title"
-          >
-            <TextInput
-              aria-invalid={Boolean(errors.title)}
-              disabled={pending}
-              id="request-title"
-              maxLength={200}
-              onChange={(event) => update('title', event.target.value)}
-              placeholder="e.g., Software Engineer Intern"
-              ref={titleRef}
-              value={values.title}
-            />
-          </FormField>
-          <div className="wireframe-form-grid">
-            <FormField
+            disabled={pending}
+            maxLength={200}
+            onChange={(event) => update('title', event.target.value)}
+            placeholder="e.g., Software Engineer Intern"
+            ref={titleRef}
+            value={values.title}
+          />
+          <div className="im-guidance-field">
+            <TextField
               error={errors.shortlistGuidanceValue}
-              errorId="request-shortlistGuidanceValue-error"
-              htmlFor="request-guidance"
+              id="request-guidance"
               label="Shortlist Guidance Value (Optional)"
-            >
-              <TextInput
-                aria-describedby="request-guidance-help"
-                aria-invalid={Boolean(errors.shortlistGuidanceValue)}
-                disabled={pending}
-                id="request-guidance"
-                max={10000}
-                min={0}
-                onChange={(event) => update('shortlistGuidanceValue', event.target.value)}
-                placeholder="e.g., 10"
-                type="number"
-                value={values.shortlistGuidanceValue}
-              />
-              <p className="request-field-help" id="request-guidance-help">
-                Advisory only. Leave blank when no guidance value is available; it never blocks
-                shortlist finalization.
-              </p>
-            </FormField>
-          </div>
-          <FormField
-            error={errors.description}
-            errorId="request-description-error"
-            htmlFor="request-description"
-            label="Role Description"
-          >
-            <textarea
-              aria-invalid={Boolean(errors.description)}
-              className="input request-textarea"
               disabled={pending}
-              id="request-description"
-              maxLength={10000}
-              onChange={(event) => update('description', event.target.value)}
-              placeholder="Describe responsibilities, expectations, and relevant context"
-              value={values.description}
+              max={10000}
+              min={0}
+              onChange={(event) => update('shortlistGuidanceValue', event.target.value)}
+              placeholder="e.g., 10"
+              type="number"
+              value={values.shortlistGuidanceValue}
+              supportingText="Advisory only. Leave blank when no guidance value is available; it never blocks shortlist finalization."
             />
-          </FormField>
+          </div>
+          <TextArea
+            error={errors.description}
+            id="request-description"
+            label="Role Description"
+            disabled={pending}
+            maxLength={10000}
+            onChange={(event) => update('description', event.target.value)}
+            placeholder="Describe responsibilities, expectations, and relevant context"
+            value={values.description}
+          />
         </section>
 
-        <section className="request-form-section" aria-labelledby="request-skills-heading">
-          <div className="request-form-section-heading">
+        <section className="im-form-section" aria-labelledby="request-skills-heading">
+          <div className="im-form-section-heading">
             <h3 id="request-skills-heading">Add Required Skills</h3>
             <p>
               Select taxonomy skills required for the role. Student competency levels remain
@@ -222,7 +201,7 @@ export function InternshipRequestForm({
         </section>
 
         <div className="modal-actions">
-          <Button disabled={pending} onClick={onCancel} variant="secondary">
+          <Button disabled={pending} onClick={onCancel} variant="outlined">
             Cancel
           </Button>
           <Button disabled={mode === 'edit' && !isDirty} isLoading={pending} type="submit">
@@ -230,6 +209,6 @@ export function InternshipRequestForm({
           </Button>
         </div>
       </form>
-    </Modal>
+    </Dialog>
   )
 }

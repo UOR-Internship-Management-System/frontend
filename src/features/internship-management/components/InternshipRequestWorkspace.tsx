@@ -3,14 +3,15 @@ import type { ApiInternshipRequestSort } from '../../../shared/api/generated/cvM
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardSubtitle, CardTitle } from '../../../shared/components/ui/Card'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import {
   getInternshipRequestMutationErrorMessage,
   useCreateInternshipRequest,
@@ -26,10 +27,11 @@ import { InternshipRequestDetailsModal } from './InternshipRequestDetailsModal'
 import { InternshipRequestForm, mapInternshipRequestToForm } from './InternshipRequestForm'
 import { InternshipRequestTable } from './InternshipRequestTable'
 import {
-  InternshipManagementDetailsSkeleton,
-  InternshipManagementListSkeleton,
-  InternshipRequestToolbarSkeleton,
-} from './InternshipManagementListSkeleton'
+  SkeletonFormFields,
+  SkeletonListRows,
+  SkeletonPagination,
+  SkeletonToolbar,
+} from '../../../shared/skeletons'
 
 type RequestOverlay = 'create' | 'details' | 'edit' | 'delete' | null
 
@@ -151,122 +153,119 @@ export function InternshipRequestWorkspace({
   }
 
   return (
-    <SectionCard className="internship-wireframe-card">
-      <div className="internship-section-heading">
+    <Card className="im-section" variant="outlined">
+      <CardHeader className="im-section-heading">
         <div>
-          <h2>Internship Requests</h2>
-          {selectedCompany ? (
-            <>
-              <p className="internship-section-context">{selectedCompany.name}</p>
-            </>
-          ) : null}
+          <CardTitle>Internship Requests</CardTitle>
+          {selectedCompany ? <CardSubtitle className="im-section-context">{selectedCompany.name}</CardSubtitle> : null}
         </div>
-        <Button
-          icon={<span className="material-symbols-outlined">playlist_add</span>}
+        <ExtendedFab
+          aria-label="Add request"
+          icon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+          label="Add request"
           onClick={() => setOverlay('create')}
-        >
-          Create Internship Request
-        </Button>
-      </div>
-
-      {!selectedCompanyId ? (
-        <EmptyState
-          message="Select a company from the list above to view and manage its internship requests."
-          title="Select a company first"
         />
-      ) : selectedCompanyError ? (
-        <ErrorState
-          message={mapApiError(selectedCompanyError, 'protected').message}
-          onAction={onRetrySelectedCompany}
-          title="Selected company unavailable"
-        />
-      ) : !selectedCompany ? (
-        <>
-          <InternshipRequestToolbarSkeleton />
-          <InternshipManagementListSkeleton rows={Math.min(state.size, 5)} variant="requests" />
-        </>
-      ) : (
-        <>
-          <div className="internship-request-toolbar">
-            <SearchInput
-              aria-label="Search internship requests"
-              maxLength={120}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Search by role title"
-              value={searchInput}
-            />
-            <label className="internship-toolbar-field">
-              <span>Sort requests</span>
-              <SortSelect
-                onChange={(event) =>
-                  updateState({ sort: event.target.value as ApiInternshipRequestSort })
+      </CardHeader>
+      <CardContent className="im-section-content">
+        {!selectedCompanyId ? (
+          <EmptyState
+            message="Select a company from the list above to view and manage its internship requests."
+            title="Select a company first"
+          />
+        ) : selectedCompanyError ? (
+          <ErrorState
+            message={mapApiError(selectedCompanyError, 'protected').message}
+            onAction={onRetrySelectedCompany}
+            title="Selected company unavailable"
+          />
+        ) : !selectedCompany ? (
+          <>
+            <SkeletonToolbar fields={2} />
+            <SkeletonListRows count={Math.min(state.size, 5)} />
+          </>
+        ) : (
+          <>
+            <div className="im-toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+              <SearchBar
+                aria-label="Search internship requests"
+                maxLength={120}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search by role title"
+                value={searchInput}
+                style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: '200px' }}
+              />
+              <M3SelectField
+                label="Sort requests"
+                style={{ width: '220px', flex: '0 0 auto' }}
+                onChange={(value) =>
+                  updateState({ sort: value as ApiInternshipRequestSort })
                 }
                 value={state.sort}
-              >
-                <option value="createdAt,desc">Newest first</option>
-                <option value="title,asc">Role title A–Z</option>
-              </SortSelect>
-            </label>
-            {hasFilters ? (
-              <Button onClick={clearFilters} variant="secondary">
-                Clear Filters
-              </Button>
-            ) : null}
-          </div>
+                options={[
+                  { value: 'createdAt,desc', label: 'Newest first' },
+                  { value: 'title,asc', label: 'Role title A–Z' },
+                ]}
+              />
+              {hasFilters ? (
+                <Button onClick={clearFilters} variant="outlined">
+                  Clear Filters
+                </Button>
+              ) : null}
+            </div>
 
-          <LoadingBoundary
-            isLoading={requests.isPending}
-            label="Loading internship requests"
-            skeleton={
-              <InternshipManagementListSkeleton
-                rows={Math.min(state.size, 5)}
-                showPagination
-                variant="requests"
-              />
-            }
-          >
-            {requests.error ? (
-              <ErrorState
-                message={mapApiError(requests.error, 'protected').message}
-                onAction={() => void requests.refetch()}
-                title="Internship requests unavailable"
-              />
-            ) : requests.data?.items.length ? (
-              <>
-                <InternshipRequestTable
-                  onDelete={(id) => choose(id, 'delete')}
-                  onSelect={(id) => choose(id, 'details')}
-                  requests={requests.data.items}
+            <LoadingBoundary
+              isLoading={requests.isPending}
+              label="Loading internship requests"
+              skeleton={
+                <>
+                  <SkeletonListRows count={Math.min(state.size, 5)} />
+                  <SkeletonPagination />
+                </>
+              }
+            >
+              {requests.error ? (
+                <ErrorState
+                  message={mapApiError(requests.error, 'protected').message}
+                  onAction={() => void requests.refetch()}
+                  title="Internship requests unavailable"
                 />
-                <PaginationBar
-                  label="Internship request pagination"
-                  onPageChange={(page) => updateState({ page })}
-                  page={requests.data.page.page}
-                  size={requests.data.page.size}
-                  totalElements={requests.data.page.totalElements}
-                  totalPages={requests.data.page.totalPages}
+              ) : requests.data?.items.length ? (
+                <>
+                  <InternshipRequestTable
+                    onDelete={(id) => choose(id, 'delete')}
+                    onSelect={(id) => choose(id, 'details')}
+                    requests={requests.data.items}
+                  />
+                  <PaginationBar
+                    label="Internship request pagination"
+                    onPageChange={(page) => updateState({ page })}
+                    page={requests.data.page.page}
+                    size={requests.data.page.size}
+                    totalElements={requests.data.page.totalElements}
+                    totalPages={requests.data.page.totalPages}
+                  />
+                </>
+              ) : (
+                <EmptyState
+                  action={
+                    hasFilters ? (
+                      <Button onClick={clearFilters} variant="outlined">
+                        Clear Filters
+                      </Button>
+                    ) : undefined
+                  }
+                  message={
+                    hasFilters
+                      ? 'No internship requests match the current search and filters.'
+                      : 'Create the first internship request for this company.'
+                  }
+                  title={hasFilters ? 'No matching requests' : 'No internship requests'}
                 />
-              </>
-            ) : (
-              <EmptyState
-                action={
-                  hasFilters ? (
-                    <Button onClick={clearFilters} variant="secondary">
-                      Clear Filters
-                    </Button>
-                  ) : undefined
-                }
-                message={
-                  hasFilters
-                    ? 'No internship requests match the current search and filters.'
-                    : 'Create the first internship request for this company.'
-                }
-                title={hasFilters ? 'No matching requests' : 'No internship requests'}
-              />
-            )}
-          </LoadingBoundary>
-        </>
-      )}
+              )}
+            </LoadingBoundary>
+          </>
+        )}
+      </CardContent>
 
       {overlay === 'create' && selectedCompany ? (
         <InternshipRequestForm
@@ -278,7 +277,7 @@ export function InternshipRequestWorkspace({
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
         <Modal onClose={close} title="Internship Request Details">
-          <InternshipManagementDetailsSkeleton variant="request" />
+          <SkeletonFormFields count={5} />
         </Modal>
       ) : null}
       {overlay && overlay !== 'create' && selected.error ? (
@@ -315,6 +314,6 @@ export function InternshipRequestWorkspace({
           requestTitle={selected.data.title}
         />
       ) : null}
-    </SectionCard>
+    </Card>
   )
 }

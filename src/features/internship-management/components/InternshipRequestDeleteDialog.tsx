@@ -16,7 +16,7 @@ export function InternshipRequestDeleteDialog({
 }) {
   return (
     <ConfirmDialog closeDisabled={isPending} onClose={onClose} title="Delete Internship Request">
-      <div className="request-delete-dialog">
+      <div className="im-delete-dialog">
         <p>
           Delete <strong>{requestTitle}</strong>? This action cannot be undone.
         </p>
@@ -26,11 +26,16 @@ export function InternshipRequestDeleteDialog({
           </div>
         ) : null}
         <div className="modal-actions">
-          <Button disabled={isPending} onClick={onClose} variant="secondary">
+          <Button disabled={isPending} onClick={onClose} variant="outlined">
             Keep Request
           </Button>
-          <Button className="wireframe-danger-button" isLoading={isPending} onClick={onConfirm}>
-            Delete Internship Request
+          <Button
+            aria-label="Delete Internship Request"
+            isLoading={isPending}
+            onClick={onConfirm}
+            variant="danger"
+          >
+            Delete
           </Button>
         </div>
       </div>
