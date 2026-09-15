@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
@@ -219,21 +220,21 @@ export function SelectedCandidatesReviewModal({
       size="wide"
       title="Review Selected Shortlist"
     >
-      <div className="selected-candidates-review">
-        <p aria-live="polite">
+      <div className="cf-review-modal">
+        <p aria-live="polite" className="cf-review-summary">
           {candidates.length} candidate
           {candidates.length === 1 ? '' : 's'} selected.
         </p>
 
-        <ul>
+        <ul className="cf-review-list">
           {candidates.map((candidate) => (
-            <li key={candidate.studentId}>
-              <div>
+            <li className="cf-review-item" key={candidate.studentId}>
+              <div className="cf-review-item-identity">
                 <strong>{candidate.fullName}</strong>
                 <span>{candidate.indexNumber}</span>
               </div>
 
-              <span>
+              <span className="cf-review-item-gpa">
                 Official GPA:{' '}
                 {candidate.officialGpa === null
                   ? 'Not available'
@@ -251,7 +252,8 @@ export function SelectedCandidatesReviewModal({
               <Button
                 disabled={isPending || selectionPersisted}
                 onClick={() => selection.remove(candidate.studentId)}
-                variant="secondary"
+                size="sm"
+                variant="outlined"
               >
                 Remove {candidate.fullName}
               </Button>
@@ -273,18 +275,19 @@ export function SelectedCandidatesReviewModal({
         ) : null}
 
         {guidanceExceeded ? (
-          <label className="shortlist-guidance-acknowledgement">
-            <input
+          <div className="cf-guidance-warning">
+            <Checkbox
               checked={guidanceAcknowledged}
               disabled={isPending}
+              label={
+                <>
+                  The selected count exceeds the advisory guidance of {guidanceValue}. I acknowledge
+                  this warning and want to continue with the manual selection.
+                </>
+              }
               onChange={(event) => setGuidanceAcknowledged(event.target.checked)}
-              type="checkbox"
             />
-            <span>
-              The selected count exceeds the advisory guidance of {guidanceValue}. I acknowledge
-              this warning and want to continue with the manual selection.
-            </span>
-          </label>
+          </div>
         ) : null}
 
         {handoffError ? (
@@ -301,7 +304,7 @@ export function SelectedCandidatesReviewModal({
           <Button
             disabled={!candidates.length || isPending || selectionPersisted}
             onClick={selection.clear}
-            variant="secondary"
+            variant="outlined"
           >
             Clear all
           </Button>
@@ -324,7 +327,7 @@ export function SelectedCandidatesReviewModal({
             </Button>
           )}
 
-          <Button disabled={isPending} onClick={onClose} variant="secondary">
+          <Button disabled={isPending} onClick={onClose} variant="outlined">
             Done
           </Button>
         </div>

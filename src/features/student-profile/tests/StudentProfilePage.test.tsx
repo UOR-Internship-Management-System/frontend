@@ -60,12 +60,12 @@ describe('StudentProfilePage', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Profile' })).toBeInTheDocument()
     expect(screen.getByText(profile.indexNumber)).toBeInTheDocument()
     expect(screen.getByText(profile.universityEmail)).toBeInTheDocument()
-    expect(screen.getByLabelText('Full Name')).toBeEnabled()
-    expect(screen.getByLabelText('Personal Email Address')).toBeEnabled()
-    expect(screen.getByLabelText('Professional Headline')).toBeEnabled()
-    expect(screen.getByLabelText('Profile Summary / Objective')).toBeEnabled()
-    expect(screen.getByLabelText('Phone Number')).toBeEnabled()
-    expect(screen.getByLabelText('City and State')).toBeEnabled()
+    expect(screen.getByLabelText('Full name')).toBeEnabled()
+    expect(screen.getByLabelText('Personal email address')).toBeEnabled()
+    expect(screen.getByLabelText('Professional headline')).toBeEnabled()
+    expect(screen.getByLabelText('Profile summary or objective')).toBeEnabled()
+    expect(screen.getByLabelText('Phone number')).toBeEnabled()
+    expect(screen.getByLabelText('City and state')).toBeEnabled()
     expect(screen.getByText(profile.degreeProgramme)).toBeInTheDocument()
     expect(screen.getByText(`Level ${profile.studentLevel}`)).toBeInTheDocument()
     expect(screen.queryByRole('textbox', { name: 'Index Number' })).not.toBeInTheDocument()
@@ -75,21 +75,21 @@ describe('StudentProfilePage', () => {
       screen.queryByRole('button', { name: /upload|change|remove photo/i }),
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'Saved Professional Links' }),
+      screen.getByRole('heading', { level: 3, name: 'Saved professional links' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'Saved Certificates' }),
+      screen.getByRole('heading', { level: 3, name: 'Saved certificates' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'Saved Awards and Achievements' }),
+      screen.getByRole('heading', { level: 3, name: 'Saved awards and achievements' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'Saved Extracurricular Activities' }),
+      screen.getByRole('heading', { level: 3, name: 'Saved extracurricular activities' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'Saved Professional Experience' }),
+      screen.getByRole('heading', { level: 3, name: 'Saved professional experience' }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Add Certificate' })).toHaveTextContent('Add')
+    expect(screen.getByRole('button', { name: 'Add certificate' })).toHaveTextContent('Add')
   })
 
   it('submits only core editable values and reports server-confirmed success', async () => {
@@ -97,10 +97,10 @@ describe('StudentProfilePage', () => {
     const { mutateAsync } = mockSuccessfulProfile()
     renderWithProviders(<StudentProfilePage />)
 
-    const fullName = screen.getByLabelText('Full Name')
+    const fullName = screen.getByLabelText('Full name')
     await user.clear(fullName)
     await user.type(fullName, 'Committed Student')
-    await user.click(screen.getByRole('button', { name: 'Save Profile' }))
+    await user.click(screen.getByRole('button', { name: 'Save profile' }))
 
     expect(mutateAsync).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -128,10 +128,10 @@ describe('StudentProfilePage', () => {
     hookMocks.useUpdateStudentProfile.mockReturnValue({ isPending: false, mutateAsync })
     renderWithProviders(<StudentProfilePage />)
 
-    const phone = screen.getByLabelText('Phone Number')
+    const phone = screen.getByLabelText('Phone number')
     await user.clear(phone)
     await user.type(phone, 'invalid')
-    await user.click(screen.getByRole('button', { name: 'Save Profile' }))
+    await user.click(screen.getByRole('button', { name: 'Save profile' }))
 
     expect(await screen.findByText('Enter a valid phone number.')).toBeInTheDocument()
     expect(phone).toHaveAttribute('aria-invalid', 'true')
@@ -152,8 +152,8 @@ describe('StudentProfilePage', () => {
     })
     renderWithProviders(<StudentProfilePage />)
 
-    await user.type(screen.getByLabelText('Phone Number'), '7')
-    await user.click(screen.getByRole('button', { name: 'Save Profile' }))
+    await user.type(screen.getByLabelText('Phone number'), '7')
+    await user.click(screen.getByRole('button', { name: 'Save profile' }))
 
     const reload = await screen.findByRole('button', { name: 'Reload latest profile' })
     await user.click(reload)

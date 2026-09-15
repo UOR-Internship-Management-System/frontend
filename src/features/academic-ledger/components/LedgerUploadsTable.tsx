@@ -17,9 +17,9 @@ export function LedgerUploadsTable({
   onSelect: (uploadId: string) => void
 }) {
   return (
-    <div className="table-responsive ledger-table-wrap">
-      <table className="ledger-table">
-        <caption>Recent academic ledger upload batches</caption>
+    <div className="al-table-wrap" tabIndex={0}>
+      <table className="al-table">
+        <caption className="visually-hidden">Recent academic ledger upload batches</caption>
         <thead>
           <tr>
             <th scope="col">File</th>
@@ -35,39 +35,45 @@ export function LedgerUploadsTable({
             const upload = mapUploadStatus(item.uploadStatus)
             const validation = mapValidationStatus(item.validationStatus)
             return (
-              <tr key={item.uploadId} className={selectedId === item.uploadId ? 'is-selected' : ''}>
-                <td data-label="File">
+              <tr className={selectedId === item.uploadId ? 'is-selected' : ''} key={item.uploadId}>
+                <td>
                   <strong>{item.originalFilename}</strong>
-                  <span className="ledger-secondary">
-                    {Math.ceil(item.fileSizeBytes / 1024)} KiB
-                  </span>
+                  <span className="al-secondary">{Math.ceil(item.fileSizeBytes / 1024)} KiB</span>
                 </td>
-                <td data-label="Uploaded">
+                <td>
                   {new Intl.DateTimeFormat(undefined, {
                     dateStyle: 'medium',
                     timeStyle: 'short',
                   }).format(new Date(item.uploadedAt))}
                 </td>
-                <td data-label="Upload">
+                <td>
                   <StatusBadge tone={upload.tone}>{upload.label}</StatusBadge>
                 </td>
-                <td data-label="Validation">
+                <td>
                   <StatusBadge tone={validation.tone}>{validation.label}</StatusBadge>
                 </td>
-                <td data-label="Rows">{item.totalRows}</td>
-                <td className="ledger-action-cell" data-label="Action">
+                <td>{item.totalRows}</td>
+                <td className="al-action-cell">
                   <Button
                     aria-pressed={selectedId === item.uploadId}
                     onClick={() => onSelect(item.uploadId)}
-                    variant="secondary"
+                    size="sm"
+                    variant={selectedId === item.uploadId ? 'tonal' : 'outlined'}
                   >
                     Inspect
                   </Button>
-                  {!DELETE_BLOCKED_STATUSES.has(item.uploadStatus) ? (
-                    <Button onClick={() => onDelete(item)} variant="secondary">
-                      Remove
-                    </Button>
-                  ) : null}
+                  <Button
+                    aria-label={`Delete ${item.originalFilename}`}
+                    disabled={DELETE_BLOCKED_STATUSES.has(item.uploadStatus)}
+                    onClick={() => onDelete(item)}
+                    size="sm"
+                    variant="text"
+                    icon={
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        delete
+                      </span>
+                    }
+                  />
                 </td>
               </tr>
             )

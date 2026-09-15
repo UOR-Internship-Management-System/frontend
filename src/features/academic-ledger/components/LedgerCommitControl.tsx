@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { LedgerUploadDetail } from '../schemas/ledgerSchemas'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { canCommitLedger } from '../mappers/academicLedgerMappers'
 import { useCommitLedger } from '../hooks/useCommitLedger'
 import { useLedgerValidation } from '../hooks/useLedgerRecords'
@@ -18,10 +19,9 @@ export function LedgerCommitControl({ detail }: { detail: LedgerUploadDetail }) 
 
   if (detail.uploadStatus === 'COMMITTED') {
     return (
-      <section aria-labelledby="ledger-commit-title" className="section-card ledger-commit-control">
-        <div>
-          <p className="section-kicker">Final step</p>
-          <h2 id="ledger-commit-title">Records already committed</h2>
+      <Card aria-labelledby="ledger-commit-title" variant="outlined">
+        <CardHeader>
+          <CardTitle id="ledger-commit-title">Records already committed</CardTitle>
           <p>
             This batch was committed
             {detail.committedAt
@@ -29,51 +29,52 @@ export function LedgerCommitControl({ detail }: { detail: LedgerUploadDetail }) 
               : ''}
             . It remains read-only in this workflow.
           </p>
-        </div>
-      </section>
+        </CardHeader>
+      </Card>
     )
   }
 
   return (
-    <section aria-labelledby="ledger-commit-title" className="section-card ledger-commit-control">
-      <div>
-        <p className="section-kicker">Final step</p>
-        <h2 id="ledger-commit-title">Commit validated records</h2>
+    <Card aria-labelledby="ledger-commit-title" variant="outlined">
+      <CardHeader>
+        <CardTitle id="ledger-commit-title">Commit validated records</CardTitle>
         <p>Commit becomes available only after server validation passes with zero invalid rows.</p>
-      </div>
-      {commit.data ? (
-        <div className="ledger-commit-result" role="status">
-          <strong>Academic records committed successfully.</strong>
-          <p>
-            {commit.data.committedRecords} records · {commit.data.affectedStudents} Students ·{' '}
-            {commit.data.recalculatedGpaCount} GPA values recalculated
+      </CardHeader>
+      <CardContent className="al-commit-content">
+        {commit.data ? (
+          <div className="al-commit-result" role="status">
+            <strong>Academic records committed successfully.</strong>
+            <p>
+              {commit.data.committedRecords} records · {commit.data.affectedStudents} Students ·{' '}
+              {commit.data.recalculatedGpaCount} GPA values recalculated
+            </p>
+          </div>
+        ) : null}
+        <Button
+          disabled={!isEligible}
+          onClick={() => {
+            commit.reset()
+            setIsOpen(true)
+          }}
+        >
+          Commit official records
+        </Button>
+        {!isEligible && !commit.data ? (
+          <p className="field-hint">
+            Waiting for a ready-to-commit batch and a passed validation result.
           </p>
-        </div>
-      ) : null}
-      <Button
-        disabled={!isEligible}
-        onClick={() => {
-          commit.reset()
-          setIsOpen(true)
-        }}
-      >
-        Commit official records
-      </Button>
-      {!isEligible && !commit.data ? (
-        <p className="field-help">
-          Waiting for a ready-to-commit batch and a passed validation result.
-        </p>
-      ) : null}
+        ) : null}
+      </CardContent>
       {isOpen ? (
         <LedgerCommitDialog
-          totalRows={validation.data?.totalRows ?? detail.totalRows}
+          error={commit.error}
           invalidRows={validation.data?.invalidRows ?? detail.invalidRows}
           isPending={commit.isPending}
-          error={commit.error}
           onClose={() => setIsOpen(false)}
           onConfirm={() => commit.mutate(undefined, { onSuccess: () => setIsOpen(false) })}
+          totalRows={validation.data?.totalRows ?? detail.totalRows}
         />
       ) : null}
-    </section>
+    </Card>
   )
 }

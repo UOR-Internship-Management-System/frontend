@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SelectField } from '../../../shared/components/forms/SelectField'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { Chip } from '../../../shared/components/ui/Chip'
+import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
 import { clampPage } from '../../../shared/utils/clampPage'
 import {
   useCandidateFilteringCandidates,
@@ -20,10 +22,34 @@ import type {
   CandidateFilteringUrlState,
   CandidatePageSize,
 } from '../types/candidateFilteringTypes'
-import { CandidateResultsSkeleton } from './CandidateResultsSkeleton'
+import { SkeletonPagination, SkeletonTableGrid, SkeletonToolbar } from '../../../shared/skeletons'
+import { CandidateResultsCardList } from './CandidateResultsCardList'
 import { CandidateResultsTable } from './CandidateResultsTable'
 import { CandidateSkillsModal } from './CandidateSkillsModal'
 import { SelectedCandidatesReviewModal } from './SelectedCandidatesReviewModal'
+
+type CfViewMode = 'table' | 'cards'
+
+const viewOptions = [
+  {
+    value: 'table' as const,
+    label: 'Table',
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        table_rows
+      </span>
+    ),
+  },
+  {
+    value: 'cards' as const,
+    label: 'Cards',
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        grid_view
+      </span>
+    ),
+  },
+]
 
 export function CandidateResultsWorkspace({
   candidateSearchInput,
@@ -40,6 +66,9 @@ export function CandidateResultsWorkspace({
 }) {
   const [skillsCandidate, setSkillsCandidate] = useState<CandidateFilteringCandidate>()
   const [reviewOpen, setReviewOpen] = useState(false)
+  const [viewMode, setViewMode] = useState<CfViewMode>('table')
+  const isCompact = useIsCompactLayout()
+  const effectiveViewMode: CfViewMode = isCompact ? 'cards' : viewMode
   const run = useCandidateFilteringRun(state.runId ?? null)
   const query = useMemo(
     () =>
@@ -79,11 +108,11 @@ export function CandidateResultsWorkspace({
   const resultCount = candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0
 
   return (
-    <SectionCard aria-labelledby="candidate-results-title" className="candidate-results-workspace">
-      <div className="candidate-results-heading">
+    <Card aria-labelledby="candidate-results-title" className="cf-results-card" variant="outlined">
+      <CardHeader className="cf-results-heading">
         <div>
-          <h2 id="candidate-results-title">Matching Students</h2>
-          <p>
+          <CardTitle id="candidate-results-title">Matching Students</CardTitle>
+          <p className="cf-results-context">
             {run.data
               ? `${run.data.request.companyName} · ${run.data.request.title}`
               : state.runId
@@ -94,143 +123,177 @@ export function CandidateResultsWorkspace({
         <Chip>
           {resultCount} matching student{resultCount === 1 ? '' : 's'}
         </Chip>
-      </div>
-
-      <div aria-label="Candidate result controls" className="candidate-results-toolbar">
-        <label>
-          Search candidates
-          <SearchInput
+      </CardHeader>
+      <CardContent className="cf-results-content">
+        <div aria-label="Candidate result controls" className="cf-results-toolbar">
+          <TextField
+            className="cf-toolbar-field"
+            type="search"
+            label="Search candidates"
             aria-label="Search candidates by name or index number"
             disabled={!state.runId}
             maxLength={120}
             onChange={(event) => setCandidateSearchInput(event.target.value)}
             placeholder="Search by name or index number"
             value={candidateSearchInput}
+            leadingIcon={
+              <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                search
+              </span>
+            }
           />
-        </label>
-        <label>
-          Sort results
-          <SelectField
+          <M3SelectField
+            className="cf-toolbar-field"
+            label="Sort results"
             aria-label="Sort candidate results"
             disabled={!state.runId}
-            onChange={(event) =>
+            onChange={(value) =>
               updateState({
-                candidateSort: event.target.value as CandidateFilteringUrlState['candidateSort'],
+                candidateSort: value as CandidateFilteringUrlState['candidateSort'],
               })
             }
             value={state.candidateSort}
-          >
-            <option value="officialGpa,desc">Official GPA: high to low</option>
-            <option value="officialGpa,asc">Official GPA: low to high</option>
-            <option value="fullName,asc">Name: A to Z</option>
-            <option value="indexNumber,asc">Index number: ascending</option>
-          </SelectField>
-        </label>
-      </div>
-
-      <p aria-live="polite" className="company-updating">
-        {candidates.isFetching && !candidates.isPending ? 'Updating candidate results…' : ''}
-      </p>
-
-      {!state.runId ? (
-        <div className="candidate-results-empty-canvas">
-          <EmptyState
-            message="Select an internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically."
-            title="No internship request selected"
+            options={[
+              { value: 'officialGpa,desc', label: 'Official GPA: high to low' },
+              { value: 'officialGpa,asc', label: 'Official GPA: low to high' },
+              { value: 'fullName,asc', label: 'Name: A to Z' },
+              { value: 'indexNumber,asc', label: 'Index number: ascending' },
+            ]}
           />
-        </div>
-      ) : (
-        <LoadingBoundary
-          isLoading={run.isPending || candidates.isPending}
-          label="Loading candidate results"
-          minHeight={440}
-          skeleton={<CandidateResultsSkeleton />}
-        >
-          {mappedError ? (
-            <ErrorState
-              correlationId={mappedError.correlationId}
-              message={mappedError.message}
-              onAction={() => void Promise.all([run.refetch(), candidates.refetch()])}
-              title="Candidate results unavailable"
-            />
-          ) : candidates.data?.items.length ? (
-            <>
-              <CandidateResultsTable
-                candidates={candidates.data.items}
-                onShowSkills={setSkillsCandidate}
-                onToggle={selection.toggle}
-                onTogglePage={(select) => {
-                  if (select) selection.selectMany(pageItems)
-                  else selection.removeMany(pageItems.map((candidate) => candidate.studentId))
-                }}
-                selectedIds={new Set(selection.candidates.keys())}
+          {isCompact ? null : (
+            <div className="cf-view-toggle">
+              <SegmentedButton
+                ariaLabel="View mode"
+                onChange={setViewMode}
+                options={viewOptions}
+                value={viewMode}
               />
-              <PaginationBar
-                label="Candidate result pages"
-                onPageChange={(candidatePage) => updateState({ candidatePage })}
-                onPageSizeChange={(candidateSize) =>
-                  updateState({ candidateSize: candidateSize as CandidatePageSize })
-                }
-                page={candidates.data.page.page}
-                pageSizeOptions={[5, 20, 50, 100]}
-                size={candidates.data.page.size}
-                totalElements={candidates.data.page.totalElements}
-                totalPages={candidates.data.page.totalPages}
-              />
-            </>
-          ) : (
-            <EmptyState
-              message={
-                state.candidateSearch
-                  ? 'No candidates match the current search and runtime filtering criteria.'
-                  : 'No candidates satisfy the current runtime GPA and declared-skill criteria.'
-              }
-              title="No candidates found"
-            />
+            </div>
           )}
-        </LoadingBoundary>
-      )}
-
-      <footer
-        aria-label="Manual shortlist selection actions"
-        className="candidate-selection-action-bar"
-      >
-        <div>
-          <strong>{selectedCount} selected</strong>
-          <span>Selections persist across result pages for this filtering run.</span>
         </div>
-        <div>
-          <Button
-            disabled={selectedCount === 0 || !state.runId}
-            onClick={() => setReviewOpen(true)}
-            variant="secondary"
-          >
-            Review Selected Shortlist
-          </Button>
-          <Button
-            disabled={selectedCount === 0 || !state.runId}
-            onClick={() => setReviewOpen(true)}
-          >
-            Finalize Shortlist
-          </Button>
-        </div>
-      </footer>
 
-      {skillsCandidate ? (
-        <CandidateSkillsModal
-          candidate={skillsCandidate}
-          onClose={() => setSkillsCandidate(undefined)}
-        />
-      ) : null}
-      {reviewOpen && state.runId ? (
-        <SelectedCandidatesReviewModal
-          guidanceValue={run.data?.request.shortlistGuidanceValue ?? null}
-          onClose={() => setReviewOpen(false)}
-          requestId={state.requestId ?? run.data?.request.requestId ?? ''}
-          runId={state.runId}
-          selection={selection}
-        />
-      ) : null}
-    </SectionCard>
+        <p aria-live="polite" className="cf-updating-status">
+          {candidates.isFetching && !candidates.isPending ? 'Updating candidate results…' : ''}
+        </p>
+
+        {!state.runId ? (
+          <div className="cf-results-empty-canvas">
+            <EmptyState
+              message="Select an internship request to load the latest committed student data. Adjusting runtime criteria refreshes the deterministic results automatically."
+              title="No internship request selected"
+            />
+          </div>
+        ) : (
+          <LoadingBoundary
+            isLoading={run.isPending || candidates.isPending}
+            label="Loading candidate results"
+            minHeight={440}
+            skeleton={
+              <>
+                <SkeletonToolbar fields={2} />
+                <SkeletonTableGrid
+                  columns={5}
+                  gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
+                  rows={5}
+                />
+                <SkeletonPagination />
+              </>
+            }
+          >
+            {mappedError ? (
+              <ErrorState
+                correlationId={mappedError.correlationId}
+                message={mappedError.message}
+                onAction={() => void Promise.all([run.refetch(), candidates.refetch()])}
+                title="Candidate results unavailable"
+              />
+            ) : candidates.data?.items.length ? (
+              <>
+                <div className="cf-data-container">
+                  {effectiveViewMode === 'table' ? (
+                    <CandidateResultsTable
+                      candidates={candidates.data.items}
+                      onShowSkills={setSkillsCandidate}
+                      onToggle={selection.toggle}
+                      onTogglePage={(select) => {
+                        if (select) selection.selectMany(pageItems)
+                        else selection.removeMany(pageItems.map((candidate) => candidate.studentId))
+                      }}
+                      selectedIds={new Set(selection.candidates.keys())}
+                    />
+                  ) : (
+                    <CandidateResultsCardList
+                      candidates={candidates.data.items}
+                      onShowSkills={setSkillsCandidate}
+                      onToggle={selection.toggle}
+                      selectedIds={new Set(selection.candidates.keys())}
+                    />
+                  )}
+                </div>
+                <PaginationBar
+                  label="Candidate result pages"
+                  onPageChange={(candidatePage) => updateState({ candidatePage })}
+                  onPageSizeChange={(candidateSize) =>
+                    updateState({ candidateSize: candidateSize as CandidatePageSize })
+                  }
+                  page={candidates.data.page.page}
+                  pageSizeOptions={[5, 20, 50, 100]}
+                  size={candidates.data.page.size}
+                  totalElements={candidates.data.page.totalElements}
+                  totalPages={candidates.data.page.totalPages}
+                />
+              </>
+            ) : (
+              <EmptyState
+                message={
+                  state.candidateSearch
+                    ? 'No candidates match the current search and runtime filtering criteria.'
+                    : 'No candidates satisfy the current runtime GPA and declared-skill criteria.'
+                }
+                title="No candidates found"
+              />
+            )}
+          </LoadingBoundary>
+        )}
+
+        <footer aria-label="Manual shortlist selection actions" className="cf-selection-action-bar">
+          <div>
+            <strong>{selectedCount} selected</strong>
+            <span>Selections persist across result pages for this filtering run.</span>
+          </div>
+          <div>
+            <Button
+              disabled={selectedCount === 0 || !state.runId}
+              onClick={() => setReviewOpen(true)}
+              variant="outlined"
+            >
+              Review Selected Shortlist
+            </Button>
+            <Button
+              disabled={selectedCount === 0 || !state.runId}
+              onClick={() => setReviewOpen(true)}
+            >
+              Finalize Shortlist
+            </Button>
+          </div>
+        </footer>
+
+        {skillsCandidate ? (
+          <CandidateSkillsModal
+            candidate={skillsCandidate}
+            onClose={() => setSkillsCandidate(undefined)}
+          />
+        ) : null}
+        {reviewOpen && state.runId ? (
+          <SelectedCandidatesReviewModal
+            guidanceValue={run.data?.request.shortlistGuidanceValue ?? null}
+            onClose={() => setReviewOpen(false)}
+            requestId={state.requestId ?? run.data?.request.requestId ?? ''}
+            runId={state.runId}
+            selection={selection}
+          />
+        ) : null}
+      </CardContent>
+    </Card>
   )
 }

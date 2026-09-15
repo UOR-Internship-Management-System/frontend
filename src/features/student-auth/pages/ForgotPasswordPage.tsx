@@ -19,7 +19,10 @@ export function ForgotPasswordPage() {
       title="Forgot Password?"
     >
       {message ? (
-        <div className="inline-alert" role="status">
+        <div className="inline-alert auth-inline-alert" role="status">
+          <span className="material-symbols-outlined" aria-hidden="true">
+            info
+          </span>
           {message}
         </div>
       ) : null}

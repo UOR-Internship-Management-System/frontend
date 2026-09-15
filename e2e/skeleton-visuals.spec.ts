@@ -53,7 +53,7 @@ const scenarios = [
   {
     name: 'student-dashboard',
     path: '/student/dashboard',
-    heading: 'Student Dashboard',
+    heading: 'Student dashboard',
     role: 'student',
     loading: 'Loading student dashboard',
   },
@@ -69,7 +69,7 @@ const scenarios = [
     path: '/student/skills',
     heading: 'Skills',
     role: 'student',
-    loading: 'Loading available skills',
+    loading: 'Loading declared skills',
   },
   {
     name: 'student-projects',
@@ -105,7 +105,6 @@ const scenarios = [
     heading: 'Academic Ledger',
     role: 'admin',
     loading: 'Loading recent ledger uploads',
-    additionalLoading: ['Loading Student records'],
   },
   {
     name: 'registered-students',

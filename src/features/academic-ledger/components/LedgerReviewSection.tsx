@@ -1,6 +1,6 @@
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { LedgerValidationSkeleton } from '../../../shared/skeletons'
+import { SkeletonCard, SkeletonTableGrid, SkeletonToolbar } from '../../../shared/skeletons'
 import { useLedgerStagedRows, useLedgerValidation } from '../hooks/useLedgerRecords'
 import type { LedgerStagedRowsQuery } from '../types/academicLedgerTypes'
 import { LedgerValidationTable } from './LedgerValidationTable'
@@ -21,7 +21,18 @@ export function LedgerReviewSection({
   const stagedRows = useLedgerStagedRows(uploadId, query)
   const validation = useLedgerValidation(uploadId)
 
-  if (stagedRows.isPending || validation.isPending) return <LedgerValidationSkeleton />
+  if (stagedRows.isPending || validation.isPending) {
+    return (
+      <SkeletonCard>
+        <SkeletonToolbar fields={3} />
+        <SkeletonTableGrid
+          columns={6}
+          gridTemplateColumns="repeat(6, minmax(90px, 1fr))"
+          rows={6}
+        />
+      </SkeletonCard>
+    )
+  }
   if (stagedRows.isError || validation.isError) {
     const sourceError = stagedRows.error ?? validation.error
     const error = mapApiError(sourceError, 'protected')

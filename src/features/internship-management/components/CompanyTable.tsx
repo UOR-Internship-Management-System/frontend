@@ -1,3 +1,4 @@
+import { List, ListItem } from '../../../shared/components/ui/List'
 import { Button } from '../../../shared/components/ui/Button'
 import type { Company } from '../types/internshipManagementTypes'
 
@@ -15,50 +16,53 @@ export function CompanyTable({
   selectedCompanyId?: string
 }) {
   return (
-    <div aria-label="Company metadata directory" className="wireframe-row-list" role="list">
-      {companies.map((company) => (
-        <article
-          aria-current={company.companyId === selectedCompanyId ? 'true' : undefined}
-          className={`wireframe-management-row ${company.companyId === selectedCompanyId ? 'selected' : ''}`.trim()}
-          key={company.companyId}
-          onClick={() => onSelect(company.companyId)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault()
-              onSelect(company.companyId)
+    <List aria-label="Company metadata directory" className="im-list">
+      {companies.map((company) => {
+        const isSelected = company.companyId === selectedCompanyId
+        return (
+          <ListItem
+            aria-current={isSelected ? 'true' : undefined}
+            className={`im-row ${isSelected ? 'im-row--selected' : ''}`.trim()}
+            headline={<span className="im-row-title">{company.name}</span>}
+            interactive
+            key={company.companyId}
+            onClick={() => onSelect(company.companyId)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onSelect(company.companyId)
+              }
+            }}
+            supportingText={
+              <>
+                {company.websiteUrl ?? 'Website not provided'} · HR representative:{' '}
+                {company.contactPerson ?? 'Not provided'}
+              </>
             }
-          }}
-          role="listitem"
-          tabIndex={0}
-        >
-          <div className="wireframe-row-meta">
-            <div className="request-row-title">
-              <h3>{company.name}</h3>
-            </div>
-            <p>
-              {company.websiteUrl ?? 'Website not provided'} · HR representative:{' '}
-              {company.contactPerson ?? 'Not provided'}
-            </p>
-          </div>
-          <div className="wireframe-row-actions" onClick={(event) => event.stopPropagation()}>
-            <Button
-              icon={<span className="material-symbols-outlined">visibility</span>}
-              onClick={() => onView(company.companyId)}
-              variant="secondary"
-            >
-              View Details
-            </Button>
-            <Button
-              className="wireframe-danger-button"
-              icon={<span className="material-symbols-outlined">delete</span>}
-              onClick={() => onDelete(company.companyId)}
-              variant="secondary"
-            >
-              Delete Company
-            </Button>
-          </div>
-        </article>
-      ))}
-    </div>
+            trailing={
+              <div className="im-row-actions" onClick={(event) => event.stopPropagation()}>
+                <Button
+                  icon={<span className="material-symbols-outlined">visibility</span>}
+                  onClick={() => onView(company.companyId)}
+                  size="sm"
+                  variant="outlined"
+                >
+                  View Details
+                </Button>
+                <Button
+                  aria-label="Delete Company"
+                  icon={<span className="material-symbols-outlined">delete</span>}
+                  onClick={() => onDelete(company.companyId)}
+                  size="sm"
+                  variant="danger"
+                >
+                  Delete
+                </Button>
+              </div>
+            }
+          />
+        )
+      })}
+    </List>
   )
 }

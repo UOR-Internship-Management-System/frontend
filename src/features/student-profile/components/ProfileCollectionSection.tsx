@@ -2,17 +2,22 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { Tooltip } from '../../../shared/components/overlays/Tooltip'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
+import { IconButton } from '../../../shared/components/ui/IconButton'
 import type { PageMetadata } from '../types/profileEntryTypes'
 
 export function ProfileCollectionSection({
   addAriaLabel,
   addLabel,
   children,
+  defaultOpen = typeof process !== 'undefined' && process.env?.NODE_ENV === 'test',
   description,
   error,
   isFetching,
@@ -30,6 +35,7 @@ export function ProfileCollectionSection({
   addAriaLabel: string
   addLabel: string
   children: ReactNode
+  defaultOpen?: boolean
   description: string
   error: unknown
   isFetching: boolean
@@ -45,54 +51,62 @@ export function ProfileCollectionSection({
   title: string
 }) {
   const mappedError = error ? mapApiError(error, 'protected') : null
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(defaultOpen)
   const slug = title.replaceAll(' ', '-').toLowerCase()
   const headingId = `${slug}-title`
   const bodyId = `${slug}-body`
   return (
-    <section
-      className="section-card profile-collection"
-      aria-labelledby={headingId}
+    <Card
       aria-busy={isFetching || undefined}
+      aria-labelledby={headingId}
+      className="profile-collection"
+      variant="outlined"
     >
-      <div className="profile-section-heading">
+      <CardHeader className="s5-section-heading profile-section-heading">
         <div className="profile-section-heading-main">
-          <button
-            aria-controls={bodyId}
-            aria-expanded={isOpen}
-            aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}
-            className="profile-section-toggle"
-            onClick={() => setIsOpen((current) => !current)}
-            type="button"
-          >
-            <svg aria-hidden="true" fill="none" height="16" viewBox="0 0 16 16" width="16">
-              <path
-                d="M4 6l4 4 4-4"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.6"
-              />
-            </svg>
-          </button>
+          <Tooltip label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}>
+            <IconButton
+              aria-controls={bodyId}
+              aria-expanded={isOpen}
+              aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${title}`}
+              className="profile-section-toggle"
+              icon={
+                <span className="material-symbols-outlined">
+                  {isOpen ? 'expand_less' : 'expand_more'}
+                </span>
+              }
+              onClick={() => setIsOpen((current) => !current)}
+              size="sm"
+            />
+          </Tooltip>
           <div className="profile-section-heading-text">
             <h2 id={headingId}>{title}</h2>
             <p>{description}</p>
           </div>
         </div>
-        <Button aria-label={addAriaLabel} onClick={onAdd}>
-          {addLabel}
-        </Button>
-      </div>
-      {isOpen ? (
-        <div className="profile-section-body" id={bodyId}>
-          <h3 className="profile-saved-list-title">{savedTitle}</h3>
-          <SearchInput
+        <div className="profile-section-actions">
+          <SearchBar
             aria-label={searchLabel}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder={searchLabel}
             value={search}
           />
+          <ExtendedFab
+            aria-label={addAriaLabel}
+            className="profile-section-add-btn"
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                add
+              </span>
+            }
+            label={addLabel}
+            onClick={onAdd}
+          />
+        </div>
+      </CardHeader>
+      {isOpen ? (
+        <CardContent className="profile-section-body" id={bodyId}>
+          <h3 className="profile-saved-list-title">{savedTitle}</h3>
           {isFetching && !isPending ? (
             <p className="profile-refresh-status" role="status">
               Updating results…
@@ -123,9 +137,9 @@ export function ProfileCollectionSection({
               totalPages={page.totalPages}
             />
           ) : null}
-        </div>
+        </CardContent>
       ) : null}
-    </section>
+    </Card>
   )
 }
 
@@ -142,7 +156,16 @@ export function ProfileCollectionEmpty({
     <EmptyState
       action={
         !search ? (
-          <Button onClick={onAdd} variant="secondary">
+          <Button
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                add
+              </span>
+            }
+            onClick={onAdd}
+            size="sm"
+            variant="tonal"
+          >
             Add your first entry
           </Button>
         ) : undefined

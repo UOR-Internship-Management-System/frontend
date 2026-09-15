@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
+import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
+import { Switch } from '../../../shared/components/forms/Switch'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
-import { Modal } from '../../../shared/components/overlays/Modal'
-import { SelectField } from '../../../shared/components/forms/SelectField'
+import { List, ListItem } from '../../../shared/components/ui/List'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { useIndividualSkills } from '../../../shared/skill-taxonomy'
+import { useIndividualSkills, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
 import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { studentProjectFormSchema } from '../schemas/studentProjectSchemas'
 import type { StudentProjectFormValues } from '../types/studentProjectTypes'
@@ -16,7 +17,7 @@ import { ProjectSkillChips } from './ProjectSkillChips'
 
 type ProjectFormField = keyof StudentProjectFormValues
 type ProjectFormErrors = Partial<Record<ProjectFormField, string>>
-const taxonomyPageSize = 10
+const taxonomyPageSize = 8
 const emptyInitialSkills: IndividualSkill[] = []
 const projectFormFields: ProjectFormField[] = [
   'title',
@@ -109,12 +110,9 @@ export function ProjectForm({
   const [isOngoing, setIsOngoing] = useState(() =>
     Boolean(initialValues.startDate && !initialValues.endDate),
   )
-  const [isTimelineExpanded, setIsTimelineExpanded] = useState(
-    () => mode === 'edit' || Boolean(initialValues.startDate || initialValues.endDate),
-  )
-  const [selectedSkillId, setSelectedSkillId] = useState('')
-  const [selectedSkillNotes, setSelectedSkillNotes] = useState('')
   const [taxonomySearch, setTaxonomySearch] = useState('')
+  const [clusterId, setClusterId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [taxonomyPage, setTaxonomyPage] = useState(0)
   const [dirtyFields, setDirtyFields] = useState<Set<ProjectFormField>>(() => new Set())
   const dirtyFieldsRef = useRef<Set<ProjectFormField>>(new Set())
@@ -126,11 +124,19 @@ export function ProjectForm({
   const titleRef = useRef<HTMLInputElement | null>(null)
   const endDateRef = useRef<HTMLInputElement | null>(null)
   const debouncedTaxonomySearch = useDebouncedValue(taxonomySearch.trim(), 300)
-  const taxonomy = useIndividualSkills({
+  const taxonomy = useSkillTaxonomyTree()
+  const categories = useMemo(
+    () =>
+      taxonomy.data?.clusters.find((cluster) => cluster.clusterId === clusterId)?.categories ?? [],
+    [clusterId, taxonomy.data?.clusters],
+  )
+  const skills = useIndividualSkills({
     page: taxonomyPage,
     size: taxonomyPageSize,
     sort: 'name,asc',
     search: debouncedTaxonomySearch || undefined,
+    clusterId: clusterId || undefined,
+    categoryId: categoryId || undefined,
   })
   const selectedSkills = values.skillIds
     .map((skillId) => skillsById.get(skillId))
@@ -141,16 +147,14 @@ export function ProjectForm({
     setSkillsById((current) => {
       const next = new Map(current)
       for (const skill of initialSkills) next.set(skill.skillId, skill)
-      for (const skill of taxonomy.data?.items ?? []) next.set(skill.skillId, skill)
+      for (const skill of skills.data?.items ?? []) next.set(skill.skillId, skill)
       return next
     })
-  }, [initialSkills, taxonomy.data?.items])
+  }, [initialSkills, skills.data?.items])
 
   useEffect(() => {
     setTaxonomyPage(0)
-    setSelectedSkillId('')
-    setSelectedSkillNotes('')
-  }, [debouncedTaxonomySearch])
+  }, [debouncedTaxonomySearch, clusterId, categoryId])
 
   useEffect(() => {
     if (mode !== 'edit') return
@@ -184,15 +188,10 @@ export function ProjectForm({
     setFormError(undefined)
   }
 
-  const addSkill = () => {
-    if (!selectedSkillId) return
-    if (values.skillIds.includes(selectedSkillId)) {
-      setFieldErrors((current) => ({ ...current, skillIds: 'Select each skill only once.' }))
-      return
-    }
-    update('skillIds', [...values.skillIds, selectedSkillId])
-    setSelectedSkillId('')
-    setSelectedSkillNotes('')
+  const addSkill = (skillId: string) => {
+    if (values.skillIds.includes(skillId)) return
+    update('skillIds', [...values.skillIds, skillId])
+    setFieldErrors((current) => ({ ...current, skillIds: undefined }))
   }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -209,7 +208,6 @@ export function ProjectForm({
         }
       }
       setFieldErrors(errors)
-      if (errors.startDate || errors.endDate) setIsTimelineExpanded(true)
       window.requestAnimationFrame(() => {
         if (errors.title) titleRef.current?.focus()
         else if (errors.endDate) endDateRef.current?.focus()
@@ -229,282 +227,243 @@ export function ProjectForm({
         }
       }
       setFieldErrors(errors)
-      if (errors.startDate || errors.endDate) setIsTimelineExpanded(true)
       setFormError(mapped.message)
     } finally {
       setIsPending(false)
     }
   }
 
-  const describedBy = (field: ProjectFormField) =>
-    fieldErrors[field] ? `project-${field}-error` : undefined
-
   return (
-    <Modal
-      closeDisabled={isPending}
-      onClose={onCancel}
-      size="wide"
-      title={mode === 'create' ? 'Create New Project' : 'Edit Project'}
-    >
-      <form className="s4-projects-form" noValidate onSubmit={submit}>
-        {formError ? (
-          <div className="inline-alert s4-projects-form-alert" role="alert">
-            <p>{formError}</p>
-            <p>Your entered values are preserved. Review them before retrying.</p>
-          </div>
-        ) : null}
+    <form className="s4-projects-form" noValidate onSubmit={submit}>
+      {formError ? (
+        <div className="inline-alert s4-projects-form-alert" role="alert">
+          <p>{formError}</p>
+          <p>Your entered values are preserved. Review them before retrying.</p>
+        </div>
+      ) : null}
 
-        <FormField
-          error={fieldErrors.title}
-          errorId="project-title-error"
-          htmlFor="project-title"
-          label="Title"
-        >
-          <TextInput
-            aria-describedby={describedBy('title')}
-            aria-invalid={Boolean(fieldErrors.title)}
-            disabled={isPending}
-            id="project-title"
-            maxLength={200}
-            onChange={(event) => update('title', event.target.value)}
-            placeholder="Enter project title"
-            ref={titleRef}
-            value={values.title}
+      <TextField
+        error={fieldErrors.title}
+        id="project-title"
+        label="Title"
+        maxLength={200}
+        onChange={(event) => update('title', event.target.value)}
+        ref={titleRef}
+        value={values.title}
+      />
+
+      <div className="s4-projects-form-grid">
+        <TextField
+          error={fieldErrors.startDate}
+          id="project-start-date"
+          label="Start date"
+          onChange={(event) => update('startDate', event.target.value)}
+          placeholder=" "
+          type="date"
+          value={values.startDate}
+        />
+        <TextField
+          disabled={isOngoing}
+          error={fieldErrors.endDate}
+          id="project-end-date"
+          label="End date"
+          min={values.startDate || undefined}
+          onChange={(event) => update('endDate', event.target.value)}
+          placeholder=" "
+          ref={endDateRef}
+          type="date"
+          value={values.endDate}
+        />
+      </div>
+
+      <Switch
+        checked={isOngoing}
+        label="This project is still in progress"
+        onChange={(event) => {
+          const checked = event.target.checked
+          setIsOngoing(checked)
+          if (checked && values.endDate) update('endDate', '')
+        }}
+      />
+
+      <div className="s4-projects-form-grid">
+        <TextField
+          error={fieldErrors.repositoryUrl}
+          id="project-repository-url"
+          inputMode="url"
+          label="Repository URL"
+          onChange={(event) => update('repositoryUrl', event.target.value)}
+          placeholder="https://github.com/..."
+          type="url"
+          value={values.repositoryUrl}
+        />
+        <TextField
+          error={fieldErrors.demoUrl}
+          id="project-demo-url"
+          inputMode="url"
+          label="Demo URL"
+          onChange={(event) => update('demoUrl', event.target.value)}
+          placeholder="https://example.com/..."
+          type="url"
+          value={values.demoUrl}
+        />
+      </div>
+
+      <TextArea
+        error={fieldErrors.description}
+        id="project-description"
+        label="Project abstract / high-level description"
+        onChange={(event) => update('description', event.target.value)}
+        rows={4}
+        value={values.description}
+      />
+
+      <fieldset className="s4-projects-skills-fieldset" disabled={isPending}>
+        <legend>Skills</legend>
+        <p className="s4-projects-field-help">
+          Search the system skill taxonomy and select the technologies used in this project.
+        </p>
+        <SearchBar
+          aria-label="Search project taxonomy skills"
+          disabled={skills.isPending}
+          onChange={(event) => setTaxonomySearch(event.target.value)}
+          placeholder="Search taxonomy skills"
+          value={taxonomySearch}
+        />
+
+        <div className="cf-skills-browse-grid">
+          <M3SelectField
+            label="Core cluster"
+            aria-label="Filter by core cluster"
+            onChange={(nextValue) => {
+              setClusterId(nextValue)
+              setCategoryId('')
+            }}
+            value={clusterId}
+            options={[
+              { value: '', label: 'All clusters' },
+              ...(taxonomy.data?.clusters.map((cluster) => ({
+                value: cluster.clusterId,
+                label: cluster.name,
+              })) ?? []),
+            ]}
           />
-        </FormField>
-
-        <button
-          aria-controls="project-timeline-panel"
-          aria-expanded={isTimelineExpanded}
-          className="s4-projects-timeline-toggle"
-          disabled={isPending}
-          onClick={() => setIsTimelineExpanded((current) => !current)}
-          type="button"
-        >
-          <span aria-hidden="true" className="material-symbols-outlined">
-            edit_note
-          </span>
-          Timeline
-        </button>
-
-        {isTimelineExpanded ? (
-          <div className="s4-projects-timeline-panel" id="project-timeline-panel">
-            <div className="s4-projects-form-grid">
-              <FormField
-                error={fieldErrors.startDate}
-                errorId="project-startDate-error"
-                htmlFor="project-start-date"
-                label="Start Date"
-              >
-                <TextInput
-                  aria-describedby={describedBy('startDate')}
-                  aria-invalid={Boolean(fieldErrors.startDate)}
-                  disabled={isPending}
-                  id="project-start-date"
-                  onChange={(event) => update('startDate', event.target.value)}
-                  type="date"
-                  value={values.startDate}
-                />
-              </FormField>
-              <FormField
-                error={fieldErrors.endDate}
-                errorId="project-endDate-error"
-                htmlFor="project-end-date"
-                label="End Date"
-              >
-                <TextInput
-                  aria-describedby={describedBy('endDate')}
-                  aria-invalid={Boolean(fieldErrors.endDate)}
-                  disabled={isPending || isOngoing}
-                  id="project-end-date"
-                  min={values.startDate || undefined}
-                  onChange={(event) => update('endDate', event.target.value)}
-                  ref={endDateRef}
-                  type="date"
-                  value={values.endDate}
-                />
-              </FormField>
-            </div>
-
-            <label className="s4-projects-ongoing-option">
-              <input
-                checked={isOngoing}
-                disabled={isPending}
-                onChange={(event) => {
-                  const checked = event.target.checked
-                  setIsOngoing(checked)
-                  if (checked && values.endDate) update('endDate', '')
-                }}
-                type="checkbox"
-              />
-              <span>Under Development</span>
-            </label>
-          </div>
-        ) : null}
-
-        <div className="s4-projects-form-grid">
-          <FormField
-            error={fieldErrors.repositoryUrl}
-            errorId="project-repositoryUrl-error"
-            htmlFor="project-repository-url"
-            label="Repository URL"
-          >
-            <TextInput
-              aria-describedby={describedBy('repositoryUrl')}
-              aria-invalid={Boolean(fieldErrors.repositoryUrl)}
-              disabled={isPending}
-              id="project-repository-url"
-              inputMode="url"
-              onChange={(event) => update('repositoryUrl', event.target.value)}
-              placeholder="https://github.com/..."
-              type="url"
-              value={values.repositoryUrl}
-            />
-          </FormField>
-          <FormField
-            error={fieldErrors.demoUrl}
-            errorId="project-demoUrl-error"
-            htmlFor="project-demo-url"
-            label="Demo URL"
-          >
-            <TextInput
-              aria-describedby={describedBy('demoUrl')}
-              aria-invalid={Boolean(fieldErrors.demoUrl)}
-              disabled={isPending}
-              id="project-demo-url"
-              inputMode="url"
-              onChange={(event) => update('demoUrl', event.target.value)}
-              placeholder="https://example.com/..."
-              type="url"
-              value={values.demoUrl}
-            />
-          </FormField>
+          <M3SelectField
+            label="Skill category"
+            aria-label="Filter by skill category"
+            disabled={!clusterId}
+            onChange={(nextValue) => setCategoryId(nextValue)}
+            value={categoryId}
+            options={[
+              {
+                value: '',
+                label: clusterId ? 'All categories' : 'Select a cluster first',
+              },
+              ...categories.map((category) => ({
+                value: category.categoryId,
+                label: category.name,
+              })),
+            ]}
+          />
         </div>
 
-        <FormField
-          error={fieldErrors.description}
-          errorId="project-description-error"
-          htmlFor="project-description"
-          label="Project Abstract / High-Level Description"
-        >
-          <textarea
-            aria-describedby={describedBy('description')}
-            aria-invalid={Boolean(fieldErrors.description)}
-            className="input"
-            disabled={isPending}
-            id="project-description"
-            onChange={(event) => update('description', event.target.value)}
-            placeholder="Describe the project, its purpose, and your main contribution."
-            rows={4}
-            value={values.description}
-          />
-        </FormField>
-
-        <fieldset className="s4-projects-skills-fieldset" disabled={isPending}>
-          <legend>Skills</legend>
-          <p className="s4-projects-field-help">
-            Select technologies from the developer-managed skill taxonomy.
-          </p>
-          <SearchInput
-            aria-label="Search project taxonomy skills"
-            disabled={taxonomy.isPending}
-            onChange={(event) => setTaxonomySearch(event.target.value)}
-            placeholder="Search taxonomy skills"
-            value={taxonomySearch}
-          />
-          <div className="s4-projects-skill-picker">
-            <SelectField
-              aria-label="Taxonomy skill"
-              disabled={taxonomy.isPending || Boolean(taxonomy.error)}
-              onChange={(event) => setSelectedSkillId(event.target.value)}
-              value={selectedSkillId}
-            >
-              <option value="">Select Skill from the list</option>
-              {taxonomy.data?.items.map((skill) => (
-                <option
-                  disabled={values.skillIds.includes(skill.skillId)}
+        {skills.data ? (
+          <List aria-label="Taxonomy skill results" className="s4-projects-skill-results">
+            {skills.data.items.map((skill) => {
+              const selected = values.skillIds.includes(skill.skillId)
+              return (
+                <ListItem
+                  aria-disabled={selected || undefined}
+                  aria-label={skill.name}
+                  headline={skill.name}
+                  interactive={!selected}
                   key={skill.skillId}
-                  value={skill.skillId}
-                >
-                  {skill.name}
-                </option>
-              ))}
-            </SelectField>
-            <Button disabled={!selectedSkillId} onClick={addSkill} variant="secondary">
-              Add Skill
-            </Button>
-          </div>
-          {selectedSkillId && skillsById.has(selectedSkillId) ? (
-            <FormField
-              htmlFor="skill-usage-notes"
-              label={`Skill Usage Notes (${skillsById.get(selectedSkillId)?.name})`}
-            >
-              <textarea
-                className="input"
-                id="skill-usage-notes"
-                onChange={(event) => setSelectedSkillNotes(event.target.value)}
-                placeholder={`Describe how this project used ${skillsById.get(selectedSkillId)?.name}`}
-                rows={2}
-                value={selectedSkillNotes}
-              />
-            </FormField>
-          ) : null}
-          {taxonomy.data && taxonomy.data.page.totalPages > 1 ? (
-            <PaginationBar
-              label="Project taxonomy skills pagination"
-              onPageChange={(nextPage) => {
-                setTaxonomyPage(nextPage)
-                setSelectedSkillId('')
-              }}
-              page={taxonomy.data.page.page}
-              size={taxonomy.data.page.size}
-              totalElements={taxonomy.data.page.totalElements}
-              totalPages={taxonomy.data.page.totalPages}
-            />
-          ) : null}
-          {taxonomy.error ? (
-            <p className="error-text" role="alert">
-              Skill taxonomy is unavailable. Existing selections are preserved.
-            </p>
-          ) : null}
-          <ProjectSkillChips
-            disabled={isPending}
-            onRemove={(skillId) =>
-              update(
-                'skillIds',
-                values.skillIds.filter((value) => value !== skillId),
+                  onClick={() => addSkill(skill.skillId)}
+                  onKeyDown={(event) => {
+                    if (selected) return
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      addSkill(skill.skillId)
+                    }
+                  }}
+                  role="button"
+                  supportingText={selected ? 'Already added' : skill.description}
+                  trailing={
+                    selected ? (
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        check_circle
+                      </span>
+                    ) : (
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        add_circle
+                      </span>
+                    )
+                  }
+                />
               )
-            }
-            skills={selectedSkills}
-          />
-          {fieldErrors.skillIds ? (
-            <p className="error-text" id="project-skillIds-error">
-              {fieldErrors.skillIds}
-            </p>
-          ) : null}
-        </fieldset>
-
-        <div className="s4-projects-form-footer">
-          <label className="s4-projects-cv-option">
-            <input
-              checked={values.includeInCv}
-              disabled={isPending}
-              onChange={(event) => update('includeInCv', event.target.checked)}
-              type="checkbox"
-            />
-            <span>Include this project in the CV</span>
-          </label>
-
-          <div className="modal-actions">
-            <Button disabled={isPending} onClick={onCancel} variant="secondary">
-              Close
+            })}
+          </List>
+        ) : null}
+        {skills.data && skills.data.page.totalPages > 1 ? (
+          <nav
+            aria-label="Project taxonomy skills pagination"
+            className="s4-projects-taxonomy-pagination"
+          >
+            <Button
+              disabled={taxonomyPage <= 0}
+              onClick={() => setTaxonomyPage((current) => current - 1)}
+              size="sm"
+              type="button"
+              variant="text"
+            >
+              Previous
             </Button>
-            <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
-              {mode === 'create' ? 'Save' : 'Save Changes'}
+            <span>
+              Page {skills.data.page.page + 1} of {skills.data.page.totalPages}
+            </span>
+            <Button
+              disabled={taxonomyPage >= skills.data.page.totalPages - 1}
+              onClick={() => setTaxonomyPage((current) => current + 1)}
+              size="sm"
+              type="button"
+              variant="text"
+            >
+              Next
             </Button>
-          </div>
-        </div>
-      </form>
-    </Modal>
+          </nav>
+        ) : null}
+        {skills.error ? (
+          <p className="error-text" role="alert">
+            Skill taxonomy is unavailable. Existing selections are preserved.
+          </p>
+        ) : null}
+        <ProjectSkillChips
+          disabled={isPending}
+          onRemove={(skillId) =>
+            update(
+              'skillIds',
+              values.skillIds.filter((value) => value !== skillId),
+            )
+          }
+          skills={selectedSkills}
+        />
+        <FormErrorMessage id="project-skillIds-error" message={fieldErrors.skillIds} />
+      </fieldset>
+
+      <Switch
+        checked={values.includeInCv}
+        label="Include this project in the CV"
+        onChange={(event) => update('includeInCv', event.target.checked)}
+      />
+
+      <div className="s4-projects-form-footer">
+        <Button disabled={isPending} onClick={onCancel} type="button" variant="text">
+          Cancel
+        </Button>
+        <Button disabled={mode === 'edit' && !isDirty} isLoading={isPending} type="submit">
+          {mode === 'create' ? 'Save' : 'Save changes'}
+        </Button>
+      </div>
+    </form>
   )
 }

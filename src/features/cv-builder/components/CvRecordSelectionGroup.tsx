@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
 
 const maximumSelectedRecords = 100
 
@@ -37,6 +38,11 @@ export function CvRecordSelectionGroup({
   return (
     <fieldset className="s5-cv-source-fieldset">
       <legend>{title}</legend>
+      {items?.length ? (
+        <p aria-hidden="true" className="s5-cv-source-count">
+          {selectedIds.length}/{items.length} selected
+        </p>
+      ) : null}
       {isPending ? (
         <div aria-label={`Loading ${title}`} role="status">
           <SkeletonBlock lines={3} />
@@ -58,15 +64,13 @@ export function CvRecordSelectionGroup({
           {items.map((item) => {
             const selected = selectedIds.includes(item.id)
             return (
-              <label key={item.id}>
-                <input
-                  checked={selected}
-                  disabled={!selected && selectedIds.length >= maximumSelectedRecords}
-                  onChange={() => onToggle(item.id)}
-                  type="checkbox"
-                />
-                <span>{item.label}</span>
-              </label>
+              <Checkbox
+                checked={selected}
+                disabled={!selected && selectedIds.length >= maximumSelectedRecords}
+                key={item.id}
+                label={item.label}
+                onChange={() => onToggle(item.id)}
+              />
             )
           })}
         </div>
@@ -76,8 +80,12 @@ export function CvRecordSelectionGroup({
           The maximum of {maximumSelectedRecords} records is selected for this group.
         </p>
       ) : null}
-      <Link aria-label={`Manage ${manageLabel}`} to={manageHref}>
-        Manage {manageLabel}
+      <Link
+        aria-label={`Manage ${manageLabel}`}
+        className="s5-cv-manage-link button m3-button button-text m3-button--text m3-button--size-md"
+        to={manageHref}
+      >
+        <span className="button-content">Manage {manageLabel}</span>
       </Link>
     </fieldset>
   )

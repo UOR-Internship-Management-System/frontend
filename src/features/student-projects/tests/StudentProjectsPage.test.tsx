@@ -2,7 +2,6 @@ import { waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { delay, http, HttpResponse } from 'msw'
 import { afterEach, describe, expect, it } from 'vitest'
-import { skillIds } from '../../../mocks/fixtures/skills.fixture'
 import {
   getStudentProjectsFixture,
   setStudentProjectsFixture,
@@ -36,79 +35,61 @@ describe('StudentProjectsPage', () => {
     expect(view.getByRole('heading', { level: 1, name: 'Projects' })).toBeInTheDocument()
     expect(view.getByRole('status', { name: 'Loading projects' })).toBeInTheDocument()
     expect(
-      await view.findByRole('listitem', { name: 'Project Accessible Internship Portal' }),
+      await view.findByRole('button', { name: 'Project Accessible Internship Portal' }),
     ).toBeVisible()
   })
 
   it('creates, views, and edits Student-owned portfolio projects', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentProjectsPage />)
-    console.log('Test 2: Before findByRole listitem')
-    await view.findByRole('listitem', { name: 'Project Accessible Internship Portal' })
-    console.log('Test 2: Found listitem')
+    await view.findByRole('button', { name: 'Project Accessible Internship Portal' })
 
     await user.click(view.getByRole('button', { name: 'Add project' }))
-    console.log('Test 2: Clicked Add project')
-    expect(view.getByRole('dialog', { name: 'Create New Project' })).toBeInTheDocument()
-    await user.type(view.getByLabelText('Title'), 'Deterministic Portfolio')
-    console.log('Test 2: Typed Title')
-    const taxonomy = await view.findByLabelText('Taxonomy skill')
-    console.log('Test 2: Found taxonomy')
-    await user.selectOptions(taxonomy, skillIds.typescript)
-    console.log('Test 2: Selected option')
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
-    console.log('Test 2: Clicked Add Skill')
-    await user.click(view.getByRole('button', { name: 'Save' }))
-    console.log('Test 2: Clicked Save')
+    const createDialog = view.getByRole('dialog', { name: 'Create new project' })
+    await user.type(within(createDialog).getByLabelText('Title'), 'Deterministic Portfolio')
+    const results = await within(createDialog).findByRole('list', {
+      name: 'Taxonomy skill results',
+    })
+    await user.click(within(results).getByRole('button', { name: 'TypeScript' }))
+    await user.click(within(createDialog).getByRole('button', { name: 'Save' }))
     expect(await view.findByText('Project created')).toBeInTheDocument()
-    console.log('Test 2: Found Project created')
     expect(
-      await view.findByRole('listitem', { name: 'Project Deterministic Portfolio' }),
+      await view.findByRole('button', { name: 'Project Deterministic Portfolio' }),
     ).toBeVisible()
 
-    const accessibleProject = view.getByRole('listitem', {
-      name: 'Project Accessible Internship Portal',
-    })
-    await user.click(
-      within(accessibleProject).getByRole('button', {
-        name: 'Details for Accessible Internship Portal',
-      }),
-    )
-    const details = await view.findByRole('dialog', { name: 'Project Details' })
+    await user.click(view.getByRole('button', { name: 'Project Accessible Internship Portal' }))
+    const details = await view.findByRole('dialog', { name: 'Project details' })
     expect(within(details).getByText('Accessible Internship Portal')).toBeVisible()
     await user.click(within(details).getByRole('button', { name: 'Edit' }))
-    await user.clear(view.getByLabelText('Project Abstract / High-Level Description'))
+    const editDialog = view.getByRole('dialog', { name: 'Edit project' })
+    await user.clear(within(editDialog).getByLabelText('Project abstract / high-level description'))
     await user.type(
-      view.getByLabelText('Project Abstract / High-Level Description'),
+      within(editDialog).getByLabelText('Project abstract / high-level description'),
       'Revised accessible portfolio evidence.',
     )
-    await user.click(view.getByLabelText('Include this project in the CV'))
-    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    await user.click(within(editDialog).getByLabelText(/Include this project in the CV/))
+    await user.click(within(editDialog).getByRole('button', { name: 'Save changes' }))
     expect(await view.findByText('Project updated')).toBeInTheDocument()
     expect(
-      await view.findByRole('listitem', { name: 'Project Accessible Internship Portal' }),
+      await view.findByRole('button', { name: 'Project Accessible Internship Portal' }),
     ).toHaveTextContent('Revised accessible portfolio evidence.')
   }, 10_000)
 
   it('deletes a Student-owned portfolio project from its latest details', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentProjectsPage />)
-    const academicProject = await view.findByRole('listitem', {
+    const academicProject = await view.findByRole('button', {
       name: 'Project Academic Record Visualizer',
     })
-    await user.click(
-      within(academicProject).getByRole('button', {
-        name: 'Details for Academic Record Visualizer',
-      }),
-    )
-    const details = await view.findByRole('dialog', { name: 'Project Details' })
-    await user.click(within(details).getByRole('button', { name: 'Remove Project' }))
+    await user.click(academicProject)
+    const details = await view.findByRole('dialog', { name: 'Project details' })
+    await user.click(within(details).getByRole('button', { name: 'Remove project' }))
     const deleteDialog = view.getByRole('dialog', { name: 'Remove Project' })
     await user.click(within(deleteDialog).getByRole('button', { name: 'Remove' }))
     expect(await view.findByText('Project deleted')).toBeInTheDocument()
     await waitFor(() =>
       expect(
-        view.queryByRole('listitem', { name: 'Project Academic Record Visualizer' }),
+        view.queryByRole('button', { name: 'Project Academic Record Visualizer' }),
       ).not.toBeInTheDocument(),
     )
   })
@@ -116,7 +97,7 @@ describe('StudentProjectsPage', () => {
   it('keeps server search separate from a recoverable list error', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentProjectsPage />)
-    await view.findByRole('listitem', { name: 'Project Accessible Internship Portal' })
+    await view.findByRole('button', { name: 'Project Accessible Internship Portal' })
 
     const search = view.getByRole('searchbox', { name: 'Search saved projects' })
     await user.type(search, 'missing')
@@ -205,29 +186,32 @@ describe('StudentProjectsPage', () => {
       }),
     )
     const view = renderWithProviders(<StudentProjectsPage />)
-    const project = await view.findByRole('listitem', {
+    const project = await view.findByRole('button', {
       name: 'Project Accessible Internship Portal',
     })
-    await user.click(
-      within(project).getByRole('button', { name: 'Details for Accessible Internship Portal' }),
-    )
-    const details = await view.findByRole('dialog', { name: 'Project Details' })
+    await user.click(project)
+    const details = await view.findByRole('dialog', { name: 'Project details' })
     await user.click(within(details).getByRole('button', { name: 'Edit' }))
-    const description = view.getByLabelText('Project Abstract / High-Level Description')
+    const editDialog = view.getByRole('dialog', { name: 'Edit project' })
+    const description = within(editDialog).getByLabelText(
+      'Project abstract / high-level description',
+    )
     await user.clear(description)
     await user.type(description, 'Keep this exact intended draft.')
-    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    await user.click(within(editDialog).getByRole('button', { name: 'Save changes' }))
 
     expect(await view.findByText('Review the latest project')).toBeInTheDocument()
-    expect(view.getByLabelText('Project Abstract / High-Level Description')).toHaveValue(
-      'Keep this exact intended draft.',
-    )
+    expect(
+      within(editDialog).getByLabelText('Project abstract / high-level description'),
+    ).toHaveValue('Keep this exact intended draft.')
     await waitFor(() =>
-      expect(view.getByLabelText('Title')).toHaveValue('Server-renamed accessible portfolio'),
+      expect(within(editDialog).getByLabelText('Title')).toHaveValue(
+        'Server-renamed accessible portfolio',
+      ),
     )
-    expect(view.getByRole('dialog', { name: 'Edit Project' })).toBeInTheDocument()
-    expect(view.getByRole('button', { name: 'Save Changes' })).toBeEnabled()
-    await user.click(view.getByRole('button', { name: 'Save Changes' }))
+    expect(view.getByRole('dialog', { name: 'Edit project' })).toBeInTheDocument()
+    expect(within(editDialog).getByRole('button', { name: 'Save changes' })).toBeEnabled()
+    await user.click(within(editDialog).getByRole('button', { name: 'Save changes' }))
 
     expect(await view.findByText('Project updated')).toBeInTheDocument()
     expect(patchBodies).toEqual([
@@ -235,7 +219,7 @@ describe('StudentProjectsPage', () => {
       { description: 'Keep this exact intended draft.' },
     ])
     expect(
-      await view.findByRole('listitem', { name: 'Project Server-renamed accessible portfolio' }),
+      await view.findByRole('button', { name: 'Project Server-renamed accessible portfolio' }),
     ).toHaveTextContent('Keep this exact intended draft.')
   })
 
@@ -250,17 +234,15 @@ describe('StudentProjectsPage', () => {
     }))
     setStudentProjectsFixture(projects)
     const view = renderWithProviders(<StudentProjectsPage />)
-    await view.findByRole('listitem', { name: 'Project Portfolio Project 1' })
+    await view.findByRole('button', { name: 'Project Portfolio Project 1' })
 
     await user.click(view.getByRole('button', { name: 'Next' }))
-    const finalProject = await view.findByRole('listitem', {
+    const finalProject = await view.findByRole('button', {
       name: 'Project Portfolio Project 5',
     })
-    await user.click(
-      within(finalProject).getByRole('button', { name: 'Details for Portfolio Project 5' }),
-    )
-    const details = await view.findByRole('dialog', { name: 'Project Details' })
-    await user.click(within(details).getByRole('button', { name: 'Remove Project' }))
+    await user.click(finalProject)
+    const details = await view.findByRole('dialog', { name: 'Project details' })
+    await user.click(within(details).getByRole('button', { name: 'Remove project' }))
     await user.click(
       within(view.getByRole('dialog', { name: 'Remove Project' })).getByRole('button', {
         name: 'Remove',
@@ -268,7 +250,7 @@ describe('StudentProjectsPage', () => {
     )
 
     expect(await view.findByText('Project deleted')).toBeInTheDocument()
-    expect(await view.findByRole('listitem', { name: 'Project Portfolio Project 1' })).toBeVisible()
+    expect(await view.findByRole('button', { name: 'Project Portfolio Project 1' })).toBeVisible()
     expect(view.getByText(/Page 1 of 1/)).toBeInTheDocument()
   })
 })

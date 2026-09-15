@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { mapContactLinkRequest } from '../mappers/profileEntryMappers'
 import { contactLinkFormSchema } from '../schemas/profileEntrySchemas'
 import type { ContactLink, ContactLinkRequest } from '../types/profileEntryTypes'
@@ -11,11 +11,13 @@ export function ContactLinkEditor({
   isPending,
   item,
   onCancel,
+  onDirtyChange,
   onSubmit,
 }: {
   isPending: boolean
   item?: ContactLink
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (values: ContactLinkRequest) => Promise<void>
 }) {
   const [values, setValues] = useState({
@@ -40,53 +42,52 @@ export function ContactLinkEditor({
     }
   }
   return (
-    <form className="profile-editor-form" noValidate onSubmit={submit}>
+    <form
+      className="profile-editor-form"
+      noValidate
+      onChange={() => onDirtyChange?.(true)}
+      onSubmit={submit}
+    >
       {error ? (
         <div className="inline-alert" role="alert">
           {error}
         </div>
       ) : null}
-      <FormField htmlFor="contact-link-label" label="Link Label">
-        <TextInput
-          id="contact-link-label"
-          maxLength={60}
-          onChange={(event) => setValues({ ...values, label: event.target.value })}
-          required
-          value={values.label}
-        />
-      </FormField>
-      <FormField htmlFor="contact-link-url" label="URL">
-        <TextInput
-          autoComplete="url"
-          id="contact-link-url"
-          onChange={(event) => setValues({ ...values, url: event.target.value })}
-          required
-          type="url"
-          value={values.url}
-        />
-      </FormField>
-      <FormField htmlFor="contact-link-order" label="Display Order">
-        <TextInput
-          id="contact-link-order"
-          min={0}
-          onChange={(event) => setValues({ ...values, displayOrder: event.target.value })}
-          required
-          type="number"
-          value={values.displayOrder}
-        />
-      </FormField>
-      <label className="profile-checkbox">
-        <input
-          checked={values.cvInclude}
-          onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
-          type="checkbox"
-        />{' '}
-        Include this Professional Link in the CV
-      </label>
+      <TextField
+        id="contact-link-label"
+        label="Link label"
+        maxLength={60}
+        onChange={(event) => setValues({ ...values, label: event.target.value })}
+        required
+        value={values.label}
+      />
+      <TextField
+        autoComplete="url"
+        id="contact-link-url"
+        label="URL"
+        onChange={(event) => setValues({ ...values, url: event.target.value })}
+        required
+        type="url"
+        value={values.url}
+      />
+      <TextField
+        id="contact-link-order"
+        label="Display order"
+        min={0}
+        onChange={(event) => setValues({ ...values, displayOrder: event.target.value })}
+        required
+        type="number"
+        value={values.displayOrder}
+      />
+      <Checkbox
+        checked={values.cvInclude}
+        label="Include this professional link in the CV"
+        onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
+      />
       <ProfileEditorActions
         isPending={isPending}
         onCancel={onCancel}
-        submitLabel={item ? 'Save Link' : 'Add Link'}
+        submitLabel={item ? 'Save link' : 'Add link'}
       />
     </form>
   )

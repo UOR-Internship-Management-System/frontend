@@ -49,8 +49,10 @@ export function StudentSignUpPage() {
             Back
           </Link>
           <div className="form-header">
-            <h1>Student Registration</h1>
-            <p>Initialize your passwordless account authorization request below.</p>
+            <h2 className="m3-headline-small">Student Registration</h2>
+            <p className="m3-body-medium">
+              Initialize your passwordless account authorization request below.
+            </p>
           </div>
           <StudentSignUpForm
             isSubmitting={startVerification.isPending && !dialog.isOpen}

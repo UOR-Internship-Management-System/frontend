@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type DragEvent } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { FileUploadField } from '../../../shared/components/forms/FileUploadField'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { academicLedgerFileSchema } from '../schemas/ledgerSchemas'
 
 export function LedgerUploadPanel({
@@ -66,84 +67,85 @@ export function LedgerUploadPanel({
   }
 
   return (
-    <section aria-labelledby="ledger-upload-title" className="section-card ledger-upload-panel">
-      <div className="ledger-upload-heading">
-        <h2 id="ledger-upload-title">Upload academic records</h2>
-        <p>Upload a CSV or Excel file. It's staged and validated before you commit it.</p>
-      </div>
+    <Card aria-labelledby="ledger-upload-title" variant="outlined">
+      <CardHeader>
+        <CardTitle id="ledger-upload-title">Upload academic records</CardTitle>
+        <p>Upload a CSV or Excel file. It&apos;s staged and validated before you commit it.</p>
+      </CardHeader>
+      <CardContent className="al-upload-content">
+        <FileUploadField
+          accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          aria-describedby={`ledger-file-help${
+            validationMessage || requestError ? ' ledger-file-error' : ''
+          }`}
+          aria-invalid={Boolean(validationMessage || requestError) || undefined}
+          aria-label="Official academic ledger file"
+          className="visually-hidden"
+          disabled={isPending}
+          id={inputId}
+          onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
+          ref={inputRef}
+        />
 
-      <FileUploadField
-        accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        aria-describedby={`ledger-file-help${
-          validationMessage || requestError ? ' ledger-file-error' : ''
-        }`}
-        aria-invalid={Boolean(validationMessage || requestError) || undefined}
-        aria-label="Official academic ledger file"
-        className="visually-hidden"
-        disabled={isPending}
-        id={inputId}
-        onChange={(event) => chooseFile(event.target.files?.[0] ?? null)}
-        ref={inputRef}
-      />
-
-      <button
-        aria-controls={inputId}
-        className={`ledger-dropzone ${isDragging ? 'is-dragging' : ''}`.trim()}
-        disabled={isPending}
-        onClick={() => inputRef.current?.click()}
-        onDragEnter={(event) => {
-          event.preventDefault()
-          if (!isPending) setIsDragging(true)
-        }}
-        onDragLeave={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-            setIsDragging(false)
-          }
-        }}
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={handleDrop}
-        type="button"
-      >
-        <span aria-hidden="true" className="material-symbols-outlined ledger-dropzone-icon">
-          cloud_upload
-        </span>
-        <strong>Drag &amp; drop a file here, or click to browse</strong>
-        <span>CSV or Excel (.xlsx) · Max 5 MiB</span>
-      </button>
-
-      <p className="field-help" id="ledger-file-help">
-        Columns and values are checked automatically before you can commit.
-      </p>
-
-      {file ? (
-        <div className="ledger-selected-file" role="status">
-          <span aria-hidden="true" className="material-symbols-outlined">
-            description
+        <button
+          aria-controls={inputId}
+          className={`al-dropzone ${isDragging ? 'is-dragging' : ''}`.trim()}
+          disabled={isPending}
+          onClick={() => inputRef.current?.click()}
+          onDragEnter={(event) => {
+            event.preventDefault()
+            if (!isPending) setIsDragging(true)
+          }}
+          onDragLeave={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              setIsDragging(false)
+            }
+          }}
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleDrop}
+          type="button"
+        >
+          <span aria-hidden="true" className="material-symbols-outlined al-dropzone-icon">
+            cloud_upload
           </span>
-          <span>
-            <strong>{file.name}</strong>
-            <small>{Math.max(1, Math.ceil(file.size / 1024))} KiB selected</small>
-          </span>
-        </div>
-      ) : null}
+          <strong>Drag &amp; drop a file here, or click to browse</strong>
+          <span>CSV or Excel (.xlsx) · Max 5 MiB</span>
+        </button>
 
-      {validationMessage || requestError ? (
-        <p className="error-text" id="ledger-file-error" role="alert">
-          {validationMessage ?? requestError?.message}
-          {requestError?.correlationId ? ` Reference: ${requestError.correlationId}` : ''}
+        <p className="field-hint" id="ledger-file-help">
+          Columns and values are checked automatically before you can commit.
         </p>
-      ) : null}
 
-      <div className="button-row ledger-upload-actions">
-        <Button disabled={!file} isLoading={isPending} onClick={() => file && onUpload(file)}>
-          Upload
-        </Button>
         {file ? (
-          <Button disabled={isPending} onClick={clearFile} variant="secondary">
-            Clear
-          </Button>
+          <div className="al-selected-file" role="status">
+            <span aria-hidden="true" className="material-symbols-outlined">
+              description
+            </span>
+            <span>
+              <strong>{file.name}</strong>
+              <small>{Math.max(1, Math.ceil(file.size / 1024))} KiB selected</small>
+            </span>
+          </div>
         ) : null}
-      </div>
-    </section>
+
+        {validationMessage || requestError ? (
+          <p className="error-text" id="ledger-file-error" role="alert">
+            {validationMessage ?? requestError?.message}
+            {requestError?.correlationId ? ` Reference: ${requestError.correlationId}` : ''}
+          </p>
+        ) : null}
+
+        <div className="al-upload-actions">
+          <Button disabled={!file} isLoading={isPending} onClick={() => file && onUpload(file)}>
+            Upload
+          </Button>
+          {file ? (
+            <Button disabled={isPending} onClick={clearFile} variant="outlined">
+              Clear
+            </Button>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
   )
 }

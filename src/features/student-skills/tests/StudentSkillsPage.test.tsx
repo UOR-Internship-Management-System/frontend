@@ -11,102 +11,73 @@ import { renderWithProviders } from '../../../test/renderWithProviders'
 import { StudentSkillsPage } from '../pages/StudentSkillsPage'
 
 describe('StudentSkillsPage', () => {
-  it('renders independent loading states and the persisted declared-skill list', async () => {
-    server.use(
-      http.get('/api/v1/skill-taxonomy/skills', async () => {
-        await delay(60)
-        return HttpResponse.json({
-          items: [],
-          page: { page: 0, size: 9, totalElements: 0, totalPages: 0, sort: 'name,asc' },
-        })
-      }),
-    )
+  it('renders the declared-skills list and the persisted skill', async () => {
     const { getByRole, findByRole } = renderWithProviders(<StudentSkillsPage />)
 
     expect(getByRole('heading', { level: 1, name: 'Skills' })).toBeInTheDocument()
-    expect(getByRole('status', { name: 'Loading available skills' })).toBeInTheDocument()
     expect(getByRole('status', { name: 'Loading declared skills' })).toBeInTheDocument()
-    expect(await findByRole('row', { name: /React/ })).toBeInTheDocument()
+    expect(await findByRole('listitem', { name: /React/ })).toBeInTheDocument()
   })
 
   it('adds, updates, and removes a canonical declared skill', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentSkillsPage />)
 
-    const typeScript = await view.findByRole('button', { name: /TypeScript/ })
-    await user.click(typeScript)
-    await user.selectOptions(view.getByLabelText('Competency Level'), 'ADVANCED')
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
+    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    const dialog = await view.findByRole('dialog', { name: 'Add skill' })
 
-    const typeScriptRow = await view.findByRole('row', { name: /TypeScript/ })
+    const typeScript = await within(dialog).findByRole('button', { name: 'TypeScript' })
+    await user.click(typeScript)
+    await user.click(within(dialog).getByRole('button', { name: 'Advanced' }))
+    await user.click(within(dialog).getByRole('button', { name: 'Add skill' }))
+
+    await waitFor(() => expect(view.queryByRole('dialog', { name: 'Add skill' })).toBeNull())
+    const typeScriptRow = await view.findByRole('listitem', { name: /TypeScript/ })
     expect(typeScriptRow).toHaveTextContent('TypeScript')
     expect(typeScriptRow).toHaveTextContent('Software Engineering')
-    expect(typeScriptRow).toHaveTextContent('Frontend Development, Backend Development')
+    expect(typeScriptRow).toHaveTextContent('Advanced')
     expect(await view.findByText('Skill added')).toBeInTheDocument()
 
-    const reactRow = view.getByRole('row', { name: /React/ })
-    await user.selectOptions(within(reactRow).getByLabelText('Competency for React'), 'ADVANCED')
-    await user.click(within(reactRow).getByRole('button', { name: 'Update competency for React' }))
+    const reactRow = view.getByRole('listitem', { name: /React/ })
+    await user.click(within(reactRow).getByRole('button', { name: 'Actions for React' }))
+    await user.click(view.getByRole('menuitem', { name: 'Edit competency' }))
+    const editDialog = view.getByRole('dialog', { name: 'Edit competency for React' })
+    await user.click(within(editDialog).getByRole('button', { name: 'Advanced' }))
+    await user.click(within(editDialog).getByRole('button', { name: 'Save' }))
     expect(await view.findByText('Competency updated')).toBeInTheDocument()
 
-    await user.click(within(reactRow).getByRole('button', { name: 'Remove React' }))
-    const dialog = view.getByRole('dialog', { name: 'Remove Skill' })
-    await user.click(within(dialog).getByRole('button', { name: 'Remove' }))
+    await user.click(within(reactRow).getByRole('button', { name: 'Actions for React' }))
+    await user.click(view.getByRole('menuitem', { name: 'Remove' }))
+    const removeDialog = view.getByRole('dialog', { name: 'Remove skill' })
+    await user.click(within(removeDialog).getByRole('button', { name: 'Remove' }))
     expect(await view.findByText('Skill removed')).toBeInTheDocument()
   })
 
-  it('matches the wireframe section and table structure with a keyboard-safe cascade', async () => {
+  it('uses the Add Skill search and cluster filter to narrow the taxonomy results', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentSkillsPage />)
 
-    expect(await view.findByRole('heading', { name: 'Add Skill Entry' })).toBeVisible()
-    expect(view.getByRole('heading', { name: 'Available System Skills' })).toBeVisible()
-    expect(view.getByRole('heading', { name: 'Declared Skills' })).toBeVisible()
-
-    const table = await view.findByRole('table')
-    for (const column of ['Core Cluster', 'Skill Category', 'Skill', 'Competency', 'Action']) {
-      expect(within(table).getByRole('columnheader', { name: column })).toBeVisible()
-    }
-    expect(
-      within(table).queryByRole('columnheader', { name: 'Last updated' }),
-    ).not.toBeInTheDocument()
-
-    await user.selectOptions(
-      view.getByLabelText('Add Skill Core Cluster'),
-      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-    )
-    await user.selectOptions(
-      view.getByLabelText('Add Skill Category'),
-      'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
-    )
-    await user.selectOptions(
-      view.getByLabelText('Add Skill Individual Skill'),
-      '22222222-2222-4222-8222-222222222222',
-    )
-    await user.selectOptions(view.getByLabelText('Competency Level'), 'ADVANCED')
-    await user.click(view.getByRole('button', { name: 'Add Skill' }))
-
-    expect(await view.findByRole('row', { name: /TypeScript/ })).toBeVisible()
-  })
-
-  it('uses the Add Skill search to filter the available taxonomy list', async () => {
-    const user = userEvent.setup()
-    const view = renderWithProviders(<StudentSkillsPage />)
-    const addSection = await view.findByRole('region', { name: 'Add Skill Entry' })
-    const availableSkills = view.getByRole('region', { name: 'Available System Skills' })
+    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    const dialog = await view.findByRole('dialog', { name: 'Add skill' })
 
     await user.type(
-      await within(addSection).findByRole('searchbox', { name: 'Search available system skills' }),
+      await within(dialog).findByRole('searchbox', { name: 'Search system skills' }),
       'TypeScript',
     )
-
-    expect(await within(availableSkills).findByRole('button', { name: /TypeScript/ })).toBeVisible()
+    expect(await within(dialog).findByRole('button', { name: 'TypeScript' })).toBeVisible()
     await waitFor(() => {
-      expect(within(availableSkills).queryByRole('button', { name: /JavaScript/ })).toBeNull()
+      expect(within(dialog).queryByRole('button', { name: 'JavaScript' })).toBeNull()
+    })
+
+    await user.clear(within(dialog).getByRole('searchbox', { name: 'Search system skills' }))
+    await user.selectOptions(within(dialog).getByLabelText('Filter by core cluster'), 'Data and AI')
+    expect(await within(dialog).findByRole('button', { name: 'Python' })).toBeVisible()
+    await waitFor(() => {
+      expect(within(dialog).queryByRole('button', { name: 'React' })).toBeNull()
     })
   })
 
-  it('disables every canonical skill returned by the complete declaration query', async () => {
+  it('marks every already-declared skill as unavailable to select', async () => {
     setDeclaredSkillsFixture(
       individualSkillsFixture.map((skill, index) => ({
         declaredSkillId: `77777777-7777-4777-8777-${String(index + 100).padStart(12, '0')}`,
@@ -118,23 +89,25 @@ describe('StudentSkillsPage', () => {
         updatedAt: '2026-07-16T08:30:00Z',
       })),
     )
+    const user = userEvent.setup()
     const view = renderWithProviders(<StudentSkillsPage />)
 
-    const availableSkills = await view.findByRole('region', { name: 'Available System Skills' })
+    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    const dialog = await view.findByRole('dialog', { name: 'Add skill' })
+
     for (const skill of individualSkillsFixture) {
-      expect(
-        await within(availableSkills).findByRole('button', {
-          name: new RegExp(`^${skill.name}\\.`),
-        }),
-      ).toBeDisabled()
+      expect(await within(dialog).findByRole('button', { name: skill.name })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      )
     }
-    expect(await within(availableSkills).findByText('1–6 of 6', { exact: false })).toBeVisible()
   })
 
-  it('keeps available-taxonomy and declared-list errors independent', async () => {
+  it('keeps taxonomy and declared-list errors independent', async () => {
     server.use(
-      http.get('/api/v1/skill-taxonomy/skills', () =>
-        HttpResponse.json(
+      http.get('/api/v1/skill-taxonomy', async () => {
+        await delay(20)
+        return HttpResponse.json(
           {
             type: 'about:blank',
             title: 'Unavailable',
@@ -144,15 +117,22 @@ describe('StudentSkillsPage', () => {
             correlationId: 'skills-503',
           },
           { status: 503 },
-        ),
-      ),
+        )
+      }),
     )
+    const user = userEvent.setup()
     const view = renderWithProviders(<StudentSkillsPage />)
+    expect(await view.findByRole('listitem', { name: /React/ })).toBeInTheDocument()
 
+    await user.click(view.getByRole('button', { name: 'Add skill' }))
+    const dialog = await view.findByRole('dialog', { name: 'Add skill' })
     expect(
-      await view.findByRole('heading', { name: 'Skill taxonomy unavailable' }, { timeout: 3_000 }),
+      await within(dialog).findByRole(
+        'heading',
+        { name: 'Add Skill unavailable' },
+        { timeout: 4_000 },
+      ),
     ).toBeInTheDocument()
-    expect(await view.findByRole('row', { name: /React/ })).toBeInTheDocument()
   })
 
   it('preserves the intended competency and requires explicit retry after a stale update', async () => {
@@ -173,28 +153,25 @@ describe('StudentSkillsPage', () => {
       ),
     )
     const view = renderWithProviders(<StudentSkillsPage />)
-    const reactRow = await view.findByRole('row', { name: /React/ }, { timeout: 5_000 })
-    const competency = within(reactRow).getByLabelText('Competency for React')
-    await user.selectOptions(competency, 'ADVANCED')
-    await user.click(within(reactRow).getByRole('button', { name: 'Update competency for React' }))
+    const reactRow = await view.findByRole('listitem', { name: /React/ }, { timeout: 5_000 })
+    await user.click(within(reactRow).getByRole('button', { name: 'Actions for React' }))
+    await user.click(view.getByRole('menuitem', { name: 'Edit competency' }))
+    const editDialog = view.getByRole('dialog', { name: 'Edit competency for React' })
+    await user.click(within(editDialog).getByRole('button', { name: 'Advanced' }))
+    await user.click(within(editDialog).getByRole('button', { name: 'Save' }))
 
     expect(await view.findByText('Review the latest record')).toBeInTheDocument()
-    expect(competency).toHaveValue('ADVANCED')
-    expect(
-      within(reactRow).getByRole('button', { name: 'Update competency for React' }),
-    ).toBeEnabled()
   }, 15_000)
 
-  it('shows a no-results state for declared-skill search without changing taxonomy state', async () => {
+  it('shows a no-results state for declared-skill search', async () => {
     const user = userEvent.setup()
     const view = renderWithProviders(<StudentSkillsPage />)
-    await view.findByRole('row', { name: /React/ })
+    await view.findByRole('listitem', { name: /React/ })
 
     await user.type(
       await view.findByRole('searchbox', { name: 'Search declared skills' }),
       'missing',
     )
     expect(await view.findByText('No matching declared skills')).toBeInTheDocument()
-    expect(view.getByRole('button', { name: /React/ })).toBeDisabled()
   })
 })

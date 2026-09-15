@@ -2,7 +2,11 @@ import { useEffect } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { AdminDashboardSkeleton } from '../../../shared/skeletons'
+import {
+  SkeletonMetricGrid,
+  SkeletonPageHeader,
+  SkeletonStatusRegion,
+} from '../../../shared/skeletons'
 import { AdminMetricCard } from '../components/AdminMetricCard'
 import { useAdminDashboard } from '../hooks/useAdminDashboard'
 
@@ -22,7 +26,17 @@ export function AdminDashboardPage() {
     }
   }, [])
 
-  if (metricsQuery.isPending) return <AdminDashboardSkeleton />
+  if (metricsQuery.isPending) {
+    return (
+      <SkeletonStatusRegion
+        className="content-stack admin-dashboard-page"
+        label="Loading admin dashboard"
+      >
+        <SkeletonPageHeader />
+        <SkeletonMetricGrid count={3} />
+      </SkeletonStatusRegion>
+    )
+  }
 
   if (metricsQuery.isError) {
     const error = mapApiError(metricsQuery.error, 'protected')
@@ -51,7 +65,7 @@ export function AdminDashboardPage() {
 
   return (
     <main className="content-stack admin-dashboard-page">
-      <PageHeader description={pageDescription} eyebrow="Administration" title="Admin Dashboard" />
+      <PageHeader description={pageDescription} title="Admin Dashboard" />
       <section aria-label="Admin dashboard metrics" className="admin-dashboard-summary">
         <div className="admin-metrics-grid">
           {metricsQuery.data.metrics.map((metric) => (

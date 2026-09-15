@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Modal } from './Modal'
+import { Dialog } from './Dialog'
 
 export function ConfirmDialog({
   children,
@@ -13,8 +13,15 @@ export function ConfirmDialog({
   closeDisabled?: boolean
 }) {
   return (
-    <Modal closeDisabled={closeDisabled} onClose={onClose} title={title}>
+    <Dialog
+      closeDisabled={closeDisabled}
+      closeOnBackdrop={false}
+      isOpen
+      onClose={onClose}
+      size="small"
+      title={title}
+    >
       {children}
-    </Modal>
+    </Dialog>
   )
 }

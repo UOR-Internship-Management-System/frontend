@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Card, CardContent } from '../../../shared/components/ui/Card'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
 
 export function ProfileEntryCard({
@@ -15,18 +16,22 @@ export function ProfileEntryCard({
   title: string
 }) {
   return (
-    <article className="profile-entry-card">
-      <div className="profile-entry-heading">
-        <div>
-          <h3>{title}</h3>
-          <p>{subtitle}</p>
+    <Card className="profile-entry-card" variant="outlined">
+      <CardContent>
+        <div className="profile-entry-heading">
+          <div>
+            <h3>{title}</h3>
+            <p>{subtitle}</p>
+          </div>
+          <div className="profile-entry-heading-actions">
+            <StatusBadge tone={cvInclude ? 'success' : 'neutral'}>
+              {cvInclude ? 'Included in CV' : 'Excluded from CV'}
+            </StatusBadge>
+            {actions}
+          </div>
         </div>
-        <StatusBadge tone={cvInclude ? 'success' : 'neutral'}>
-          {cvInclude ? 'Included in CV' : 'Excluded from CV'}
-        </StatusBadge>
-      </div>
-      {children ? <div className="profile-entry-details">{children}</div> : null}
-      <div className="profile-entry-actions">{actions}</div>
-    </article>
+        {children ? <div className="profile-entry-details">{children}</div> : null}
+      </CardContent>
+    </Card>
   )
 }

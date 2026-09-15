@@ -45,26 +45,44 @@ import {
 } from './lazyRoutes'
 
 import {
-  AcademicLedgerRouteSkeleton,
-  AcademicRecordsSkeleton,
-  AdminDashboardSkeleton,
-  AuthSkeleton,
-  CandidateFilteringSkeleton,
-  CvBuilderSkeleton,
-  FormSkeleton,
-  RegisteredStudentsSkeleton,
-  StudentDashboardSkeleton,
-  StudentDeepDiveSkeleton,
-  StudentProfileSkeleton,
-  StudentProjectsSkeleton,
-  StudentSkillsSkeleton,
-  InternshipManagementSkeleton,
-  ShortlistExportSkeleton,
+  SkeletonCard,
+  SkeletonFormFields,
+  SkeletonListRows,
+  SkeletonMetricGrid,
+  SkeletonPageHeader,
+  SkeletonPagination,
+  SkeletonStatusRegion,
+  SkeletonTableGrid,
+  SkeletonToolbar,
 } from '../../shared/skeletons'
 
-const withSuspense = (element: ReactElement, fallback: ReactNode = <FormSkeleton />) => (
-  <Suspense fallback={fallback}>{element}</Suspense>
-)
+/** A full page skeleton: page header + whatever body primitives the route composes. */
+function routeSkeleton(label: string, body: ReactNode) {
+  return (
+    <SkeletonStatusRegion className="content-stack" label={label}>
+      <SkeletonPageHeader action />
+      {body}
+    </SkeletonStatusRegion>
+  )
+}
+
+/** A centered auth-card skeleton — same shape every auth route uses, sized by field count. */
+function authSkeleton(label: string, fields: number) {
+  return (
+    <div className="route-skeleton route-skeleton-session">
+      <SkeletonStatusRegion className="session-skeleton-card" label={label}>
+        <SkeletonCard className="auth-skeleton-shell">
+          <SkeletonFormFields count={fields} />
+        </SkeletonCard>
+      </SkeletonStatusRegion>
+    </div>
+  )
+}
+
+const withSuspense = (
+  element: ReactElement,
+  fallback: ReactNode = routeSkeleton('Loading', <SkeletonFormFields count={4} />),
+) => <Suspense fallback={fallback}>{element}</Suspense>
 
 export const routes: RouteObject[] = [
   {
@@ -82,7 +100,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentSignUpPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="student-sign-up" />,
+              authSkeleton('Loading sign up', 6),
             ),
           },
           {
@@ -93,7 +111,7 @@ export const routes: RouteObject[] = [
                   <VerifyOtpPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />,
+              authSkeleton('Loading verification', 1),
             ),
           },
           {
@@ -104,7 +122,7 @@ export const routes: RouteObject[] = [
                   <CreatePasswordPage />
                 </RequireVerificationContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />,
+              authSkeleton('Loading', 2),
             ),
           },
           {
@@ -113,7 +131,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <StudentLoginPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="student-login" />,
+              authSkeleton('Loading login', 2),
             ),
           },
           {
@@ -122,7 +140,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <ForgotPasswordPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="forgot-password" />,
+              authSkeleton('Loading', 1),
             ),
           },
           {
@@ -136,7 +154,7 @@ export const routes: RouteObject[] = [
                   <StudentResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />,
+              authSkeleton('Loading verification', 1),
             ),
           },
           {
@@ -151,7 +169,7 @@ export const routes: RouteObject[] = [
                   <StudentResetPasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />,
+              authSkeleton('Loading', 2),
             ),
           },
           {
@@ -160,7 +178,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminLoginPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="admin-login" />,
+              authSkeleton('Loading admin login', 2),
             ),
           },
           {
@@ -169,7 +187,7 @@ export const routes: RouteObject[] = [
               <PublicOnlyRoute>
                 <AdminForgotPasswordPage />
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="forgot-password" />,
+              authSkeleton('Loading', 1),
             ),
           },
           {
@@ -183,7 +201,7 @@ export const routes: RouteObject[] = [
                   <AdminVerifyResetOtpPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="otp" />,
+              authSkeleton('Loading verification', 1),
             ),
           },
           {
@@ -198,7 +216,7 @@ export const routes: RouteObject[] = [
                   <AdminCreatePasswordPage />
                 </RequireResetContextRoute>
               </PublicOnlyRoute>,
-              <AuthSkeleton variant="create-password" />,
+              authSkeleton('Loading', 2),
             ),
           },
         ],
@@ -212,27 +230,84 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: routePaths.studentDashboard,
-            element: withSuspense(<StudentDashboardPage />, <StudentDashboardSkeleton />),
+            element: withSuspense(
+              <StudentDashboardPage />,
+              routeSkeleton('Loading Student Dashboard', <SkeletonMetricGrid count={4} />),
+            ),
           },
           {
             path: routePaths.studentProfile,
-            element: withSuspense(<StudentProfilePage />, <StudentProfileSkeleton />),
+            element: withSuspense(
+              <StudentProfilePage />,
+              routeSkeleton(
+                'Loading Student Profile',
+                <SkeletonCard>
+                  <SkeletonFormFields columns={2} count={8} />
+                </SkeletonCard>,
+              ),
+            ),
           },
           {
             path: routePaths.studentSkills,
-            element: withSuspense(<StudentSkillsPage />, <StudentSkillsSkeleton />),
+            element: withSuspense(
+              <StudentSkillsPage />,
+              routeSkeleton(
+                'Loading Student Skills',
+                <SkeletonCard>
+                  <SkeletonToolbar fields={2} />
+                  <SkeletonListRows count={6} showActions={false} />
+                </SkeletonCard>,
+              ),
+            ),
           },
           {
             path: routePaths.studentProjects,
-            element: withSuspense(<StudentProjectsPage />, <StudentProjectsSkeleton />),
+            element: withSuspense(
+              <StudentProjectsPage />,
+              routeSkeleton(
+                'Loading Student Projects',
+                <SkeletonCard>
+                  <SkeletonListRows count={4} />
+                </SkeletonCard>,
+              ),
+            ),
           },
           {
             path: routePaths.studentCvBuilder,
-            element: withSuspense(<CvBuilderPage />, <CvBuilderSkeleton />),
+            element: withSuspense(
+              <CvBuilderPage />,
+              routeSkeleton(
+                'Loading CV Builder',
+                <div className="skeleton-controls-grid">
+                  <SkeletonCard>
+                    <SkeletonFormFields count={5} />
+                  </SkeletonCard>
+                  <SkeletonCard title={false}>
+                    <SkeletonListRows count={1} showActions={false} />
+                  </SkeletonCard>
+                </div>,
+              ),
+            ),
           },
           {
             path: routePaths.studentAcademicRecords,
-            element: withSuspense(<AcademicRecordsPage />, <AcademicRecordsSkeleton />),
+            element: withSuspense(
+              <AcademicRecordsPage />,
+              routeSkeleton(
+                'Loading Academic Records',
+                <>
+                  <SkeletonMetricGrid count={3} />
+                  <SkeletonCard>
+                    <SkeletonTableGrid
+                      columns={5}
+                      gridTemplateColumns="repeat(5, minmax(120px, 1fr))"
+                      rows={5}
+                    />
+                    <SkeletonPagination />
+                  </SkeletonCard>
+                </>,
+              ),
+            ),
           },
         ],
       },
@@ -245,35 +320,148 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: routePaths.adminDashboard,
-            element: withSuspense(<AdminDashboardPage />, <AdminDashboardSkeleton />),
+            element: withSuspense(
+              <AdminDashboardPage />,
+              routeSkeleton('Loading Admin Dashboard', <SkeletonMetricGrid count={3} />),
+            ),
           },
           {
             path: routePaths.adminAcademicLedger,
-            element: withSuspense(<AcademicLedgerPage />, <AcademicLedgerRouteSkeleton />),
+            element: withSuspense(
+              <AcademicLedgerPage />,
+              routeSkeleton(
+                'Loading Academic Ledger',
+                <>
+                  <SkeletonCard>
+                    <SkeletonFormFields count={2} />
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <SkeletonTableGrid
+                      columns={6}
+                      gridTemplateColumns="repeat(6, minmax(100px, 1fr))"
+                      rows={4}
+                    />
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <SkeletonListRows count={3} showActions={false} />
+                  </SkeletonCard>
+                </>,
+              ),
+            ),
           },
           {
             path: routePaths.adminStudents,
-            element: withSuspense(<RegisteredStudentsPage />, <RegisteredStudentsSkeleton />),
+            element: withSuspense(
+              <RegisteredStudentsPage />,
+              routeSkeleton(
+                'Loading Registered Students',
+                <SkeletonCard>
+                  <SkeletonToolbar fields={3} />
+                  <SkeletonTableGrid
+                    columns={6}
+                    gridTemplateColumns="repeat(6, minmax(100px, 1fr))"
+                    rows={5}
+                  />
+                  <SkeletonPagination />
+                </SkeletonCard>,
+              ),
+            ),
           },
           {
             path: routePaths.adminStudentDetail,
-            element: withSuspense(<StudentDeepDivePage />, <StudentDeepDiveSkeleton />),
+            element: withSuspense(
+              <StudentDeepDivePage />,
+              routeSkeleton(
+                'Loading Student Deep-Dive',
+                <div className="skeleton-controls-grid">
+                  <SkeletonCard>
+                    <SkeletonFormFields count={4} />
+                  </SkeletonCard>
+                  <SkeletonCard title={false}>
+                    <SkeletonListRows count={5} showActions={false} />
+                  </SkeletonCard>
+                </div>,
+              ),
+            ),
           },
           {
             path: routePaths.adminInternships,
-            element: withSuspense(<InternshipManagementPage />, <InternshipManagementSkeleton />),
+            element: withSuspense(
+              <InternshipManagementPage />,
+              routeSkeleton(
+                'Loading Internship Management',
+                <>
+                  <SkeletonCard>
+                    <SkeletonToolbar fields={2} />
+                    <SkeletonListRows count={3} />
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <SkeletonToolbar fields={2} />
+                    <SkeletonListRows count={3} />
+                  </SkeletonCard>
+                </>,
+              ),
+            ),
           },
           {
             path: routePaths.adminCandidateFiltering,
-            element: withSuspense(<CandidateFilteringPage />, <CandidateFilteringSkeleton />),
+            element: withSuspense(
+              <CandidateFilteringPage />,
+              routeSkeleton(
+                'Loading Candidate Filtering',
+                <div className="skeleton-controls-grid">
+                  <SkeletonCard>
+                    <SkeletonFormFields count={4} />
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <SkeletonToolbar fields={2} />
+                    <SkeletonTableGrid
+                      columns={5}
+                      gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
+                      rows={5}
+                    />
+                    <SkeletonPagination />
+                  </SkeletonCard>
+                </div>,
+              ),
+            ),
           },
           {
             path: routePaths.adminShortlists,
-            element: withSuspense(<ShortlistsPage />, <ShortlistExportSkeleton />),
+            element: withSuspense(
+              <ShortlistsPage />,
+              routeSkeleton(
+                'Loading Shortlists and Exports',
+                <SkeletonCard>
+                  <SkeletonToolbar fields={2} />
+                  <SkeletonListRows count={5} />
+                  <SkeletonPagination />
+                </SkeletonCard>,
+              ),
+            ),
           },
           {
             path: routePaths.adminEligibleStudents,
-            element: withSuspense(<EligibleStudentsPage />),
+            element: withSuspense(
+              <EligibleStudentsPage />,
+              routeSkeleton(
+                'Loading Eligible Students',
+                <>
+                  <SkeletonCard>
+                    <SkeletonFormFields count={1} />
+                  </SkeletonCard>
+                  <SkeletonCard>
+                    <SkeletonToolbar fields={1} />
+                    <SkeletonTableGrid
+                      columns={6}
+                      gridTemplateColumns="repeat(6, minmax(100px, 1fr))"
+                      rows={5}
+                    />
+                    <SkeletonPagination />
+                  </SkeletonCard>
+                </>,
+              ),
+            ),
           },
         ],
       },

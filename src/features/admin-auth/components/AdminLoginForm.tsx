@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { PasswordInput } from '../../../shared/components/forms/PasswordInput'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { PasswordField } from '../../../shared/components/forms/PasswordField'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
 import {
   adminLoginSchema,
@@ -36,27 +35,25 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
         onSubmit(result.data)
       }}
     >
-      <FormField error={errors.email} htmlFor="admin-email" label="Admin Email Address">
-        <TextInput
-          autoComplete="email"
-          id="admin-email"
-          onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
-          placeholder="e.g., admin.name@ruh.ac.lk"
-          type="email"
-          value={values.email}
-        />
-      </FormField>
-      <FormField error={errors.password} htmlFor="admin-password" label="Security Password">
-        <PasswordInput
-          autoComplete="current-password"
-          id="admin-password"
-          onChange={(event) =>
-            setValues((current) => ({ ...current, password: event.target.value }))
-          }
-          placeholder="Enter your security password"
-          value={values.password}
-        />
-      </FormField>
+      <TextField
+        autoComplete="email"
+        error={errors.email}
+        id="admin-email"
+        label="Admin Email Address"
+        onChange={(event) => setValues((current) => ({ ...current, email: event.target.value }))}
+        placeholder="e.g., admin.name@ruh.ac.lk"
+        type="email"
+        value={values.email}
+      />
+      <PasswordField
+        autoComplete="current-password"
+        error={errors.password}
+        id="admin-password"
+        label="Security Password"
+        onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
+        placeholder="Enter your security password"
+        value={values.password}
+      />
       <div className="form-actions auth-form-footer">
         <Button isLoading={isSubmitting} type="submit">
           Log In

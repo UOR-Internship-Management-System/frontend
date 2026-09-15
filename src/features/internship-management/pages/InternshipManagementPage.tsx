@@ -2,24 +2,22 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { SortSelect } from '../../../shared/components/data/SortSelect'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import { CompanyDeleteDialog } from '../components/CompanyDeleteDialog'
 import { CompanyDetailsModal } from '../components/CompanyDetailsModal'
 import { CompanyForm, mapCompanyToForm } from '../components/CompanyForm'
 import { CompanyTable } from '../components/CompanyTable'
 import { InternshipRequestWorkspace } from '../components/InternshipRequestWorkspace'
-import {
-  InternshipManagementDetailsSkeleton,
-  InternshipManagementListSkeleton,
-} from '../components/InternshipManagementListSkeleton'
+import { SkeletonFormFields, SkeletonListRows, SkeletonPagination } from '../../../shared/skeletons'
 import {
   getCompanyMutationErrorMessage,
   useCompanies,
@@ -127,104 +125,113 @@ export function InternshipManagementPage() {
     : 'Create the first company before adding internship requests.'
 
   return (
-    <div className="internship-wireframe-page">
+    <div className="im-page">
       <PageHeader
         title="Internship Requests Management"
         description="Manage external company metadata and internship requests used by deterministic candidate filtering. Internship requests do not contain GPA criteria."
       />
 
-      <SectionCard className="internship-wireframe-card">
-        <div className="internship-section-heading">
-          <h2>Registered Companies</h2>
-        </div>
-        <div className="internship-company-toolbar">
-          <SearchInput
-            aria-label="Search companies and HR contacts"
-            maxLength={120}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Search companies or HR contacts"
-            value={searchInput}
-          />
-          <label className="internship-toolbar-field">
-            <span>Sort companies</span>
-            <SortSelect
-              onChange={(event) => updateState({ sort: event.target.value as typeof state.sort })}
-              value={state.sort}
-            >
-              <option value="name,asc">Name A–Z</option>
-              <option value="name,desc">Name Z–A</option>
-              <option value="updatedAt,desc">Recently updated</option>
-            </SortSelect>
-          </label>
-          {hasCompanyFilters ? (
-            <Button onClick={clearCompanyFilters} variant="secondary">
-              Clear Filters
-            </Button>
-          ) : null}
-          <Button
-            icon={<span className="material-symbols-outlined">add_business</span>}
-            onClick={() => setOverlay('create')}
+      <Card className="im-section" variant="outlined">
+        <CardHeader className="im-section-heading">
+          <CardTitle>Companies</CardTitle>
+        </CardHeader>
+        <CardContent className="im-section-content">
+          <div
+            className="im-toolbar"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}
           >
-            Create Company
-          </Button>
-        </div>
-
-        <LoadingBoundary
-          isLoading={companies.isPending}
-          label="Loading registered companies"
-          skeleton={
-            <InternshipManagementListSkeleton
-              rows={Math.min(state.size, 5)}
-              showPagination
-              variant="companies"
+            <SearchBar
+              aria-label="Search companies and HR contacts"
+              maxLength={120}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Search companies or HR contacts"
+              value={searchInput}
+              style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: '200px' }}
             />
-          }
-        >
-          {companies.error ? (
-            <ErrorState
-              message={mapApiError(companies.error, 'protected').message}
-              onAction={() => void companies.refetch()}
-              title="Companies unavailable"
+            <M3SelectField
+              label="Sort companies"
+              style={{ width: '220px', flex: '0 0 auto' }}
+              onChange={(value) => updateState({ sort: value as typeof state.sort })}
+              value={state.sort}
+              options={[
+                { value: 'name,asc', label: 'Name A–Z' },
+                { value: 'name,desc', label: 'Name Z–A' },
+                { value: 'updatedAt,desc', label: 'Recently updated' },
+              ]}
             />
-          ) : companies.data?.items.length ? (
-            <>
-              <CompanyTable
-                companies={companies.data.items}
-                onDelete={(id) => {
-                  updateState({ selectedCompanyId: id })
-                  setOverlay('delete')
-                }}
-                onSelect={(id) => updateState({ selectedCompanyId: id })}
-                onView={(id) => {
-                  updateState({ selectedCompanyId: id })
-                  setOverlay('details')
-                }}
-                selectedCompanyId={state.selectedCompanyId}
-              />
-              <PaginationBar
-                label="Company list pagination"
-                onPageChange={(page) => updateState({ page })}
-                page={companies.data.page.page}
-                size={companies.data.page.size}
-                totalElements={companies.data.page.totalElements}
-                totalPages={companies.data.page.totalPages}
-              />
-            </>
-          ) : (
-            <EmptyState
-              action={
-                hasCompanyFilters ? (
-                  <Button onClick={clearCompanyFilters} variant="secondary">
-                    Clear Filters
-                  </Button>
-                ) : undefined
+            {hasCompanyFilters ? (
+              <Button onClick={clearCompanyFilters} variant="outlined">
+                Clear Filters
+              </Button>
+            ) : null}
+            <ExtendedFab
+              aria-label="Add company"
+              icon={
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  add
+                </span>
               }
-              message={emptyCompanyMessage}
-              title={hasCompanyFilters ? 'No matching companies' : 'No companies yet'}
+              label="Add company"
+              onClick={() => setOverlay('create')}
             />
-          )}
-        </LoadingBoundary>
-      </SectionCard>
+          </div>
+
+          <LoadingBoundary
+            isLoading={companies.isPending}
+            label="Loading registered companies"
+            skeleton={
+              <>
+                <SkeletonListRows count={Math.min(state.size, 5)} />
+                <SkeletonPagination />
+              </>
+            }
+          >
+            {companies.error ? (
+              <ErrorState
+                message={mapApiError(companies.error, 'protected').message}
+                onAction={() => void companies.refetch()}
+                title="Companies unavailable"
+              />
+            ) : companies.data?.items.length ? (
+              <>
+                <CompanyTable
+                  companies={companies.data.items}
+                  onDelete={(id) => {
+                    updateState({ selectedCompanyId: id })
+                    setOverlay('delete')
+                  }}
+                  onSelect={(id) => updateState({ selectedCompanyId: id })}
+                  onView={(id) => {
+                    updateState({ selectedCompanyId: id })
+                    setOverlay('details')
+                  }}
+                  selectedCompanyId={state.selectedCompanyId}
+                />
+                <PaginationBar
+                  label="Company list pagination"
+                  onPageChange={(page) => updateState({ page })}
+                  page={companies.data.page.page}
+                  size={companies.data.page.size}
+                  totalElements={companies.data.page.totalElements}
+                  totalPages={companies.data.page.totalPages}
+                />
+              </>
+            ) : (
+              <EmptyState
+                action={
+                  hasCompanyFilters ? (
+                    <Button onClick={clearCompanyFilters} variant="outlined">
+                      Clear Filters
+                    </Button>
+                  ) : undefined
+                }
+                message={emptyCompanyMessage}
+                title={hasCompanyFilters ? 'No matching companies' : 'No companies yet'}
+              />
+            )}
+          </LoadingBoundary>
+        </CardContent>
+      </Card>
 
       <InternshipRequestWorkspace
         onRetrySelectedCompany={() => void selected.refetch()}
@@ -238,7 +245,7 @@ export function InternshipManagementPage() {
       ) : null}
       {overlay && overlay !== 'create' && selected.isPending ? (
         <Modal onClose={close} title="Company Details">
-          <InternshipManagementDetailsSkeleton variant="company" />
+          <SkeletonFormFields count={6} />
         </Modal>
       ) : null}
       {overlay && overlay !== 'create' && selected.error ? (

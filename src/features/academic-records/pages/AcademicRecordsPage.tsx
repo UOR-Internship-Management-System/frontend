@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { AcademicGpaSkeleton, AcademicRecordsTableSkeleton } from '../../../shared/skeletons'
+import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
+import {
+  SkeletonMetricGrid,
+  SkeletonMobileCards,
+  SkeletonStatusRegion,
+  SkeletonTableGrid,
+} from '../../../shared/skeletons'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { clampPage } from '../../../shared/utils/clampPage'
 import { AcademicRecordsTable } from '../components/AcademicRecordsTable'
@@ -45,33 +50,36 @@ export function AcademicRecordsPage() {
         title="Academic Records"
       />
 
-      <SectionCard aria-label="Computer Science GPA summary" className="s5-records-gpa-section">
-        <LoadingBoundary
-          isLoading={gpa.isPending}
-          label="Loading official GPA"
-          minHeight={112}
-          skeleton={<AcademicGpaSkeleton />}
-        >
-          {gpaError ? (
-            <ErrorState
-              correlationId={gpaError.correlationId}
-              message={gpaError.message}
-              onAction={() => void gpa.refetch()}
-              title="Official GPA unavailable"
-            />
-          ) : gpa.data ? (
-            <GpaSummaryCards summary={gpa.data} />
-          ) : null}
-        </LoadingBoundary>
-      </SectionCard>
+      <Card aria-label="Computer Science GPA summary" variant="outlined">
+        <CardContent>
+          <LoadingBoundary
+            isLoading={gpa.isPending}
+            label="Loading official GPA"
+            minHeight={112}
+            skeleton={
+              <SkeletonStatusRegion label="Loading official GPA">
+                <SkeletonMetricGrid count={1} />
+              </SkeletonStatusRegion>
+            }
+          >
+            {gpaError ? (
+              <ErrorState
+                correlationId={gpaError.correlationId}
+                message={gpaError.message}
+                onAction={() => void gpa.refetch()}
+                title="Official GPA unavailable"
+              />
+            ) : gpa.data ? (
+              <GpaSummaryCards summary={gpa.data} />
+            ) : null}
+          </LoadingBoundary>
+        </CardContent>
+      </Card>
 
-      <SectionCard aria-labelledby="official-results-title" className="s5-records-list-section">
-        <h2 className="visually-hidden" id="official-results-title">
-          Official academic results
-        </h2>
-
-        <div className="s5-records-search">
-          <SearchInput
+      <Card aria-labelledby="official-results-title" variant="outlined">
+        <CardHeader className="s5-section-heading">
+          <h2 id="official-results-title">Official academic results</h2>
+          <SearchBar
             aria-label="Search academic records"
             onChange={(event) => {
               setSearch(event.target.value)
@@ -80,53 +88,63 @@ export function AcademicRecordsPage() {
             placeholder="Search by subject code or name"
             value={search}
           />
-        </div>
-
-        {records.isFetching && !records.isPending ? (
-          <p aria-live="polite" className="s5-records-refreshing">
-            Updating records...
-          </p>
-        ) : null}
-
-        <LoadingBoundary
-          isLoading={records.isPending}
-          label="Loading academic records"
-          minHeight={390}
-          skeleton={<AcademicRecordsTableSkeleton includeToolbar={false} />}
-        >
-          {recordsError ? (
-            <ErrorState
-              correlationId={recordsError.correlationId}
-              message={recordsError.message}
-              onAction={() => void records.refetch()}
-              title="Academic records unavailable"
-            />
-          ) : records.data?.items.length === 0 ? (
-            <EmptyState
-              message={
-                debouncedSearch
-                  ? `No official results match "${debouncedSearch}".`
-                  : 'Official academic results will appear here after they are committed by the university.'
-              }
-              title={debouncedSearch ? 'No matching records' : 'No academic records yet'}
-            />
-          ) : records.data?.items.length ? (
-            <>
-              <AcademicRecordsTable records={records.data.items} />
-              {records.data.page.totalPages > 0 ? (
-                <PaginationBar
-                  label="Academic records pagination"
-                  onPageChange={setPage}
-                  page={records.data.page.page}
-                  size={records.data.page.size}
-                  totalElements={records.data.page.totalElements}
-                  totalPages={records.data.page.totalPages}
-                />
-              ) : null}
-            </>
+        </CardHeader>
+        <CardContent>
+          {records.isFetching && !records.isPending ? (
+            <p aria-live="polite" className="s5-records-refreshing">
+              Updating records...
+            </p>
           ) : null}
-        </LoadingBoundary>
-      </SectionCard>
+
+          <LoadingBoundary
+            isLoading={records.isPending}
+            label="Loading academic records"
+            minHeight={390}
+            skeleton={
+              <SkeletonStatusRegion label="Loading academic records">
+                <SkeletonTableGrid
+                  columns={5}
+                  gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
+                  rows={5}
+                />
+                <SkeletonMobileCards count={5} />
+              </SkeletonStatusRegion>
+            }
+          >
+            {recordsError ? (
+              <ErrorState
+                correlationId={recordsError.correlationId}
+                message={recordsError.message}
+                onAction={() => void records.refetch()}
+                title="Academic records unavailable"
+              />
+            ) : records.data?.items.length === 0 ? (
+              <EmptyState
+                message={
+                  debouncedSearch
+                    ? `No official results match "${debouncedSearch}".`
+                    : 'Official academic results will appear here after they are committed by the university.'
+                }
+                title={debouncedSearch ? 'No matching records' : 'No academic records yet'}
+              />
+            ) : records.data?.items.length ? (
+              <>
+                <AcademicRecordsTable records={records.data.items} />
+                {records.data.page.totalPages > 0 ? (
+                  <PaginationBar
+                    label="Academic records pagination"
+                    onPageChange={setPage}
+                    page={records.data.page.page}
+                    size={records.data.page.size}
+                    totalElements={records.data.page.totalElements}
+                    totalPages={records.data.page.totalPages}
+                  />
+                ) : null}
+              </>
+            ) : null}
+          </LoadingBoundary>
+        </CardContent>
+      </Card>
     </main>
   )
 }

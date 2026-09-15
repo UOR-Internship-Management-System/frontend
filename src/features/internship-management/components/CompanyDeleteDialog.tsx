@@ -16,7 +16,7 @@ export function CompanyDeleteDialog({
 }) {
   return (
     <ConfirmDialog closeDisabled={isPending} onClose={onClose} title="Delete Company">
-      <div className="company-delete-dialog">
+      <div className="im-delete-dialog">
         <p>
           Delete <strong>{companyName}</strong>? Its internship requests will also be deleted. This
           action cannot be undone.
@@ -27,11 +27,16 @@ export function CompanyDeleteDialog({
           </div>
         ) : null}
         <div className="modal-actions">
-          <Button disabled={isPending} onClick={onClose} variant="secondary">
+          <Button disabled={isPending} onClick={onClose} variant="outlined">
             Keep Company
           </Button>
-          <Button className="wireframe-danger-button" isLoading={isPending} onClick={onConfirm}>
-            Delete Company
+          <Button
+            aria-label="Delete Company"
+            isLoading={isPending}
+            onClick={onConfirm}
+            variant="danger"
+          >
+            Delete
           </Button>
         </div>
       </div>

@@ -1,0 +1,293 @@
+/* ==========================================================================
+   UOR Internship Management System — Design Tokens
+   Material Design 3 Expressive adaptation
+   -------------------------------------------------------------------------
+   Seed colors
+     Primary   "Scholar Violet"  h252 — academic, distinct from generic SaaS blue
+     Secondary "Ledger Amber"    h35  — achievement, CV/credential highlights
+     Tertiary  "Verified Teal"   h174 — confirmation, growth, success states
+     Error     standard M3 red  h6
+   Tonal steps generated on a perceptual lightness curve (HCT-approximate).
+   ========================================================================== */
+
+/* Google Sans is a Google-restricted-license font (not on the public Google
+   Fonts API), so it can't be @imported here. The stack below picks it up
+   automatically on any device/browser that already has it installed
+   (ChromeOS, Android, machines with Workspace apps) and falls back to
+   Roboto — the actual default face Material 3 ships on every other
+   platform — for everyone else. Self-host licensed Google Sans .woff2
+   files and add an @font-face rule above this block to force it everywhere. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ---------------------------------------------------------------------
+     1. Reference palettes (raw tones — rarely used directly)
+     --------------------------------------------------------------------- */
+  --ref-primary-0: #000000;
+  --ref-primary-10: #120c27;
+  --ref-primary-20: #23184e;
+  --ref-primary-25: #2c1f61;
+  --ref-primary-30: #352574;
+  --ref-primary-35: #3d2b88;
+  --ref-primary-40: #432f93;
+  --ref-primary-50: #543bba;
+  --ref-primary-60: #7964ce;
+  --ref-primary-70: #9b8bda;
+  --ref-primary-80: #bfb5e8;
+  --ref-primary-90: #ded8f3;
+  --ref-primary-95: #eeecf9;
+  --ref-primary-98: #f9f9fb;
+  --ref-primary-99: #fcfcfd;
+  --ref-primary-100: #ffffff;
+
+  --ref-secondary-0: #000000;
+  --ref-secondary-10: #241b0f;
+  --ref-secondary-20: #48371e;
+  --ref-secondary-25: #5b4425;
+  --ref-secondary-30: #6d522c;
+  --ref-secondary-40: #8a6838;
+  --ref-secondary-50: #ae8347;
+  --ref-secondary-60: #c4a06e;
+  --ref-secondary-70: #d3b892;
+  --ref-secondary-80: #e3d2ba;
+  --ref-secondary-90: #f0e7db;
+  --ref-secondary-95: #f8f3ed;
+  --ref-secondary-98: #fbfaf9;
+  --ref-secondary-100: #ffffff;
+
+  --ref-tertiary-0: #000000;
+  --ref-tertiary-10: #102321;
+  --ref-tertiary-20: #204643;
+  --ref-tertiary-25: #285853;
+  --ref-tertiary-30: #2f6a64;
+  --ref-tertiary-40: #3c867e;
+  --ref-tertiary-50: #4ca9a0;
+  --ref-tertiary-60: #72c0b8;
+  --ref-tertiary-70: #95d0ca;
+  --ref-tertiary-80: #bce1dd;
+  --ref-tertiary-90: #dcefed;
+  --ref-tertiary-95: #edf7f6;
+  --ref-tertiary-98: #f9fbfb;
+  --ref-tertiary-100: #ffffff;
+
+  --ref-error-0: #000000;
+  --ref-error-10: #2c0a07;
+  --ref-error-20: #59150d;
+  --ref-error-25: #6f1a11;
+  --ref-error-30: #851f14;
+  --ref-error-40: #a92819;
+  --ref-error-50: #d53220;
+  --ref-error-60: #e45d4e;
+  --ref-error-70: #eb857a;
+  --ref-error-80: #f2b2ab;
+  --ref-error-90: #f8d6d3;
+  --ref-error-95: #fcebe9;
+  --ref-error-98: #fcf8f8;
+  --ref-error-100: #ffffff;
+
+  --ref-neutral-0: #000000;
+  --ref-neutral-4: #0a0a0b;
+  --ref-neutral-6: #0f0f10;
+  --ref-neutral-10: #19171c;
+  --ref-neutral-12: #201e24;
+  --ref-neutral-17: #2a282f;
+  --ref-neutral-20: #312f37;
+  --ref-neutral-22: #36343d;
+  --ref-neutral-24: #3b3842;
+  --ref-neutral-30: #4a4653;
+  --ref-neutral-87: #dddbe1;
+  --ref-neutral-90: #e5e3e8;
+  --ref-neutral-92: #eae9ec;
+  --ref-neutral-94: #efeef1;
+  --ref-neutral-95: #f2f1f3;
+  --ref-neutral-96: #f5f4f5;
+  --ref-neutral-98: #fafafa;
+  --ref-neutral-99: #fcfcfd;
+  --ref-neutral-100: #ffffff;
+
+  --ref-neutral-variant-10: #18161d;
+  --ref-neutral-variant-30: #484257;
+  --ref-neutral-variant-50: #72698c;
+  --ref-neutral-variant-60: #928ba7;
+  --ref-neutral-variant-80: #cbc8d5;
+  --ref-neutral-variant-90: #e4e2e9;
+
+  /* ---------------------------------------------------------------------
+     2. Color roles — LIGHT scheme (default)
+     --------------------------------------------------------------------- */
+  --md-primary: var(--ref-primary-40);
+  --md-on-primary: var(--ref-primary-100);
+  --md-primary-container: var(--ref-primary-90);
+  --md-on-primary-container: var(--ref-primary-10);
+  --md-inverse-primary: var(--ref-primary-80);
+
+  --md-secondary: var(--ref-secondary-40);
+  --md-on-secondary: var(--ref-secondary-100);
+  --md-secondary-container: var(--ref-secondary-90);
+  --md-on-secondary-container: var(--ref-secondary-10);
+
+  --md-tertiary: var(--ref-tertiary-40);
+  --md-on-tertiary: var(--ref-tertiary-100);
+  --md-tertiary-container: var(--ref-tertiary-90);
+  --md-on-tertiary-container: var(--ref-tertiary-10);
+
+  --md-error: var(--ref-error-40);
+  --md-on-error: var(--ref-error-100);
+  --md-error-container: var(--ref-error-90);
+  --md-on-error-container: var(--ref-error-10);
+
+  --md-surface-dim: var(--ref-neutral-87);
+  --md-surface: var(--ref-neutral-98);
+  --md-surface-bright: var(--ref-neutral-98);
+  --md-surface-container-lowest: var(--ref-neutral-100);
+  --md-surface-container-low: var(--ref-neutral-96);
+  --md-surface-container: var(--ref-neutral-94);
+  --md-surface-container-high: var(--ref-neutral-92);
+  --md-surface-container-highest: var(--ref-neutral-90);
+  --md-on-surface: var(--ref-neutral-10);
+  --md-on-surface-variant: var(--ref-neutral-variant-30);
+
+  --md-outline: var(--ref-neutral-variant-50);
+  --md-outline-variant: var(--ref-neutral-variant-80);
+  --md-inverse-surface: var(--ref-neutral-20);
+  --md-inverse-on-surface: var(--ref-neutral-95);
+  --md-scrim: #000000;
+  --md-shadow: #000000;
+
+  /* Semantic aliases used by feature code (status meanings, not raw color) */
+  --md-success: var(--ref-tertiary-30);
+  --md-success-container: var(--ref-tertiary-90);
+  --md-on-success-container: var(--ref-tertiary-10);
+  --md-warning: #7a4e00;
+  --md-warning-container: #ffdea6;
+  --md-on-warning-container: #271900;
+
+  /* ---------------------------------------------------------------------
+     3. Typography — M3 Expressive scale, single family (Google Sans)
+     One face across every role, per the real M3 spec — weight and size
+     carry the hierarchy, not a second typeface. --md-font-plain is kept
+     as an alias so existing code that references it still resolves.
+     --------------------------------------------------------------------- */
+  --md-font: 'Google Sans', 'Google Sans Text', Roboto, system-ui, -apple-system, sans-serif;
+  --md-font-brand: var(--md-font);
+  --md-font-plain: var(--md-font);
+
+  --md-display-large: 700 3.5rem/4rem var(--md-font);
+  --md-display-medium: 700 2.8rem/3.25rem var(--md-font);
+  --md-display-small: 700 2.25rem/2.75rem var(--md-font);
+
+  --md-headline-large: 700 2rem/2.5rem var(--md-font);
+  --md-headline-medium: 700 1.75rem/2.25rem var(--md-font);
+  --md-headline-small: 700 1.5rem/2rem var(--md-font);
+
+  --md-title-large: 500 1.375rem/1.75rem var(--md-font);
+  --md-title-medium: 500 1rem/1.5rem var(--md-font);
+  --md-title-small: 500 0.875rem/1.25rem var(--md-font);
+
+  --md-label-large: 500 0.875rem/1.25rem var(--md-font);
+  --md-label-medium: 500 0.75rem/1rem var(--md-font);
+  --md-label-small: 500 0.6875rem/1rem var(--md-font);
+
+  --md-body-large: 400 1rem/1.5rem var(--md-font);
+  --md-body-medium: 400 0.875rem/1.25rem var(--md-font);
+  --md-body-small: 400 0.75rem/1rem var(--md-font);
+
+  /* ---------------------------------------------------------------------
+     4. Shape scale — Expressive extends the classic 7 steps with
+        "increased" stops for a livelier, more varied silhouette
+     --------------------------------------------------------------------- */
+  --md-shape-none: 0px;
+  --md-shape-xs: 4px;
+  --md-shape-xs-increased: 8px;
+  --md-shape-sm: 8px;
+  --md-shape-sm-increased: 12px;
+  --md-shape-md: 12px;
+  --md-shape-md-increased: 16px;
+  --md-shape-lg: 16px;
+  --md-shape-lg-increased: 20px;
+  --md-shape-xl: 28px;
+  --md-shape-xl-increased: 32px;
+  --md-shape-xxl: 48px;
+  --md-shape-full: 999px;
+
+  /* ---------------------------------------------------------------------
+     5. Elevation (tonal shadow pairs, level 0–5)
+     --------------------------------------------------------------------- */
+  --md-elevation-0: none;
+  --md-elevation-1: 0 1px 2px rgb(0 0 0 / 30%), 0 1px 3px 1px rgb(0 0 0 / 15%);
+  --md-elevation-2: 0 1px 2px rgb(0 0 0 / 30%), 0 2px 6px 2px rgb(0 0 0 / 15%);
+  --md-elevation-3: 0 1px 3px rgb(0 0 0 / 30%), 0 4px 8px 3px rgb(0 0 0 / 15%);
+  --md-elevation-4: 0 2px 3px rgb(0 0 0 / 30%), 0 6px 10px 4px rgb(0 0 0 / 15%);
+  --md-elevation-5: 0 4px 4px rgb(0 0 0 / 30%), 0 8px 12px 6px rgb(0 0 0 / 15%);
+
+  /* ---------------------------------------------------------------------
+     6. State layer opacities
+     --------------------------------------------------------------------- */
+  --md-state-hover: 0.08;
+  --md-state-focus: 0.1;
+  --md-state-pressed: 0.1;
+  --md-state-dragged: 0.16;
+  --md-state-disabled-content: 0.38;
+  --md-state-disabled-container: 0.12;
+
+  /* ---------------------------------------------------------------------
+     7. Motion — Expressive spatial springs (bouncy, physical) vs.
+        standard effects easing (calm, for opacity/color only)
+     --------------------------------------------------------------------- */
+  --md-spring-fast: 350ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --md-spring-default: 500ms cubic-bezier(0.32, 1.28, 0.68, 1);
+  --md-spring-slow: 650ms cubic-bezier(0.28, 1.4, 0.6, 1);
+  --md-motion-standard: 300ms cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-standard-fast: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --md-motion-emphasized: 500ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ===========================================================================
+   DARK scheme
+   =========================================================================== */
+:root.dark,
+body.dark-mode {
+  --md-primary: var(--ref-primary-80);
+  --md-on-primary: var(--ref-primary-20);
+  --md-primary-container: var(--ref-primary-30);
+  --md-on-primary-container: var(--ref-primary-90);
+  --md-inverse-primary: var(--ref-primary-40);
+
+  --md-secondary: var(--ref-secondary-80);
+  --md-on-secondary: var(--ref-secondary-20);
+  --md-secondary-container: var(--ref-secondary-30);
+  --md-on-secondary-container: var(--ref-secondary-90);
+
+  --md-tertiary: var(--ref-tertiary-80);
+  --md-on-tertiary: var(--ref-tertiary-20);
+  --md-tertiary-container: var(--ref-tertiary-30);
+  --md-on-tertiary-container: var(--ref-tertiary-90);
+
+  --md-error: var(--ref-error-80);
+  --md-on-error: var(--ref-error-20);
+  --md-error-container: var(--ref-error-30);
+  --md-on-error-container: var(--ref-error-90);
+
+  --md-surface-dim: var(--ref-neutral-6);
+  --md-surface: var(--ref-neutral-6);
+  --md-surface-bright: var(--ref-neutral-24);
+  --md-surface-container-lowest: var(--ref-neutral-4);
+  --md-surface-container-low: var(--ref-neutral-10);
+  --md-surface-container: var(--ref-neutral-12);
+  --md-surface-container-high: var(--ref-neutral-17);
+  --md-surface-container-highest: var(--ref-neutral-22);
+  --md-on-surface: var(--ref-neutral-90);
+  --md-on-surface-variant: var(--ref-neutral-variant-80);
+
+  --md-outline: var(--ref-neutral-variant-60);
+  --md-outline-variant: var(--ref-neutral-variant-30);
+  --md-inverse-surface: var(--ref-neutral-90);
+  --md-inverse-on-surface: var(--ref-neutral-20);
+
+  --md-success: var(--ref-tertiary-80);
+  --md-success-container: var(--ref-tertiary-30);
+  --md-on-success-container: var(--ref-tertiary-90);
+  --md-warning: #ffbb59;
+  --md-warning-container: #5c3f00;
+  --md-on-warning-container: #ffdea6;
+}

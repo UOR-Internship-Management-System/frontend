@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { routePaths } from '../../../app/config/routePaths'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
 import { flattenZodErrors, passwordResetStartSchema } from '../schemas/studentAuthSchemas'
 
@@ -34,16 +33,16 @@ export function StudentForgotPasswordForm({
         onSubmit(result.data.email)
       }}
     >
-      <FormField error={error} htmlFor="student-reset-email" label="University Email">
-        <TextInput
-          autoComplete="email"
-          id="student-reset-email"
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="username@usci.ruh.ac.lk"
-          type="email"
-          value={email}
-        />
-      </FormField>
+      <TextField
+        autoComplete="email"
+        error={error}
+        id="student-reset-email"
+        label="University Email"
+        onChange={(event) => setEmail(event.target.value)}
+        placeholder="username@usci.ruh.ac.lk"
+        type="email"
+        value={email}
+      />
       <div className="form-actions auth-form-footer">
         <Button isLoading={isSubmitting} type="submit">
           Send OTP

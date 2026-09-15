@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
+import { TextArea } from '../../../shared/components/forms/TextArea'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { mapAwardRequest } from '../mappers/profileEntryMappers'
 import { awardFormSchema } from '../schemas/profileEntrySchemas'
 import type { Award, AwardRequest } from '../types/profileEntryTypes'
@@ -11,11 +12,13 @@ export function AwardEditor({
   isPending,
   item,
   onCancel,
+  onDirtyChange,
   onSubmit,
 }: {
   isPending: boolean
   item?: Award
   onCancel: () => void
+  onDirtyChange?: (isDirty: boolean) => void
   onSubmit: (values: AwardRequest) => Promise<void>
 }) {
   const [values, setValues] = useState({
@@ -41,62 +44,60 @@ export function AwardEditor({
     }
   }
   return (
-    <form className="profile-editor-form" noValidate onSubmit={submit}>
+    <form
+      className="profile-editor-form"
+      noValidate
+      onChange={() => onDirtyChange?.(true)}
+      onSubmit={submit}
+    >
       {error ? (
         <div className="inline-alert" role="alert">
           {error}
         </div>
       ) : null}
       <div className="profile-editor-grid">
-        <FormField htmlFor="award-title" label="Award / Achievement Title">
-          <TextInput
-            id="award-title"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, title: event.target.value })}
-            required
-            value={values.title}
-          />
-        </FormField>
-        <FormField htmlFor="award-issuer" label="Awarding Institution / Body">
-          <TextInput
-            id="award-issuer"
-            maxLength={200}
-            onChange={(event) => setValues({ ...values, issuer: event.target.value })}
-            required
-            value={values.issuer}
-          />
-        </FormField>
-        <FormField htmlFor="award-date" label="Date Received">
-          <TextInput
-            id="award-date"
-            onChange={(event) => setValues({ ...values, awardDate: event.target.value })}
-            required
-            type="date"
-            value={values.awardDate}
-          />
-        </FormField>
-      </div>
-      <FormField htmlFor="award-description" label="Description (Optional)">
-        <textarea
-          className="input"
-          id="award-description"
-          onChange={(event) => setValues({ ...values, description: event.target.value })}
-          rows={4}
-          value={values.description}
+        <TextField
+          id="award-title"
+          label="Award or achievement title"
+          maxLength={200}
+          onChange={(event) => setValues({ ...values, title: event.target.value })}
+          required
+          value={values.title}
         />
-      </FormField>
-      <label className="profile-checkbox">
-        <input
-          checked={values.cvInclude}
-          onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
-          type="checkbox"
-        />{' '}
-        Include this Award in the CV
-      </label>
+        <TextField
+          id="award-issuer"
+          label="Awarding institution or organization"
+          maxLength={200}
+          onChange={(event) => setValues({ ...values, issuer: event.target.value })}
+          required
+          value={values.issuer}
+        />
+        <TextField
+          id="award-date"
+          label="Date received"
+          onChange={(event) => setValues({ ...values, awardDate: event.target.value })}
+          placeholder=" "
+          required
+          type="date"
+          value={values.awardDate}
+        />
+      </div>
+      <TextArea
+        id="award-description"
+        label="Description (optional)"
+        onChange={(event) => setValues({ ...values, description: event.target.value })}
+        rows={4}
+        value={values.description}
+      />
+      <Checkbox
+        checked={values.cvInclude}
+        label="Include this award in the CV"
+        onChange={(event) => setValues({ ...values, cvInclude: event.target.checked })}
+      />
       <ProfileEditorActions
         isPending={isPending}
         onCancel={onCancel}
-        submitLabel={item ? 'Save Award' : 'Add Award'}
+        submitLabel={item ? 'Save award' : 'Add award'}
       />
     </form>
   )

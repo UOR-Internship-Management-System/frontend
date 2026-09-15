@@ -103,34 +103,76 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
 
   return (
     <div className="profile-photo-control">
-      {displayedUrl ? (
-        <img
-          alt={`${fullName} profile`}
-          className="profile-avatar"
-          onError={() => setImageFailed(true)}
-          referrerPolicy="no-referrer"
-          src={displayedUrl}
-        />
-      ) : (
-        <div
-          aria-label={`${fullName} profile placeholder`}
-          className="profile-avatar-fallback"
-          role="img"
+      <div className="profile-avatar-wrapper">
+        {displayedUrl ? (
+          <img
+            alt={`${fullName} profile`}
+            className="profile-avatar"
+            onError={() => setImageFailed(true)}
+            referrerPolicy="no-referrer"
+            src={displayedUrl}
+          />
+        ) : (
+          <div
+            aria-label={`${fullName} profile placeholder`}
+            className="profile-avatar-fallback"
+            role="img"
+          >
+            {initialsFor(fullName)}
+          </div>
+        )}
+        <label
+          className="profile-avatar-camera-btn"
+          htmlFor="profile-avatar-file-input"
+          title={photoUrl ? 'Change picture' : 'Select picture'}
         >
-          {initialsFor(fullName)}
-        </div>
-      )}
+          <span className="material-symbols-outlined" aria-hidden="true">
+            photo_camera
+          </span>
+        </label>
+      </div>
+
       <FileUploadField
         accept={policy ? fileAcceptValue(policy) : undefined}
-        aria-label={photoUrl ? 'Change Picture' : 'Select Picture'}
+        aria-label={photoUrl ? 'Change picture' : 'Select picture'}
+        className="visually-hidden"
         disabled={!policy || mutations.upload.isPending}
+        id="profile-avatar-file-input"
         onChange={(event) => selectFile(event.target.files?.[0])}
         ref={inputRef}
       />
+
+      <label
+        className={`button m3-button m3-button--tonal m3-button--small profile-photo-trigger-btn ${
+          !policy || mutations.upload.isPending ? 'disabled' : ''
+        }`}
+        htmlFor="profile-avatar-file-input"
+      >
+        <span className="button-content">
+          <span
+            className="material-symbols-outlined"
+            aria-hidden="true"
+            style={{ fontSize: '18px' }}
+          >
+            add_a_photo
+          </span>
+          <span>{photoUrl ? 'Change picture' : 'Select picture'}</span>
+        </span>
+      </label>
+
       {policy ? (
-        <p className="field-hint">
-          {policy.allowedExtensions.join(', ')} · Maximum {formatFileSize(policy.maxSizeBytes)}
-        </p>
+        <div className="profile-policy-badge">
+          <span
+            className="material-symbols-outlined"
+            aria-hidden="true"
+            style={{ fontSize: '15px' }}
+          >
+            info
+          </span>
+          <span>
+            {policy.allowedExtensions.join(', ')} · Max {formatFileSize(policy.maxSizeBytes)}
+          </span>
+        </div>
       ) : (
         <p className="field-hint">
           Picture controls are unavailable until the upload policy loads.
@@ -143,8 +185,17 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
       ) : null}
       <div className="profile-photo-actions">
         {selectedFile ? (
-          <Button isLoading={mutations.upload.isPending} onClick={() => void upload()}>
-            Upload Picture
+          <Button
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                cloud_upload
+              </span>
+            }
+            isLoading={mutations.upload.isPending}
+            onClick={() => void upload()}
+            variant="primary"
+          >
+            Upload picture
           </Button>
         ) : null}
         {selectedFile ? (
@@ -153,16 +204,21 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
             onClick={() => selectFile()}
             variant="secondary"
           >
-            Cancel Preview
+            Cancel preview
           </Button>
         ) : null}
         {photoUrl ? (
           <Button
             disabled={mutations.remove.isPending}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                delete
+              </span>
+            }
             onClick={() => setConfirmRemove(true)}
-            variant="secondary"
+            variant="outlined"
           >
-            Remove Picture
+            Remove picture
           </Button>
         ) : null}
       </div>
@@ -170,19 +226,23 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
         <ConfirmDialog
           closeDisabled={mutations.remove.isPending}
           onClose={() => setConfirmRemove(false)}
-          title="Remove Profile Picture"
+          title="Remove profile picture"
         >
           <p>Your initials will replace the current picture.</p>
           <div className="modal-actions">
             <Button
               disabled={mutations.remove.isPending}
               onClick={() => setConfirmRemove(false)}
-              variant="secondary"
+              variant="outlined"
             >
               Cancel
             </Button>
-            <Button isLoading={mutations.remove.isPending} onClick={() => void remove()}>
-              Remove Picture
+            <Button
+              isLoading={mutations.remove.isPending}
+              onClick={() => void remove()}
+              variant="danger"
+            >
+              Remove picture
             </Button>
           </div>
         </ConfirmDialog>

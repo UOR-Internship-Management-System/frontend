@@ -1,24 +1,25 @@
 import { useMemo, useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
-import { EmptyState } from '../../../shared/components/feedback/EmptyState'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { BottomSheet } from '../../../shared/components/overlays/BottomSheet'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
+import { Dialog } from '../../../shared/components/overlays/Dialog'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { AddSkillOptionsSkeleton, DeclaredSkillsListSkeleton } from '../../../shared/skeletons'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
+import { SkeletonFormFields, SkeletonStatusRegion } from '../../../shared/skeletons'
 import { indexSkillTaxonomy, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
 import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { clampPage } from '../../../shared/utils/clampPage'
-import { DeclaredSkillForm } from '../components/DeclaredSkillForm'
-import { DeclaredSkillsTable } from '../components/DeclaredSkillsTable'
-import { SkillTaxonomyBrowser } from '../components/SkillTaxonomyBrowser'
+import { AddSkillFlow } from '../components/AddSkillFlow'
+import { DeclaredSkillsPanel } from '../components/DeclaredSkillsPanel'
 import {
   useCreateDeclaredSkill,
   useDeleteDeclaredSkill,
@@ -32,10 +33,10 @@ const declaredSort = 'skillName,asc'
 
 export function StudentSkillsPage() {
   const { notify } = useNotifications()
-  const [selectedSkill, setSelectedSkill] = useState<IndividualSkill | null>(null)
-  const [availableSearch, setAvailableSearch] = useState('')
+  const isCompact = useIsCompactLayout()
   const [declaredSearch, setDeclaredSearch] = useState('')
   const [page, setPage] = useState(0)
+  const [isAddOpen, setAddOpen] = useState(false)
   const [removeTarget, setRemoveTarget] = useState<DeclaredSkill | null>(null)
   const [removeError, setRemoveError] = useState<string>()
   const [conflictMessage, setConflictMessage] = useState<string>()
@@ -73,9 +74,8 @@ export function StudentSkillsPage() {
     }
   }
 
-  const addSkill = async (competencyLevel: CompetencyLevel) => {
-    if (!selectedSkill) throw new TypeError('Select a taxonomy skill before adding it.')
-    if (declaredSkillIds.has(selectedSkill.skillId)) {
+  const addSkill = async (skill: IndividualSkill, competencyLevel: CompetencyLevel) => {
+    if (declaredSkillIds.has(skill.skillId)) {
       throw {
         title: 'Duplicate declared skill',
         status: 409,
@@ -85,14 +85,14 @@ export function StudentSkillsPage() {
     }
 
     try {
-      await createMutation.mutateAsync({ skillId: selectedSkill.skillId, competencyLevel })
+      await createMutation.mutateAsync({ skillId: skill.skillId, competencyLevel })
       notify({
         tone: 'success',
         title: 'Skill added',
-        message: `${selectedSkill.name} is now included in your declared skills.`,
+        message: `${skill.name} is now included in your declared skills.`,
       })
-      setSelectedSkill(null)
       setConflictMessage(undefined)
+      setAddOpen(false)
     } catch (reason) {
       await handleRecoverableError(reason)
       throw reason
@@ -159,16 +159,54 @@ export function StudentSkillsPage() {
     }
   }
 
-  const mappedDeclaredError = declared.error ? mapApiError(declared.error, 'protected') : null
+  const mappedDeclaredError = declared.error
+    ? mapApiError(declared.error, 'protected').message
+    : null
   const addSkillError = taxonomyTree.error ?? allDeclared.error
   const mappedAddSkillError = addSkillError ? mapApiError(addSkillError, 'protected') : null
   const addSkillLoading = taxonomyTree.isPending || allDeclared.isPending
   const taxonomyPathsBySkillId = taxonomyIndex?.pathsBySkillId ?? new Map()
 
+  const addSkillContent = (
+    <LoadingBoundary
+      isLoading={addSkillLoading}
+      label="Loading Add Skill options"
+      minHeight={220}
+      skeleton={
+        <SkeletonStatusRegion label="Loading Add Skill options">
+          <SkeletonFormFields count={2} />
+        </SkeletonStatusRegion>
+      }
+    >
+      {mappedAddSkillError ? (
+        <ErrorState
+          correlationId={mappedAddSkillError.correlationId}
+          message={mappedAddSkillError.message}
+          onAction={() => void Promise.all([taxonomyTree.refetch(), allDeclared.refetch()])}
+          title="Add Skill unavailable"
+        />
+      ) : taxonomyTree.data ? (
+        <AddSkillFlow
+          declaredSkillIds={declaredSkillIds}
+          isPending={createMutation.isPending}
+          onSubmit={addSkill}
+          taxonomy={taxonomyTree.data}
+        />
+      ) : null}
+    </LoadingBoundary>
+  )
+
   return (
     <main className="content-stack s4-skills-page">
       <PageHeader
-        description="Browse the complete system skill taxonomy, select your competency level, and maintain your declared student skills inventory."
+        actions={
+          <ExtendedFab
+            icon={<span className="material-symbols-outlined">add</span>}
+            label="Add skill"
+            onClick={() => setAddOpen(true)}
+          />
+        }
+        description="Browse the system skill taxonomy, declare your competency level, and manage your declared skills."
         title="Skills"
       />
 
@@ -179,63 +217,13 @@ export function StudentSkillsPage() {
         </div>
       ) : null}
 
-      <SectionCard aria-labelledby="add-skill-title" className="s4-skills-add-card">
-        <div className="s4-skills-section-heading">
+      <Card aria-labelledby="declared-skills-title" variant="outlined">
+        <CardHeader className="s4-skills-section-heading">
           <div>
-            <h2 id="add-skill-title">Add Skill Entry</h2>
-            <p>
-              Use the searchable system skill list below or select through the cascading fields.
-            </p>
-          </div>
-        </div>
-        <LoadingBoundary
-          isLoading={addSkillLoading}
-          label="Loading Add Skill options"
-          minHeight={220}
-          skeleton={<AddSkillOptionsSkeleton />}
-        >
-          {mappedAddSkillError ? (
-            <ErrorState
-              correlationId={mappedAddSkillError.correlationId}
-              message={mappedAddSkillError.message}
-              onAction={() => void Promise.all([taxonomyTree.refetch(), allDeclared.refetch()])}
-              title="Add Skill unavailable"
-            />
-          ) : taxonomyTree.data && allDeclared.data ? (
-            <DeclaredSkillForm
-              availableSearch={availableSearch}
-              declaredSkillIds={declaredSkillIds}
-              isPending={createMutation.isPending}
-              onAvailableSearchChange={setAvailableSearch}
-              onSelectSkill={setSelectedSkill}
-              onSubmit={addSkill}
-              selectedSkill={selectedSkill}
-              taxonomy={taxonomyTree.data}
-            />
-          ) : null}
-        </LoadingBoundary>
-      </SectionCard>
-
-      <SectionCard className="s4-skills-available-card">
-        <SkillTaxonomyBrowser
-          declaredSkillIds={declaredSkillIds}
-          onSelect={setSelectedSkill}
-          search={availableSearch}
-          selectionDisabled={createMutation.isPending || !taxonomyTree.data || !allDeclared.data}
-          selectedSkillId={selectedSkill?.skillId}
-          taxonomyPathsBySkillId={taxonomyPathsBySkillId}
-        />
-      </SectionCard>
-
-      <SectionCard aria-labelledby="declared-skills-title" className="s4-skills-list-card">
-        <div className="s4-skills-section-heading">
-          <div>
-            <h2 id="declared-skills-title">Declared Skills</h2>
+            <CardTitle id="declared-skills-title">Declared skills</CardTitle>
             <p>These are the skills currently attached to your student profile.</p>
           </div>
-        </div>
-        <div className="s4-skills-list-toolbar">
-          <SearchInput
+          <SearchBar
             aria-label="Search declared skills"
             onChange={(event) => {
               setDeclaredSearch(event.target.value)
@@ -244,65 +232,61 @@ export function StudentSkillsPage() {
             placeholder="Search declared skills"
             value={declaredSearch}
           />
-        </div>
+        </CardHeader>
 
         {declared.isFetching && !declared.isPending ? (
           <p aria-live="polite" className="s4-skills-loading-note">
             Updating declared skills...
           </p>
         ) : null}
-        <LoadingBoundary
-          isLoading={declared.isPending}
-          label="Loading declared skills"
-          minHeight={420}
-          skeleton={<DeclaredSkillsListSkeleton includeToolbar={false} />}
+        <CardContent>
+          <DeclaredSkillsPanel
+            deletingId={deleteMutation.isPending ? removeTarget?.declaredSkillId : undefined}
+            error={mappedDeclaredError}
+            isLoading={declared.isPending}
+            items={declared.data?.items ?? []}
+            onPageChange={setPage}
+            onRefetch={() => void declared.refetch()}
+            onRemove={openRemoveDialog}
+            onUpdate={updateSkill}
+            page={declared.data?.page.page ?? 0}
+            search={declaredSearch}
+            size={declared.data?.page.size ?? declaredPageSize}
+            taxonomyPathsBySkillId={taxonomyPathsBySkillId}
+            totalElements={declared.data?.page.totalElements ?? 0}
+            totalPages={declared.data?.page.totalPages ?? 0}
+            updatingId={
+              updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
+            }
+          />
+        </CardContent>
+      </Card>
+
+      {isCompact ? (
+        <BottomSheet
+          aria-label="Add skill"
+          isOpen={isAddOpen}
+          onClose={() => setAddOpen(false)}
+          title="Add skill"
         >
-          {mappedDeclaredError ? (
-            <ErrorState
-              correlationId={mappedDeclaredError.correlationId}
-              message={mappedDeclaredError.message}
-              onAction={() => void declared.refetch()}
-              title="Declared skills unavailable"
-            />
-          ) : declared.data?.items.length === 0 ? (
-            <EmptyState
-              message={
-                declaredSearch
-                  ? `No declared skills match “${declaredSearch}”.`
-                  : 'Select an available taxonomy skill above to create your first declaration.'
-              }
-              title={declaredSearch ? 'No matching declared skills' : 'No declared skills yet'}
-            />
-          ) : declared.data?.items.length ? (
-            <>
-              <DeclaredSkillsTable
-                deletingId={deleteMutation.isPending ? removeTarget?.declaredSkillId : undefined}
-                items={declared.data.items}
-                onRemove={openRemoveDialog}
-                onUpdate={updateSkill}
-                taxonomyPathsBySkillId={taxonomyPathsBySkillId}
-                updatingId={
-                  updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
-                }
-              />
-              <PaginationBar
-                label="Declared skills pagination"
-                onPageChange={setPage}
-                page={declared.data.page.page}
-                size={declared.data.page.size}
-                totalElements={declared.data.page.totalElements}
-                totalPages={declared.data.page.totalPages}
-              />
-            </>
-          ) : null}
-        </LoadingBoundary>
-      </SectionCard>
+          {addSkillContent}
+        </BottomSheet>
+      ) : (
+        <Dialog
+          isOpen={isAddOpen}
+          onClose={() => setAddOpen(false)}
+          size="medium"
+          title="Add skill"
+        >
+          {addSkillContent}
+        </Dialog>
+      )}
 
       {removeTarget ? (
         <ConfirmDialog
           closeDisabled={deleteMutation.isPending}
           onClose={closeRemoveDialog}
-          title="Remove Skill"
+          title="Remove skill"
         >
           <p>Are you sure you want to remove {removeTarget.skillName} from your declared skills?</p>
           <FormErrorMessage id="remove-declared-skill-error" message={removeError} />

@@ -8,8 +8,6 @@ import { server } from '../../../mocks/server'
 import { InternshipRequestForm } from '../components/InternshipRequestForm'
 
 const companyId = '11111111-1111-4111-8111-111111111111'
-const clusterId = '22222222-2222-4222-8222-222222222222'
-const categoryId = '33333333-3333-4333-8333-333333333333'
 const skillId = '44444444-4444-4444-8444-444444444444'
 const company = {
   companyId,
@@ -36,12 +34,6 @@ const paged = <Item,>(items: Item[]) => ({
 
 function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
   server.use(
-    http.get('/api/v1/skill-taxonomy/clusters', () =>
-      HttpResponse.json(paged([{ clusterId, name: 'Core Engineering', description: null }])),
-    ),
-    http.get('/api/v1/skill-taxonomy/categories', () =>
-      HttpResponse.json(paged([{ categoryId, name: 'Web Development', description: null }])),
-    ),
     http.get('/api/v1/skill-taxonomy/skills', () =>
       HttpResponse.json(paged([{ skillId, name: 'TypeScript', description: null }])),
     ),
@@ -60,11 +52,11 @@ function renderForm(onSubmit = vi.fn().mockResolvedValue(undefined)) {
 }
 
 describe('InternshipRequestForm wireframe contract', () => {
-  it('uses the same default modal width as Create Company and omits redundant fields', () => {
+  it('uses the wide adaptive dialog and omits redundant fields', () => {
     renderForm()
     const dialog = screen.getByRole('dialog', { name: 'Create Internship Request' })
 
-    expect(dialog).toHaveClass('modal-card-default')
+    expect(dialog).toHaveClass('m3-dialog--large')
     expect(within(dialog).queryByLabelText('Company')).not.toBeInTheDocument()
     expect(within(dialog).queryByText(/Work arrangement and notes/i)).not.toBeInTheDocument()
     expect(within(dialog).queryByLabelText('Location')).not.toBeInTheDocument()
@@ -106,8 +98,8 @@ describe('InternshipRequestForm wireframe contract', () => {
     await user.type(within(dialog).getByLabelText('Internship Role Title'), 'Platform Intern')
     await user.type(within(dialog).getByLabelText('Shortlist Guidance Value (Optional)'), '8')
     await user.type(within(dialog).getByLabelText('Role Description'), 'Build platform features')
-    await user.click(await within(dialog).findByLabelText('Select TypeScript'))
-    await user.click(within(dialog).getByRole('button', { name: 'Add Selected Skills' }))
+    const results = await within(dialog).findByRole('list', { name: 'Taxonomy skill results' })
+    await user.click(within(results).getByRole('button', { name: 'TypeScript' }))
 
     expect(
       within(dialog).queryByLabelText('Required competency level for TypeScript'),

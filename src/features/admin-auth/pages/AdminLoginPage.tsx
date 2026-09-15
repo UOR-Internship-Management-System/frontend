@@ -50,9 +50,12 @@ export function AdminLoginPage() {
           </span>
           Back
         </Link>
-        <h1>Admin Login</h1>
+        <h2 className="m3-headline-small">Admin Login</h2>
         {message ? (
-          <div className="inline-alert" role="alert">
+          <div className="inline-alert auth-inline-alert" role="alert">
+            <span className="material-symbols-outlined" aria-hidden="true">
+              error
+            </span>
             {message}
           </div>
         ) : null}

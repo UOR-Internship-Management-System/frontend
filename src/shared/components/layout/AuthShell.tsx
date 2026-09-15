@@ -18,8 +18,20 @@ export function AuthSplitShell({ children, description, title }: AuthSplitShellP
   return (
     <section className="auth-split-shell">
       <aside className="auth-welcome-panel">
-        <h1>{title}</h1>
-        {description ? <p>{description}</p> : null}
+        <div className="auth-welcome-decor" aria-hidden="true">
+          <span className="auth-welcome-shape auth-welcome-shape--a" />
+          <span className="auth-welcome-shape auth-welcome-shape--b" />
+        </div>
+        <div className="auth-brand">
+          <span className="auth-brand-mark material-symbols-outlined" aria-hidden="true">
+            school
+          </span>
+          <span className="m3-label-large auth-brand-name">CV Management</span>
+        </div>
+        <div className="auth-welcome-copy">
+          <h1 className="m3-display-small">{title}</h1>
+          {description ? <p className="m3-body-large">{description}</p> : null}
+        </div>
       </aside>
       <div className="auth-form-panel">{children}</div>
     </section>
@@ -38,8 +50,10 @@ export function AuthCardShell({
       <div className="auth-icon" aria-hidden="true">
         <span className="material-symbols-outlined">{icon}</span>
       </div>
-      <h1>{title}</h1>
-      {description ? <p>{description}</p> : null}
+      <h1 className="m3-headline-small">{title}</h1>
+      {description ? (
+        <p className="m3-body-medium auth-centered-card-description">{description}</p>
+      ) : null}
       {children}
     </section>
   )

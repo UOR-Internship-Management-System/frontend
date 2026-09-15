@@ -13,12 +13,12 @@ export function InternshipRequestDetailsModal({
 }) {
   return (
     <Modal onClose={onClose} size="wide" title="Internship Request Details">
-      <dl className="wireframe-details-grid">
-        <div className="wireframe-details-wide">
+      <dl className="im-details-grid">
+        <div className="im-details-wide">
           <dt>Internship Role Title</dt>
           <dd>{request.title}</dd>
         </div>
-        <div className="wireframe-details-wide">
+        <div className="im-details-wide">
           <dt>Company</dt>
           <dd>{request.company.name}</dd>
         </div>
@@ -30,16 +30,18 @@ export function InternshipRequestDetailsModal({
               : `${request.shortlistGuidanceValue} candidates (advisory only)`}
           </dd>
         </div>
-        <div className="wireframe-details-wide">
+        <div className="im-details-wide">
           <dt>Role Description</dt>
           <dd>{request.description ?? 'Not provided'}</dd>
         </div>
-        <div className="wireframe-details-wide">
+        <div className="im-details-wide">
           <dt>Required Declared Skills</dt>
-          <dd className="wireframe-skill-tokens">
+          <dd className="im-skill-tokens">
             {request.requiredSkills.length ? (
               request.requiredSkills.map((skill) => (
-                <span key={skill.requiredSkillId}>{skill.skillName}</span>
+                <span className="im-skill-token" key={skill.requiredSkillId}>
+                  {skill.skillName}
+                </span>
               ))
             ) : (
               <span>No required skills</span>
@@ -48,7 +50,7 @@ export function InternshipRequestDetailsModal({
         </div>
       </dl>
       <div className="modal-actions">
-        <Button onClick={onClose} variant="secondary">
+        <Button onClick={onClose} variant="outlined">
           Close
         </Button>
         <Button icon={<span className="material-symbols-outlined">edit</span>} onClick={onEdit}>

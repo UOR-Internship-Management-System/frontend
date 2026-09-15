@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { TextInput } from '../../../shared/components/forms/TextInput'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { eligibleStudentFormSchema } from '../schemas/eligibleStudentSchemas'
@@ -94,7 +94,8 @@ export function EligibleStudentForm({
     }
   }
 
-  const describedBy = (field: Field) => (errors[field] ? `eligible-student-${field}-error` : undefined)
+  const describedBy = (field: Field) =>
+    errors[field] ? `eligible-student-${field}-error` : undefined
 
   return (
     <Modal
@@ -102,94 +103,68 @@ export function EligibleStudentForm({
       onClose={onCancel}
       title={item ? 'Edit Eligible Student' : 'Add Eligible Student'}
     >
-      <form className="profile-editor-form" noValidate onSubmit={submit}>
+      <form className="es-form" noValidate onSubmit={submit}>
         {formError ? (
           <div className="inline-alert" role="alert">
             {formError}
           </div>
         ) : null}
 
-        <FormField
+        <TextField
           error={errors.indexNumber}
-          errorId="eligible-student-indexNumber-error"
-          htmlFor="eligible-student-index"
+          id="eligible-student-index"
           label="Index Number"
-        >
-          <TextInput
-            aria-describedby={describedBy('indexNumber')}
-            aria-invalid={Boolean(errors.indexNumber)}
-            disabled={isPending}
-            id="eligible-student-index"
-            maxLength={32}
-            onChange={(event) => update('indexNumber', event.target.value)}
-            placeholder="e.g., CS/2022/00123"
-            ref={indexRef}
-            value={values.indexNumber}
-          />
-        </FormField>
+          disabled={isPending}
+          maxLength={32}
+          onChange={(event) => update('indexNumber', event.target.value)}
+          placeholder="e.g., CS/2022/00123"
+          ref={indexRef}
+          value={values.indexNumber}
+          aria-describedby={describedBy('indexNumber')}
+        />
 
-        <FormField
+        <TextField
           error={errors.universityEmail}
-          errorId="eligible-student-universityEmail-error"
-          htmlFor="eligible-student-email"
+          id="eligible-student-email"
           label="University Email"
-        >
-          <TextInput
-            aria-describedby={describedBy('universityEmail')}
-            aria-invalid={Boolean(errors.universityEmail)}
-            disabled={isPending}
-            id="eligible-student-email"
-            maxLength={254}
-            onChange={(event) => update('universityEmail', event.target.value)}
-            placeholder="e.g., student@dcs.ruh.ac.lk"
-            type="email"
-            value={values.universityEmail}
-          />
-        </FormField>
+          disabled={isPending}
+          maxLength={254}
+          onChange={(event) => update('universityEmail', event.target.value)}
+          placeholder="e.g., student@dcs.ruh.ac.lk"
+          type="email"
+          value={values.universityEmail}
+          aria-describedby={describedBy('universityEmail')}
+        />
 
-        <FormField
+        <TextField
           error={errors.fullName}
-          errorId="eligible-student-fullName-error"
-          htmlFor="eligible-student-name"
+          id="eligible-student-name"
           label="Full Name"
-        >
-          <TextInput
-            aria-describedby={describedBy('fullName')}
-            aria-invalid={Boolean(errors.fullName)}
-            disabled={isPending}
-            id="eligible-student-name"
-            maxLength={160}
-            onChange={(event) => update('fullName', event.target.value)}
-            placeholder="e.g., Nimal Perera"
-            value={values.fullName}
-          />
-        </FormField>
+          disabled={isPending}
+          maxLength={160}
+          onChange={(event) => update('fullName', event.target.value)}
+          placeholder="e.g., Nimal Perera"
+          value={values.fullName}
+          aria-describedby={describedBy('fullName')}
+        />
 
-        <FormField
-          error={errors.academicLevel}
-          errorId="eligible-student-academicLevel-error"
-          htmlFor="eligible-student-level"
+        <M3SelectField
+          id="eligible-student-level"
           label="Academic Level"
-        >
-          <select
-            aria-describedby={describedBy('academicLevel')}
-            aria-invalid={Boolean(errors.academicLevel)}
-            className="input"
-            disabled={isPending}
-            id="eligible-student-level"
-            onChange={(event) =>
-              update('academicLevel', event.target.value as EligibleStudentFormValues['academicLevel'])
-            }
-            value={values.academicLevel}
-          >
-            <option value="">Select level</option>
-            <option value="3">Level 3</option>
-            <option value="4">Level 4</option>
-          </select>
-        </FormField>
+          disabled={isPending}
+          onChange={(value) =>
+            update('academicLevel', value as EligibleStudentFormValues['academicLevel'])
+          }
+          value={values.academicLevel}
+          options={[
+            { value: '', label: 'Select level' },
+            { value: '3', label: 'Level 3' },
+            { value: '4', label: 'Level 4' },
+          ]}
+        />
 
         <div className="modal-actions">
-          <Button disabled={isPending} onClick={onCancel} variant="secondary">
+          <Button disabled={isPending} onClick={onCancel} variant="outlined">
             Cancel
           </Button>
           <Button isLoading={isPending} type="submit">

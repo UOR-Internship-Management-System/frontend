@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { TextField } from '../../../shared/components/forms/TextField'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
-import { SelectField } from '../../../shared/components/forms/SelectField'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
 import { useCompanies } from '../../internship-management/hooks/useCompanies'
@@ -57,7 +57,7 @@ export function InternshipRequestSelectorModal({
       onClose={onClose}
       title="Select an internship request"
     >
-      <div className="request-selector-modal">
+      <div className="cf-selector-modal">
         {mappedError ? (
           <ErrorState
             correlationId={mappedError.correlationId}
@@ -67,73 +67,72 @@ export function InternshipRequestSelectorModal({
           />
         ) : null}
 
-        <label>
-          <span>Search companies</span>
-          <SearchInput
-            aria-label="Search companies in request selector"
-            onChange={(event) => setCompanySearch(event.target.value)}
-            placeholder="Search companies by name"
-            value={companySearch}
-          />
-        </label>
+        <TextField
+          id="company-search"
+          label="Search companies"
+          aria-label="Search companies in request selector"
+          onChange={(event) => setCompanySearch(event.target.value)}
+          placeholder="Search companies by name"
+          value={companySearch}
+          leadingIcon={<span className="material-symbols-outlined">search</span>}
+        />
 
-        <label>
-          <span>Select company</span>
-          <SelectField
-            aria-label="Select company for candidate filtering"
-            disabled={companies.isPending}
-            onChange={(event) => {
-              setCompanyId(event.target.value)
-              setRequestId('')
-              setRequestSearch('')
-            }}
-            value={companyId}
-          >
-            <option value="">Choose a company</option>
-            {companies.data?.items.map((company) => (
-              <option key={company.companyId} value={company.companyId}>
-                {company.name}
-              </option>
-            ))}
-          </SelectField>
-        </label>
+        <M3SelectField
+          className="cf-modal-field"
+          label="Select company"
+          aria-label="Select company for candidate filtering"
+          disabled={companies.isPending}
+          onChange={(value) => {
+            setCompanyId(value)
+            setRequestId('')
+            setRequestSearch('')
+          }}
+          value={companyId}
+          options={[
+            { value: '', label: 'Choose a company' },
+            ...(companies.data?.items.map((company) => ({
+              value: company.companyId,
+              label: company.name,
+            })) || []),
+          ]}
+        />
 
-        <label>
-          <span>Search requests</span>
-          <SearchInput
-            aria-label="Search internship requests in selector"
-            disabled={!companyId}
-            onChange={(event) => setRequestSearch(event.target.value)}
-            placeholder="Search role title or request details"
-            value={requestSearch}
-          />
-        </label>
+        <TextField
+          id="request-search"
+          label="Search requests"
+          aria-label="Search internship requests in selector"
+          disabled={!companyId}
+          onChange={(event) => setRequestSearch(event.target.value)}
+          placeholder="Search role title or request details"
+          value={requestSearch}
+          leadingIcon={<span className="material-symbols-outlined">search</span>}
+        />
 
-        <label>
-          <span>Select internship request</span>
-          <SelectField
-            aria-label="Select internship request for candidate filtering"
-            disabled={!companyId || requests.isPending}
-            onChange={(event) => setRequestId(event.target.value)}
-            value={requestId}
-          >
-            <option value="">
-              {companyId ? 'Choose an internship request' : 'Select a company first'}
-            </option>
-            {requests.data?.items.map((request) => (
-              <option key={request.requestId} value={request.requestId}>
-                {request.title}
-              </option>
-            ))}
-          </SelectField>
-        </label>
+        <M3SelectField
+          className="cf-modal-field"
+          label="Select internship request"
+          aria-label="Select internship request for candidate filtering"
+          disabled={!companyId || requests.isPending}
+          onChange={(value) => setRequestId(value)}
+          value={requestId}
+          options={[
+            {
+              value: '',
+              label: companyId ? 'Choose an internship request' : 'Select a company first',
+            },
+            ...(requests.data?.items.map((request) => ({
+              value: request.requestId,
+              label: request.title,
+            })) || []),
+          ]}
+        />
 
         {companyId && requests.data?.items.length === 0 ? (
-          <p className="modal-helper-text">No requests match this company and search.</p>
+          <p className="cf-modal-helper-text">No requests match this company and search.</p>
         ) : null}
 
         <div className="modal-actions">
-          <Button onClick={onClose} variant="secondary">
+          <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>
           <Button

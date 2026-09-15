@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
-import { SkeletonBlock } from '../../../shared/components/feedback/SkeletonBlock'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
+import { SkeletonListRows } from '../../../shared/skeletons'
 import { Modal } from '../../../shared/components/overlays/Modal'
+import { Button } from '../../../shared/components/ui/Button'
+import { List, ListItem } from '../../../shared/components/ui/List'
 import {
   getExportDownloadErrorMessage,
   useCandidateCvDownload,
@@ -194,12 +198,12 @@ export function ShortlistDetailWorkspace({
       size="wide"
       title={shortlist?.request.companyName ?? 'Shortlist details'}
     >
-      <div className="shortlist-modal-content" inert={notice ? true : undefined}>
+      <div className="sl-modal-content" inert={notice ? true : undefined}>
         <LoadingBoundary
           isLoading={detail.isPending || (detail.isFetching && !resolvedDetail)}
           label="Loading shortlisted candidates"
           minHeight={420}
-          skeleton={<SkeletonBlock height={380} lines={0} variant="card" />}
+          skeleton={<SkeletonListRows count={5} />}
         >
           {mappedError ? (
             <ErrorState
@@ -210,113 +214,96 @@ export function ShortlistDetailWorkspace({
             />
           ) : shortlist && candidates ? (
             <>
-              <div className="shortlist-modal-toolbar">
-                <label className="shortlist-control shortlist-search-control">
+              <div className="sl-modal-toolbar">
+                <label className="sl-toolbar-field sl-search-field">
                   <span>Search Candidates</span>
-                  <span className="shortlist-search-input">
-                    <span aria-hidden="true" className="material-symbols-outlined">
-                      search
-                    </span>
-                    <input
-                      aria-label="Search Candidates"
-                      maxLength={120}
-                      onChange={(event) => onCandidateSearchInputChange(event.target.value)}
-                      placeholder="Search by name or index..."
-                      type="search"
-                      value={candidateSearchInput}
-                    />
-                  </span>
+                  <SearchBar
+                    aria-label="Search Candidates"
+                    maxLength={120}
+                    onChange={(event) => onCandidateSearchInputChange(event.target.value)}
+                    placeholder="Search by name or index..."
+                    value={candidateSearchInput}
+                  />
                 </label>
 
-                <label className="shortlist-control">
-                  <span>Sort Rules</span>
-                  <select
-                    aria-label="Sort Rules"
-                    onChange={(event) =>
-                      onStateChange({
-                        candidateSort:
-                          event.target.value === 'officialGpa,asc'
-                            ? 'officialGpa,asc'
-                            : 'officialGpa,desc',
-                      })
-                    }
-                    value={state.candidateSort}
-                  >
-                    <option value="officialGpa,desc">GPA (High to Low)</option>
-                    <option value="officialGpa,asc">GPA (Low to High)</option>
-                  </select>
-                </label>
+                <M3SelectField
+                  className="sl-toolbar-field"
+                  label="Sort Rules"
+                  onChange={(value) =>
+                    onStateChange({
+                      candidateSort:
+                        value === 'officialGpa,asc' ? 'officialGpa,asc' : 'officialGpa,desc',
+                    })
+                  }
+                  value={state.candidateSort}
+                  options={[
+                    { value: 'officialGpa,desc', label: 'GPA (High to Low)' },
+                    { value: 'officialGpa,asc', label: 'GPA (Low to High)' },
+                  ]}
+                />
 
-                <button
-                  className="shortlist-outlined-button shortlist-modal-download"
+                <Button
                   disabled={exportPending || shortlist.status !== 'FINALIZED'}
+                  icon={<span className="material-symbols-outlined">download_zip</span>}
                   onClick={() => void beginExport('bulk')}
-                  type="button"
+                  variant="outlined"
                 >
-                  <span aria-hidden="true" className="material-symbols-outlined">
-                    download_zip
-                  </span>
                   Download All CVs
-                </button>
+                </Button>
               </div>
 
-              <p aria-live="polite" className="shortlist-live-region">
+              <p aria-live="polite" className="sl-live-region">
                 {detail.isFetching && !detail.isPending ? 'Updating candidates…' : ''}
               </p>
 
               {candidates.items.length ? (
-                <div className="shortlist-candidate-list">
+                <List className="sl-candidate-list">
                   {candidates.items.map((candidate) => (
-                    <article className="shortlist-matrix-row" key={candidate.studentId}>
-                      <div>
-                        <h3>{candidate.fullName}</h3>
-                        <p>
-                          Index: {candidate.indexNumber} • GPA:{' '}
-                          {candidate.officialGpa === null
-                            ? 'Not available'
-                            : candidate.officialGpa.toFixed(2)}
-                        </p>
-                      </div>
-                      <button
-                        className="shortlist-outlined-button"
-                        disabled={!candidate.hasLatestSavedCv || candidateCvDownload.isPending}
-                        onClick={() => void downloadCandidateCv(candidate)}
-                        title={
-                          candidate.hasLatestSavedCv
-                            ? undefined
-                            : 'No latest saved CV is available for this Student.'
-                        }
-                        type="button"
-                      >
-                        <span aria-hidden="true" className="material-symbols-outlined">
-                          download
-                        </span>
-                        {downloadingStudentId === candidate.studentId ? 'Downloading…' : 'CV'}
-                      </button>
-                    </article>
+                    <ListItem
+                      className="sl-matrix-row"
+                      headline={candidate.fullName}
+                      key={candidate.studentId}
+                      supportingText={`Index: ${candidate.indexNumber} • GPA: ${
+                        candidate.officialGpa === null
+                          ? 'Not available'
+                          : candidate.officialGpa.toFixed(2)
+                      }`}
+                      trailing={
+                        <Button
+                          disabled={!candidate.hasLatestSavedCv || candidateCvDownload.isPending}
+                          icon={<span className="material-symbols-outlined">download</span>}
+                          onClick={() => void downloadCandidateCv(candidate)}
+                          size="sm"
+                          title={
+                            candidate.hasLatestSavedCv
+                              ? undefined
+                              : 'No latest saved CV is available for this Student.'
+                          }
+                          variant="outlined"
+                        >
+                          {downloadingStudentId === candidate.studentId ? 'Downloading…' : 'CV'}
+                        </Button>
+                      }
+                    />
                   ))}
-                </div>
+                </List>
               ) : (
-                <div className="shortlist-modal-empty" role="status">
+                <div className="sl-modal-empty" role="status">
                   No shortlisted candidates match the current search.
                 </div>
               )}
 
-              <footer className="shortlist-modal-actions">
-                <button className="shortlist-outlined-button" onClick={closeModal} type="button">
+              <footer className="sl-modal-actions">
+                <Button onClick={closeModal} variant="outlined">
                   Cancel
-                </button>
-                <button
-                  className="shortlist-filled-button"
+                </Button>
+                <Button
                   disabled={exportPending || shortlist.status !== 'FINALIZED'}
+                  icon={<span className="material-symbols-outlined">assignment_turned_in</span>}
                   onClick={() => void beginExport('summary')}
-                  type="button"
                 >
-                  <span aria-hidden="true" className="material-symbols-outlined">
-                    assignment_turned_in
-                  </span>
                   Download Final Shortlist
-                </button>
+                </Button>
               </footer>
             </>
           ) : null}
@@ -327,26 +314,21 @@ export function ShortlistDetailWorkspace({
         <div
           aria-label={notice.title}
           aria-modal="true"
-          className="shortlist-notice-overlay"
+          className="sl-notice-overlay"
           onClick={(event) => {
             if (event.target === event.currentTarget) setNotice(undefined)
           }}
           role="alertdialog"
         >
-          <div className="shortlist-notice-card">
-            <span aria-hidden="true" className="shortlist-notice-icon material-symbols-outlined">
+          <div className="sl-notice-card">
+            <span aria-hidden="true" className="sl-notice-icon material-symbols-outlined">
               {notice.icon}
             </span>
             <h3>{notice.title}</h3>
             <p>{notice.message}</p>
-            <button
-              autoFocus
-              className="shortlist-filled-button"
-              onClick={() => setNotice(undefined)}
-              type="button"
-            >
+            <Button autoFocus onClick={() => setNotice(undefined)}>
               Acknowledge
-            </button>
+            </Button>
           </div>
         </div>
       ) : null}

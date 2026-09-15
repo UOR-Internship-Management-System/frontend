@@ -1,5 +1,6 @@
 import { routePaths } from '../../../app/config/routePaths'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { Chip } from '../../../shared/components/ui/Chip'
 import type { CvRecordSelections } from '../mappers/cvMapper'
 import { CvRecordSelectionGroup, type CvSelectionGroupState } from './CvRecordSelectionGroup'
 
@@ -30,66 +31,67 @@ export function CvConfigurationPanel({
   selections,
 }: CvConfigurationPanelProps) {
   return (
-    <SectionCard aria-labelledby="cv-configuration-title" className="s5-cv-configuration">
-      <div className="s5-section-heading">
+    <Card aria-labelledby="cv-configuration-title" variant="outlined">
+      <CardHeader className="s5-section-heading">
         <div>
-          <h2 id="cv-configuration-title">CV component inclusion</h2>
+          <CardTitle id="cv-configuration-title">CV component inclusion</CardTitle>
           <p>Select the individual records to include before generating a preview.</p>
         </div>
-      </div>
-
-      <div className="s5-cv-identity-note">
-        <strong>Always included</strong>
-        <div className="s5-cv-always-included-list">
-          {alwaysIncludedContent.map((item) => (
-            <span key={item}>{item}</span>
-          ))}
+      </CardHeader>
+      <CardContent className="s5-cv-configuration">
+        <div className="s5-cv-identity-note">
+          <strong>Always included</strong>
+          <div className="s5-cv-always-included-list">
+            {alwaysIncludedContent.map((item) => (
+              <Chip key={item}>{item}</Chip>
+            ))}
+          </div>
+          <small>Optional records follow the approved default section order.</small>
         </div>
-        <small>Optional records follow the approved default section order.</small>
-      </div>
 
-      <div className="s5-cv-source-grid">
-        <CvRecordSelectionGroup
-          manageHref={routePaths.studentProfile}
-          manageLabel="Work Experience in Profile"
-          onToggle={(id) => onToggleRecord('includedExperienceIds', id)}
-          selectedIds={selections.includedExperienceIds}
-          title="Work Experience"
-          {...experienceSources}
-        />
-        <CvRecordSelectionGroup
-          manageHref={routePaths.studentProjects}
-          manageLabel="Projects"
-          onToggle={(id) => onToggleRecord('includedProjectIds', id)}
-          selectedIds={selections.includedProjectIds}
-          title="Projects"
-          {...projectSources}
-        />
-        <CvRecordSelectionGroup
-          manageHref={routePaths.studentProfile}
-          manageLabel="Certificates in Profile"
-          onToggle={(id) => onToggleRecord('includedCertificateIds', id)}
-          selectedIds={selections.includedCertificateIds}
-          title="Certificates"
-          {...certificateSources}
-        />
-        <CvRecordSelectionGroup
-          manageHref={routePaths.studentProfile}
-          manageLabel="Awards and Honors in Profile"
-          onToggle={(id) => onToggleRecord('includedAwardIds', id)}
-          selectedIds={selections.includedAwardIds}
-          title="Awards and Honors"
-          {...awardSources}
-        />
-        <CvRecordSelectionGroup
-          manageHref={routePaths.studentProfile}
-          manageLabel="Extracurricular Activities in Profile"
-          onToggle={(id) => onToggleRecord('includedActivityIds', id)}
-          selectedIds={selections.includedActivityIds}
-          title="Extracurricular Activities"
-          {...activitySources}
-        />
-      </div>
-    </SectionCard>
+        <div className="s5-cv-source-grid">
+          <CvRecordSelectionGroup
+            manageHref={routePaths.studentProfile}
+            manageLabel="Work Experience in Profile"
+            onToggle={(id) => onToggleRecord('includedExperienceIds', id)}
+            selectedIds={selections.includedExperienceIds}
+            title="Work Experience"
+            {...experienceSources}
+          />
+          <CvRecordSelectionGroup
+            manageHref={routePaths.studentProjects}
+            manageLabel="Projects"
+            onToggle={(id) => onToggleRecord('includedProjectIds', id)}
+            selectedIds={selections.includedProjectIds}
+            title="Projects"
+            {...projectSources}
+          />
+          <CvRecordSelectionGroup
+            manageHref={routePaths.studentProfile}
+            manageLabel="Certificates in Profile"
+            onToggle={(id) => onToggleRecord('includedCertificateIds', id)}
+            selectedIds={selections.includedCertificateIds}
+            title="Certificates"
+            {...certificateSources}
+          />
+          <CvRecordSelectionGroup
+            manageHref={routePaths.studentProfile}
+            manageLabel="Awards and Honors in Profile"
+            onToggle={(id) => onToggleRecord('includedAwardIds', id)}
+            selectedIds={selections.includedAwardIds}
+            title="Awards and Honors"
+            {...awardSources}
+          />
+          <CvRecordSelectionGroup
+            manageHref={routePaths.studentProfile}
+            manageLabel="Extracurricular Activities in Profile"
+            onToggle={(id) => onToggleRecord('includedActivityIds', id)}
+            selectedIds={selections.includedActivityIds}
+            title="Extracurricular Activities"
+            {...activitySources}
+          />
+        </div>
+      </CardContent>
+    </Card>
   )
 }

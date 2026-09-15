@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { FormField } from '../../../shared/components/forms/FormField'
-import { PasswordInput } from '../../../shared/components/forms/PasswordInput'
+import { PasswordField } from '../../../shared/components/forms/PasswordField'
 import { Button } from '../../../shared/components/ui/Button'
 import {
   flattenZodErrors,
@@ -41,33 +40,29 @@ export function StudentCreatePasswordForm({
         onSubmit(result.data)
       }}
     >
-      <p className="form-helper">
+      <p className="form-helper m3-body-small">
         Use at least 8 characters with uppercase, lowercase, number, and special character.
       </p>
-      <FormField error={errors.newPassword} htmlFor="student-new-password" label="New Password">
-        <PasswordInput
-          autoComplete="new-password"
-          id="student-new-password"
-          onChange={(event) =>
-            setValues((current) => ({ ...current, newPassword: event.target.value }))
-          }
-          value={values.newPassword}
-        />
-      </FormField>
-      <FormField
+      <PasswordField
+        autoComplete="new-password"
+        error={errors.newPassword}
+        id="student-new-password"
+        label="New Password"
+        onChange={(event) =>
+          setValues((current) => ({ ...current, newPassword: event.target.value }))
+        }
+        value={values.newPassword}
+      />
+      <PasswordField
+        autoComplete="new-password"
         error={errors.confirmPassword}
-        htmlFor="student-confirm-password"
+        id="student-confirm-password"
         label="Confirm New Password"
-      >
-        <PasswordInput
-          autoComplete="new-password"
-          id="student-confirm-password"
-          onChange={(event) =>
-            setValues((current) => ({ ...current, confirmPassword: event.target.value }))
-          }
-          value={values.confirmPassword}
-        />
-      </FormField>
+        onChange={(event) =>
+          setValues((current) => ({ ...current, confirmPassword: event.target.value }))
+        }
+        value={values.confirmPassword}
+      />
       <Button isLoading={isSubmitting} type="submit">
         {buttonLabel}
       </Button>

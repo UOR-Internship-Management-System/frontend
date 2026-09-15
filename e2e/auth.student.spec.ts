@@ -88,5 +88,5 @@ test('student completes onboarding and logs in with mocked Sprint 2 APIs', async
   await page.getByRole('button', { name: 'Log In' }).click()
 
   await expect(page).toHaveURL(/\/student\/dashboard$/)
-  await expect(page.getByRole('heading', { name: 'Student Dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Student dashboard' })).toBeVisible()
 })

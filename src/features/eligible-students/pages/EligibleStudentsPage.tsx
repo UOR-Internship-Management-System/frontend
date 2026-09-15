@@ -2,16 +2,18 @@ import { useState } from 'react'
 import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { Chip } from '../../../shared/components/ui/Chip'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { RegisteredStudentsSectionSkeleton } from '../../../shared/skeletons'
+import { SkeletonTableGrid } from '../../../shared/skeletons'
 import { EligibleStudentForm } from '../components/EligibleStudentForm'
 import { EligibleStudentImportPanel } from '../components/EligibleStudentImportPanel'
 import { EligibleStudentsTable } from '../components/EligibleStudentsTable'
@@ -39,7 +41,8 @@ export function EligibleStudentsPage() {
     search: debouncedSearch,
   })
   const mutations = useEligibleStudentMutations()
-  const pending = mutations.create.isPending || mutations.update.isPending || mutations.remove.isPending
+  const pending =
+    mutations.create.isPending || mutations.update.isPending || mutations.remove.isPending
 
   const save = async (values: EligibleStudentRequest) => {
     const item =
@@ -74,74 +77,93 @@ export function EligibleStudentsPage() {
   const mappedError = query.isError ? mapApiError(query.error, 'protected') : null
 
   return (
-    <article className="content-stack eligible-students-page">
+    <article className="es-page">
       <PageHeader
         description="Control who can register — add students individually or bulk import via Excel/CSV. Typically done once per academic year."
-        eyebrow="Admin workspace"
         title="Eligible Students"
       />
 
       <EligibleStudentImportPanel />
 
-      <SectionCard className="eligible-students-list-card">
-        <div className="internship-section-heading">
-          <h2>Roster</h2>
-          <Button
-            icon={<span className="material-symbols-outlined">person_add</span>}
-            onClick={() => setEditing('new')}
+      <Card className="es-roster-card" variant="outlined">
+        <CardHeader className="es-roster-heading">
+          <CardTitle>Student list</CardTitle>
+          {query.data ? <Chip>{query.data.page.totalElements} students</Chip> : null}
+        </CardHeader>
+        <CardContent className="es-roster-content">
+          <div
+            className="al-toolbar"
+            style={{
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+            }}
           >
-            Add Student
-          </Button>
-        </div>
-        <SearchInput
-          aria-label="Search eligible students"
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by index number, name, or email"
-          value={search}
-        />
-        <LoadingBoundary
-          isLoading={query.isPending}
-          label="Loading eligible students"
-          skeleton={<RegisteredStudentsSectionSkeleton announce={false} />}
-        >
-          {mappedError ? (
-            <ErrorState
-              correlationId={mappedError.correlationId}
-              message={mappedError.message}
-              onAction={() => void query.refetch()}
-              title="Eligible students unavailable"
+            <SearchBar
+              aria-label="Search eligible students"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by index number, name, or email"
+              value={search}
+              style={{ flex: '1 1 300px', maxWidth: '400px', minWidth: '200px' }}
             />
-          ) : items.length === 0 ? (
-            <EmptyState
-              message={
-                search
-                  ? `No eligible students match "${search}".`
-                  : 'No eligible students have been added yet.'
-              }
-              title={search ? 'No matching students' : 'Nothing added yet'}
+            <ExtendedFab
+              icon={<span className="material-symbols-outlined">add</span>}
+              label="Add students"
+              onClick={() => setEditing('new')}
             />
-          ) : (
-            <>
-              <EligibleStudentsTable
-                disabled={pending}
-                items={items}
-                onDelete={setDeleting}
-                onEdit={setEditing}
+          </div>
+          <LoadingBoundary
+            isLoading={query.isPending}
+            label="Loading eligible students"
+            skeleton={
+              <SkeletonTableGrid
+                columns={6}
+                gridTemplateColumns="repeat(6, minmax(100px, 1fr))"
+                rows={5}
               />
-              {query.data ? (
-                <PaginationBar
-                  label="Eligible students pagination"
-                  onPageChange={setPage}
-                  page={query.data.page.page}
-                  size={query.data.page.size}
-                  totalElements={query.data.page.totalElements}
-                  totalPages={query.data.page.totalPages}
+            }
+          >
+            {mappedError ? (
+              <ErrorState
+                correlationId={mappedError.correlationId}
+                message={mappedError.message}
+                onAction={() => void query.refetch()}
+                title="Eligible students unavailable"
+              />
+            ) : items.length === 0 ? (
+              <EmptyState
+                message={
+                  search
+                    ? `No eligible students match "${search}".`
+                    : 'No eligible students have been added yet.'
+                }
+                title={search ? 'No matching students' : 'Nothing added yet'}
+              />
+            ) : (
+              <>
+                <EligibleStudentsTable
+                  disabled={pending}
+                  items={items}
+                  onDelete={setDeleting}
+                  onEdit={setEditing}
                 />
-              ) : null}
-            </>
-          )}
-        </LoadingBoundary>
-      </SectionCard>
+                {query.data ? (
+                  <PaginationBar
+                    label="Eligible students pagination"
+                    onPageChange={setPage}
+                    page={query.data.page.page}
+                    size={query.data.page.size}
+                    totalElements={query.data.page.totalElements}
+                    totalPages={query.data.page.totalPages}
+                  />
+                ) : null}
+              </>
+            )}
+          </LoadingBoundary>
+        </CardContent>
+      </Card>
 
       {editing ? (
         <EligibleStudentForm
@@ -165,11 +187,15 @@ export function EligibleStudentsPage() {
             <Button
               disabled={mutations.remove.isPending}
               onClick={() => setDeleting(null)}
-              variant="secondary"
+              variant="outlined"
             >
               Cancel
             </Button>
-            <Button isLoading={mutations.remove.isPending} onClick={() => void remove()}>
+            <Button
+              isLoading={mutations.remove.isPending}
+              onClick={() => void remove()}
+              variant="danger"
+            >
               Remove Student
             </Button>
           </div>

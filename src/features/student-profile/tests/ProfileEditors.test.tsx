@@ -19,49 +19,49 @@ describe('Student Profile editor content', () => {
 
   it('uses the approved wireframe labels while retaining contract-backed fields', () => {
     render(<ContactLinkEditor isPending={false} onCancel={cancel} onSubmit={submitLink} />)
-    expect(screen.getByLabelText('Link Label')).toBeInTheDocument()
+    expect(screen.getByLabelText('Link label')).toBeInTheDocument()
     expect(
-      screen.getByRole('checkbox', { name: 'Include this Professional Link in the CV' }),
+      screen.getByRole('checkbox', { name: 'Include this professional link in the CV' }),
     ).toBeInTheDocument()
 
     cleanup()
     render(<CertificateEditor isPending={false} onCancel={cancel} onSubmit={submitCertificate} />)
-    expect(screen.getByLabelText('Certification Name')).toBeInTheDocument()
-    expect(screen.getByLabelText('Issuing Authority')).toBeInTheDocument()
-    expect(screen.getByLabelText('Date Issued')).toHaveAttribute('type', 'date')
-    expect(screen.getByLabelText('Credential URL Reference')).toHaveAttribute('type', 'url')
-    expect(screen.getByLabelText('Certificate Evidence (Optional)')).toBeDisabled()
+    expect(screen.getByLabelText('Certification name')).toBeInTheDocument()
+    expect(screen.getByLabelText('Issuing authority')).toBeInTheDocument()
+    expect(screen.getByLabelText('Date issued')).toHaveAttribute('type', 'date')
+    expect(screen.getByLabelText('Credential URL')).toHaveAttribute('type', 'url')
+    expect(screen.getByLabelText('Certificate evidence (optional)')).toBeDisabled()
     expect(
-      screen.getByRole('checkbox', { name: 'Include this Certificate in the CV' }),
+      screen.getByRole('checkbox', { name: 'Include this certificate in the CV' }),
     ).toBeInTheDocument()
 
     cleanup()
     render(<AwardEditor isPending={false} onCancel={cancel} onSubmit={submitAward} />)
-    expect(screen.getByLabelText('Award / Achievement Title')).toBeInTheDocument()
-    expect(screen.getByLabelText('Awarding Institution / Body')).toBeInTheDocument()
-    expect(screen.getByLabelText('Date Received')).toHaveAttribute('type', 'date')
+    expect(screen.getByLabelText('Award or achievement title')).toBeInTheDocument()
+    expect(screen.getByLabelText('Awarding institution or organization')).toBeInTheDocument()
+    expect(screen.getByLabelText('Date received')).toHaveAttribute('type', 'date')
     expect(
-      screen.getByRole('checkbox', { name: 'Include this Award in the CV' }),
+      screen.getByRole('checkbox', { name: 'Include this award in the CV' }),
     ).toBeInTheDocument()
 
     cleanup()
     render(<ActivityEditor isPending={false} onCancel={cancel} onSubmit={submitActivity} />)
-    expect(screen.getByLabelText('Organization / Club / Society Name')).toBeInTheDocument()
-    expect(screen.getByLabelText('Role / Position Held')).toBeInTheDocument()
-    expect(screen.getByLabelText('Core Responsibilities')).toBeInTheDocument()
+    expect(screen.getByLabelText('Organization, club, or society name')).toBeInTheDocument()
+    expect(screen.getByLabelText('Role or position held')).toBeInTheDocument()
+    expect(screen.getByLabelText('Core responsibilities')).toBeInTheDocument()
     expect(
-      screen.getByRole('checkbox', { name: 'Include this Activity in the CV' }),
+      screen.getByRole('checkbox', { name: 'Include this activity in the CV' }),
     ).toBeInTheDocument()
 
     cleanup()
     render(<ExperienceEditor isPending={false} onCancel={cancel} onSubmit={submitExperience} />)
     expect(screen.getByLabelText('Company')).toBeInTheDocument()
-    expect(screen.getByLabelText('Job Title')).toBeInTheDocument()
-    expect(screen.getByLabelText('Job Location')).toBeInTheDocument()
-    expect(screen.getByRole('checkbox', { name: 'Is Current Role' })).toBeInTheDocument()
-    expect(screen.getByLabelText('Core Responsibilities / Bulleted Duties')).toBeInTheDocument()
+    expect(screen.getByLabelText('Job title')).toBeInTheDocument()
+    expect(screen.getByLabelText('Job location')).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'This is my current role' })).toBeInTheDocument()
+    expect(screen.getByLabelText('Core responsibilities or duties')).toBeInTheDocument()
     expect(
-      screen.getByRole('checkbox', { name: 'Include this Experience in the CV' }),
+      screen.getByRole('checkbox', { name: 'Include this experience in the CV' }),
     ).toBeInTheDocument()
   })
 })

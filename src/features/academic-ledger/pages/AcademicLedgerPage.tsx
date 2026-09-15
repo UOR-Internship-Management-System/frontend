@@ -1,18 +1,30 @@
 import { useEffect, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
-import { SearchInput } from '../../../shared/components/data/SearchInput'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
+import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
-import { LedgerSelectedBatchSkeleton, LedgerUploadsTableSkeleton } from '../../../shared/skeletons'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
+import {
+  SkeletonCard,
+  SkeletonFormFields,
+  SkeletonMobileCards,
+  SkeletonStatusRegion,
+  SkeletonTableGrid,
+} from '../../../shared/skeletons'
+import { LedgerAcademicInspection } from '../components/LedgerAcademicInspection'
 import { LedgerCommitControl } from '../components/LedgerCommitControl'
 import { LedgerReviewSection } from '../components/LedgerReviewSection'
 import { LedgerUploadPanel } from '../components/LedgerUploadPanel'
 import { LedgerUploadStatus } from '../components/LedgerUploadStatus'
 import { LedgerUploadsTable } from '../components/LedgerUploadsTable'
+import { LedgerUploadsCardList } from '../components/LedgerUploadsCardList'
 import { useAcademicLedgerUrlState } from '../hooks/useAcademicLedgerUrlState'
 import {
   useDeleteLedgerUpload,
@@ -25,14 +37,47 @@ import type { LedgerUploadSummary } from '../schemas/ledgerSchemas'
 const pageTitle = 'Academic Ledger Management | CV Management & Filtering System'
 const pageDescription = 'Upload official transcripts, review them, and commit academic records.'
 
+const viewOptions = [
+  {
+    value: 'table' as const,
+    label: 'Table',
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        table_rows
+      </span>
+    ),
+  },
+  {
+    value: 'cards' as const,
+    label: 'Cards',
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        grid_view
+      </span>
+    ),
+  },
+]
+
 export function AcademicLedgerPage() {
-  const { state, rowSearchInput, selectUpload, setRowSearchInput, updateRows, updateUploads } =
-    useAcademicLedgerUrlState()
+  const {
+    state,
+    rowSearchInput,
+    studentSearchInput,
+    selectUpload,
+    setRowSearchInput,
+    setStudentSearchInput,
+    updateRows,
+    updateStudents,
+    updateUploads,
+  } = useAcademicLedgerUrlState()
   const uploads = useLedgerUploads(state.uploads)
   const selected = useLedgerUploadDetail(state.uploadId)
   const upload = useUploadLedger()
   const deleteUpload = useDeleteLedgerUpload()
   const [deleting, setDeleting] = useState<LedgerUploadSummary | null>(null)
+  const [uploadsViewMode, setUploadsViewMode] = useState<'table' | 'cards'>('table')
+  const isCompact = useIsCompactLayout()
+  const effectiveUploadsViewMode = isCompact ? 'cards' : uploadsViewMode
 
   useEffect(() => {
     const previousTitle = document.title
@@ -55,7 +100,7 @@ export function AcademicLedgerPage() {
 
   return (
     <main className="content-stack academic-ledger-page">
-      <PageHeader title="Academic Ledger Management" description={pageDescription} />
+      <PageHeader description={pageDescription} title="Academic Ledger Management" />
 
       <LedgerUploadPanel
         error={upload.error}
@@ -66,13 +111,19 @@ export function AcademicLedgerPage() {
         }
       />
 
-      {state.uploadId && selected.isPending ? <LedgerSelectedBatchSkeleton /> : null}
+      {state.uploadId && selected.isPending ? (
+        <SkeletonStatusRegion label="Loading selected ledger batch">
+          <SkeletonCard>
+            <SkeletonFormFields count={4} />
+          </SkeletonCard>
+        </SkeletonStatusRegion>
+      ) : null}
       {selected.data ? <LedgerUploadStatus detail={selected.data} /> : null}
       {selected.isError ? (
         <ErrorState
-          title="Unable to load selected batch"
           message={mapApiError(selected.error, 'protected').message}
           onAction={() => void selected.refetch()}
+          title="Unable to load selected batch"
         />
       ) : null}
       {state.uploadId && selected.data && isReviewable ? (
@@ -86,87 +137,127 @@ export function AcademicLedgerPage() {
       ) : null}
       {selected.data && isReviewable ? <LedgerCommitControl detail={selected.data} /> : null}
 
-      <section aria-labelledby="ledger-batches-title" className="section-card ledger-batches-panel">
-        <div className="ledger-section-heading">
+      <Card aria-labelledby="ledger-batches-title" variant="outlined">
+        <CardHeader className="s5-section-heading">
           <div>
-            <p className="section-kicker">Processing history</p>
-            <h2 id="ledger-batches-title">Ledger Upload Batches</h2>
+            <CardTitle id="ledger-batches-title">Ledger upload batches</CardTitle>
             <p>Open an existing batch to continue validation review or commit eligible records.</p>
           </div>
-          {uploads.isFetching && !uploads.isPending ? <span role="status">Updating…</span> : null}
-        </div>
-        <div className="ledger-toolbar ledger-batch-toolbar">
-          <label>
-            Search files
-            <SearchInput
+          {uploads.isFetching && !uploads.isPending ? (
+            <span className="al-updating-note" role="status">
+              Updating…
+            </span>
+          ) : null}
+        </CardHeader>
+        <CardContent>
+          <div className="al-toolbar">
+            <SearchBar
               aria-label="Search ledger upload files"
+              onChange={(event) => updateUploads({ search: event.target.value.slice(0, 120) })}
               placeholder="Search by file name"
               value={state.uploads.search}
-              onChange={(event) => updateUploads({ search: event.target.value.slice(0, 120) })}
             />
-          </label>
-          <label>
-            Status
-            <select
-              className="select"
-              value={state.uploads.status ?? ''}
-              onChange={(event) =>
+            <M3SelectField
+              className="al-field"
+              label="Status"
+              onChange={(value) =>
                 updateUploads({
-                  status: (event.target.value || undefined) as typeof state.uploads.status,
+                  status: (value || undefined) as typeof state.uploads.status,
                 })
               }
+              value={state.uploads.status ?? ''}
+              options={[
+                { value: '', label: 'All statuses' },
+                { value: 'PROCESSING', label: 'Processing' },
+                { value: 'READY_TO_COMMIT', label: 'Ready to commit' },
+                { value: 'COMMITTED', label: 'Committed' },
+                { value: 'VALIDATION_FAILED', label: 'Validation failed' },
+                { value: 'PROCESSING_FAILED', label: 'Processing failed' },
+              ]}
+            />
+            {isCompact ? null : (
+              <div className="al-toolbar-toggle">
+                <SegmentedButton
+                  onChange={(val) => setUploadsViewMode(val as 'table' | 'cards')}
+                  options={viewOptions}
+                  value={uploadsViewMode}
+                />
+              </div>
+            )}
+          </div>
+
+          {uploads.isPending ? (
+            <SkeletonStatusRegion label="Loading recent ledger uploads">
+              <SkeletonTableGrid
+                columns={5}
+                gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
+                rows={4}
+              />
+              <SkeletonMobileCards count={4} />
+            </SkeletonStatusRegion>
+          ) : null}
+          {uploadsError ? (
+            <ErrorState
+              correlationId={uploadsError.correlationId}
+              message={uploadsError.message}
+              onAction={() => void uploads.refetch()}
+              title="Unable to load upload batches"
+            />
+          ) : null}
+          {uploads.data?.items.length ? (
+            <div
+              className={`al-data-container ${effectiveUploadsViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
             >
-              <option value="">All statuses</option>
-              <option value="PROCESSING">Processing</option>
-              <option value="READY_TO_COMMIT">Ready to commit</option>
-              <option value="COMMITTED">Committed</option>
-              <option value="VALIDATION_FAILED">Validation failed</option>
-              <option value="PROCESSING_FAILED">Processing failed</option>
-            </select>
-          </label>
-        </div>
-        {uploads.isPending ? <LedgerUploadsTableSkeleton /> : null}
-        {uploadsError ? (
-          <ErrorState
-            title="Unable to load upload batches"
-            message={uploadsError.message}
-            correlationId={uploadsError.correlationId}
-            onAction={() => void uploads.refetch()}
-          />
-        ) : null}
-        {uploads.data?.items.length ? (
-          <LedgerUploadsTable
-            items={uploads.data.items}
-            onDelete={setDeleting}
-            selectedId={state.uploadId}
-            onSelect={selectUpload}
-          />
-        ) : null}
-        {uploads.data && !uploads.data.items.length ? (
-          <EmptyState
-            title="No upload batches"
-            message="No ledger uploads match the current filters."
-          />
-        ) : null}
-        {uploads.data?.page.totalPages ? (
-          <PaginationBar
-            label="Academic ledger upload pages"
-            page={uploads.data.page.page}
-            size={uploads.data.page.size}
-            totalElements={uploads.data.page.totalElements}
-            totalPages={uploads.data.page.totalPages}
-            pageSizeOptions={[20, 50, 100]}
-            onPageChange={(page) => updateUploads({ page })}
-            onPageSizeChange={(size) => updateUploads({ size: size as 20 | 50 | 100 })}
-          />
-        ) : null}
-      </section>
+              {effectiveUploadsViewMode === 'table' ? (
+                <LedgerUploadsTable
+                  items={uploads.data.items}
+                  onDelete={setDeleting}
+                  onSelect={selectUpload}
+                  selectedId={state.uploadId}
+                />
+              ) : (
+                <LedgerUploadsCardList
+                  items={uploads.data.items}
+                  onDelete={setDeleting}
+                  onSelect={selectUpload}
+                  selectedId={state.uploadId}
+                />
+              )}
+            </div>
+          ) : null}
+          {uploads.data && !uploads.data.items.length ? (
+            <EmptyState
+              message="No ledger uploads match the current filters."
+              title="No upload batches"
+            />
+          ) : null}
+          {uploads.data?.page.totalPages ? (
+            <PaginationBar
+              label="Academic ledger upload pages"
+              onPageChange={(page) => updateUploads({ page })}
+              onPageSizeChange={(size) => updateUploads({ size: size as 20 | 50 | 100 })}
+              page={uploads.data.page.page}
+              pageSizeOptions={[20, 50, 100]}
+              size={uploads.data.page.size}
+              totalElements={uploads.data.page.totalElements}
+              totalPages={uploads.data.page.totalPages}
+            />
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <LedgerAcademicInspection
+        onQueryChange={updateStudents}
+        onSearchChange={setStudentSearchInput}
+        query={state.students}
+        searchInput={studentSearchInput}
+      />
 
       {deleting ? (
         <ConfirmDialog
           closeDisabled={deleteUpload.isPending}
           onClose={() => setDeleting(null)}
-          title="Remove upload"
+          title="Remove upload batch"
         >
           <p>
             Remove <strong>{deleting.originalFilename}</strong>? This cannot be undone.
@@ -180,7 +271,7 @@ export function AcademicLedgerPage() {
             <Button
               disabled={deleteUpload.isPending}
               onClick={() => setDeleting(null)}
-              variant="secondary"
+              variant="outlined"
             >
               Cancel
             </Button>

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { buildAdminStudentDetailPath } from '../../../app/config/routePaths'
+import { Checkbox } from '../../../shared/components/forms/Checkbox'
 import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
 import { StatusBadge } from '../../../shared/components/ui/StatusBadge'
@@ -10,33 +10,6 @@ const gpaFormatter = new Intl.NumberFormat('en-LK', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 })
-
-function PageSelectionCheckbox({
-  allSelected,
-  anySelected,
-  onChange,
-}: {
-  allSelected: boolean
-  anySelected: boolean
-  onChange: () => void
-}) {
-  const ref = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = anySelected && !allSelected
-  }, [allSelected, anySelected])
-
-  return (
-    <input
-      aria-label="Select all candidates on this page"
-      checked={allSelected}
-      className="candidate-select-checkbox"
-      onChange={onChange}
-      ref={ref}
-      type="checkbox"
-    />
-  )
-}
 
 export function CandidateResultsTable({
   candidates,
@@ -57,22 +30,23 @@ export function CandidateResultsTable({
   const allSelected = candidates.length > 0 && selectedOnPage === candidates.length
 
   return (
-    <div className="table-responsive candidate-results-table-wrapper">
-      <table className="candidate-results-table">
+    <div className="table-responsive cf-results-table-wrapper">
+      <table className="cf-results-table">
         <caption>Deterministic candidate filtering results</caption>
         <colgroup>
-          <col className="candidate-column-select" />
-          <col className="candidate-column-profile" />
-          <col className="candidate-column-gpa" />
-          <col className="candidate-column-skills" />
-          <col className="candidate-column-history" />
+          <col className="cf-column-select" />
+          <col className="cf-column-profile" />
+          <col className="cf-column-gpa" />
+          <col className="cf-column-skills" />
+          <col className="cf-column-history" />
         </colgroup>
         <thead>
           <tr>
             <th scope="col">
-              <PageSelectionCheckbox
-                allSelected={allSelected}
-                anySelected={selectedOnPage > 0}
+              <Checkbox
+                aria-label="Select all candidates on this page"
+                checked={allSelected}
+                indeterminate={selectedOnPage > 0 && !allSelected}
                 onChange={() => onTogglePage(!allSelected)}
               />
             </th>
@@ -87,34 +61,29 @@ export function CandidateResultsTable({
             const selected = selectedIds.has(candidate.studentId)
             const visibleSkills = candidate.matchingDeclaredSkills.slice(0, 3)
             return (
-              <tr
-                className={selected ? 'candidate-row-selected' : undefined}
-                key={candidate.studentId}
-              >
+              <tr className={selected ? 'cf-row-selected' : undefined} key={candidate.studentId}>
                 <td data-label="Select">
-                  <input
+                  <Checkbox
                     aria-label={`Select ${candidate.fullName} (${candidate.indexNumber})`}
                     checked={selected}
-                    className="candidate-select-checkbox"
                     onChange={() => onToggle(candidate)}
-                    type="checkbox"
                   />
                 </td>
                 <td data-label="Candidate profile details">
                   <Link
-                    className="candidate-profile-link"
+                    className="cf-profile-link"
                     to={buildAdminStudentDetailPath(candidate.studentId)}
                   >
                     {candidate.fullName}
                   </Link>
-                  <span className="company-secondary">{candidate.indexNumber}</span>
-                  <span className="candidate-profile-subline">
+                  <span className="cf-profile-secondary">{candidate.indexNumber}</span>
+                  <span className="cf-profile-subline">
                     {candidate.declaredSkillCount} declared skill
                     {candidate.declaredSkillCount === 1 ? '' : 's'}
                   </span>
                 </td>
                 <td data-label="Official GPA">
-                  <strong className="candidate-gpa-value">
+                  <strong className="cf-gpa-value">
                     {candidate.officialGpa === null
                       ? 'Not available'
                       : gpaFormatter.format(candidate.officialGpa)}
@@ -122,35 +91,31 @@ export function CandidateResultsTable({
                 </td>
                 <td data-label="Skills inventory display">
                   {visibleSkills.length ? (
-                    <div className="candidate-skill-summary">
+                    <div className="cf-skill-summary">
                       {visibleSkills.map((skill) => (
                         <Chip key={skill.declaredSkillId}>{skill.skillName}</Chip>
                       ))}
                       <Button
                         aria-label={`View skills for ${candidate.fullName}`}
-                        className="candidate-row-action"
                         onClick={() => onShowSkills(candidate)}
-                        variant="secondary"
+                        size="sm"
+                        variant="outlined"
                       >
                         View Skills
                       </Button>
                     </div>
                   ) : (
-                    <span className="candidate-profile-subline">No matching declared skills</span>
+                    <span className="cf-profile-subline">No matching declared skills</span>
                   )}
                 </td>
                 <td data-label="Cross-shortlist status">
-                  <div className="candidate-history-stack">
-                    <StatusBadge
-                      tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}
-                    >
-                      {candidate.hasExistingActiveShortlist
-                        ? `Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
-                            candidate.existingActiveShortlistCount === 1 ? '' : 's'
-                          }`
-                        : 'No other shortlists'}
-                    </StatusBadge>
-                  </div>
+                  <StatusBadge tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}>
+                    {candidate.hasExistingActiveShortlist
+                      ? `Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
+                          candidate.existingActiveShortlistCount === 1 ? '' : 's'
+                        }`
+                      : 'No other shortlists'}
+                  </StatusBadge>
                 </td>
               </tr>
             )

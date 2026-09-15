@@ -22,13 +22,13 @@ export function CandidateFilteringPage() {
   }, [])
 
   return (
-    <div className="content-stack candidate-filtering-page">
+    <div className="cf-page">
       <PageHeader
-        description="Recruitment decision-support workspace. Select an internship request, adjust deterministic runtime filters, review matching students, and manually finalize the shortlist."
+        description="Select an internship request, review matching students against deterministic runtime filters, and manually finalize the shortlist."
         title="Interactive Candidate Filtering Dashboard"
       />
 
-      <div className="candidate-filtering-layout split-dashboard-pane">
+      <div className="cf-layout">
         <CandidateSelectionPanel state={state} updateState={updateState} />
         <CandidateResultsWorkspace
           candidateSearchInput={candidateSearchInput}

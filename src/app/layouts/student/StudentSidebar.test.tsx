@@ -10,13 +10,13 @@ import { StudentSidebar, type StudentSidebarProps } from './StudentSidebar'
 function renderSidebar(overrides: Partial<StudentSidebarProps> = {}) {
   const props: StudentSidebarProps = {
     studentName: 'Test Student',
-    isCollapsed: false,
-    isMobileViewport: false,
+    isExpanded: true,
+    viewport: 'desktop',
     isMobileOpen: false,
     navigationItems: studentNavigation,
     sidebarRef: createRef<HTMLElement>(),
     firstNavigationItemRef: createRef<HTMLAnchorElement>(),
-    onToggleCollapsed: vi.fn(),
+    onToggleExpanded: vi.fn(),
     onCloseMobile: vi.fn(),
     onLogout: vi.fn(),
     ...overrides,
@@ -32,8 +32,8 @@ function renderSidebar(overrides: Partial<StudentSidebarProps> = {}) {
 }
 
 describe('StudentSidebar', () => {
-  it('renders all six approved Student destinations', () => {
-    renderSidebar()
+  it('renders all six approved Student destinations in desktop drawer', () => {
+    renderSidebar({ viewport: 'desktop' })
     const navigation = screen.getByRole('navigation', { name: 'Student navigation' })
 
     expect(within(navigation).getAllByRole('link')).toHaveLength(6)
@@ -63,67 +63,39 @@ describe('StudentSidebar', () => {
     )
   })
 
-  it('keeps icon controls accessible in the collapsed rail', async () => {
+  it('renders a NavigationRail on tablet viewport', () => {
+    renderSidebar({ viewport: 'tablet' })
+    const navigation = screen.getByRole('navigation', { name: 'Student navigation' })
+    expect(navigation.classList.contains('m3-navigation-rail')).toBe(true)
+    expect(within(navigation).getAllByRole('link')).toHaveLength(6)
+  })
+
+  it('renders a NavigationBar on mobile viewport', () => {
+    renderSidebar({ viewport: 'mobile' })
+    const navigation = screen.getByRole('navigation', { name: 'Student navigation' })
+    expect(navigation.classList.contains('m3-navigation-bar')).toBe(true)
+  })
+
+  it('calls onToggleExpanded when the toggle button is clicked', async () => {
     const user = userEvent.setup()
-    const props = renderSidebar({ isCollapsed: true })
+    const props = renderSidebar({ viewport: 'desktop', isExpanded: true })
 
-    expect(screen.getByRole('button', { name: 'Expand student sidebar' })).toHaveAttribute(
-      'aria-expanded',
-      'false',
-    )
-    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('title', 'Dashboard')
-    expect(screen.getByRole('button', { name: 'Log Out' })).toHaveAttribute('title', 'Log Out')
+    const toggleBtn = screen.getByRole('button', { name: 'Collapse navigation' })
+    await user.click(toggleBtn)
+    expect(props.onToggleExpanded).toHaveBeenCalledOnce()
+  })
 
-    await user.click(screen.getByRole('button', { name: 'Expand student sidebar' }))
+  it('calls onLogout when the logout button is clicked', async () => {
+    const user = userEvent.setup()
+    const props = renderSidebar({ viewport: 'desktop' })
+
     await user.click(screen.getByRole('button', { name: 'Log Out' }))
-
-    expect(props.onToggleCollapsed).toHaveBeenCalledOnce()
     expect(props.onLogout).toHaveBeenCalledOnce()
   })
 
-  it('uses modal semantics only for an open mobile drawer', () => {
-    const { rerender } = render(
-      <MemoryRouter>
-        <StudentSidebar
-          firstNavigationItemRef={createRef<HTMLAnchorElement>()}
-          isCollapsed={false}
-          isMobileOpen={false}
-          isMobileViewport
-          navigationItems={studentNavigation}
-          onCloseMobile={vi.fn()}
-          onLogout={vi.fn()}
-          onToggleCollapsed={vi.fn()}
-          sidebarRef={createRef<HTMLElement>()}
-          studentName={null}
-        />
-      </MemoryRouter>,
-    )
-
-    const sidebar = screen.getByLabelText('Student workspace', { selector: 'aside' })
-    expect(sidebar).toHaveAttribute('aria-hidden', 'true')
-    expect(sidebar).toHaveAttribute('inert')
-    expect(screen.getByText('Student', { selector: 'strong' })).toBeInTheDocument()
-
-    rerender(
-      <MemoryRouter>
-        <StudentSidebar
-          firstNavigationItemRef={createRef<HTMLAnchorElement>()}
-          isCollapsed={false}
-          isMobileOpen
-          isMobileViewport
-          navigationItems={studentNavigation}
-          onCloseMobile={vi.fn()}
-          onLogout={vi.fn()}
-          onToggleCollapsed={vi.fn()}
-          sidebarRef={createRef<HTMLElement>()}
-          studentName={null}
-        />
-      </MemoryRouter>,
-    )
-
-    expect(screen.getByRole('dialog', { name: 'Student workspace' })).toHaveAttribute(
-      'aria-modal',
-      'true',
-    )
+  it('shows modal NavigationDrawer when isMobileOpen is true', () => {
+    renderSidebar({ viewport: 'desktop', isMobileOpen: true })
+    const dialog = screen.getByRole('dialog', { name: 'Student navigation' })
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
   })
 })

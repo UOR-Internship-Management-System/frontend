@@ -6,12 +6,14 @@ const lightTheme = stylesheet.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 const darkTheme = stylesheet.match(/:root\.dark,\s*\nbody\.dark-mode\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 
 function token(theme: string, name: string) {
-  return theme.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim()
+  const value = theme.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim()
+  return value?.startsWith('#') ? value.toLowerCase() : value
 }
 
 function relativeLuminance(hex: string) {
+  const normalized = hex.toLowerCase()
   const channels = [1, 3, 5].map(
-    (offset) => Number.parseInt(hex.slice(offset, offset + 2), 16) / 255,
+    (offset) => Number.parseInt(normalized.slice(offset, offset + 2), 16) / 255,
   )
   const linear = channels.map((channel) =>
     channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
@@ -39,7 +41,7 @@ describe('professional application palette', () => {
       strongBorder: token(lightTheme, 'border-strong'),
       sidebar: token(lightTheme, 'sidebar-bg'),
     }).toEqual({
-      primary: '#1e40af',
+      primary: '#4f3cc9',
       page: '#f8fafc',
       surface: '#ffffff',
       text: '#0f172a',
@@ -55,7 +57,7 @@ describe('professional application palette', () => {
       muted: token(darkTheme, 'muted'),
       strongBorder: token(darkTheme, 'border-strong'),
     }).toEqual({
-      primary: '#93c5fd',
+      primary: '#beb7eb',
       page: '#0b1120',
       surface: '#111827',
       text: '#f8fafc',
@@ -66,13 +68,13 @@ describe('professional application palette', () => {
 
   it('meets the intended WCAG contrast floors for text, actions, and control boundaries', () => {
     const normalTextPairs = [
-      ['#1e40af', '#ffffff'],
+      ['#4F3CC9', '#ffffff'],
       ['#0f172a', '#f8fafc'],
       ['#475569', '#f8fafc'],
-      ['#047857', '#ffffff'],
-      ['#b45309', '#ffffff'],
-      ['#b91c1c', '#ffffff'],
-      ['#93c5fd', '#172554'],
+      ['#137A4C', '#ffffff'],
+      ['#8F4E08', '#ffffff'],
+      ['#B3261E', '#ffffff'],
+      ['#BEB7EB', '#1E1650'],
       ['#f8fafc', '#0b1120'],
       ['#cbd5e1', '#111827'],
     ] as const
@@ -86,5 +88,9 @@ describe('professional application palette', () => {
 
   it('does not reintroduce the previous purple and unrelated feature accents', () => {
     expect(stylesheet).not.toMatch(/#6750a4|#d0bcff|#4058c7|#b9c3ff|#f6a800|#b26a00/i)
+  })
+
+  it('does not reintroduce the previous navy-blue institutional palette', () => {
+    expect(stylesheet).not.toMatch(/#1e40af|#1e3a8a|#93c5fd|#1d4ed8|#2563eb/i)
   })
 })

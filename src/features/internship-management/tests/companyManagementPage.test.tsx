@@ -65,12 +65,10 @@ describe('InternshipManagementPage production behavior', () => {
     expect(companyList).toHaveBeenCalledWith(
       expect.stringContaining('page=0&size=3&sort=name%2Casc'),
     )
-    expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Add request' })).toBeEnabled()
 
     await user.click(screen.getByText('Acme Lanka'))
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Create Internship Request' })).toBeEnabled(),
-    )
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Add request' })).toBeEnabled())
     expect(screen.getByRole('navigation', { name: 'Company list pagination' })).toHaveTextContent(
       '1–1 of 1',
     )
@@ -87,7 +85,7 @@ describe('InternshipManagementPage production behavior', () => {
     )
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Create Company' }))
+    await user.click(screen.getByRole('button', { name: 'Add company' }))
     const dialog = screen.getByRole('dialog', { name: 'Create Company' })
 
     await user.click(within(dialog).getByRole('button', { name: 'Create Company' }))
@@ -112,7 +110,7 @@ describe('InternshipManagementPage production behavior', () => {
     const user = userEvent.setup()
     renderPage()
     await screen.findByText('Acme Lanka')
-    await user.click(screen.getByRole('button', { name: 'Create Company' }))
+    await user.click(screen.getByRole('button', { name: 'Add company' }))
     expect(screen.getByRole('dialog', { name: 'Create Company' })).toHaveClass('modal-card-default')
   })
 

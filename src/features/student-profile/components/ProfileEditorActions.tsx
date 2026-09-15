@@ -11,10 +11,19 @@ export function ProfileEditorActions({
 }) {
   return (
     <div className="modal-actions profile-editor-actions">
-      <Button disabled={isPending} onClick={onCancel} variant="secondary">
+      <Button disabled={isPending} onClick={onCancel} variant="outlined">
         Cancel
       </Button>
-      <Button isLoading={isPending} type="submit">
+      <Button
+        icon={
+          <span className="material-symbols-outlined" aria-hidden="true">
+            check
+          </span>
+        }
+        isLoading={isPending}
+        type="submit"
+        variant="primary"
+      >
         {submitLabel}
       </Button>
     </div>

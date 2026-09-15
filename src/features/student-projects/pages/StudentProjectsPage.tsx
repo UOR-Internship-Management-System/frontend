@@ -4,16 +4,20 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SectionCard } from '../../../shared/components/layout/SectionCard'
-import { Modal } from '../../../shared/components/overlays/Modal'
-import { Button } from '../../../shared/components/ui/Button'
+import { Dialog } from '../../../shared/components/overlays/Dialog'
+import { Card, CardContent } from '../../../shared/components/ui/Card'
+import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { clampPage } from '../../../shared/utils/clampPage'
-import { ProjectModalSkeleton, ProjectRepositorySkeleton } from '../../../shared/skeletons'
+import {
+  SkeletonFormFields,
+  SkeletonListRows,
+  SkeletonStatusRegion,
+} from '../../../shared/skeletons'
 import { ProjectDeleteDialog } from '../components/ProjectDeleteDialog'
-import { ProjectDetailsModal } from '../components/ProjectDetailsModal'
+import { ProjectDetailsPanel } from '../components/ProjectDetailsPanel'
 import { ProjectForm } from '../components/ProjectForm'
-import { ProjectRepository } from '../components/ProjectRepository'
+import { ProjectRepositoryGrid } from '../components/ProjectRepositoryGrid'
 import { useProject } from '../hooks/useProject'
 import { useCreateProject, useDeleteProject, useUpdateProject } from '../hooks/useProjectMutations'
 import { useStudentProjects } from '../hooks/useStudentProjects'
@@ -147,13 +151,11 @@ export function StudentProjectsPage() {
     <main className="content-stack s4-projects-page">
       <PageHeader
         actions={
-          <Button
-            aria-label="Add project"
+          <ExtendedFab
             icon={<span className="material-symbols-outlined">add</span>}
+            label="Add project"
             onClick={() => setOverlay('create')}
-          >
-            Add
-          </Button>
+          />
         }
         description={
           'Project portfolio repository. Manage your saved projects with full CRUD operations and ' +
@@ -169,81 +171,119 @@ export function StudentProjectsPage() {
         </div>
       ) : null}
 
-      <SectionCard aria-label="Project portfolio repository" className="s4-projects-repository">
+      <Card aria-label="Project portfolio repository" variant="outlined">
         {projects.isFetching && !projects.isPending ? (
-          <p aria-live="polite">Updating projects...</p>
+          <p aria-live="polite" className="s4-projects-loading-note">
+            Updating projects...
+          </p>
         ) : null}
-        <LoadingBoundary
-          isLoading={projects.isPending}
-          label="Loading project repository"
-          minHeight={520}
-          skeleton={<ProjectRepositorySkeleton />}
-        >
-          {mappedError ? (
-            <ErrorState
-              correlationId={mappedError.correlationId}
-              message={mappedError.message}
-              onAction={() => void projects.refetch()}
-              title="Projects unavailable"
-            />
-          ) : projects.data ? (
-            <ProjectRepository
-              items={projects.data.items}
-              onAdd={() => setOverlay('create')}
-              onPageChange={setPage}
-              onSearchChange={(value) => {
-                setSearch(value)
-                setPage(0)
-              }}
-              onSelect={(projectId) => {
-                setSelectedProjectId(projectId)
-                setOverlay('details')
-              }}
-              page={projects.data.page}
-              search={search}
-            />
-          ) : null}
-        </LoadingBoundary>
-      </SectionCard>
+        <CardContent>
+          <LoadingBoundary
+            isLoading={projects.isPending}
+            label="Loading project repository"
+            minHeight={520}
+            skeleton={
+              <SkeletonStatusRegion label="Loading projects">
+                <SkeletonListRows count={4} />
+              </SkeletonStatusRegion>
+            }
+          >
+            {mappedError ? (
+              <ErrorState
+                correlationId={mappedError.correlationId}
+                message={mappedError.message}
+                onAction={() => void projects.refetch()}
+                title="Projects unavailable"
+              />
+            ) : projects.data ? (
+              <ProjectRepositoryGrid
+                items={projects.data.items}
+                onAdd={() => setOverlay('create')}
+                onPageChange={setPage}
+                onSearchChange={(value) => {
+                  setSearch(value)
+                  setPage(0)
+                }}
+                onSelect={(projectId) => {
+                  setSelectedProjectId(projectId)
+                  setOverlay('details')
+                }}
+                page={projects.data.page}
+                search={search}
+              />
+            ) : null}
+          </LoadingBoundary>
+        </CardContent>
+      </Card>
 
-      {overlay === 'create' ? (
-        <ProjectForm mode="create" onCancel={closeOverlay} onSubmit={createProject} />
-      ) : null}
-      {overlay && overlay !== 'create' && selected.isPending ? (
-        <Modal
-          onClose={closeOverlay}
-          title="Project Details"
-          description="Loading portfolio project details."
-        >
-          <ProjectModalSkeleton />
-        </Modal>
-      ) : null}
-      {overlay && overlay !== 'create' && selected.error ? (
-        <Modal onClose={closeOverlay} title="Project unavailable">
+      <Dialog
+        adaptiveFullscreen
+        isOpen={overlay === 'create'}
+        onClose={closeOverlay}
+        size="large"
+        title="Create new project"
+      >
+        {overlay === 'create' ? (
+          <ProjectForm mode="create" onCancel={closeOverlay} onSubmit={createProject} />
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        adaptiveFullscreen
+        isOpen={Boolean(overlay && overlay !== 'create' && (selected.isPending || selected.error))}
+        onClose={closeOverlay}
+        size="medium"
+        title={selected.error ? 'Project unavailable' : 'Project details'}
+      >
+        {selected.isPending ? (
+          <SkeletonStatusRegion label="Loading project details">
+            <SkeletonFormFields count={4} />
+          </SkeletonStatusRegion>
+        ) : selected.error ? (
           <ErrorState
             message={mapApiError(selected.error, 'protected').message}
             onAction={() => void selected.refetch()}
             title="Unable to load project details"
           />
-        </Modal>
-      ) : null}
-      {overlay === 'details' && selected.data ? (
-        <ProjectDetailsModal
-          onClose={closeOverlay}
-          onDelete={() => setOverlay('delete')}
-          onEdit={() => setOverlay('edit')}
-          project={selected.data}
-        />
-      ) : null}
-      {overlay === 'edit' && selected.data && selectedFormValues ? (
-        <ProjectForm
-          initialSkills={selected.data.skills}
-          initialValues={selectedFormValues}
-          mode="edit"
-          onCancel={() => setOverlay('details')}
-          onSubmit={updateProject}
-        />
-      ) : null}
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        adaptiveFullscreen
+        description="Read-only mode. Select Edit to update this project."
+        isOpen={overlay === 'details' && Boolean(selected.data)}
+        onClose={closeOverlay}
+        size="medium"
+        title="Project details"
+      >
+        {selected.data ? (
+          <ProjectDetailsPanel
+            onClose={closeOverlay}
+            onDelete={() => setOverlay('delete')}
+            onEdit={() => setOverlay('edit')}
+            project={selected.data}
+          />
+        ) : null}
+      </Dialog>
+
+      <Dialog
+        adaptiveFullscreen
+        isOpen={overlay === 'edit' && Boolean(selected.data) && Boolean(selectedFormValues)}
+        onClose={() => setOverlay('details')}
+        size="large"
+        title="Edit project"
+      >
+        {overlay === 'edit' && selected.data && selectedFormValues ? (
+          <ProjectForm
+            initialSkills={selected.data.skills}
+            initialValues={selectedFormValues}
+            mode="edit"
+            onCancel={() => setOverlay('details')}
+            onSubmit={updateProject}
+          />
+        ) : null}
+      </Dialog>
+
       {overlay === 'delete' && selected.data ? (
         <ProjectDeleteDialog
           onClose={() => setOverlay('details')}

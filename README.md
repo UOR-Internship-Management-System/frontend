@@ -654,4 +654,3 @@ the prior written permission of the copyright holder.
 
 This Software is developed as part of the CV Management and Deterministic
 Internship Candidate Filtering System project.
-
