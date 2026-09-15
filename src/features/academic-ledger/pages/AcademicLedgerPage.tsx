@@ -13,6 +13,7 @@ import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
 import {
   SkeletonCard,
   SkeletonFormFields,
+  SkeletonMobileCards,
   SkeletonStatusRegion,
   SkeletonTableGrid,
 } from '../../../shared/skeletons'
@@ -187,6 +188,7 @@ export function AcademicLedgerPage() {
                 gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
                 rows={4}
               />
+              <SkeletonMobileCards count={4} />
             </SkeletonStatusRegion>
           ) : null}
           {uploadsError ? (

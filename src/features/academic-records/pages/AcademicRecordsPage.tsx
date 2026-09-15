@@ -9,6 +9,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
 import {
   SkeletonMetricGrid,
+  SkeletonMobileCards,
   SkeletonStatusRegion,
   SkeletonTableGrid,
 } from '../../../shared/skeletons'
@@ -57,7 +58,7 @@ export function AcademicRecordsPage() {
             minHeight={112}
             skeleton={
               <SkeletonStatusRegion label="Loading official GPA">
-                <SkeletonMetricGrid count={3} />
+                <SkeletonMetricGrid count={1} />
               </SkeletonStatusRegion>
             }
           >
@@ -106,6 +107,7 @@ export function AcademicRecordsPage() {
                   gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
                   rows={5}
                 />
+                <SkeletonMobileCards count={5} />
               </SkeletonStatusRegion>
             }
           >
