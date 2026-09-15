@@ -72,7 +72,7 @@ export function RegisteredStudentsToolbar({
         <Chip>{totalElements} Registered Undergraduates</Chip>
       </div>
 
-      <div className="rsp-toolbar" role="search" aria-label="Student roster controls">
+      <div className="rsp-toolbar" role="search" aria-label="Student list controls">
         {/* Progress strip */}
         <div className="rsp-toolbar__progress" aria-hidden="true" data-fetching={isFetching} />
 

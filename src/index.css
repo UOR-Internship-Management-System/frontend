@@ -2238,11 +2238,15 @@ body.admin-mobile-drawer-open {
 }
 
 .registered-students-toolbar,
-.registered-students-controls,
-.registered-students-toolbar-heading {
+.registered-students-controls {
   display: grid;
   min-width: 0;
   gap: 18px;
+}
+
+.registered-students-toolbar-heading {
+  display: grid;
+  min-width: 0;
 }
 
 .registered-students-toolbar-heading {
@@ -5639,7 +5643,7 @@ td {
 /* ── Toolbar ────────────────────────────────────────────────────────── */
 .rsp-toolbar {
   position: relative;
-  padding: 16px 20px 12px;
+  padding: 20px 20px 16px;
   border-bottom: 1px solid var(--border);
   background: var(--input-bg);
   display: flex;
@@ -5977,7 +5981,8 @@ th[aria-sort='descending'] .rst-sort-btn {
   width: 90px;
 }
 .rst-col-action {
-  width: 72px;
+  width: 148px;
+  min-width: 148px;
   text-align: right;
 }
 

@@ -179,7 +179,9 @@ export function ShortlistDirectory({
           <PaginationBar
             label="Active request pages"
             onPageChange={(nextPage) => onStateChange({ page: nextPage })}
+            onPageSizeChange={(size) => onStateChange({ size: size as 5 | 20 | 50 | 100 })}
             page={page.page}
+            pageSizeOptions={[5, 20, 50, 100]}
             size={page.size}
             totalElements={page.totalElements}
             totalPages={page.totalPages}
