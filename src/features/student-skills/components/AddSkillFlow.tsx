@@ -5,8 +5,8 @@ import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Button } from '../../../shared/components/ui/Button'
-import { Chip } from '../../../shared/components/ui/Chip'
 import { List, ListItem } from '../../../shared/components/ui/List'
 import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
@@ -30,8 +30,8 @@ export function AddSkillFlow({
   onSubmit: (skill: IndividualSkill, competencyLevel: CompetencyLevel) => Promise<void>
 }) {
   const [search, setSearch] = useState('')
-  const [clusterId, setClusterId] = useState<string>()
-  const [categoryId, setCategoryId] = useState<string>()
+  const [clusterId, setClusterId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [selectedSkill, setSelectedSkill] = useState<IndividualSkill | null>(null)
   const [competencyLevel, setCompetencyLevel] = useState<CompetencyLevel>('BEGINNER')
   const [page, setPage] = useState(0)
@@ -50,8 +50,8 @@ export function AddSkillFlow({
     size: resultsPageSize,
     sort: 'name,asc',
     search: debouncedSearch || undefined,
-    clusterId,
-    categoryId,
+    clusterId: clusterId || undefined,
+    categoryId: categoryId || undefined,
   })
   const mappedError = results.error ? mapApiError(results.error, 'protected') : null
 
@@ -77,38 +77,41 @@ export function AddSkillFlow({
         value={search}
       />
 
-      <div aria-label="Filter by core cluster" className="s4-skills-filter-row" role="group">
-        {taxonomy.clusters.map((cluster) => (
-          <Chip
-            key={cluster.clusterId}
-            onClick={() => {
-              setClusterId(clusterId === cluster.clusterId ? undefined : cluster.clusterId)
-              setCategoryId(undefined)
-            }}
-            selected={clusterId === cluster.clusterId}
-            variant="filter"
-          >
-            {cluster.name}
-          </Chip>
-        ))}
+      <div className="cf-skills-browse-grid">
+        <M3SelectField
+          label="Core cluster"
+          aria-label="Filter by core cluster"
+          onChange={(nextValue) => {
+            setClusterId(nextValue)
+            setCategoryId('')
+          }}
+          value={clusterId}
+          options={[
+            { value: '', label: 'All clusters' },
+            ...taxonomy.clusters.map((cluster) => ({
+              value: cluster.clusterId,
+              label: cluster.name,
+            })),
+          ]}
+        />
+        <M3SelectField
+          label="Skill category"
+          aria-label="Filter by skill category"
+          disabled={!clusterId}
+          onChange={(nextValue) => setCategoryId(nextValue)}
+          value={categoryId}
+          options={[
+            {
+              value: '',
+              label: clusterId ? 'All categories' : 'Select a cluster first',
+            },
+            ...categories.map((category) => ({
+              value: category.categoryId,
+              label: category.name,
+            })),
+          ]}
+        />
       </div>
-
-      {categories.length > 0 ? (
-        <div aria-label="Filter by skill category" className="s4-skills-filter-row" role="group">
-          {categories.map((category) => (
-            <Chip
-              key={category.categoryId}
-              onClick={() =>
-                setCategoryId(categoryId === category.categoryId ? undefined : category.categoryId)
-              }
-              selected={categoryId === category.categoryId}
-              variant="filter"
-            >
-              {category.name}
-            </Chip>
-          ))}
-        </div>
-      ) : null}
 
       <LoadingBoundary
         isLoading={results.isPending}

@@ -1,50 +1,25 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { SearchBar } from '../../../shared/components/data/SearchBar'
+import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
-import { Modal } from '../../../shared/components/overlays/Modal'
+import { Dialog } from '../../../shared/components/overlays/Dialog'
 import { Button } from '../../../shared/components/ui/Button'
+import { List, ListItem } from '../../../shared/components/ui/List'
+import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
+import { useIndividualSkills } from '../../../shared/skill-taxonomy'
 import type { SkillTaxonomy } from '../../../shared/skill-taxonomy'
 
 const pageSize = 12
 
-type SkillOption = {
-  skillId: string
-  name: string
-  description?: string | null
-  clusterId: string
-  clusterName: string
-  categoryId: string
-  categoryName: string
-}
-
-function flattenTaxonomy(taxonomy: SkillTaxonomy) {
-  const byId = new Map<string, SkillOption>()
-  for (const cluster of taxonomy.clusters) {
-    for (const category of cluster.categories ?? []) {
-      for (const skill of category.skills ?? []) {
-        if (!byId.has(skill.skillId)) {
-          byId.set(skill.skillId, {
-            ...skill,
-            clusterId: cluster.clusterId,
-            clusterName: cluster.name,
-            categoryId: category.categoryId,
-            categoryName: category.name,
-          })
-        }
-      }
-    }
-  }
-  return [...byId.values()].sort((left, right) => left.name.localeCompare(right.name))
-}
-
 export function AdditionalSkillsModal({
-  onApply,
+  onChange,
   onClose,
   requestSkillIds,
   selectedSkillIds,
   taxonomy,
 }: {
-  onApply: (skillIds: string[]) => void
+  onChange: (skillIds: string[]) => void
   onClose: () => void
   requestSkillIds: string[]
   selectedSkillIds: string[]
@@ -54,50 +29,55 @@ export function AdditionalSkillsModal({
   const [clusterId, setClusterId] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [page, setPage] = useState(0)
-  const [staged, setStaged] = useState(() => new Set(selectedSkillIds))
+  const debouncedSearch = useDebouncedValue(search.trim(), 300)
 
-  const allSkills = useMemo(() => flattenTaxonomy(taxonomy), [taxonomy])
   const requestIds = useMemo(() => new Set(requestSkillIds), [requestSkillIds])
+  const selectedIds = useMemo(() => new Set(selectedSkillIds), [selectedSkillIds])
   const categories = useMemo(
     () => taxonomy.clusters.find((cluster) => cluster.clusterId === clusterId)?.categories ?? [],
     [clusterId, taxonomy.clusters],
   )
-  const filtered = useMemo(() => {
-    const normalized = search.trim().toLocaleLowerCase()
-    return allSkills.filter(
-      (skill) =>
-        !requestIds.has(skill.skillId) &&
-        (!clusterId || skill.clusterId === clusterId) &&
-        (!categoryId || skill.categoryId === categoryId) &&
-        (!normalized ||
-          `${skill.name} ${skill.clusterName} ${skill.categoryName}`
-            .toLocaleLowerCase()
-            .includes(normalized)),
-    )
-  }, [allSkills, categoryId, clusterId, requestIds, search])
 
-  const totalPages = Math.ceil(filtered.length / pageSize)
-  const safePage = Math.min(page, Math.max(0, totalPages - 1))
-  const visible = filtered.slice(safePage * pageSize, safePage * pageSize + pageSize)
+  const skills = useIndividualSkills({
+    page,
+    size: pageSize,
+    sort: 'name,asc',
+    search: debouncedSearch || undefined,
+    clusterId: clusterId || undefined,
+    categoryId: categoryId || undefined,
+  })
+  const mappedError = skills.error ? mapApiError(skills.error, 'protected') : null
+  const visible = skills.data?.items.filter((skill) => !requestIds.has(skill.skillId)) ?? []
+
+  useEffect(() => {
+    setPage(0)
+  }, [debouncedSearch])
 
   const resetPage = () => setPage(0)
 
+  const addSkill = (skillId: string) => {
+    if (selectedIds.has(skillId)) return
+    onChange([...selectedSkillIds, skillId])
+  }
+
   return (
-    <Modal
+    <Dialog
+      adaptiveFullscreen
       description="Search globally or browse the canonical cluster and category hierarchy."
+      isOpen
       onClose={onClose}
-      size="wide"
+      size="large"
       title="Select additional declared skills"
+      actions={
+        <Button onClick={onClose}>Done</Button>
+      }
     >
       <div className="cf-skills-modal">
         <label className="cf-modal-field">
           <span>Global taxonomy search</span>
           <SearchBar
             aria-label="Search additional declared skills"
-            onChange={(event) => {
-              setSearch(event.target.value)
-              resetPage()
-            }}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder="Search skill, category, or cluster"
             value={search}
           />
@@ -146,89 +126,78 @@ export function AdditionalSkillsModal({
         </div>
 
         <div className="cf-skills-result-heading">
-          <strong>{filtered.length} available skills</strong>
-          <span>{staged.size} selected for this run</span>
+          <strong>{skills.data?.page.totalElements ?? 0} available skills</strong>
+          <span>{selectedSkillIds.length} selected for this run</span>
         </div>
 
-        <div
-          aria-label="Additional taxonomy skills"
-          className="cf-skills-options"
-          role="list"
-        >
-          {visible.map((skill) => {
-            const checked = staged.has(skill.skillId)
-            return (
-              <label
-                className={checked ? 'cf-skill-option cf-skill-option--selected' : 'cf-skill-option'}
-                key={skill.skillId}
-              >
-                <input
-                  checked={checked}
-                  onChange={() => {
-                    setStaged((current) => {
-                      const next = new Set(current)
-                      if (next.has(skill.skillId)) next.delete(skill.skillId)
-                      else next.add(skill.skillId)
-                      return next
-                    })
+        {mappedError ? (
+          <ErrorState
+            correlationId={mappedError.correlationId}
+            message={mappedError.message}
+            onAction={() => void skills.refetch()}
+            title="Skill taxonomy unavailable"
+          />
+        ) : (
+          <List aria-label="Additional taxonomy skills" className="im-skill-results">
+            {visible.map((skill) => {
+              const selected = selectedIds.has(skill.skillId)
+              return (
+                <ListItem
+                  aria-disabled={selected || undefined}
+                  aria-label={skill.name}
+                  headline={skill.name}
+                  interactive={!selected}
+                  key={skill.skillId}
+                  onClick={() => addSkill(skill.skillId)}
+                  onKeyDown={(event) => {
+                    if (selected) return
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      addSkill(skill.skillId)
+                    }
                   }}
-                  type="checkbox"
+                  role="button"
+                  supportingText={selected ? 'Already added' : skill.description}
+                  trailing={
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      {selected ? 'check_circle' : 'add_circle'}
+                    </span>
+                  }
                 />
-                <span>
-                  <strong>{skill.name}</strong>
-                  <small>
-                    {skill.clusterName} · {skill.categoryName}
-                  </small>
-                  {skill.description ? <small>{skill.description}</small> : null}
-                </span>
-              </label>
-            )
-          })}
-          {visible.length === 0 ? (
-            <p className="cf-taxonomy-empty-result">No skills match the selected controls.</p>
-          ) : null}
-        </div>
+              )
+            })}
+            {visible.length === 0 ? (
+              <p className="im-taxonomy-empty-result">No skills match the selected controls.</p>
+            ) : null}
+          </List>
+        )}
 
-        {totalPages > 1 ? (
-          <div className="cf-modal-pagination" aria-label="Additional skill result pages">
+        {skills.data && skills.data.page.totalPages > 1 ? (
+          <nav aria-label="Additional skill result pages" className="im-skill-pagination">
+            <Button
+              disabled={page <= 0}
+              onClick={() => setPage((current) => current - 1)}
+              size="sm"
+              type="button"
+              variant="text"
+            >
+              Previous
+            </Button>
             <span>
-              Page {safePage + 1} of {totalPages}
+              Page {skills.data.page.page + 1} of {skills.data.page.totalPages}
             </span>
-            <div>
-              <Button
-                disabled={safePage === 0}
-                onClick={() => setPage((current) => Math.max(0, current - 1))}
-                size="sm"
-                variant="outlined"
-              >
-                Previous
-              </Button>
-              <Button
-                disabled={safePage >= totalPages - 1}
-                onClick={() => setPage((current) => Math.min(totalPages - 1, current + 1))}
-                size="sm"
-                variant="outlined"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
+            <Button
+              disabled={page >= skills.data.page.totalPages - 1}
+              onClick={() => setPage((current) => current + 1)}
+              size="sm"
+              type="button"
+              variant="text"
+            >
+              Next
+            </Button>
+          </nav>
         ) : null}
-
-        <div className="modal-actions">
-          <Button onClick={onClose} variant="outlined">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              onApply([...staged])
-              onClose()
-            }}
-          >
-            Apply selected skills
-          </Button>
-        </div>
       </div>
-    </Modal>
+    </Dialog>
   )
 }

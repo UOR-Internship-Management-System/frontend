@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { FormErrorMessage } from '../../../shared/components/forms/FormErrorMessage'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Switch } from '../../../shared/components/forms/Switch'
 import { TextArea } from '../../../shared/components/forms/TextArea'
 import { TextField } from '../../../shared/components/forms/TextField'
 import { Button } from '../../../shared/components/ui/Button'
 import { List, ListItem } from '../../../shared/components/ui/List'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { useIndividualSkills } from '../../../shared/skill-taxonomy'
+import { useIndividualSkills, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
 import type { IndividualSkill } from '../../../shared/skill-taxonomy'
 import { studentProjectFormSchema } from '../schemas/studentProjectSchemas'
 import type { StudentProjectFormValues } from '../types/studentProjectTypes'
@@ -110,6 +111,8 @@ export function ProjectForm({
     Boolean(initialValues.startDate && !initialValues.endDate),
   )
   const [taxonomySearch, setTaxonomySearch] = useState('')
+  const [clusterId, setClusterId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [taxonomyPage, setTaxonomyPage] = useState(0)
   const [dirtyFields, setDirtyFields] = useState<Set<ProjectFormField>>(() => new Set())
   const dirtyFieldsRef = useRef<Set<ProjectFormField>>(new Set())
@@ -121,11 +124,19 @@ export function ProjectForm({
   const titleRef = useRef<HTMLInputElement | null>(null)
   const endDateRef = useRef<HTMLInputElement | null>(null)
   const debouncedTaxonomySearch = useDebouncedValue(taxonomySearch.trim(), 300)
-  const taxonomy = useIndividualSkills({
+  const taxonomy = useSkillTaxonomyTree()
+  const categories = useMemo(
+    () =>
+      taxonomy.data?.clusters.find((cluster) => cluster.clusterId === clusterId)?.categories ?? [],
+    [clusterId, taxonomy.data?.clusters],
+  )
+  const skills = useIndividualSkills({
     page: taxonomyPage,
     size: taxonomyPageSize,
     sort: 'name,asc',
     search: debouncedTaxonomySearch || undefined,
+    clusterId: clusterId || undefined,
+    categoryId: categoryId || undefined,
   })
   const selectedSkills = values.skillIds
     .map((skillId) => skillsById.get(skillId))
@@ -136,14 +147,14 @@ export function ProjectForm({
     setSkillsById((current) => {
       const next = new Map(current)
       for (const skill of initialSkills) next.set(skill.skillId, skill)
-      for (const skill of taxonomy.data?.items ?? []) next.set(skill.skillId, skill)
+      for (const skill of skills.data?.items ?? []) next.set(skill.skillId, skill)
       return next
     })
-  }, [initialSkills, taxonomy.data?.items])
+  }, [initialSkills, skills.data?.items])
 
   useEffect(() => {
     setTaxonomyPage(0)
-  }, [debouncedTaxonomySearch])
+  }, [debouncedTaxonomySearch, clusterId, categoryId])
 
   useEffect(() => {
     if (mode !== 'edit') return
@@ -314,14 +325,51 @@ export function ProjectForm({
         </p>
         <SearchBar
           aria-label="Search project taxonomy skills"
-          disabled={taxonomy.isPending}
+          disabled={skills.isPending}
           onChange={(event) => setTaxonomySearch(event.target.value)}
           placeholder="Search taxonomy skills"
           value={taxonomySearch}
         />
-        {taxonomy.data ? (
+
+        <div className="cf-skills-browse-grid">
+          <M3SelectField
+            label="Core cluster"
+            aria-label="Filter by core cluster"
+            onChange={(nextValue) => {
+              setClusterId(nextValue)
+              setCategoryId('')
+            }}
+            value={clusterId}
+            options={[
+              { value: '', label: 'All clusters' },
+              ...(taxonomy.data?.clusters.map((cluster) => ({
+                value: cluster.clusterId,
+                label: cluster.name,
+              })) ?? []),
+            ]}
+          />
+          <M3SelectField
+            label="Skill category"
+            aria-label="Filter by skill category"
+            disabled={!clusterId}
+            onChange={(nextValue) => setCategoryId(nextValue)}
+            value={categoryId}
+            options={[
+              {
+                value: '',
+                label: clusterId ? 'All categories' : 'Select a cluster first',
+              },
+              ...categories.map((category) => ({
+                value: category.categoryId,
+                label: category.name,
+              })),
+            ]}
+          />
+        </div>
+
+        {skills.data ? (
           <List aria-label="Taxonomy skill results" className="s4-projects-skill-results">
-            {taxonomy.data.items.map((skill) => {
+            {skills.data.items.map((skill) => {
               const selected = values.skillIds.includes(skill.skillId)
               return (
                 <ListItem
@@ -356,8 +404,11 @@ export function ProjectForm({
             })}
           </List>
         ) : null}
-        {taxonomy.data && taxonomy.data.page.totalPages > 1 ? (
-          <nav aria-label="Project taxonomy skills pagination" className="s4-projects-taxonomy-pagination">
+        {skills.data && skills.data.page.totalPages > 1 ? (
+          <nav
+            aria-label="Project taxonomy skills pagination"
+            className="s4-projects-taxonomy-pagination"
+          >
             <Button
               disabled={taxonomyPage <= 0}
               onClick={() => setTaxonomyPage((current) => current - 1)}
@@ -368,10 +419,10 @@ export function ProjectForm({
               Previous
             </Button>
             <span>
-              Page {taxonomy.data.page.page + 1} of {taxonomy.data.page.totalPages}
+              Page {skills.data.page.page + 1} of {skills.data.page.totalPages}
             </span>
             <Button
-              disabled={taxonomyPage >= taxonomy.data.page.totalPages - 1}
+              disabled={taxonomyPage >= skills.data.page.totalPages - 1}
               onClick={() => setTaxonomyPage((current) => current + 1)}
               size="sm"
               type="button"
@@ -381,7 +432,7 @@ export function ProjectForm({
             </Button>
           </nav>
         ) : null}
-        {taxonomy.error ? (
+        {skills.error ? (
           <p className="error-text" role="alert">
             Skill taxonomy is unavailable. Existing selections are preserved.
           </p>

@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
+import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Button } from '../../../shared/components/ui/Button'
 import { Chip } from '../../../shared/components/ui/Chip'
 import { List, ListItem } from '../../../shared/components/ui/List'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
-import { useIndividualSkills } from '../../../shared/skill-taxonomy'
+import { useIndividualSkills, useSkillTaxonomyTree } from '../../../shared/skill-taxonomy'
 import type { RequiredSkillSelection } from '../types/internshipManagementTypes'
 
 const taxonomyPageSize = 8
@@ -21,19 +22,29 @@ export function RequiredSkillPicker({
   value: RequiredSkillSelection[]
 }) {
   const [search, setSearch] = useState('')
+  const [clusterId, setClusterId] = useState('')
+  const [categoryId, setCategoryId] = useState('')
   const [page, setPage] = useState(0)
   const debouncedSearch = useDebouncedValue(search.trim(), 300)
-  const taxonomy = useIndividualSkills({
+  const taxonomy = useSkillTaxonomyTree()
+  const categories = useMemo(
+    () =>
+      taxonomy.data?.clusters.find((cluster) => cluster.clusterId === clusterId)?.categories ?? [],
+    [clusterId, taxonomy.data?.clusters],
+  )
+  const skills = useIndividualSkills({
     page,
     size: taxonomyPageSize,
     sort: 'name,asc',
     search: debouncedSearch || undefined,
+    clusterId: clusterId || undefined,
+    categoryId: categoryId || undefined,
   })
-  const mappedError = taxonomy.error ? mapApiError(taxonomy.error, 'protected') : null
+  const mappedError = skills.error ? mapApiError(skills.error, 'protected') : null
 
   useEffect(() => {
     setPage(0)
-  }, [debouncedSearch])
+  }, [debouncedSearch, clusterId, categoryId])
 
   const addSkill = (skillId: string, skillName: string) => {
     if (value.some((skill) => skill.skillId === skillId)) return
@@ -53,22 +64,58 @@ export function RequiredSkillPicker({
 
       <SearchBar
         aria-label="Search required skills"
-        disabled={taxonomy.isPending}
+        disabled={skills.isPending}
         onChange={(event) => setSearch(event.target.value)}
         placeholder="Search taxonomy skills"
         value={search}
       />
 
+      <div className="cf-skills-browse-grid">
+        <M3SelectField
+          label="Core cluster"
+          aria-label="Filter by core cluster"
+          onChange={(nextValue) => {
+            setClusterId(nextValue)
+            setCategoryId('')
+          }}
+          value={clusterId}
+          options={[
+            { value: '', label: 'All clusters' },
+            ...(taxonomy.data?.clusters.map((cluster) => ({
+              value: cluster.clusterId,
+              label: cluster.name,
+            })) ?? []),
+          ]}
+        />
+        <M3SelectField
+          label="Skill category"
+          aria-label="Filter by skill category"
+          disabled={!clusterId}
+          onChange={(nextValue) => setCategoryId(nextValue)}
+          value={categoryId}
+          options={[
+            {
+              value: '',
+              label: clusterId ? 'All categories' : 'Select a cluster first',
+            },
+            ...categories.map((category) => ({
+              value: category.categoryId,
+              label: category.name,
+            })),
+          ]}
+        />
+      </div>
+
       {mappedError ? (
         <ErrorState
           correlationId={mappedError.correlationId}
           message={mappedError.message}
-          onAction={() => void taxonomy.refetch()}
+          onAction={() => void skills.refetch()}
           title="Skill taxonomy unavailable"
         />
-      ) : taxonomy.data ? (
+      ) : skills.data ? (
         <List aria-label="Taxonomy skill results" className="im-skill-results">
-          {taxonomy.data.items.map((skill) => {
+          {skills.data.items.map((skill) => {
             const selected = value.some((item) => item.skillId === skill.skillId)
             return (
               <ListItem
@@ -95,13 +142,13 @@ export function RequiredSkillPicker({
               />
             )
           })}
-          {taxonomy.data.items.length === 0 ? (
+          {skills.data.items.length === 0 ? (
             <p className="im-taxonomy-empty-result">No skills match the current search.</p>
           ) : null}
         </List>
       ) : null}
 
-      {taxonomy.data && taxonomy.data.page.totalPages > 1 ? (
+      {skills.data && skills.data.page.totalPages > 1 ? (
         <nav aria-label="Required skill pages" className="im-skill-pagination">
           <Button
             disabled={page <= 0}
@@ -113,10 +160,10 @@ export function RequiredSkillPicker({
             Previous
           </Button>
           <span>
-            Page {taxonomy.data.page.page + 1} of {taxonomy.data.page.totalPages}
+            Page {skills.data.page.page + 1} of {skills.data.page.totalPages}
           </span>
           <Button
-            disabled={page >= taxonomy.data.page.totalPages - 1}
+            disabled={page >= skills.data.page.totalPages - 1}
             onClick={() => setPage((current) => current + 1)}
             size="sm"
             type="button"
@@ -138,7 +185,10 @@ export function RequiredSkillPicker({
           <ul aria-label="Selected required skills" className="im-selected-skill-chips">
             {value.map((skill) => (
               <li key={skill.skillId}>
-                <Chip onRemove={disabled ? undefined : () => removeSkill(skill.skillId)} variant="input">
+                <Chip
+                  onRemove={disabled ? undefined : () => removeSkill(skill.skillId)}
+                  variant="input"
+                >
                   {skill.skillName}
                 </Chip>
               </li>

@@ -58,7 +58,9 @@ export function DeclaredSkillFilterPanel({
               </button>
             )
           })}
-          {requestSkills.length === 0 ? <p className="cf-skill-empty">No required skills on this request.</p> : null}
+          {requestSkills.length === 0 ? (
+            <p className="cf-skill-empty">No required skills on this request.</p>
+          ) : null}
         </div>
       </fieldset>
 
@@ -105,7 +107,7 @@ export function DeclaredSkillFilterPanel({
 
       {modalOpen && taxonomy.data ? (
         <AdditionalSkillsModal
-          onApply={onAdditionalSkillIdsChange}
+          onChange={onAdditionalSkillIdsChange}
           onClose={() => setModalOpen(false)}
           requestSkillIds={requestSkills.map((skill) => skill.skillId)}
           selectedSkillIds={additionalSkillIds}
