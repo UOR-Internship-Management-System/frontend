@@ -27,7 +27,7 @@ export function M3SelectField({
 
   const selectedOption = options.find((opt) => opt.value === value)
   const displayValue = selectedOption ? selectedOption.label : ''
-  const hasValue = value !== undefined && value !== ''
+  const hasValue = Boolean(selectedOption)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

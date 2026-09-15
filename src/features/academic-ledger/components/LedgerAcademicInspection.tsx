@@ -7,6 +7,7 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { Button } from '../../../shared/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
 import { SkeletonTableGrid } from '../../../shared/skeletons'
 import { useRegisteredStudents } from '../../student-management/hooks/useRegisteredStudents'
 import type {
@@ -51,6 +52,8 @@ export function LedgerAcademicInspection({
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table')
   const [selected, setSelected] = useState<RegisteredStudentView | null>(null)
   const students = useRegisteredStudents(query)
+  const isCompact = useIsCompactLayout()
+  const effectiveViewMode = isCompact ? 'cards' : viewMode
 
   useEffect(() => {
     const totalPages = students.data?.page.totalPages ?? 0
@@ -78,13 +81,15 @@ export function LedgerAcademicInspection({
             placeholder="Search Students by name or index number"
             value={searchInput}
           />
-          <div className="al-toolbar-toggle">
-            <SegmentedButton
-              onChange={(val) => setViewMode(val as 'table' | 'cards')}
-              options={viewOptions}
-              value={viewMode}
-            />
-          </div>
+          {isCompact ? null : (
+            <div className="al-toolbar-toggle">
+              <SegmentedButton
+                onChange={(val) => setViewMode(val as 'table' | 'cards')}
+                options={viewOptions}
+                value={viewMode}
+              />
+            </div>
+          )}
         </div>
 
         {students.isPending ? (
@@ -103,9 +108,9 @@ export function LedgerAcademicInspection({
         ) : null}
         {students.data?.items.length ? (
           <div
-            className={`al-data-container ${viewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
+            className={`al-data-container ${effectiveViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
           >
-            {viewMode === 'table' ? (
+            {effectiveViewMode === 'table' ? (
               <div className="al-table-wrap" tabIndex={0}>
                 <table className="al-table">
                   <caption className="visually-hidden">

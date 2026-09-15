@@ -10,6 +10,7 @@ import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog
 import { Button } from '../../../shared/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
 import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
+import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
 import {
   SkeletonCard,
   SkeletonFormFields,
@@ -75,6 +76,8 @@ export function AcademicLedgerPage() {
   const deleteUpload = useDeleteLedgerUpload()
   const [deleting, setDeleting] = useState<LedgerUploadSummary | null>(null)
   const [uploadsViewMode, setUploadsViewMode] = useState<'table' | 'cards'>('table')
+  const isCompact = useIsCompactLayout()
+  const effectiveUploadsViewMode = isCompact ? 'cards' : uploadsViewMode
 
   useEffect(() => {
     const previousTitle = document.title
@@ -172,13 +175,15 @@ export function AcademicLedgerPage() {
                 { value: 'PROCESSING_FAILED', label: 'Processing failed' },
               ]}
             />
-            <div className="al-toolbar-toggle">
-              <SegmentedButton
-                onChange={(val) => setUploadsViewMode(val as 'table' | 'cards')}
-                options={viewOptions}
-                value={uploadsViewMode}
-              />
-            </div>
+            {isCompact ? null : (
+              <div className="al-toolbar-toggle">
+                <SegmentedButton
+                  onChange={(val) => setUploadsViewMode(val as 'table' | 'cards')}
+                  options={viewOptions}
+                  value={uploadsViewMode}
+                />
+              </div>
+            )}
           </div>
 
           {uploads.isPending ? (
@@ -201,9 +206,9 @@ export function AcademicLedgerPage() {
           ) : null}
           {uploads.data?.items.length ? (
             <div
-              className={`al-data-container ${uploadsViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
+              className={`al-data-container ${effectiveUploadsViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
             >
-              {uploadsViewMode === 'table' ? (
+              {effectiveUploadsViewMode === 'table' ? (
                 <LedgerUploadsTable
                   items={uploads.data.items}
                   onDelete={setDeleting}
