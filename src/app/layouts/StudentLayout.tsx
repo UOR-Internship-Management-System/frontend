@@ -135,7 +135,7 @@ export function StudentLayout() {
                   </span>
                 </button>
               )}
-              <span className="m3-top-app-bar__title">CV Management</span>
+              {!isMobile && <span className="m3-top-app-bar__title">CV Management</span>}
             </div>
             <div className="m3-top-app-bar__trailing">
               <ThemeToggle />

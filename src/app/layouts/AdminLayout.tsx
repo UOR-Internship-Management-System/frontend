@@ -123,7 +123,7 @@ export function AdminLayout() {
                   </span>
                 </button>
               )}
-              <span className="m3-top-app-bar__title">CV Management – Admin</span>
+              {!isMobile && <span className="m3-top-app-bar__title">CV Management – Admin</span>}
             </div>
             <div className="m3-top-app-bar__trailing">
               <ThemeToggle />
