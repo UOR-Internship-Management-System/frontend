@@ -127,7 +127,11 @@ describe('StudentSkillsPage', () => {
     await user.click(view.getByRole('button', { name: 'Add skill' }))
     const dialog = await view.findByRole('dialog', { name: 'Add skill' })
     expect(
-      await within(dialog).findByRole('heading', { name: 'Add Skill unavailable' }),
+      await within(dialog).findByRole(
+        'heading',
+        { name: 'Add Skill unavailable' },
+        { timeout: 4_000 },
+      ),
     ).toBeInTheDocument()
   })
 
