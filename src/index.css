@@ -2465,14 +2465,6 @@ body.admin-mobile-drawer-open {
   gap: 20px;
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -2979,7 +2971,6 @@ p {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px;
 }
 
 th,
@@ -3004,6 +2995,19 @@ td {
 
 .modal-backdrop.closing {
   animation: overlayFadeOut var(--motion-duration-medium) var(--motion-standard) both;
+}
+
+@media (max-width: 599px) {
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+    border-radius: var(--radius-modal) var(--radius-modal) 0 0;
+  }
 }
 
 .modal-card {
@@ -3319,7 +3323,7 @@ td {
 
   .profile-section-actions {
     width: 100%;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
   }
 
   .profile-section-actions .m3-search-bar-wrapper {
