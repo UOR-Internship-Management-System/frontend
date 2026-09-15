@@ -281,8 +281,8 @@ export function SelectedCandidatesReviewModal({
               disabled={isPending}
               label={
                 <>
-                  The selected count exceeds the advisory guidance of {guidanceValue}. I
-                  acknowledge this warning and want to continue with the manual selection.
+                  The selected count exceeds the advisory guidance of {guidanceValue}. I acknowledge
+                  this warning and want to continue with the manual selection.
                 </>
               }
               onChange={(event) => setGuidanceAcknowledged(event.target.checked)}

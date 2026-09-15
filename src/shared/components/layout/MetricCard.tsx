@@ -23,7 +23,11 @@ export function MetricCard({
     <article
       className={`card m3-card m3-card--elevated m3-card--interactive section-card student-metric-card student-metric-card--${tone} ${className}`.trim()}
     >
-      {icon ? <span className="student-metric-card-icon" aria-hidden="true">{icon}</span> : null}
+      {icon ? (
+        <span className="student-metric-card-icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
       <div className="student-metric-card-content">
         <p className="student-metric-card-label">{label}</p>
         <strong className="student-metric-card-value">{value}</strong>

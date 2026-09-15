@@ -91,7 +91,11 @@ export function EligibleStudentImportPanel() {
           <span>CSV or Excel (.xlsx) · Max 5 MiB</span>
         </button>
 
-        <p className="field-hint" id="es-file-help" style={{ marginTop: '16px', marginBottom: '16px' }}>
+        <p
+          className="field-hint"
+          id="es-file-help"
+          style={{ marginTop: '16px', marginBottom: '16px' }}
+        >
           Columns and values are checked automatically before you can commit.
         </p>
 
@@ -116,7 +120,11 @@ export function EligibleStudentImportPanel() {
             Upload
           </Button>
           {file ? (
-            <Button disabled={mutations.importFile.isPending} onClick={clearFile} variant="outlined">
+            <Button
+              disabled={mutations.importFile.isPending}
+              onClick={clearFile}
+              variant="outlined"
+            >
               Clear
             </Button>
           ) : null}

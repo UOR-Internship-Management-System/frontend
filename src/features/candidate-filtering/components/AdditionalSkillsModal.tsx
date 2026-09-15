@@ -68,9 +68,7 @@ export function AdditionalSkillsModal({
       onClose={onClose}
       size="large"
       title="Select additional declared skills"
-      actions={
-        <Button onClick={onClose}>Done</Button>
-      }
+      actions={<Button onClick={onClose}>Done</Button>}
     >
       <div className="cf-skills-modal">
         <label className="cf-modal-field">

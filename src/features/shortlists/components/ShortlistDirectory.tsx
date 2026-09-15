@@ -63,126 +63,130 @@ export function ShortlistDirectory({
   }, [onStateChange, page, state.page])
 
   return (
-    <Card aria-labelledby="active-request-matrix-title" className="sl-matrix-card" variant="outlined">
+    <Card
+      aria-labelledby="active-request-matrix-title"
+      className="sl-matrix-card"
+      variant="outlined"
+    >
       <CardHeader className="sl-section-header">
         <h2 className="m3-card-title" id="active-request-matrix-title">
           Active Request Matrix
         </h2>
       </CardHeader>
       <CardContent className="sl-matrix-content">
-      <div className="sl-matrix-toolbar">
-        <label className="sl-toolbar-field sl-search-field">
-          <span>Search Company</span>
-          <SearchBar
-            aria-label="Search Company"
-            maxLength={120}
-            onChange={(event) => onSearchInputChange(event.target.value)}
-            placeholder="Search by company name..."
-            value={searchInput}
+        <div className="sl-matrix-toolbar">
+          <label className="sl-toolbar-field sl-search-field">
+            <span>Search Company</span>
+            <SearchBar
+              aria-label="Search Company"
+              maxLength={120}
+              onChange={(event) => onSearchInputChange(event.target.value)}
+              placeholder="Search by company name..."
+              value={searchInput}
+            />
+          </label>
+
+          <M3SelectField
+            className="sl-toolbar-field"
+            label="Select Company"
+            aria-describedby={companyLoadError ? 'shortlist-company-error' : undefined}
+            disabled={companyLoading}
+            onChange={(value) => onStateChange({ companyId: value || undefined })}
+            value={state.companyId ?? ''}
+            options={[
+              { value: '', label: 'All Companies' },
+              ...companies.map((company) => ({
+                value: company.companyId,
+                label: company.name,
+              })),
+            ]}
           />
-        </label>
 
-        <M3SelectField
-          className="sl-toolbar-field"
-          label="Select Company"
-          aria-describedby={companyLoadError ? 'shortlist-company-error' : undefined}
-          disabled={companyLoading}
-          onChange={(value) => onStateChange({ companyId: value || undefined })}
-          value={state.companyId ?? ''}
-          options={[
-            { value: '', label: 'All Companies' },
-            ...companies.map((company) => ({
-              value: company.companyId,
-              label: company.name,
-            })),
-          ]}
-        />
+          <M3SelectField
+            className="sl-toolbar-field"
+            label="Internship Track"
+            onChange={(value) => onSelectedTrackChange(value)}
+            value={selectedTrack}
+            options={[
+              { value: '', label: 'All Placement Rows' },
+              ...tracks.map((track) => ({
+                value: track,
+                label: track,
+              })),
+            ]}
+          />
+        </div>
 
-        <M3SelectField
-          className="sl-toolbar-field"
-          label="Internship Track"
-          onChange={(value) => onSelectedTrackChange(value)}
-          value={selectedTrack}
-          options={[
-            { value: '', label: 'All Placement Rows' },
-            ...tracks.map((track) => ({
-              value: track,
-              label: track,
-            })),
-          ]}
-        />
-      </div>
-
-      {companyLoadError ? (
-        <p className="sl-inline-message" id="shortlist-company-error" role="alert">
-          Company options are unavailable. Search and shortlisted records remain available.
+        {companyLoadError ? (
+          <p className="sl-inline-message" id="shortlist-company-error" role="alert">
+            Company options are unavailable. Search and shortlisted records remain available.
+          </p>
+        ) : null}
+        <p aria-live="polite" className="sl-live-region">
+          {shortlists.isFetching && !shortlists.isPending ? 'Updating active records…' : ''}
         </p>
-      ) : null}
-      <p aria-live="polite" className="sl-live-region">
-        {shortlists.isFetching && !shortlists.isPending ? 'Updating active records…' : ''}
-      </p>
 
-      <LoadingBoundary
-        isLoading={shortlists.isPending}
-        label="Loading active shortlist records"
-        minHeight={430}
-        skeleton={<SkeletonListRows count={5} />}
-      >
-        {listError ? (
-          <ErrorState
-            correlationId={listError.correlationId}
-            message={listError.message}
-            onAction={() => void shortlists.refetch()}
-            title="Shortlisted records unavailable"
-          />
-        ) : visibleShortlists.length ? (
-          <List className="sl-matrix-list">
-            {visibleShortlists.map((shortlist) => (
-              <li className="m3-list-item sl-matrix-row" key={shortlist.shortlistId}>
-                <div className="m3-list-item-content">
-                  <span className="m3-list-item-headline">{shortlist.request.title}</span>
-                  <p className="sl-row-subline">
-                    Company: {shortlist.request.companyName} • {shortlist.selectedCandidateCount}{' '}
-                    Candidates Shortlisted
-                  </p>
-                </div>
-                <span className="m3-list-item-trailing">
-                  <Button
-                    icon={<span className="material-symbols-outlined">visibility</span>}
-                    onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
-                    size="sm"
-                    variant="outlined"
-                  >
-                    Details
-                  </Button>
-                </span>
-              </li>
-            ))}
-          </List>
-        ) : (
-          <EmptyState
-            message={
-              selectedTrack
-                ? 'No shortlisted records on this page match the selected internship track.'
-                : 'No finalized shortlisted records match the current company filters.'
-            }
-            title="No shortlisted records"
-          />
-        )}
-      </LoadingBoundary>
+        <LoadingBoundary
+          isLoading={shortlists.isPending}
+          label="Loading active shortlist records"
+          minHeight={430}
+          skeleton={<SkeletonListRows count={5} />}
+        >
+          {listError ? (
+            <ErrorState
+              correlationId={listError.correlationId}
+              message={listError.message}
+              onAction={() => void shortlists.refetch()}
+              title="Shortlisted records unavailable"
+            />
+          ) : visibleShortlists.length ? (
+            <List className="sl-matrix-list">
+              {visibleShortlists.map((shortlist) => (
+                <li className="m3-list-item sl-matrix-row" key={shortlist.shortlistId}>
+                  <div className="m3-list-item-content">
+                    <span className="m3-list-item-headline">{shortlist.request.title}</span>
+                    <p className="sl-row-subline">
+                      Company: {shortlist.request.companyName} • {shortlist.selectedCandidateCount}{' '}
+                      Candidates Shortlisted
+                    </p>
+                  </div>
+                  <span className="m3-list-item-trailing">
+                    <Button
+                      icon={<span className="material-symbols-outlined">visibility</span>}
+                      onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
+                      size="sm"
+                      variant="outlined"
+                    >
+                      Details
+                    </Button>
+                  </span>
+                </li>
+              ))}
+            </List>
+          ) : (
+            <EmptyState
+              message={
+                selectedTrack
+                  ? 'No shortlisted records on this page match the selected internship track.'
+                  : 'No finalized shortlisted records match the current company filters.'
+              }
+              title="No shortlisted records"
+            />
+          )}
+        </LoadingBoundary>
 
-      {page && page.totalPages > 0 ? (
-        <PaginationBar
-          label="Active request pages"
-          onPageChange={(p) => onStateChange({ page: p })}
-          onPageSizeChange={(s) => onStateChange({ size: s as 5 | 20 | 50 | 100 })}
-          page={page.page}
-          pageSizeOptions={[5, 20, 50, 100]}
-          size={page.size}
-          totalElements={page.totalElements}
-          totalPages={page.totalPages}
-        />
-      ) : null}
+        {page && page.totalPages > 0 ? (
+          <PaginationBar
+            label="Active request pages"
+            onPageChange={(p) => onStateChange({ page: p })}
+            onPageSizeChange={(s) => onStateChange({ size: s as 5 | 20 | 50 | 100 })}
+            page={page.page}
+            pageSizeOptions={[5, 20, 50, 100]}
+            size={page.size}
+            totalElements={page.totalElements}
+            totalPages={page.totalPages}
+          />
+        ) : null}
       </CardContent>
     </Card>
   )

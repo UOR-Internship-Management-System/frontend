@@ -212,7 +212,9 @@ export function SkeletonFormFields({
     <div
       aria-hidden="true"
       className="skeleton-form-fields"
-      style={columns > 1 ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` } : undefined}
+      style={
+        columns > 1 ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` } : undefined
+      }
     >
       {Array.from({ length: count }, (_, index) => (
         <div className="skeleton-form-field" key={index}>

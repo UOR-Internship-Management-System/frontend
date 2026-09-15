@@ -33,7 +33,9 @@ describe('SkeletonPageHeader', () => {
 
 describe('SkeletonTableGrid', () => {
   it('renders columns header cells and columns x rows body cells', () => {
-    const { container } = render(<SkeletonTableGrid columns={4} gridTemplateColumns="repeat(4, 1fr)" rows={3} />)
+    const { container } = render(
+      <SkeletonTableGrid columns={4} gridTemplateColumns="repeat(4, 1fr)" rows={3} />,
+    )
     expect(container.querySelectorAll('[data-skeleton-header]')).toHaveLength(4)
     expect(container.querySelectorAll('[data-skeleton-cell]')).toHaveLength(12)
   })

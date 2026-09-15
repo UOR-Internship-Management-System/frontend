@@ -94,7 +94,8 @@ export function EligibleStudentForm({
     }
   }
 
-  const describedBy = (field: Field) => (errors[field] ? `eligible-student-${field}-error` : undefined)
+  const describedBy = (field: Field) =>
+    errors[field] ? `eligible-student-${field}-error` : undefined
 
   return (
     <Modal

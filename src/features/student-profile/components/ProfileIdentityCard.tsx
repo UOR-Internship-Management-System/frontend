@@ -83,7 +83,11 @@ export function ProfileIdentityCard({
         </div>
       </dl>
       <p className="profile-identity-note">
-        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '16px', verticalAlign: 'text-bottom' }}>
+        <span
+          className="material-symbols-outlined"
+          aria-hidden="true"
+          style={{ fontSize: '16px', verticalAlign: 'text-bottom' }}
+        >
           lock
         </span>{' '}
         Official identity and academic values are read-only.

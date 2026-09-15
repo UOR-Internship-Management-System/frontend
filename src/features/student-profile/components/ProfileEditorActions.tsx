@@ -15,7 +15,11 @@ export function ProfileEditorActions({
         Cancel
       </Button>
       <Button
-        icon={<span className="material-symbols-outlined" aria-hidden="true">check</span>}
+        icon={
+          <span className="material-symbols-outlined" aria-hidden="true">
+            check
+          </span>
+        }
         isLoading={isPending}
         type="submit"
         variant="primary"

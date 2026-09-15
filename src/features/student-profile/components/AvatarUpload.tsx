@@ -149,7 +149,11 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
         htmlFor="profile-avatar-file-input"
       >
         <span className="button-content">
-          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '18px' }}>
+          <span
+            className="material-symbols-outlined"
+            aria-hidden="true"
+            style={{ fontSize: '18px' }}
+          >
             add_a_photo
           </span>
           <span>{photoUrl ? 'Change picture' : 'Select picture'}</span>
@@ -158,7 +162,11 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
 
       {policy ? (
         <div className="profile-policy-badge">
-          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: '15px' }}>
+          <span
+            className="material-symbols-outlined"
+            aria-hidden="true"
+            style={{ fontSize: '15px' }}
+          >
             info
           </span>
           <span>
@@ -178,7 +186,11 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
       <div className="profile-photo-actions">
         {selectedFile ? (
           <Button
-            icon={<span className="material-symbols-outlined" aria-hidden="true">cloud_upload</span>}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                cloud_upload
+              </span>
+            }
             isLoading={mutations.upload.isPending}
             onClick={() => void upload()}
             variant="primary"
@@ -198,7 +210,11 @@ export function AvatarUpload({ fullName, photoUrl, policy, version }: AvatarUplo
         {photoUrl ? (
           <Button
             disabled={mutations.remove.isPending}
-            icon={<span className="material-symbols-outlined" aria-hidden="true">delete</span>}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                delete
+              </span>
+            }
             onClick={() => setConfirmRemove(true)}
             variant="outlined"
           >

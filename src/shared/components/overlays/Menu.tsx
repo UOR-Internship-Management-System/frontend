@@ -136,20 +136,12 @@ export function MenuItem({
           </span>
         )}
         <span className="m3-menu-item__label">{children}</span>
-        {trailingText && (
-          <span className="m3-menu-item__trailing">{trailingText}</span>
-        )}
+        {trailingText && <span className="m3-menu-item__trailing">{trailingText}</span>}
       </button>
     </li>
   )
 }
 
 export function MenuDivider({ className = '', ...props }: HTMLAttributes<HTMLLIElement>) {
-  return (
-    <li
-      role="separator"
-      className={`m3-menu-divider ${className}`.trim()}
-      {...props}
-    />
-  )
+  return <li role="separator" className={`m3-menu-divider ${className}`.trim()} {...props} />
 }

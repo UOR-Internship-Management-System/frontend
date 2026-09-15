@@ -38,9 +38,7 @@ export function ListItem({
       {leading ? <span className="m3-list-item-leading">{leading}</span> : null}
       <div className="m3-list-item-content">
         <span className="m3-list-item-headline">{headline}</span>
-        {supportingText ? (
-          <span className="m3-list-item-supporting">{supportingText}</span>
-        ) : null}
+        {supportingText ? <span className="m3-list-item-supporting">{supportingText}</span> : null}
       </div>
       {trailing ? <span className="m3-list-item-trailing">{trailing}</span> : null}
     </li>

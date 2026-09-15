@@ -81,8 +81,7 @@ export function LedgerValidationTable({
             aria-label="Validation status"
             onChange={(value) =>
               onQueryChange({
-                validationStatus: (value ||
-                  undefined) as typeof query.validationStatus,
+                validationStatus: (value || undefined) as typeof query.validationStatus,
               })
             }
             value={query.validationStatus ?? ''}
@@ -97,9 +96,7 @@ export function LedgerValidationTable({
             className="al-field"
             label="Sort rows"
             aria-label="Sort rows"
-            onChange={(value) =>
-              onQueryChange({ sort: value as LedgerStagedRowsQuery['sort'] })
-            }
+            onChange={(value) => onQueryChange({ sort: value as LedgerStagedRowsQuery['sort'] })}
             value={query.sort}
             options={[
               { value: 'rowNumber,asc', label: 'Row number ↑' },
@@ -132,7 +129,9 @@ export function LedgerValidationTable({
                     <td>{row.rowNumber}</td>
                     <td>
                       <strong>{row.studentIndexNumber}</strong>
-                      {!row.studentId ? <span className="al-secondary">Unmatched Student</span> : null}
+                      {!row.studentId ? (
+                        <span className="al-secondary">Unmatched Student</span>
+                      ) : null}
                     </td>
                     <td>
                       <strong>{row.courseCode}</strong>
@@ -145,7 +144,9 @@ export function LedgerValidationTable({
                     <td>
                       {row.letterGrade}
                       <span className="al-secondary">
-                        {row.gradePoint === null ? 'No grade point' : `${row.gradePoint.toFixed(2)} points`}
+                        {row.gradePoint === null
+                          ? 'No grade point'
+                          : `${row.gradePoint.toFixed(2)} points`}
                       </span>
                     </td>
                     <td>

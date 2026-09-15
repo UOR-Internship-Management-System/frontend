@@ -1,15 +1,29 @@
-import { SelectHTMLAttributes, useEffect, useRef, useState } from 'react'
+import { SelectHTMLAttributes, useEffect, useId, useRef, useState } from 'react'
 
-export interface M3SelectFieldProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+export interface M3SelectFieldProps extends Omit<
+  SelectHTMLAttributes<HTMLSelectElement>,
+  'onChange'
+> {
   label: string
   options: { value: string; label: string }[]
   value?: string
   onChange?: (value: string) => void
 }
 
-export function M3SelectField({ label, options, value, onChange, className = '', style, ...props }: M3SelectFieldProps) {
+export function M3SelectField({
+  label,
+  options,
+  value,
+  onChange,
+  className = '',
+  style,
+  id,
+  ...props
+}: M3SelectFieldProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const generatedId = useId()
+  const selectId = id ?? `m3-select-${generatedId}`
 
   const selectedOption = options.find((opt) => opt.value === value)
   const displayValue = selectedOption ? selectedOption.label : ''
@@ -37,7 +51,7 @@ export function M3SelectField({ label, options, value, onChange, className = '',
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
-        aria-controls={`${props.id}-listbox`}
+        aria-controls={`${selectId}-listbox`}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -46,16 +60,21 @@ export function M3SelectField({ label, options, value, onChange, className = '',
           }
         }}
       >
-        <label className="m3-dropdown-label">{label}</label>
+        <label htmlFor={selectId} className="m3-dropdown-label">
+          {label}
+        </label>
         <div className="m3-dropdown-value">{displayValue}</div>
         <span className="material-symbols-outlined m3-dropdown-icon" aria-hidden="true">
           arrow_drop_down
         </span>
       </div>
 
-      <div className="m3-dropdown-menu" role="listbox" id={`${props.id}-listbox`}>
+      <div className="m3-dropdown-menu" role="listbox" id={`${selectId}-listbox`}>
         {options.length === 0 ? (
-          <div className="m3-dropdown-item" style={{ color: 'var(--md-sys-color-on-surface-variant)' }}>
+          <div
+            className="m3-dropdown-item"
+            style={{ color: 'var(--md-sys-color-on-surface-variant)' }}
+          >
             No options available
           </div>
         ) : null}
@@ -75,17 +94,21 @@ export function M3SelectField({ label, options, value, onChange, className = '',
           </div>
         ))}
       </div>
-      
-      {/* Hidden native select for form integration if needed */}
-      <select 
-        style={{ display: 'none' }} 
-        value={value} 
+
+      {/* Hidden native select for form integration and accessibility */}
+      <select
+        id={selectId}
+        style={{ display: 'none' }}
+        value={value}
+        aria-label={props['aria-label'] ?? label}
         onChange={(e) => onChange?.(e.target.value)}
         {...props}
       >
         <option value="" disabled />
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
         ))}
       </select>
     </div>

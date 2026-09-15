@@ -46,9 +46,7 @@ export function StudentLoginForm({ isSubmitting, onSubmit }: StudentLoginFormPro
         error={errors.password}
         id="student-login-password"
         label="Password"
-        onChange={(event) =>
-          setValues((current) => ({ ...current, password: event.target.value }))
-        }
+        onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
         placeholder="Enter your password"
         value={values.password}
       />

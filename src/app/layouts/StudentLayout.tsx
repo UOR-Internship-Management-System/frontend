@@ -88,21 +88,14 @@ export function StudentLayout() {
   const drawerWidth = isDesktop ? (isExpanded ? 280 : 80) : isTablet ? 80 : 0
 
   return (
-    <div
-      className="m3-app-shell"
-      data-viewport={viewport}
-      data-drawer-expanded={isExpanded}
-    >
+    <div className="m3-app-shell" data-viewport={viewport} data-drawer-expanded={isExpanded}>
       <a className="m3-skip-link" href="#student-content">
         Skip to main content
       </a>
 
       {/* ── Side navigation (tablet: rail, desktop: drawer) ────────────── */}
       {!isMobile && (
-        <div
-          className="m3-app-shell__nav"
-          style={{ width: drawerWidth }}
-        >
+        <div className="m3-app-shell__nav" style={{ width: drawerWidth }}>
           <StudentSidebar
             firstNavigationItemRef={firstNavigationItemRef}
             isExpanded={isExpanded}
@@ -120,7 +113,6 @@ export function StudentLayout() {
 
       {/* ── Main content area ─────────────────────────────────────────── */}
       <div className="m3-app-shell__main">
-
         {/* ── Top App Bar (mobile + tablet) ─────────────────────────── */}
         {!isDesktop && (
           <header className="m3-top-app-bar">
@@ -158,7 +150,12 @@ export function StudentLayout() {
             <div className="m3-top-app-bar__trailing">
               <span className="m3-top-app-bar__user-chip">
                 <span className="m3-top-app-bar__user-initials" aria-hidden="true">
-                  {studentName.split(/\s+/).filter(Boolean).map((p) => p[0]?.toUpperCase()).join('').slice(0, 2) || 'ST'}
+                  {studentName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .map((p) => p[0]?.toUpperCase())
+                    .join('')
+                    .slice(0, 2) || 'ST'}
                 </span>
                 <span>{studentName}</span>
               </span>
@@ -168,11 +165,7 @@ export function StudentLayout() {
         )}
 
         {/* ── Page content ───────────────────────────────────────────── */}
-        <main
-          className="m3-app-shell__content"
-          id="student-content"
-          tabIndex={-1}
-        >
+        <main className="m3-app-shell__content" id="student-content" tabIndex={-1}>
           <div className="page-transition" key={location.pathname}>
             {outlet}
           </div>
@@ -208,7 +201,9 @@ export function StudentLayout() {
           header={
             <div className="m3-app-drawer-header">
               <div className="m3-app-drawer-brand">
-                <span className="m3-app-rail-brand-mark" aria-hidden="true">CV</span>
+                <span className="m3-app-rail-brand-mark" aria-hidden="true">
+                  CV
+                </span>
                 <span className="m3-app-rail-brand-name">CV Management</span>
               </div>
               <button
@@ -218,7 +213,9 @@ export function StudentLayout() {
                 onClick={() => closeMobileDrawer(true)}
                 type="button"
               >
-                <span aria-hidden="true" className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  close
+                </span>
               </button>
             </div>
           }
@@ -226,7 +223,12 @@ export function StudentLayout() {
             <div className="m3-app-drawer-footer">
               <div className="m3-app-drawer-identity">
                 <span className="m3-app-rail-avatar" aria-hidden="true">
-                  {studentName.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || 'ST'}
+                  {studentName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((p) => p[0]?.toUpperCase())
+                    .join('') || 'ST'}
                 </span>
                 <div className="m3-app-rail-identity-copy">
                   <span>Student workspace</span>
@@ -240,7 +242,9 @@ export function StudentLayout() {
                 onClick={() => setIsLogoutConfirmOpen(true)}
                 type="button"
               >
-                <span aria-hidden="true" className="material-symbols-outlined">logout</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  logout
+                </span>
                 <span>Log Out</span>
               </button>
             </div>

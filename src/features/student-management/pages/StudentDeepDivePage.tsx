@@ -112,8 +112,12 @@ function StudentDeepDiveLoading() {
   return (
     <SkeletonStatusRegion className="sdd-page" label="Loading student details">
       <div className="sdd-layout">
-        <SkeletonCard className="sdd-identity-card"><SkeletonFormFields count={3} /></SkeletonCard>
-        <SkeletonCard className="sdd-content" title={false}><SkeletonFormFields count={6} /></SkeletonCard>
+        <SkeletonCard className="sdd-identity-card">
+          <SkeletonFormFields count={3} />
+        </SkeletonCard>
+        <SkeletonCard className="sdd-content" title={false}>
+          <SkeletonFormFields count={6} />
+        </SkeletonCard>
       </div>
     </SkeletonStatusRegion>
   )
@@ -129,8 +133,7 @@ function IdentityDetail({ label, value }: { label: string; value: string }) {
 }
 
 function StudentAvatar({ name, photoUrl }: { name: string; photoUrl: string | null }) {
-  if (photoUrl)
-    return <img alt={`${name} profile`} className="sdd-avatar" src={photoUrl} />
+  if (photoUrl) return <img alt={`${name} profile`} className="sdd-avatar" src={photoUrl} />
   const initials = name
     .split(/\s+/)
     .filter(Boolean)
@@ -138,11 +141,7 @@ function StudentAvatar({ name, photoUrl }: { name: string; photoUrl: string | nu
     .map((part) => part[0]?.toUpperCase())
     .join('')
   return (
-    <div
-      aria-label={`${name} initials`}
-      className="sdd-avatar sdd-avatar--initials"
-      role="img"
-    >
+    <div aria-label={`${name} initials`} className="sdd-avatar sdd-avatar--initials" role="img">
       {initials || 'ST'}
     </div>
   )

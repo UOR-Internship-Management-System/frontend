@@ -233,8 +233,12 @@ export function CvBuilderPage() {
   if (freshness.isPending && sourceQueries.every((query) => query.isPending)) {
     return (
       <SkeletonStatusRegion className="content-stack s5-cv-builder-page" label="Loading CV builder">
-        <SkeletonCard><SkeletonFormFields count={4} /></SkeletonCard>
-        <SkeletonCard><SkeletonFormFields count={4} /></SkeletonCard>
+        <SkeletonCard>
+          <SkeletonFormFields count={4} />
+        </SkeletonCard>
+        <SkeletonCard>
+          <SkeletonFormFields count={4} />
+        </SkeletonCard>
       </SkeletonStatusRegion>
     )
   }

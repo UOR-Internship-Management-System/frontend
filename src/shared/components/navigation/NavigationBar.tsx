@@ -15,20 +15,26 @@ export type NavigationBarItemProps = {
   'aria-label'?: string
 }
 
-export const NavigationBarItem = forwardRef<HTMLElement, NavigationBarItemProps & HTMLAttributes<HTMLElement>>(function NavigationBarItem({
-  icon,
-  activeIcon,
-  label,
-  active = false,
-  badge,
-  onClick,
-  as: Component = 'button',
-  className = '',
-  'aria-label': ariaLabel,
-  to,
-  href,
-  ...props
-}: NavigationBarItemProps & HTMLAttributes<HTMLElement>, ref) {
+export const NavigationBarItem = forwardRef<
+  HTMLElement,
+  NavigationBarItemProps & HTMLAttributes<HTMLElement>
+>(function NavigationBarItem(
+  {
+    icon,
+    activeIcon,
+    label,
+    active = false,
+    badge,
+    onClick,
+    as: Component = 'button',
+    className = '',
+    'aria-label': ariaLabel,
+    to,
+    href,
+    ...props
+  }: NavigationBarItemProps & HTMLAttributes<HTMLElement>,
+  ref,
+) {
   const currentIcon = active && activeIcon ? activeIcon : icon
 
   return (
@@ -65,11 +71,7 @@ export function NavigationBar({
   ...props
 }: NavigationBarProps) {
   return (
-    <nav
-      className={`m3-navigation-bar ${className}`.trim()}
-      aria-label={ariaLabel}
-      {...props}
-    >
+    <nav className={`m3-navigation-bar ${className}`.trim()} aria-label={ariaLabel} {...props}>
       {children}
     </nav>
   )

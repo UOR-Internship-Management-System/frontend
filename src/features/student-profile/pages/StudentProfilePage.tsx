@@ -45,10 +45,7 @@ export function StudentProfilePage() {
     const error = mapApiError(profileQuery.error, 'protected')
     return (
       <article className="content-stack profile-page">
-        <PageHeader
-          description="Manage the profile details that you own."
-          title="Profile"
-        />
+        <PageHeader description="Manage the profile details that you own." title="Profile" />
         <ErrorState
           correlationId={error.correlationId}
           message={error.message}

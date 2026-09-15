@@ -26,7 +26,9 @@ export function LedgerCommitDialog({
     >
       <div className="al-commit-dialog-content">
         <p>
-          <strong>This action writes {totalRows} staged rows to the official academic record.</strong>
+          <strong>
+            This action writes {totalRows} staged rows to the official academic record.
+          </strong>
         </p>
         <p>
           The commit is transactional and cannot be undone from this screen. Official GPA values may

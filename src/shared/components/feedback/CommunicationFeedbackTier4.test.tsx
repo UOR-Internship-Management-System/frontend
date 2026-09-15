@@ -1,12 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
-import {
-  LinearProgress,
-  CircularProgress,
-  LoadingIndicator,
-  Snackbar,
-} from './index'
+import { LinearProgress, CircularProgress, LoadingIndicator, Snackbar } from './index'
 import { Badge, BadgeAnchor, Chip, StatusBadge } from '../ui'
 import { Tooltip } from '../overlays/Tooltip'
 

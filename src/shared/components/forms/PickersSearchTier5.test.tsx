@@ -54,13 +54,7 @@ describe('Tier 5: Pickers and Search Primitives', () => {
     it('renders calendar, navigates months, and fires onChange with ISO date', async () => {
       const handleChange = vi.fn()
 
-      render(
-        <DatePicker
-          label="Start date"
-          defaultValue="2026-09-15"
-          onChange={handleChange}
-        />,
-      )
+      render(<DatePicker label="Start date" defaultValue="2026-09-15" onChange={handleChange} />)
 
       expect(screen.getByText('Start date')).toBeInTheDocument()
       expect(screen.getByText(/September 2026/i)).toBeInTheDocument()
@@ -79,13 +73,7 @@ describe('Tier 5: Pickers and Search Primitives', () => {
     it('handles hour/minute input and toggles AM/PM period', async () => {
       const handleChange = vi.fn()
 
-      render(
-        <TimePicker
-          label="Interview time"
-          defaultValue="14:30"
-          onChange={handleChange}
-        />,
-      )
+      render(<TimePicker label="Interview time" defaultValue="14:30" onChange={handleChange} />)
 
       expect(screen.getByText('Interview time')).toBeInTheDocument()
       const hourInput = screen.getByRole('spinbutton', { name: 'Hour' })

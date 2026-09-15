@@ -2,7 +2,11 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { MetricCard } from '../../../shared/components/layout/MetricCard'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SkeletonMetricGrid, SkeletonPageHeader, SkeletonStatusRegion } from '../../../shared/skeletons'
+import {
+  SkeletonMetricGrid,
+  SkeletonPageHeader,
+  SkeletonStatusRegion,
+} from '../../../shared/skeletons'
 import { useStudentDashboard } from '../hooks/useStudentDashboard'
 
 const dashboardDateFormatter = new Intl.DateTimeFormat(undefined, {

@@ -25,7 +25,11 @@ export function LedgerReviewSection({
     return (
       <SkeletonCard>
         <SkeletonToolbar fields={3} />
-        <SkeletonTableGrid columns={6} gridTemplateColumns="repeat(6, minmax(90px, 1fr))" rows={6} />
+        <SkeletonTableGrid
+          columns={6}
+          gridTemplateColumns="repeat(6, minmax(90px, 1fr))"
+          rows={6}
+        />
       </SkeletonCard>
     )
   }

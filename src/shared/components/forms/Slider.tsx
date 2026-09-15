@@ -43,15 +43,9 @@ export const Slider = forwardRef<HTMLInputElement, SliderProps>(function Slider(
     >
       {label ? <span className="m3-label-medium">{label}</span> : null}
       <div className="m3-slider-track-bar">
-        <div
-          className="m3-slider-active-track"
-          style={{ width: `${percentage}%` }}
-        />
+        <div className="m3-slider-active-track" style={{ width: `${percentage}%` }} />
         {showValueBubble && isHovered ? (
-          <div
-            className="m3-slider-value-bubble"
-            style={{ left: `${percentage}%` }}
-          >
+          <div className="m3-slider-value-bubble" style={{ left: `${percentage}%` }}>
             {val}
           </div>
         ) : null}

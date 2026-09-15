@@ -42,10 +42,7 @@ export const eligibleStudentImportResultSchema = z
 const indexNumberPattern = /^[A-Za-z]{2}\/[0-9]{4}\/[0-9]{5}$/
 
 export const eligibleStudentFormSchema = z.object({
-  indexNumber: z
-    .string()
-    .trim()
-    .regex(indexNumberPattern, 'Use the format CS/2022/00123.'),
+  indexNumber: z.string().trim().regex(indexNumberPattern, 'Use the format CS/2022/00123.'),
   universityEmail: z.string().trim().email('Enter a valid email address.').max(254),
   fullName: z.string().trim().min(1, 'Full name is required.').max(160),
   academicLevel: z.union([z.literal('3'), z.literal('4')], {

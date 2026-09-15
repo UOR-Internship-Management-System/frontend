@@ -1,4 +1,5 @@
 # UOR Internship Management System — Design System
+
 ### Material Design 3 Expressive
 
 This replaces the current flat "institutional navy" palette (`src/index.css`) with a full
@@ -28,7 +29,7 @@ corporate-blue theme, the system uses:
   weight and size carry the hierarchy, not a second typeface. Google Sans is under a
   Google-restricted license and isn't on the public Google Fonts API, so it can't be
   embedded for you automatically; the stack (`'Google Sans', 'Google Sans Text',
-  Roboto, system-ui, sans-serif`) picks it up on any device that already has it
+Roboto, system-ui, sans-serif`) picks it up on any device that already has it
   installed (ChromeOS, Android, machines with Workspace apps) and falls back to
   Roboto — the actual default face M3 ships everywhere else — for everyone else. If
   your org has a Google Sans license, self-host the `.woff2` files and add one
@@ -42,6 +43,7 @@ corporate-blue theme, the system uses:
 ## 2. Foundations
 
 ### Color (`tokens.css`)
+
 Reference tonal palettes for primary (violet), secondary (amber), tertiary (teal),
 error (red) and two neutrals, each with the full 0–100 tone ramp. Semantic roles
 (`--md-primary`, `--md-surface-container-high`, `--md-on-primary-container`, …) are
@@ -54,54 +56,58 @@ and a warm-amber-adjacent hue respectively, for status meaning rather than raw b
 color — used by the status pill component.
 
 ### Typography
+
 All roles use **Google Sans** (→ Roboto fallback). Weight and size carry hierarchy:
 
-| Role | Size/line | Weight |
-|---|---|---|
-| Display L/M/S | 57/45/36 | 700 |
-| Headline L/M/S | 32/28/24 | 700 |
-| Title L/M/S | 22/16/14 | 500 |
-| Label L/M/S | 14/12/11 | 500 |
-| Body L/M/S | 16/14/12 | 400 |
+| Role           | Size/line | Weight |
+| -------------- | --------- | ------ |
+| Display L/M/S  | 57/45/36  | 700    |
+| Headline L/M/S | 32/28/24  | 700    |
+| Title L/M/S    | 22/16/14  | 500    |
+| Label L/M/S    | 14/12/11  | 500    |
+| Body L/M/S     | 16/14/12  | 400    |
 
 ### Shape
+
 `none → xs(4) → sm(8) → md(12) → lg(16) → lg-increased(20) → xl(28) → xl-increased(32)
 → xxl(48) → full`. Components declare **two** shape tokens — resting and pressed/hover —
 and transition between them with the "spring-fast" motion token, which is the core
 Expressive signature (see `components.css`, e.g. `.m3-button:active`).
 
 ### Motion
+
 CSS can't do true spring physics, so spatial changes (shape, position, size) use
-overshooting cubic-beziers that *feel* spring-driven (`--md-spring-fast/default/slow`),
+overshooting cubic-beziers that _feel_ spring-driven (`--md-spring-fast/default/slow`),
 while opacity/color changes use calm standard easing (`--md-motion-standard`) so text
 and icons never look bouncy. `prefers-reduced-motion` disables all shape-morphing and
 the loader animation.
 
 ### Elevation & state layers
+
 Six elevation levels (tonal shadow pairs) and the standard M3 state-layer opacities
 (hover 8%, focus/pressed 10%, dragged 16%, disabled content 38%/container 12%).
 
 ## 3. Components specced
 
-| Component | Variants | Primary use in this app |
-|---|---|---|
-| Button | filled, tonal, outlined, text, elevated, danger | Save/submit actions across both workspaces |
-| Icon button | standard, filled, tonal, outlined, toggle | Top bar actions, table row actions |
-| FAB | small, default, large, extended, surface | "New project", "Export CVs" |
-| Segmented control | 2–3 way toggle | Draft/Final shortlist, Student/Admin scoped views |
-| Chip | assist, filter, input, suggestion | Skill tags in candidate filtering & CV builder |
-| Status pill | draft, submitted, under-review, shortlisted, verified, rejected | CV state, internship request state, candidate state |
-| Card | elevated, filled, outlined, interactive | Internship listings, student profile summaries, GPA card |
-| Text field | filled, outlined, error | Registration, CV section forms |
-| Top app bar | — | Every route |
-| Navigation rail | — | Admin desktop layout |
-| Navigation bar | — | Student mobile layout |
-| Tabs | — | Student profile sections, candidate detail |
-| Data table | selectable rows | Candidate filtering grid, academic ledger staging |
-| Dialog | — | Finalize shortlist, destructive confirmations |
-| Snackbar | with action | Export confirmations, undo |
-| Loading indicator | organic shape-morph | Replaces the plain spinner already in `app-spinner` |
-| Skeleton | shimmer | Route-level skeletons already used in the app |
+| Component         | Variants                                                        | Primary use in this app                                  |
+| ----------------- | --------------------------------------------------------------- | -------------------------------------------------------- |
+| Button            | filled, tonal, outlined, text, elevated, danger                 | Save/submit actions across both workspaces               |
+| Icon button       | standard, filled, tonal, outlined, toggle                       | Top bar actions, table row actions                       |
+| FAB               | small, default, large, extended, surface                        | "New project", "Export CVs"                              |
+| Segmented control | 2–3 way toggle                                                  | Draft/Final shortlist, Student/Admin scoped views        |
+| Chip              | assist, filter, input, suggestion                               | Skill tags in candidate filtering & CV builder           |
+| Status pill       | draft, submitted, under-review, shortlisted, verified, rejected | CV state, internship request state, candidate state      |
+| Card              | elevated, filled, outlined, interactive                         | Internship listings, student profile summaries, GPA card |
+| Text field        | filled, outlined, error                                         | Registration, CV section forms                           |
+| Top app bar       | —                                                               | Every route                                              |
+| Navigation rail   | —                                                               | Admin desktop layout                                     |
+| Navigation bar    | —                                                               | Student mobile layout                                    |
+| Tabs              | —                                                               | Student profile sections, candidate detail               |
+| Data table        | selectable rows                                                 | Candidate filtering grid, academic ledger staging        |
+| Dialog            | —                                                               | Finalize shortlist, destructive confirmations            |
+| Snackbar          | with action                                                     | Export confirmations, undo                               |
+| Loading indicator | organic shape-morph                                             | Replaces the plain spinner already in `app-spinner`      |
+| Skeleton          | shimmer                                                         | Route-level skeletons already used in the app            |
 
 ## 4. Adopting this in the codebase
 

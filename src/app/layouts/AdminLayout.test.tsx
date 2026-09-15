@@ -124,11 +124,17 @@ describe('AdminLayout', () => {
     const { container } = renderAdminLayout()
 
     await user.click(screen.getByRole('button', { name: 'Collapse navigation' }))
-    expect(container.querySelector('.m3-app-shell')).toHaveAttribute('data-drawer-expanded', 'false')
+    expect(container.querySelector('.m3-app-shell')).toHaveAttribute(
+      'data-drawer-expanded',
+      'false',
+    )
 
     await user.click(screen.getByRole('link', { name: 'Academic Ledger' }))
     expect(await screen.findByRole('heading', { name: 'Academic Ledger' })).toBeInTheDocument()
-    expect(container.querySelector('.m3-app-shell')).toHaveAttribute('data-drawer-expanded', 'false')
+    expect(container.querySelector('.m3-app-shell')).toHaveAttribute(
+      'data-drawer-expanded',
+      'false',
+    )
     expect(screen.getByRole('button', { name: 'Expand navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Academic Ledger' })).toHaveAttribute(
       'aria-current',
@@ -152,7 +158,9 @@ describe('AdminLayout', () => {
     // Note: focus management via requestAnimationFrame is unreliable in JSDOM
 
     await user.keyboard('{Escape}')
-    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'Admin navigation' })).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Admin navigation' })).not.toBeInTheDocument(),
+    )
     expect(document.body).not.toHaveClass('admin-mobile-drawer-open')
   })
 })

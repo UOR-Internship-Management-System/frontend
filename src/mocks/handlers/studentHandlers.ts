@@ -327,28 +327,27 @@ const contactHandlers = collectionHandlers<
     cvInclude: body.cvInclude ?? previous?.cvInclude ?? true,
   }),
 })
-const educationHandlers = collectionHandlers<
-  Education,
-  EducationRequest & Record<string, unknown>
->({
-  path: `${apiBase}/me/profile/education`,
-  get: () => state.education,
-  set: (items) => {
-    state.education = items
+const educationHandlers = collectionHandlers<Education, EducationRequest & Record<string, unknown>>(
+  {
+    path: `${apiBase}/me/profile/education`,
+    get: () => state.education,
+    set: (items) => {
+      state.education = items
+    },
+    searchable: (item) => `${item.degree} ${item.institution}`,
+    build: (body, previous) => ({
+      degree: body.degree ?? previous!.degree,
+      institution: body.institution ?? previous!.institution,
+      institutionUrl: body.institutionUrl ?? null,
+      location: body.location ?? null,
+      startDate: body.startDate ?? null,
+      endDate: body.current ? null : (body.endDate ?? null),
+      current: body.current ?? previous?.current ?? false,
+      resultNote: body.resultNote ?? null,
+      cvInclude: body.cvInclude ?? previous?.cvInclude ?? true,
+    }),
   },
-  searchable: (item) => `${item.degree} ${item.institution}`,
-  build: (body, previous) => ({
-    degree: body.degree ?? previous!.degree,
-    institution: body.institution ?? previous!.institution,
-    institutionUrl: body.institutionUrl ?? null,
-    location: body.location ?? null,
-    startDate: body.startDate ?? null,
-    endDate: body.current ? null : (body.endDate ?? null),
-    current: body.current ?? previous?.current ?? false,
-    resultNote: body.resultNote ?? null,
-    cvInclude: body.cvInclude ?? previous?.cvInclude ?? true,
-  }),
-})
+)
 const certificateHandlers = collectionHandlers<
   Certificate,
   CertificateRequest & Record<string, unknown>

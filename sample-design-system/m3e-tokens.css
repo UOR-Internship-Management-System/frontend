@@ -22,42 +22,94 @@
   /* ==========================================================================
      1. REFERENCE PALETTES (Raw Tonal Steps)
      ========================================================================== */
-  --ref-primary-0: #000000;   --ref-primary-10: #120C27;  --ref-primary-20: #23184E;
-  --ref-primary-25: #2C1F61;  --ref-primary-30: #352574;  --ref-primary-35: #3D2B88;
-  --ref-primary-40: #432F93;  --ref-primary-50: #543BBA;  --ref-primary-60: #7964CE;
-  --ref-primary-70: #9B8BDA;  --ref-primary-80: #BFB5E8;  --ref-primary-90: #DED8F3;
-  --ref-primary-95: #EEECF9;  --ref-primary-98: #F9F9FB;  --ref-primary-99: #FCFCFD;
-  --ref-primary-100: #FFFFFF;
+  --ref-primary-0: #000000;
+  --ref-primary-10: #120c27;
+  --ref-primary-20: #23184e;
+  --ref-primary-25: #2c1f61;
+  --ref-primary-30: #352574;
+  --ref-primary-35: #3d2b88;
+  --ref-primary-40: #432f93;
+  --ref-primary-50: #543bba;
+  --ref-primary-60: #7964ce;
+  --ref-primary-70: #9b8bda;
+  --ref-primary-80: #bfb5e8;
+  --ref-primary-90: #ded8f3;
+  --ref-primary-95: #eeecf9;
+  --ref-primary-98: #f9f9fb;
+  --ref-primary-99: #fcfcfd;
+  --ref-primary-100: #ffffff;
 
-  --ref-secondary-0: #000000; --ref-secondary-10: #241B0F; --ref-secondary-20: #48371E;
-  --ref-secondary-25: #5B4425; --ref-secondary-30: #6D522C; --ref-secondary-40: #8A6838;
-  --ref-secondary-50: #AE8347; --ref-secondary-60: #C4A06E; --ref-secondary-70: #D3B892;
-  --ref-secondary-80: #E3D2BA; --ref-secondary-90: #F0E7DB; --ref-secondary-95: #F8F3ED;
-  --ref-secondary-98: #FBFAF9; --ref-secondary-100: #FFFFFF;
+  --ref-secondary-0: #000000;
+  --ref-secondary-10: #241b0f;
+  --ref-secondary-20: #48371e;
+  --ref-secondary-25: #5b4425;
+  --ref-secondary-30: #6d522c;
+  --ref-secondary-40: #8a6838;
+  --ref-secondary-50: #ae8347;
+  --ref-secondary-60: #c4a06e;
+  --ref-secondary-70: #d3b892;
+  --ref-secondary-80: #e3d2ba;
+  --ref-secondary-90: #f0e7db;
+  --ref-secondary-95: #f8f3ed;
+  --ref-secondary-98: #fbfaf9;
+  --ref-secondary-100: #ffffff;
 
-  --ref-tertiary-0: #000000;  --ref-tertiary-10: #102321;  --ref-tertiary-20: #204643;
-  --ref-tertiary-25: #285853;  --ref-tertiary-30: #2F6A64; --ref-tertiary-40: #3C867E;
-  --ref-tertiary-50: #4CA9A0; --ref-tertiary-60: #72C0B8;  --ref-tertiary-70: #95D0CA;
-  --ref-tertiary-80: #BCE1DD; --ref-tertiary-90: #DCEFED;  --ref-tertiary-95: #EDF7F6;
-  --ref-tertiary-98: #F9FBFB; --ref-tertiary-100: #FFFFFF;
+  --ref-tertiary-0: #000000;
+  --ref-tertiary-10: #102321;
+  --ref-tertiary-20: #204643;
+  --ref-tertiary-25: #285853;
+  --ref-tertiary-30: #2f6a64;
+  --ref-tertiary-40: #3c867e;
+  --ref-tertiary-50: #4ca9a0;
+  --ref-tertiary-60: #72c0b8;
+  --ref-tertiary-70: #95d0ca;
+  --ref-tertiary-80: #bce1dd;
+  --ref-tertiary-90: #dcefed;
+  --ref-tertiary-95: #edf7f6;
+  --ref-tertiary-98: #f9fbfb;
+  --ref-tertiary-100: #ffffff;
 
-  --ref-error-0: #000000;  --ref-error-10: #2C0A07;  --ref-error-20: #59150D;
-  --ref-error-25: #6F1A11; --ref-error-30: #851F14;  --ref-error-40: #A92819;
-  --ref-error-50: #D53220; --ref-error-60: #E45D4E;  --ref-error-70: #EB857A;
-  --ref-error-80: #F2B2AB; --ref-error-90: #F8D6D3;  --ref-error-95: #FCEBE9;
-  --ref-error-98: #FCF8F8; --ref-error-100: #FFFFFF;
+  --ref-error-0: #000000;
+  --ref-error-10: #2c0a07;
+  --ref-error-20: #59150d;
+  --ref-error-25: #6f1a11;
+  --ref-error-30: #851f14;
+  --ref-error-40: #a92819;
+  --ref-error-50: #d53220;
+  --ref-error-60: #e45d4e;
+  --ref-error-70: #eb857a;
+  --ref-error-80: #f2b2ab;
+  --ref-error-90: #f8d6d3;
+  --ref-error-95: #fcebe9;
+  --ref-error-98: #fcf8f8;
+  --ref-error-100: #ffffff;
 
-  --ref-neutral-0: #000000;  --ref-neutral-4: #0A0A0B;  --ref-neutral-6: #0F0F10;
-  --ref-neutral-10: #19171C; --ref-neutral-12: #201E24; --ref-neutral-17: #2A282F;
-  --ref-neutral-20: #312F37; --ref-neutral-22: #36343D; --ref-neutral-24: #3B3842;
-  --ref-neutral-30: #4A4653; --ref-neutral-87: #DDDBE1; --ref-neutral-90: #E5E3E8;
-  --ref-neutral-92: #EAE9EC; --ref-neutral-94: #EFEEF1; --ref-neutral-95: #F2F1F3;
-  --ref-neutral-96: #F5F4F5; --ref-neutral-98: #FAFAFA; --ref-neutral-99: #FCFCFD;
-  --ref-neutral-100: #FFFFFF;
+  --ref-neutral-0: #000000;
+  --ref-neutral-4: #0a0a0b;
+  --ref-neutral-6: #0f0f10;
+  --ref-neutral-10: #19171c;
+  --ref-neutral-12: #201e24;
+  --ref-neutral-17: #2a282f;
+  --ref-neutral-20: #312f37;
+  --ref-neutral-22: #36343d;
+  --ref-neutral-24: #3b3842;
+  --ref-neutral-30: #4a4653;
+  --ref-neutral-87: #dddbe1;
+  --ref-neutral-90: #e5e3e8;
+  --ref-neutral-92: #eae9ec;
+  --ref-neutral-94: #efeef1;
+  --ref-neutral-95: #f2f1f3;
+  --ref-neutral-96: #f5f4f5;
+  --ref-neutral-98: #fafafa;
+  --ref-neutral-99: #fcfcfd;
+  --ref-neutral-100: #ffffff;
 
-  --ref-neutral-variant-10: #18161D; --ref-neutral-variant-30: #484257;
-  --ref-neutral-variant-50: #72698C; --ref-neutral-variant-60: #928BA7;
-  --ref-neutral-variant-80: #CBC8D5; --ref-neutral-variant-90: #E4E2E9;
+  --ref-neutral-variant-10: #18161d;
+  --ref-neutral-variant-30: #484257;
+  --ref-neutral-variant-50: #72698c;
+  --ref-neutral-variant-60: #928ba7;
+  --ref-neutral-variant-80: #cbc8d5;
+  --ref-neutral-variant-90: #e4e2e9;
 
   /* ==========================================================================
      2. COLOR ROLES - LIGHT SCHEME (Default)
@@ -116,8 +168,8 @@
   --md-success: var(--ref-tertiary-30);
   --md-success-container: var(--ref-tertiary-90);
   --md-on-success-container: var(--ref-tertiary-10);
-  --md-warning: #7A4E00;
-  --md-warning-container: #FFDEA6;
+  --md-warning: #7a4e00;
+  --md-warning-container: #ffdea6;
   --md-on-warning-container: #271900;
   --md-info: var(--ref-secondary-40);
   --md-info-container: var(--ref-secondary-90);
@@ -157,7 +209,8 @@
   /* ==========================================================================
      3. TYPOGRAPHY - Single Family (Google Sans / Roboto)
      ========================================================================== */
-  --md-font: 'Google Sans', 'Google Sans Text', Roboto, 'Outfit', system-ui, -apple-system, sans-serif;
+  --md-font:
+    'Google Sans', 'Google Sans Text', Roboto, 'Outfit', system-ui, -apple-system, sans-serif;
   --md-font-brand: var(--md-font);
   --md-font-plain: var(--md-font);
 
@@ -257,8 +310,8 @@
 
   /* State Layer Opacities */
   --md-state-hover: 0.08;
-  --md-state-focus: 0.10;
-  --md-state-pressed: 0.10;
+  --md-state-focus: 0.1;
+  --md-state-pressed: 0.1;
   --md-state-dragged: 0.16;
   --md-state-disabled-content: 0.38;
   --md-state-disabled-container: 0.12;
@@ -280,7 +333,7 @@
    DARK SCHEME
    ========================================================================== */
 :root.dark,
-[data-theme="dark"],
+[data-theme='dark'],
 body.dark-mode {
   --md-primary: var(--ref-primary-80);
   --md-on-primary: var(--ref-primary-20);
@@ -322,9 +375,9 @@ body.dark-mode {
   --md-success: var(--ref-tertiary-80);
   --md-success-container: var(--ref-tertiary-30);
   --md-on-success-container: var(--ref-tertiary-90);
-  --md-warning: #FFBB59;
-  --md-warning-container: #5C3F00;
-  --md-on-warning-container: #FFDEA6;
+  --md-warning: #ffbb59;
+  --md-warning-container: #5c3f00;
+  --md-on-warning-container: #ffdea6;
 
   --md-sys-color-primary: var(--md-primary);
   --md-sys-color-on-primary: var(--md-on-primary);

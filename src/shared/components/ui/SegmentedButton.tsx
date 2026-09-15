@@ -52,7 +52,11 @@ export function SegmentedButton<T extends string = string>({
             onClick={() => onChange(option.value)}
           >
             {selected ? (
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }} aria-hidden="true">
+              <span
+                className="material-symbols-outlined"
+                style={{ fontSize: 18 }}
+                aria-hidden="true"
+              >
                 check
               </span>
             ) : option.icon ? (

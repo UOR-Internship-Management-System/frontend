@@ -37,7 +37,9 @@ export function RegisteredStudentsPage() {
   useEffect(() => {
     const prev = document.title
     document.title = PAGE_TITLE
-    return () => { document.title = prev }
+    return () => {
+      document.title = prev
+    }
   }, [])
 
   // Guard: if current page is beyond totalPages (after filter), reset
@@ -73,7 +75,11 @@ export function RegisteredStudentsPage() {
         actions={
           <Button
             disabled={items.length === 0}
-            icon={<span className="material-symbols-outlined" aria-hidden="true">download</span>}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                download
+              </span>
+            }
             onClick={() => setIsExportDialogOpen(true)}
             variant="tonal"
           >
@@ -124,14 +130,18 @@ export function RegisteredStudentsPage() {
               {/* Selection action bar */}
               {selectedIds.size > 0 && (
                 <div className="rsp-selection-bar" role="status" aria-live="polite">
-                  <span className="material-symbols-outlined" aria-hidden="true">check_box</span>
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    check_box
+                  </span>
                   <span>
                     <strong>{selectedIds.size}</strong>{' '}
                     {selectedIds.size === 1 ? 'student' : 'students'} selected
                   </span>
                   <Button
                     icon={
-                      <span className="material-symbols-outlined" aria-hidden="true">download</span>
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        download
+                      </span>
                     }
                     onClick={() => setIsExportDialogOpen(true)}
                     size="sm"
@@ -139,11 +149,7 @@ export function RegisteredStudentsPage() {
                   >
                     Export selected
                   </Button>
-                  <Button
-                    onClick={() => setSelectedIds(new Set())}
-                    size="sm"
-                    variant="text"
-                  >
+                  <Button onClick={() => setSelectedIds(new Set())} size="sm" variant="text">
                     Deselect all
                   </Button>
                 </div>
@@ -151,15 +157,20 @@ export function RegisteredStudentsPage() {
 
               {/* Data: Table or Card list */}
               {hasStudents ? (
-                <div className={`rsp-data-container ${viewMode === 'cards' ? 'rsp-mode-cards' : 'rsp-mode-table'}`}>
-                  <RegisteredStudentsTable
-                    onQueryChange={updateQuery}
-                    onSelectionChange={setSelectedIds}
-                    query={query}
-                    selectedIds={selectedIds}
-                    students={items}
-                  />
-                  <RegisteredStudentsCardList students={items} />
+                <div
+                  className={`rsp-data-container ${viewMode === 'cards' ? 'rsp-mode-cards' : 'rsp-mode-table'}`}
+                >
+                  {viewMode === 'cards' ? (
+                    <RegisteredStudentsCardList students={items} />
+                  ) : (
+                    <RegisteredStudentsTable
+                      onQueryChange={updateQuery}
+                      onSelectionChange={setSelectedIds}
+                      query={query}
+                      selectedIds={selectedIds}
+                      students={items}
+                    />
+                  )}
                 </div>
               ) : null}
 
@@ -220,7 +231,9 @@ export function RegisteredStudentsPage() {
         <div className="rsp-snackbar-anchor" aria-live="polite">
           <Snackbar
             leadingIcon={
-              <span className="material-symbols-outlined" aria-hidden="true">check_circle</span>
+              <span className="material-symbols-outlined" aria-hidden="true">
+                check_circle
+              </span>
             }
             message="Student roster exported successfully."
             onClose={() => setExportSnackbar(null)}

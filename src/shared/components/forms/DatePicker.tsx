@@ -17,7 +17,9 @@ export function DatePicker({
 }: DatePickerProps) {
   const initialDate = value ? new Date(value) : defaultValue ? new Date(defaultValue) : new Date()
   const [viewDate, setViewDate] = useState<Date>(initialDate)
-  const [selectedDate, setSelectedDate] = useState<Date | null>(value ? new Date(value) : defaultValue ? new Date(defaultValue) : null)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    value ? new Date(value) : defaultValue ? new Date(defaultValue) : null,
+  )
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
@@ -26,8 +28,18 @@ export function DatePicker({
   const daysInMonth = new Date(year, month + 1, 0).getDate()
 
   const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ]
 
   const prevMonth = () => {
@@ -52,7 +64,11 @@ export function DatePicker({
 
   const isSelected = (day: number) => {
     if (!selectedDate) return false
-    return selectedDate.getFullYear() === year && selectedDate.getMonth() === month && selectedDate.getDate() === day
+    return (
+      selectedDate.getFullYear() === year &&
+      selectedDate.getMonth() === month &&
+      selectedDate.getDate() === day
+    )
   }
 
   const formattedHeader = selectedDate

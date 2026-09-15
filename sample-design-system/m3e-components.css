@@ -19,18 +19,23 @@
 /* ==========================================================================
    BASE & SCOPE
    ========================================================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
-body, .m3-scope {
+body,
+.m3-scope {
   color: var(--md-on-surface);
   background: var(--md-surface);
   font: var(--md-body-large);
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--md-motion-standard), color var(--md-motion-standard);
+  transition:
+    background-color var(--md-motion-standard),
+    color var(--md-motion-standard);
 }
 
 /* Material Symbols Variable Font helper */
@@ -54,7 +59,8 @@ body, .m3-scope {
 /* ==========================================================================
    1. BUTTONS (Squeeze Spring Morph on Press)
    ========================================================================== */
-.m3-button, .m3e-button {
+.m3-button,
+.m3e-button {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -69,35 +75,48 @@ body, .m3-scope {
   isolation: isolate;
   user-select: none;
   text-decoration: none;
-  transition: 
-    border-radius var(--md-spring-fast), 
+  transition:
+    border-radius var(--md-spring-fast),
     transform var(--md-spring-fast),
-    box-shadow var(--md-motion-standard), 
+    box-shadow var(--md-motion-standard),
     background-color var(--md-motion-standard);
 }
 
 /* Signature Expressive Interaction: Soft Squeeze on Press */
-.m3-button:active, .m3e-button:active {
+.m3-button:active,
+.m3e-button:active {
   border-radius: var(--md-shape-md); /* Squeezes to 12px */
   transform: scale(0.98);
 }
 
 /* State Layer Overlay */
-.m3-button::before, .m3e-button::before {
+.m3-button::before,
+.m3e-button::before {
   content: '';
-  position: absolute; 
-  inset: 0; 
+  position: absolute;
+  inset: 0;
   border-radius: inherit;
-  background: currentColor; 
-  opacity: 0; 
+  background: currentColor;
+  opacity: 0;
   z-index: -1;
   transition: opacity var(--md-motion-standard-fast);
 }
-.m3-button:hover::before, .m3e-button:hover::before { opacity: var(--md-state-hover); }
-.m3-button:focus-visible::before, .m3e-button:focus-visible::before { opacity: var(--md-state-focus); }
-.m3-button:focus-visible, .m3e-button:focus-visible { outline: 2px solid var(--md-outline); outline-offset: 2px; }
+.m3-button:hover::before,
+.m3e-button:hover::before {
+  opacity: var(--md-state-hover);
+}
+.m3-button:focus-visible::before,
+.m3e-button:focus-visible::before {
+  opacity: var(--md-state-focus);
+}
+.m3-button:focus-visible,
+.m3e-button:focus-visible {
+  outline: 2px solid var(--md-outline);
+  outline-offset: 2px;
+}
 
-.m3-button:disabled, .m3e-button:disabled {
+.m3-button:disabled,
+.m3e-button:disabled {
   cursor: not-allowed;
   background: color-mix(in srgb, var(--md-on-surface) 12%, transparent);
   color: color-mix(in srgb, var(--md-on-surface) 38%, transparent);
@@ -105,43 +124,51 @@ body, .m3-scope {
 }
 
 /* Button Variants */
-.m3-button--filled, .m3e-button--filled { 
-  background: var(--md-primary); 
-  color: var(--md-on-primary); 
+.m3-button--filled,
+.m3e-button--filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
 }
-.m3-button--tonal, .m3e-button--tonal { 
-  background: var(--md-secondary-container); 
-  color: var(--md-on-secondary-container); 
+.m3-button--tonal,
+.m3e-button--tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
 }
-.m3-button--outlined, .m3e-button--outlined { 
-  background: transparent; 
-  color: var(--md-primary); 
-  border: 1px solid var(--md-outline); 
+.m3-button--outlined,
+.m3e-button--outlined {
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
 }
-.m3-button--text, .m3e-button--text { 
-  background: transparent; 
-  color: var(--md-primary); 
-  padding: 0 16px; 
+.m3-button--text,
+.m3e-button--text {
+  background: transparent;
+  color: var(--md-primary);
+  padding: 0 16px;
 }
-.m3-button--elevated, .m3e-button--elevated { 
-  background: var(--md-surface-container-low); 
-  color: var(--md-primary); 
-  box-shadow: var(--md-elevation-1); 
+.m3-button--elevated,
+.m3e-button--elevated {
+  background: var(--md-surface-container-low);
+  color: var(--md-primary);
+  box-shadow: var(--md-elevation-1);
 }
-.m3-button--elevated:hover, .m3e-button--elevated:hover { 
-  box-shadow: var(--md-elevation-2); 
+.m3-button--elevated:hover,
+.m3e-button--elevated:hover {
+  box-shadow: var(--md-elevation-2);
 }
-.m3-button--danger, .m3e-button--danger { 
-  background: var(--md-error); 
-  color: var(--md-on-error); 
+.m3-button--danger,
+.m3e-button--danger {
+  background: var(--md-error);
+  color: var(--md-on-error);
 }
 
 /* Size Adjustments */
-.m3-button--small, .m3e-button--sm { 
-  height: 40px; 
-  padding: 0 20px; 
-  font: var(--md-label-large); 
-  border-radius: var(--md-shape-lg); 
+.m3-button--small,
+.m3e-button--sm {
+  height: 40px;
+  padding: 0 20px;
+  font: var(--md-label-large);
+  border-radius: var(--md-shape-lg);
 }
 .m3e-button--xs {
   height: var(--md-comp-btn-height-xs);
@@ -162,15 +189,17 @@ body, .m3-scope {
 }
 
 /* Square Variant */
-.m3-button--square, .m3e-button--square {
+.m3-button--square,
+.m3e-button--square {
   border-radius: var(--md-shape-md);
 }
-.m3-button--square:active, .m3e-button--square:active {
+.m3-button--square:active,
+.m3e-button--square:active {
   border-radius: var(--md-shape-xs);
 }
 
 /* Checkable / Toggle Button */
-.m3-button[aria-pressed="true"], 
+.m3-button[aria-pressed='true'],
 .m3e-button.is-selected {
   background: var(--md-secondary-container);
   color: var(--md-on-secondary-container);
@@ -219,7 +248,9 @@ body, .m3-scope {
   transform-origin: top left;
   animation: m3eMenuEnter var(--md-spring-fast);
 }
-.m3e-split-button.is-open .m3e-dropdown-menu { display: flex; }
+.m3e-split-button.is-open .m3e-dropdown-menu {
+  display: flex;
+}
 
 .m3e-dropdown-item {
   display: flex;
@@ -241,8 +272,14 @@ body, .m3-scope {
 }
 
 @keyframes m3eMenuEnter {
-  from { opacity: 0; transform: scale(0.92) translateY(-10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ==========================================================================
@@ -250,100 +287,119 @@ body, .m3-scope {
    ========================================================================== */
 .m3-icon-button {
   position: relative;
-  display: inline-grid; 
+  display: inline-grid;
   place-items: center;
-  width: 48px; 
+  width: 48px;
   height: 48px;
   border-radius: var(--md-shape-full);
-  border: none; 
-  background: transparent; 
+  border: none;
+  background: transparent;
   color: var(--md-on-surface-variant);
-  cursor: pointer; 
+  cursor: pointer;
   transition: background-color var(--md-motion-standard-fast);
 }
-.m3-icon-button:hover { 
-  background: color-mix(in srgb, var(--md-on-surface-variant) 8%, transparent); 
+.m3-icon-button:hover {
+  background: color-mix(in srgb, var(--md-on-surface-variant) 8%, transparent);
 }
-.m3-icon-button--filled { background: var(--md-primary); color: var(--md-on-primary); }
-.m3-icon-button--tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-.m3-icon-button--outlined { border: 1px solid var(--md-outline); }
-.m3-icon-button[aria-pressed="true"] { background: var(--md-primary); color: var(--md-on-primary); }
+.m3-icon-button--filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
+.m3-icon-button--tonal {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
+}
+.m3-icon-button--outlined {
+  border: 1px solid var(--md-outline);
+}
+.m3-icon-button[aria-pressed='true'] {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+}
 
 /* Segmented Control (Workflow Stage Toggles) */
 .m3-segmented {
-  display: inline-flex; 
-  border: 1px solid var(--md-outline); 
-  border-radius: var(--md-shape-full); 
+  display: inline-flex;
+  border: 1px solid var(--md-outline);
+  border-radius: var(--md-shape-full);
   overflow: hidden;
 }
 .m3-segmented__item {
-  padding: 10px 20px; 
-  font: var(--md-label-large); 
-  background: transparent; 
+  padding: 10px 20px;
+  font: var(--md-label-large);
+  background: transparent;
   border: none;
-  color: var(--md-on-surface); 
-  cursor: pointer; 
+  color: var(--md-on-surface);
+  cursor: pointer;
   border-right: 1px solid var(--md-outline);
-  display: inline-flex; 
-  align-items: center; 
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
   transition: background-color var(--md-motion-standard-fast);
 }
-.m3-segmented__item:last-child { border-right: none; }
-.m3-segmented__item[aria-pressed="true"] { 
-  background: var(--md-secondary-container); 
-  color: var(--md-on-secondary-container); 
+.m3-segmented__item:last-child {
+  border-right: none;
+}
+.m3-segmented__item[aria-pressed='true'] {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
   font-weight: 700;
 }
 
 /* ==========================================================================
    3. FAB (FLOATING ACTION BUTTON: Small, Standard, Large, Extended)
    ========================================================================== */
-.m3-fab, .m3e-fab {
-  display: inline-flex; 
-  align-items: center; 
+.m3-fab,
+.m3e-fab {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   gap: 12px;
-  height: 64px; 
-  min-width: 64px; 
+  height: 64px;
+  min-width: 64px;
   padding: 0 20px;
-  border: none; 
+  border: none;
   border-radius: var(--md-shape-xl-increased); /* 32px shape */
-  background: var(--md-primary-container); 
+  background: var(--md-primary-container);
   color: var(--md-on-primary-container);
-  box-shadow: var(--md-elevation-3); 
+  box-shadow: var(--md-elevation-3);
   cursor: pointer;
   user-select: none;
   text-decoration: none;
   font: var(--md-label-large-emphasized);
-  transition: 
-    box-shadow var(--md-motion-standard), 
-    border-radius var(--md-spring-fast), 
+  transition:
+    box-shadow var(--md-motion-standard),
+    border-radius var(--md-spring-fast),
     transform var(--md-spring-fast);
 }
-.m3-fab:hover, .m3e-fab:hover { 
-  box-shadow: var(--md-elevation-4); 
-  transform: translateY(-4px); 
+.m3-fab:hover,
+.m3e-fab:hover {
+  box-shadow: var(--md-elevation-4);
+  transform: translateY(-4px);
 }
-.m3-fab:active, .m3e-fab:active { 
-  box-shadow: var(--md-elevation-2); 
-  transform: scale(0.96); 
+.m3-fab:active,
+.m3e-fab:active {
+  box-shadow: var(--md-elevation-2);
+  transform: scale(0.96);
 }
 
-.m3-fab--small, .m3e-fab--small { 
-  height: 48px; 
-  min-width: 48px; 
+.m3-fab--small,
+.m3e-fab--small {
+  height: 48px;
+  min-width: 48px;
   border-radius: var(--md-shape-md-increased); /* 16px */
   padding: 0 12px;
 }
-.m3-fab--large, .m3e-fab--large { 
-  height: 96px; 
-  min-width: 96px; 
+.m3-fab--large,
+.m3e-fab--large {
+  height: 96px;
+  min-width: 96px;
   border-radius: var(--md-shape-xxl); /* 48px */
 }
-.m3-fab--surface, .m3e-fab--surface { 
-  background: var(--md-surface-container-high); 
-  color: var(--md-primary); 
+.m3-fab--surface,
+.m3e-fab--surface {
+  background: var(--md-surface-container-high);
+  color: var(--md-primary);
 }
 .m3-fab--extended {
   height: 56px;
@@ -354,179 +410,212 @@ body, .m3-scope {
 /* ==========================================================================
    4. CHIPS & STATUS PILLS
    ========================================================================== */
-.m3-chip, .m3e-chip {
-  display: inline-flex; 
-  align-items: center; 
+.m3-chip,
+.m3e-chip {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  height: 32px; 
-  padding: 0 16px; 
+  height: 32px;
+  padding: 0 16px;
   border-radius: var(--md-shape-sm); /* 8px resting */
-  border: 1px solid var(--md-outline); 
-  background: transparent; 
+  border: 1px solid var(--md-outline);
+  background: transparent;
   color: var(--md-on-surface-variant);
-  font: var(--md-label-large); 
+  font: var(--md-label-large);
   cursor: pointer;
   user-select: none;
-  transition: 
-    background-color var(--md-motion-standard-fast), 
+  transition:
+    background-color var(--md-motion-standard-fast),
     border-radius var(--md-spring-fast),
     border-color var(--md-motion-standard-fast);
 }
-.m3-chip:hover, .m3e-chip:hover {
+.m3-chip:hover,
+.m3e-chip:hover {
   background: color-mix(in srgb, var(--md-on-surface-variant) 8%, transparent);
 }
 
 /* Expressive Shape Morph on Selection: 8px -> 12px */
-.m3-chip--selected, .m3e-chip.is-selected {
-  background: var(--md-secondary-container); 
+.m3-chip--selected,
+.m3e-chip.is-selected {
+  background: var(--md-secondary-container);
   color: var(--md-on-secondary-container);
-  border-color: transparent; 
+  border-color: transparent;
   border-radius: var(--md-shape-sm-increased); /* 12px morph */
   font-weight: 600;
 }
-.m3-chip--input { border-radius: var(--md-shape-sm); }
-.m3-chip--suggestion { border-style: dashed; }
-.m3-chip .m3-chip__remove { 
-  border: none; 
-  background: none; 
-  color: inherit; 
-  cursor: pointer; 
-  margin-left: 2px; 
+.m3-chip--input {
+  border-radius: var(--md-shape-sm);
+}
+.m3-chip--suggestion {
+  border-style: dashed;
+}
+.m3-chip .m3-chip__remove {
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  margin-left: 2px;
   font-size: 14px;
 }
 
 /* Status Pill (with status indicator dot) */
-.m3-status, .m3e-status-badge {
-  display: inline-flex; 
-  align-items: center; 
+.m3-status,
+.m3e-status-badge {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
-  padding: 4px 12px; 
+  padding: 4px 12px;
   border-radius: var(--md-shape-full);
-  font: var(--md-label-medium); 
+  font: var(--md-label-medium);
   text-transform: none;
   user-select: none;
 }
-.m3-status::before { 
-  content: ''; 
-  width: 8px; 
-  height: 8px; 
-  border-radius: 50%; 
-  background: currentColor; 
+.m3-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
 }
-.m3-status--draft { 
-  background: var(--md-surface-container-high); 
-  color: var(--md-on-surface-variant); 
+.m3-status--draft {
+  background: var(--md-surface-container-high);
+  color: var(--md-on-surface-variant);
 }
-.m3-status--submitted { 
-  background: var(--md-primary-container); 
-  color: var(--md-primary); 
+.m3-status--submitted {
+  background: var(--md-primary-container);
+  color: var(--md-primary);
 }
-.m3-status--under-review { 
-  background: var(--md-warning-container); 
-  color: var(--md-warning); 
+.m3-status--under-review {
+  background: var(--md-warning-container);
+  color: var(--md-warning);
 }
-.m3-status--shortlisted { 
-  background: var(--md-success-container); 
-  color: var(--md-success); 
+.m3-status--shortlisted {
+  background: var(--md-success-container);
+  color: var(--md-success);
 }
-.m3-status--verified { 
-  background: var(--md-tertiary-container); 
-  color: var(--md-tertiary); 
+.m3-status--verified {
+  background: var(--md-tertiary-container);
+  color: var(--md-tertiary);
 }
-.m3-status--rejected { 
-  background: var(--md-error-container); 
-  color: var(--md-error); 
+.m3-status--rejected {
+  background: var(--md-error-container);
+  color: var(--md-error);
 }
 
 /* ==========================================================================
    5. CARDS (Lift & Bloom Hover Interaction)
    ========================================================================== */
-.m3-card, .m3e-card {
-  display: block; 
-  padding: 24px; 
+.m3-card,
+.m3e-card {
+  display: block;
+  padding: 24px;
   border-radius: var(--md-shape-lg); /* 16px resting */
-  background: var(--md-surface-container-low); 
+  background: var(--md-surface-container-low);
   color: var(--md-on-surface);
-  transition: 
-    border-radius var(--md-spring-fast), 
-    box-shadow var(--md-motion-standard), 
+  transition:
+    border-radius var(--md-spring-fast),
+    box-shadow var(--md-motion-standard),
     transform var(--md-spring-default);
 }
-.m3-card--elevated { box-shadow: var(--md-elevation-1); }
-.m3-card--filled { background: var(--md-surface-container-highest); border: 1px solid transparent; }
-.m3-card--outlined { background: var(--md-surface); border: 1px solid var(--md-outline-variant); }
-
-/* Expressive Detail: Interactive Cards "Lift & Bloom" (16px -> 20px) */
-.m3-card--interactive { cursor: pointer; }
-.m3-card--interactive:hover { 
-  border-radius: var(--md-shape-lg-increased); /* 20px */
-  box-shadow: var(--md-elevation-2); 
-  transform: translateY(-2px); 
+.m3-card--elevated {
+  box-shadow: var(--md-elevation-1);
+}
+.m3-card--filled {
+  background: var(--md-surface-container-highest);
+  border: 1px solid transparent;
+}
+.m3-card--outlined {
+  background: var(--md-surface);
+  border: 1px solid var(--md-outline-variant);
 }
 
-.m3-card__title { font: var(--md-title-large); margin: 0 0 4px; }
-.m3-card__subtitle { font: var(--md-body-medium); color: var(--md-on-surface-variant); margin: 0 0 12px; }
+/* Expressive Detail: Interactive Cards "Lift & Bloom" (16px -> 20px) */
+.m3-card--interactive {
+  cursor: pointer;
+}
+.m3-card--interactive:hover {
+  border-radius: var(--md-shape-lg-increased); /* 20px */
+  box-shadow: var(--md-elevation-2);
+  transform: translateY(-2px);
+}
+
+.m3-card__title {
+  font: var(--md-title-large);
+  margin: 0 0 4px;
+}
+.m3-card__subtitle {
+  font: var(--md-body-medium);
+  color: var(--md-on-surface-variant);
+  margin: 0 0 12px;
+}
 
 /* ==========================================================================
    6. TEXT FIELDS (Filled & Outlined)
    ========================================================================== */
-.m3-field, .m3e-field { 
-  position: relative; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 4px; 
-  width: 100%; 
+.m3-field,
+.m3e-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
 }
 .m3-field__control {
-  height: 56px; 
-  padding: 20px 16px 6px; 
+  height: 56px;
+  padding: 20px 16px 6px;
   border-radius: var(--md-shape-xs) var(--md-shape-xs) 0 0;
-  border: none; 
-  border-bottom: 1px solid var(--md-outline); 
+  border: none;
+  border-bottom: 1px solid var(--md-outline);
   background: var(--md-surface-container-highest);
-  font: var(--md-body-large); 
+  font: var(--md-body-large);
   color: var(--md-on-surface);
   outline: none;
-  transition: border-color var(--md-motion-standard-fast), background-color var(--md-motion-standard-fast);
+  transition:
+    border-color var(--md-motion-standard-fast),
+    background-color var(--md-motion-standard-fast);
 }
-.m3-field__control:focus { 
-  border-bottom: 2px solid var(--md-primary); 
+.m3-field__control:focus {
+  border-bottom: 2px solid var(--md-primary);
 }
 
 .m3-field--outlined .m3-field__control {
-  border-radius: var(--md-shape-xs); 
-  border: 1px solid var(--md-outline); 
-  background: transparent; 
+  border-radius: var(--md-shape-xs);
+  border: 1px solid var(--md-outline);
+  background: transparent;
   padding: 16px;
 }
-.m3-field--outlined .m3-field__control:focus { 
-  border: 2px solid var(--md-primary); 
+.m3-field--outlined .m3-field__control:focus {
+  border: 2px solid var(--md-primary);
 }
 
-.m3-field__label { 
-  position: absolute; 
-  left: 16px; 
-  top: 18px; 
-  font: var(--md-body-large); 
-  color: var(--md-on-surface-variant); 
-  pointer-events: none; 
-  transition: all var(--md-motion-standard-fast); 
+.m3-field__label {
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  font: var(--md-body-large);
+  color: var(--md-on-surface-variant);
+  pointer-events: none;
+  transition: all var(--md-motion-standard-fast);
 }
 .m3-field__control:focus + .m3-field__label,
-.m3-field__control:not(:placeholder-shown) + .m3-field__label { 
-  top: 6px; 
-  font: var(--md-label-small); 
+.m3-field__control:not(:placeholder-shown) + .m3-field__label {
+  top: 6px;
+  font: var(--md-label-small);
   color: var(--md-primary);
 }
 
-.m3-field__support { 
-  font: var(--md-body-small); 
-  color: var(--md-on-surface-variant); 
-  padding: 0 16px; 
+.m3-field__support {
+  font: var(--md-body-small);
+  color: var(--md-on-surface-variant);
+  padding: 0 16px;
 }
-.m3-field--error .m3-field__control { border-color: var(--md-error); }
+.m3-field--error .m3-field__control {
+  border-color: var(--md-error);
+}
 .m3-field--error .m3-field__support,
-.m3-field--error .m3-field__label { color: var(--md-error); }
+.m3-field--error .m3-field__label {
+  color: var(--md-error);
+}
 
 /* Custom Select Field */
 .m3e-select {
@@ -546,112 +635,127 @@ body, .m3-scope {
    7. NAVIGATION (Top Bar, Rail, Bottom Nav, Tabs)
    ========================================================================== */
 .m3-topbar {
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
-  height: 64px; 
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
   padding: 0 16px;
-  background: var(--md-surface); 
+  background: var(--md-surface);
   color: var(--md-on-surface);
   border-bottom: 1px solid var(--md-outline-variant);
   border-radius: var(--md-shape-lg);
 }
-.m3-topbar__title { font: var(--md-title-large); flex: 1; }
+.m3-topbar__title {
+  font: var(--md-title-large);
+  flex: 1;
+}
 
 /* Navigation Rail (Admin Desktop) */
 .m3-nav-rail {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 12px;
-  width: 96px; 
-  padding: 24px 0; 
-  background: var(--md-surface); 
+  width: 96px;
+  padding: 24px 0;
+  background: var(--md-surface);
   border-right: 1px solid var(--md-outline-variant);
   border-radius: var(--md-shape-xl);
 }
 .m3-nav-rail__item {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 4px;
-  width: 80px; 
-  padding: 6px 0; 
-  border-radius: var(--md-shape-lg); 
-  background: none; 
+  width: 80px;
+  padding: 6px 0;
+  border-radius: var(--md-shape-lg);
+  background: none;
   border: none;
-  color: var(--md-on-surface-variant); 
-  font: var(--md-label-medium); 
+  color: var(--md-on-surface-variant);
+  font: var(--md-label-medium);
   cursor: pointer;
 }
-.m3-nav-rail__icon { 
-  width: 56px; 
-  height: 32px; 
-  display: grid; 
-  place-items: center; 
-  border-radius: var(--md-shape-full); 
-  transition: background-color var(--md-spring-fast); 
+.m3-nav-rail__icon {
+  width: 56px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--md-shape-full);
+  transition: background-color var(--md-spring-fast);
 }
-.m3-nav-rail__item[aria-current="page"] .m3-nav-rail__icon { 
-  background: var(--md-secondary-container); 
-  color: var(--md-on-secondary-container); 
+.m3-nav-rail__item[aria-current='page'] .m3-nav-rail__icon {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
 }
-.m3-nav-rail__item[aria-current="page"] { color: var(--md-on-surface); font-weight: 700; }
+.m3-nav-rail__item[aria-current='page'] {
+  color: var(--md-on-surface);
+  font-weight: 700;
+}
 
 /* Navigation Bar (Student Mobile) */
 .m3-nav-bar {
-  display: flex; 
-  justify-content: space-around; 
+  display: flex;
+  justify-content: space-around;
   align-items: center;
-  height: 80px; 
-  background: var(--md-surface-container); 
+  height: 80px;
+  background: var(--md-surface-container);
   border-top: 1px solid var(--md-outline-variant);
   border-radius: var(--md-shape-xl);
 }
-.m3-nav-bar__item { 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  gap: 2px; 
-  background: none; 
-  border: none; 
-  color: var(--md-on-surface-variant); 
-  font: var(--md-label-medium); 
+.m3-nav-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--md-on-surface-variant);
+  font: var(--md-label-medium);
   cursor: pointer;
 }
-.m3-nav-bar__item[aria-current="page"] { color: var(--md-on-surface); font-weight: 700; }
-.m3-nav-bar__icon { 
-  width: 56px; 
-  height: 32px; 
-  display: grid; 
-  place-items: center; 
-  border-radius: var(--md-shape-full); 
+.m3-nav-bar__item[aria-current='page'] {
+  color: var(--md-on-surface);
+  font-weight: 700;
 }
-.m3-nav-bar__item[aria-current="page"] .m3-nav-bar__icon { 
-  background: var(--md-secondary-container); 
-  color: var(--md-on-secondary-container); 
+.m3-nav-bar__icon {
+  width: 56px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--md-shape-full);
+}
+.m3-nav-bar__item[aria-current='page'] .m3-nav-bar__icon {
+  background: var(--md-secondary-container);
+  color: var(--md-on-secondary-container);
 }
 
 /* Tabs */
-.m3-tabs { display: flex; border-bottom: 1px solid var(--md-outline-variant); }
+.m3-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--md-outline-variant);
+}
 .m3-tabs__item {
-  padding: 14px 20px; 
-  background: none; 
-  border: none; 
+  padding: 14px 20px;
+  background: none;
+  border: none;
   font: var(--md-title-small);
-  color: var(--md-on-surface-variant); 
-  position: relative; 
+  color: var(--md-on-surface-variant);
+  position: relative;
   cursor: pointer;
 }
-.m3-tabs__item[aria-selected="true"] { color: var(--md-primary); font-weight: 700; }
-.m3-tabs__item[aria-selected="true"]::after {
-  content: ''; 
-  position: absolute; 
-  left: 8px; 
-  right: 8px; 
-  bottom: -1px; 
+.m3-tabs__item[aria-selected='true'] {
+  color: var(--md-primary);
+  font-weight: 700;
+}
+.m3-tabs__item[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -1px;
   height: 3px;
-  border-radius: var(--md-shape-full) var(--md-shape-full) 0 0; 
+  border-radius: var(--md-shape-full) var(--md-shape-full) 0 0;
   background: var(--md-primary);
 }
 
@@ -667,29 +771,35 @@ body, .m3-scope {
   box-shadow: var(--md-elevation-1);
 }
 
-.m3-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  font: var(--md-body-medium); 
+.m3-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: var(--md-body-medium);
 }
 .m3-table th {
-  text-align: left; 
-  font: var(--md-label-large-emphasized); 
+  text-align: left;
+  font: var(--md-label-large-emphasized);
   color: var(--md-on-surface-variant);
-  padding: 14px 16px; 
-  border-bottom: 1px solid var(--md-outline-variant); 
-  position: sticky; 
-  top: 0; 
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--md-outline-variant);
+  position: sticky;
+  top: 0;
   background: var(--md-surface);
 }
-.m3-table td { 
-  padding: 14px 16px; 
-  border-bottom: 1px solid var(--md-outline-variant); 
+.m3-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--md-outline-variant);
   color: var(--md-on-surface);
 }
-.m3-table tbody tr { transition: background-color var(--md-motion-standard-fast); }
-.m3-table tbody tr:hover { background: var(--md-surface-container); }
-.m3-table tbody tr[aria-selected="true"] { background: var(--md-secondary-container); }
+.m3-table tbody tr {
+  transition: background-color var(--md-motion-standard-fast);
+}
+.m3-table tbody tr:hover {
+  background: var(--md-surface-container);
+}
+.m3-table tbody tr[aria-selected='true'] {
+  background: var(--md-secondary-container);
+}
 
 /* M3E Pagination Bar */
 .m3e-pagination {
@@ -723,7 +833,9 @@ body, .m3-scope {
   font: var(--md-label-medium);
   transition: all var(--md-motion-standard-fast) ease;
 }
-.m3e-page-btn:hover { background-color: var(--md-surface-container-highest); }
+.m3e-page-btn:hover {
+  background-color: var(--md-surface-container-highest);
+}
 .m3e-page-btn.active {
   background-color: var(--md-primary);
   color: var(--md-on-primary);
@@ -734,24 +846,27 @@ body, .m3-scope {
    9. DIALOG & SNACKBAR
    ========================================================================== */
 .m3-dialog-scrim {
-  position: fixed; 
-  inset: 0; 
-  background: rgba(0, 0, 0, 0.4); 
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
-  display: none; 
-  align-items: center; 
-  justify-content: center; 
+  display: none;
+  align-items: center;
+  justify-content: center;
   z-index: 1000;
   opacity: 0;
   transition: opacity var(--md-motion-standard);
 }
-.m3-dialog-scrim.is-open { display: flex; opacity: 1; }
+.m3-dialog-scrim.is-open {
+  display: flex;
+  opacity: 1;
+}
 
 .m3-dialog {
-  background: var(--md-surface-container-high); 
+  background: var(--md-surface-container-high);
   color: var(--md-on-surface);
   border-radius: var(--md-shape-xl); /* 28px corners */
-  padding: 28px; 
+  padding: 28px;
   max-width: 480px;
   box-shadow: var(--md-elevation-3);
   transform: scale(0.9) translateY(20px);
@@ -760,9 +875,21 @@ body, .m3-scope {
 .m3-dialog-scrim.is-open .m3-dialog {
   transform: scale(1) translateY(0);
 }
-.m3-dialog__title { font: var(--md-headline-small); margin: 0 0 12px; }
-.m3-dialog__body { font: var(--md-body-medium); color: var(--md-on-surface-variant); margin: 0 0 24px; line-height: 1.6; }
-.m3-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.m3-dialog__title {
+  font: var(--md-headline-small);
+  margin: 0 0 12px;
+}
+.m3-dialog__body {
+  font: var(--md-body-medium);
+  color: var(--md-on-surface-variant);
+  margin: 0 0 24px;
+  line-height: 1.6;
+}
+.m3-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
 
 /* Snackbar */
 .m3-snackbar {
@@ -770,58 +897,79 @@ body, .m3-scope {
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%) translateY(100px);
-  display: flex; 
-  align-items: center; 
-  gap: 16px; 
-  padding: 14px 20px; 
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
   border-radius: var(--md-shape-xs);
-  background: var(--md-inverse-surface); 
-  color: var(--md-inverse-on-surface); 
+  background: var(--md-inverse-surface);
+  color: var(--md-inverse-on-surface);
   box-shadow: var(--md-elevation-3);
-  font: var(--md-body-medium); 
+  font: var(--md-body-medium);
   max-width: 420px;
   z-index: 999;
   opacity: 0;
-  transition: 
-    transform var(--md-spring-default), 
+  transition:
+    transform var(--md-spring-default),
     opacity var(--md-motion-standard-fast);
 }
 .m3-snackbar.is-visible {
   transform: translateX(-50%) translateY(0);
   opacity: 1;
 }
-.m3-snackbar__action { 
-  background: none; 
-  border: none; 
-  color: var(--md-inverse-primary); 
-  font: var(--md-label-large); 
-  cursor: pointer; 
+.m3-snackbar__action {
+  background: none;
+  border: none;
+  color: var(--md-inverse-primary);
+  font: var(--md-label-large);
+  cursor: pointer;
 }
 
 /* ==========================================================================
    10. LOADING (Shape-Morph Loader & Skeleton Shimmer)
    ========================================================================== */
 .m3-loader {
-  width: 40px; 
-  height: 40px; 
+  width: 40px;
+  height: 40px;
   border-radius: var(--md-shape-xl);
-  background: var(--md-primary); 
+  background: var(--md-primary);
   animation: m3-loader-morph 1.6s var(--md-spring-slow) infinite;
 }
 @keyframes m3-loader-morph {
-  0% { border-radius: var(--md-shape-xl); transform: rotate(0deg); }
-  35% { border-radius: var(--md-shape-full); transform: rotate(160deg); }
-  70% { border-radius: var(--md-shape-sm); transform: rotate(270deg); }
-  100% { border-radius: var(--md-shape-xl); transform: rotate(360deg); }
+  0% {
+    border-radius: var(--md-shape-xl);
+    transform: rotate(0deg);
+  }
+  35% {
+    border-radius: var(--md-shape-full);
+    transform: rotate(160deg);
+  }
+  70% {
+    border-radius: var(--md-shape-sm);
+    transform: rotate(270deg);
+  }
+  100% {
+    border-radius: var(--md-shape-xl);
+    transform: rotate(360deg);
+  }
 }
 
 .m3-skeleton {
   border-radius: var(--md-shape-sm);
-  background: linear-gradient(100deg, var(--md-surface-container-high) 30%, var(--md-surface-container-highest) 50%, var(--md-surface-container-high) 70%);
-  background-size: 200% 100%; 
+  background: linear-gradient(
+    100deg,
+    var(--md-surface-container-high) 30%,
+    var(--md-surface-container-highest) 50%,
+    var(--md-surface-container-high) 70%
+  );
+  background-size: 200% 100%;
   animation: m3-skeleton-shimmer 1.6s ease-in-out infinite;
 }
-@keyframes m3-skeleton-shimmer { to { background-position: -200% 0; } }
+@keyframes m3-skeleton-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
 
 /* ==========================================================================
    11. FLOATING TOOLBAR
@@ -833,7 +981,9 @@ body, .m3-scope {
   padding: 8px 12px;
   border-radius: var(--md-shape-full);
   box-shadow: var(--md-elevation-3);
-  transition: box-shadow var(--md-motion-standard), transform var(--md-spring-default);
+  transition:
+    box-shadow var(--md-motion-standard),
+    transform var(--md-spring-default);
 }
 .m3e-floating-toolbar:hover {
   box-shadow: var(--md-elevation-4);
@@ -862,7 +1012,9 @@ body, .m3-scope {
   cursor: pointer;
   transition: all var(--md-motion-standard-fast) ease;
 }
-.m3e-toolbar-btn:hover { background-color: color-mix(in srgb, currentColor 12%, transparent); }
+.m3e-toolbar-btn:hover {
+  background-color: color-mix(in srgb, currentColor 12%, transparent);
+}
 .m3e-toolbar-btn.is-active {
   background-color: var(--md-primary);
   color: var(--md-on-primary);
@@ -872,7 +1024,18 @@ body, .m3-scope {
    12. ACCESSIBILITY (Reduced Motion)
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  .m3-loader { animation: none; border-radius: var(--md-shape-full); }
-  .m3-button, .m3e-button, .m3-card, .m3-fab, .m3-chip { transition: none; }
-  .m3-skeleton { animation: none; }
+  .m3-loader {
+    animation: none;
+    border-radius: var(--md-shape-full);
+  }
+  .m3-button,
+  .m3e-button,
+  .m3-card,
+  .m3-fab,
+  .m3-chip {
+    transition: none;
+  }
+  .m3-skeleton {
+    animation: none;
+  }
 }

@@ -72,7 +72,9 @@ const ledgerUploadSummaryObject = z
 // The bundled OpenAPI contract still declares `contentType` as the `text/csv` literal only; the
 // backend and this schema now also accept Excel (.xlsx) uploads, so the generated API type is
 // widened locally here rather than narrowing the runtime schema to match a stale contract.
-export type WithLedgerContentType<T> = Omit<T, 'contentType'> & { contentType: z.infer<typeof ledgerContentTypeSchema> }
+export type WithLedgerContentType<T> = Omit<T, 'contentType'> & {
+  contentType: z.infer<typeof ledgerContentTypeSchema>
+}
 
 export type LedgerUploadSummary = WithLedgerContentType<ApiAcademicLedgerUploadSummaryResponse>
 export type LedgerUploadDetail = WithLedgerContentType<ApiAcademicLedgerUploadDetailResponse>

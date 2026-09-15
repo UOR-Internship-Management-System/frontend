@@ -159,7 +159,9 @@ export function StudentSkillsPage() {
     }
   }
 
-  const mappedDeclaredError = declared.error ? mapApiError(declared.error, 'protected').message : null
+  const mappedDeclaredError = declared.error
+    ? mapApiError(declared.error, 'protected').message
+    : null
   const addSkillError = taxonomyTree.error ?? allDeclared.error
   const mappedAddSkillError = addSkillError ? mapApiError(addSkillError, 'protected') : null
   const addSkillLoading = taxonomyTree.isPending || allDeclared.isPending
@@ -253,7 +255,9 @@ export function StudentSkillsPage() {
             taxonomyPathsBySkillId={taxonomyPathsBySkillId}
             totalElements={declared.data?.page.totalElements ?? 0}
             totalPages={declared.data?.page.totalPages ?? 0}
-            updatingId={updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined}
+            updatingId={
+              updateMutation.isPending ? updateMutation.variables?.declaredSkillId : undefined
+            }
           />
         </CardContent>
       </Card>
@@ -268,7 +272,12 @@ export function StudentSkillsPage() {
           {addSkillContent}
         </BottomSheet>
       ) : (
-        <Dialog isOpen={isAddOpen} onClose={() => setAddOpen(false)} size="medium" title="Add skill">
+        <Dialog
+          isOpen={isAddOpen}
+          onClose={() => setAddOpen(false)}
+          size="medium"
+          title="Add skill"
+        >
           {addSkillContent}
         </Dialog>
       )}

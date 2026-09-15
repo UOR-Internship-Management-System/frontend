@@ -85,10 +85,16 @@ export function HomePage() {
                 <p>Register or sign in with your university account.</p>
               </div>
               <div className="gateway-v2-actions">
-                <Link className="button button-primary m3-button m3-button--filled" to={routePaths.studentLogin}>
+                <Link
+                  className="button button-primary m3-button m3-button--filled"
+                  to={routePaths.studentLogin}
+                >
                   Login
                 </Link>
-                <Link className="button button-secondary m3-button m3-button--tonal" to={routePaths.studentSignUp}>
+                <Link
+                  className="button button-secondary m3-button m3-button--tonal"
+                  to={routePaths.studentSignUp}
+                >
                   Register
                 </Link>
               </div>
@@ -103,7 +109,10 @@ export function HomePage() {
                 <p>Use your predefined administrator credentials to continue.</p>
               </div>
               <div className="gateway-v2-actions">
-                <Link className="button button-primary m3-button m3-button--filled" to={routePaths.adminLogin}>
+                <Link
+                  className="button button-primary m3-button m3-button--filled"
+                  to={routePaths.adminLogin}
+                >
                   Login
                 </Link>
               </div>

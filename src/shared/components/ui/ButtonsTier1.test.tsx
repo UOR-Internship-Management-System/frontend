@@ -160,13 +160,7 @@ describe('Tier 1: Buttons & Action Primitives', () => {
         { id: '2', label: 'Add Single', icon: <span>➕</span>, onClick: vi.fn() },
       ]
 
-      render(
-        <FabMenu
-          icon={<span>☰</span>}
-          aria-label="Actions menu"
-          items={items}
-        />,
-      )
+      render(<FabMenu icon={<span>☰</span>} aria-label="Actions menu" items={items} />)
 
       expect(screen.queryByRole('menuitem', { name: /Import CSV/i })).not.toBeInTheDocument()
 

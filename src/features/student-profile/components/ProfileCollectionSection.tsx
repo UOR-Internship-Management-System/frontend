@@ -94,7 +94,11 @@ export function ProfileCollectionSection({
           <ExtendedFab
             aria-label={addAriaLabel}
             className="profile-section-add-btn"
-            icon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                add
+              </span>
+            }
             label={addLabel}
             onClick={onAdd}
           />
@@ -153,7 +157,11 @@ export function ProfileCollectionEmpty({
       action={
         !search ? (
           <Button
-            icon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+            icon={
+              <span className="material-symbols-outlined" aria-hidden="true">
+                add
+              </span>
+            }
             onClick={onAdd}
             size="sm"
             variant="tonal"

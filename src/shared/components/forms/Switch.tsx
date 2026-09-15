@@ -20,7 +20,8 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(function Switch(
   },
   ref,
 ) {
-  const inputId = id ?? (label ? `m3-switch-${Math.random().toString(36).substring(2, 9)}` : undefined)
+  const inputId =
+    id ?? (label ? `m3-switch-${Math.random().toString(36).substring(2, 9)}` : undefined)
   const activeIcon = checked && checkedThumbIcon ? checkedThumbIcon : thumbIcon
 
   return (

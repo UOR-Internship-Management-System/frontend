@@ -54,19 +54,26 @@ export function ProjectDetailsPanel({
         </div>
       </dl>
 
-      <section aria-labelledby="project-details-description-title" className="s4-projects-details-section">
+      <section
+        aria-labelledby="project-details-description-title"
+        className="s4-projects-details-section"
+      >
         <h3 id="project-details-description-title">Project abstract</h3>
-        <p className="s4-projects-details-description">
-          {project.description || 'Not provided'}
-        </p>
+        <p className="s4-projects-details-description">{project.description || 'Not provided'}</p>
       </section>
 
-      <section aria-labelledby="project-details-skills-title" className="s4-projects-details-section">
+      <section
+        aria-labelledby="project-details-skills-title"
+        className="s4-projects-details-section"
+      >
         <h3 id="project-details-skills-title">Skills</h3>
         <ProjectSkillChips skills={project.skills} />
       </section>
 
-      <section aria-labelledby="project-details-links-title" className="s4-projects-details-section">
+      <section
+        aria-labelledby="project-details-links-title"
+        className="s4-projects-details-section"
+      >
         <h3 id="project-details-links-title">Project links</h3>
         {project.repositoryUrl || project.demoUrl ? (
           <div className="s4-projects-links">

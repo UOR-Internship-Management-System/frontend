@@ -17,11 +17,7 @@ import { CompanyDetailsModal } from '../components/CompanyDetailsModal'
 import { CompanyForm, mapCompanyToForm } from '../components/CompanyForm'
 import { CompanyTable } from '../components/CompanyTable'
 import { InternshipRequestWorkspace } from '../components/InternshipRequestWorkspace'
-import {
-  SkeletonFormFields,
-  SkeletonListRows,
-  SkeletonPagination,
-} from '../../../shared/skeletons'
+import { SkeletonFormFields, SkeletonListRows, SkeletonPagination } from '../../../shared/skeletons'
 import {
   getCompanyMutationErrorMessage,
   useCompanies,
@@ -140,7 +136,10 @@ export function InternshipManagementPage() {
           <CardTitle>Companies</CardTitle>
         </CardHeader>
         <CardContent className="im-section-content">
-          <div className="im-toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+          <div
+            className="im-toolbar"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}
+          >
             <SearchBar
               aria-label="Search companies and HR contacts"
               maxLength={120}
@@ -167,7 +166,11 @@ export function InternshipManagementPage() {
             ) : null}
             <ExtendedFab
               aria-label="Add company"
-              icon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+              icon={
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  add
+                </span>
+              }
               label="Add company"
               onClick={() => setOverlay('create')}
             />

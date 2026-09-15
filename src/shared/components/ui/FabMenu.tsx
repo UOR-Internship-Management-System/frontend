@@ -30,10 +30,7 @@ export function FabMenu({
   const currentIcon = isOpen && activeIcon ? activeIcon : icon
 
   return (
-    <div
-      className={`m3-fab-menu-wrapper m3-fab-menu--${position}`}
-      aria-expanded={isOpen}
-    >
+    <div className={`m3-fab-menu-wrapper m3-fab-menu--${position}`} aria-expanded={isOpen}>
       {isOpen ? (
         <div className="m3-fab-menu-items" role="menu">
           {items.map((item) => (
@@ -54,12 +51,7 @@ export function FabMenu({
         </div>
       ) : null}
 
-      <Fab
-        icon={currentIcon}
-        aria-label={ariaLabel}
-        onClick={toggle}
-        variant="primary"
-      />
+      <Fab icon={currentIcon} aria-label={ariaLabel} onClick={toggle} variant="primary" />
     </div>
   )
 }

@@ -40,15 +40,6 @@ export function ToolbarGroup({
   )
 }
 
-export function ToolbarDivider({
-  className = '',
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      role="separator"
-      className={`m3-toolbar__divider ${className}`.trim()}
-      {...props}
-    />
-  )
+export function ToolbarDivider({ className = '', ...props }: HTMLAttributes<HTMLDivElement>) {
+  return <div role="separator" className={`m3-toolbar__divider ${className}`.trim()} {...props} />
 }

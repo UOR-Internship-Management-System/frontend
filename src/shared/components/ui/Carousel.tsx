@@ -54,14 +54,22 @@ export function Carousel({
             variant="tonal"
             size="sm"
             aria-label="Previous items"
-            icon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_left</span>}
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                chevron_left
+              </span>
+            }
             onClick={scrollLeft}
           />
           <IconButton
             variant="tonal"
             size="sm"
             aria-label="Next items"
-            icon={<span className="material-symbols-outlined" style={{ fontSize: 18 }}>chevron_right</span>}
+            icon={
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                chevron_right
+              </span>
+            }
             onClick={scrollRight}
           />
         </div>

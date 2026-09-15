@@ -64,7 +64,9 @@ function DeclaredSkillsSection({ state }: { state: DeepDiveState['declaredSkills
           {data?.items.map((skill) => (
             <article className="sdd-item-card" key={skill.declaredSkillId}>
               <strong>{skill.skillName}</strong>
-              <span className="sdd-skill-competency">{formatEnum(skill.competencyLevel)} competency</span>
+              <span className="sdd-skill-competency">
+                {formatEnum(skill.competencyLevel)} competency
+              </span>
               <StatusBadge tone="neutral">Declared skill</StatusBadge>
             </article>
           ))}
@@ -435,7 +437,9 @@ function CollectionSearch({
   const onSearchRef = useRef(onSearch)
   onSearchRef.current = onSearch
 
-  useEffect(() => { setInput(value) }, [value])
+  useEffect(() => {
+    setInput(value)
+  }, [value])
 
   useEffect(() => {
     onSearchRef.current(debouncedInput.trim().slice(0, 120))
@@ -445,7 +449,10 @@ function CollectionSearch({
     <SearchBar
       aria-label={label}
       onChange={(e) => setInput(e.target.value)}
-      onClear={() => { setInput(''); onSearch('') }}
+      onClear={() => {
+        setInput('')
+        onSearch('')
+      }}
       placeholder={label}
       value={input}
     />

@@ -50,7 +50,11 @@ export function RegisteredStudentsCardList({ students }: RegisteredStudentsCardL
                 <Chip
                   className={`rst-level-chip rst-level-chip--l${student.currentLevel}`}
                   leadingIcon={
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">
+                    <span
+                      className="material-symbols-outlined"
+                      style={{ fontSize: 14 }}
+                      aria-hidden="true"
+                    >
                       school
                     </span>
                   }

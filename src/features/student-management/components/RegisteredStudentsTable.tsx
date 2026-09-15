@@ -16,12 +16,18 @@ function getGpaTone(gpa: number | null): StatusBadgeTone {
   return 'danger'
 }
 
-function parseSortColumn(sort: RegisteredStudentsQuery['sort']): { col: string; dir: 'asc' | 'desc' } {
+function parseSortColumn(sort: RegisteredStudentsQuery['sort']): {
+  col: string
+  dir: 'asc' | 'desc'
+} {
   const [col, dir] = sort.split(',')
   return { col, dir: dir as 'asc' | 'desc' }
 }
 
-function ariaSort(currentSort: RegisteredStudentsQuery['sort'], colKey: string): React.AriaAttributes['aria-sort'] {
+function ariaSort(
+  currentSort: RegisteredStudentsQuery['sort'],
+  colKey: string,
+): React.AriaAttributes['aria-sort'] {
   const { col, dir } = parseSortColumn(currentSort)
   if (col !== colKey) return 'none'
   return dir === 'asc' ? 'ascending' : 'descending'
@@ -34,13 +40,19 @@ function SortIcon({ col, currentSort }: SortIconProps) {
   const isActive = activeCol === col
   if (!isActive) {
     return (
-      <span className="material-symbols-outlined rst-sort-icon rst-sort-icon--inactive" aria-hidden="true">
+      <span
+        className="material-symbols-outlined rst-sort-icon rst-sort-icon--inactive"
+        aria-hidden="true"
+      >
         unfold_more
       </span>
     )
   }
   return (
-    <span className="material-symbols-outlined rst-sort-icon rst-sort-icon--active" aria-hidden="true">
+    <span
+      className="material-symbols-outlined rst-sort-icon rst-sort-icon--active"
+      aria-hidden="true"
+    >
       {dir === 'asc' ? 'arrow_upward' : 'arrow_downward'}
     </span>
   )
@@ -136,16 +148,8 @@ export function RegisteredStudentsTable({
               </button>
             </th>
 
-            <th
-              scope="col"
-              className="rst-col-name"
-              aria-sort={ariaSort(query.sort, 'fullName')}
-            >
-              <button
-                className="rst-sort-btn"
-                onClick={() => handleSort('fullName')}
-                type="button"
-              >
+            <th scope="col" className="rst-col-name" aria-sort={ariaSort(query.sort, 'fullName')}>
+              <button className="rst-sort-btn" onClick={() => handleSort('fullName')} type="button">
                 Full Name
                 <SortIcon col="fullName" currentSort={query.sort} />
               </button>
@@ -159,11 +163,7 @@ export function RegisteredStudentsTable({
               Level
             </th>
 
-            <th
-              scope="col"
-              className="rst-col-gpa"
-              aria-sort={ariaSort(query.sort, 'officialGpa')}
-            >
+            <th scope="col" className="rst-col-gpa" aria-sort={ariaSort(query.sort, 'officialGpa')}>
               <button
                 className="rst-sort-btn"
                 onClick={() => handleSort('officialGpa')}
@@ -218,7 +218,11 @@ export function RegisteredStudentsTable({
                   <Chip
                     className={`rst-level-chip rst-level-chip--l${student.currentLevel}`}
                     leadingIcon={
-                      <span className="material-symbols-outlined" style={{ fontSize: 14 }} aria-hidden="true">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ fontSize: 14 }}
+                        aria-hidden="true"
+                      >
                         school
                       </span>
                     }

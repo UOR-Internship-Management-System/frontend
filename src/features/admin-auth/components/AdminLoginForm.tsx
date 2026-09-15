@@ -50,9 +50,7 @@ export function AdminLoginForm({ isSubmitting, onSubmit }: AdminLoginFormProps) 
         error={errors.password}
         id="admin-password"
         label="Security Password"
-        onChange={(event) =>
-          setValues((current) => ({ ...current, password: event.target.value }))
-        }
+        onChange={(event) => setValues((current) => ({ ...current, password: event.target.value }))}
         placeholder="Enter your security password"
         value={values.password}
       />

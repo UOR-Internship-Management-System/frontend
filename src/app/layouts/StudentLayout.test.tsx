@@ -136,7 +136,11 @@ describe('StudentLayout', () => {
     const menuButton = screen.getByRole('button', { name: 'Open navigation' })
     await user.click(menuButton)
 
-    await user.click(within(screen.getByRole('dialog', { name: 'Student navigation' })).getByRole('button', { name: 'Log Out' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: 'Student navigation' })).getByRole('button', {
+        name: 'Log Out',
+      }),
+    )
     const logoutDialog = await screen.findByRole('dialog', { name: 'Log Out' })
     expect(logout).not.toHaveBeenCalled()
     await user.click(within(logoutDialog).getByRole('button', { name: 'Log Out' }))
@@ -150,12 +154,18 @@ describe('StudentLayout', () => {
 
     // Toggle collapse
     await user.click(screen.getByRole('button', { name: 'Collapse navigation' }))
-    expect(container.querySelector('.m3-app-shell')).toHaveAttribute('data-drawer-expanded', 'false')
+    expect(container.querySelector('.m3-app-shell')).toHaveAttribute(
+      'data-drawer-expanded',
+      'false',
+    )
 
     await user.click(screen.getByRole('link', { name: 'Dashboard' }))
 
     expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
-    expect(container.querySelector('.m3-app-shell')).toHaveAttribute('data-drawer-expanded', 'false')
+    expect(container.querySelector('.m3-app-shell')).toHaveAttribute(
+      'data-drawer-expanded',
+      'false',
+    )
     expect(screen.getByRole('button', { name: 'Expand navigation' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'page')
   })

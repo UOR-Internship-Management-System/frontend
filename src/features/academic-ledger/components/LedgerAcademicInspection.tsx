@@ -20,12 +20,20 @@ const viewOptions = [
   {
     value: 'table' as const,
     label: 'Table',
-    icon: <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>,
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        table_rows
+      </span>
+    ),
   },
   {
     value: 'cards' as const,
     label: 'Cards',
-    icon: <span className="material-symbols-outlined" style={{ fontSize: 18 }}>grid_view</span>,
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        grid_view
+      </span>
+    ),
   },
 ]
 
@@ -94,7 +102,9 @@ export function LedgerAcademicInspection({
           />
         ) : null}
         {students.data?.items.length ? (
-          <div className={`al-data-container ${viewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}>
+          <div
+            className={`al-data-container ${viewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
+          >
             {viewMode === 'table' ? (
               <div className="al-table-wrap" tabIndex={0}>
                 <table className="al-table">
@@ -126,7 +136,10 @@ export function LedgerAcademicInspection({
                 </table>
               </div>
             ) : (
-              <LedgerAcademicInspectionCardList onSelect={setSelected} students={students.data.items} />
+              <LedgerAcademicInspectionCardList
+                onSelect={setSelected}
+                students={students.data.items}
+              />
             )}
           </div>
         ) : null}

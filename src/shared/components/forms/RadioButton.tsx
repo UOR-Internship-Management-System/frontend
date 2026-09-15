@@ -18,7 +18,8 @@ export const RadioButton = forwardRef<HTMLInputElement, RadioButtonProps>(functi
   },
   ref,
 ) {
-  const inputId = id ?? (label ? `m3-radio-${Math.random().toString(36).substring(2, 9)}` : undefined)
+  const inputId =
+    id ?? (label ? `m3-radio-${Math.random().toString(36).substring(2, 9)}` : undefined)
 
   return (
     <label

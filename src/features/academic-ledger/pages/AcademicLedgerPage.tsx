@@ -39,12 +39,20 @@ const viewOptions = [
   {
     value: 'table' as const,
     label: 'Table',
-    icon: <span className="material-symbols-outlined" style={{ fontSize: 18 }}>table_rows</span>,
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        table_rows
+      </span>
+    ),
   },
   {
     value: 'cards' as const,
     label: 'Cards',
-    icon: <span className="material-symbols-outlined" style={{ fontSize: 18 }}>grid_view</span>,
+    icon: (
+      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+        grid_view
+      </span>
+    ),
   },
 ]
 
@@ -83,7 +91,7 @@ export function AcademicLedgerPage() {
   const uploadsError = uploads.isError ? mapApiError(uploads.error, 'protected') : null
   const isReviewable = Boolean(
     selected.data &&
-      !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
+    !['RECEIVED', 'PROCESSING', 'PROCESSING_FAILED'].includes(selected.data.uploadStatus),
   )
 
   return (
@@ -190,7 +198,9 @@ export function AcademicLedgerPage() {
             />
           ) : null}
           {uploads.data?.items.length ? (
-            <div className={`al-data-container ${uploadsViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}>
+            <div
+              className={`al-data-container ${uploadsViewMode === 'cards' ? 'al-mode-cards' : 'al-mode-table'}`}
+            >
               {uploadsViewMode === 'table' ? (
                 <LedgerUploadsTable
                   items={uploads.data.items}
@@ -251,7 +261,11 @@ export function AcademicLedgerPage() {
             </p>
           ) : null}
           <div className="modal-actions">
-            <Button disabled={deleteUpload.isPending} onClick={() => setDeleting(null)} variant="outlined">
+            <Button
+              disabled={deleteUpload.isPending}
+              onClick={() => setDeleting(null)}
+              variant="outlined"
+            >
               Cancel
             </Button>
             <Button

@@ -43,11 +43,16 @@
      2. ELEVATION HIERARCHY (Surface Depth & Shadow Tokens)
      ========================================================================== */
   --md-sys-elevation-level0: none;
-  --md-sys-elevation-level1: 0px 1px 3px 1px rgba(15, 23, 42, 0.08), 0px 1px 2px 0px rgba(15, 23, 42, 0.12);
-  --md-sys-elevation-level2: 0px 2px 6px 2px rgba(15, 23, 42, 0.08), 0px 1px 2px 0px rgba(15, 23, 42, 0.12);
-  --md-sys-elevation-level3: 0px 4px 8px 3px rgba(15, 23, 42, 0.10), 0px 1px 3px 0px rgba(15, 23, 42, 0.14);
-  --md-sys-elevation-level4: 0px 6px 10px 4px rgba(15, 23, 42, 0.12), 0px 2px 3px 0px rgba(15, 23, 42, 0.16);
-  --md-sys-elevation-level5: 0px 8px 12px 6px rgba(15, 23, 42, 0.14), 0px 4px 4px 0px rgba(15, 23, 42, 0.18);
+  --md-sys-elevation-level1:
+    0px 1px 3px 1px rgba(15, 23, 42, 0.08), 0px 1px 2px 0px rgba(15, 23, 42, 0.12);
+  --md-sys-elevation-level2:
+    0px 2px 6px 2px rgba(15, 23, 42, 0.08), 0px 1px 2px 0px rgba(15, 23, 42, 0.12);
+  --md-sys-elevation-level3:
+    0px 4px 8px 3px rgba(15, 23, 42, 0.1), 0px 1px 3px 0px rgba(15, 23, 42, 0.14);
+  --md-sys-elevation-level4:
+    0px 6px 10px 4px rgba(15, 23, 42, 0.12), 0px 2px 3px 0px rgba(15, 23, 42, 0.16);
+  --md-sys-elevation-level5:
+    0px 8px 12px 6px rgba(15, 23, 42, 0.14), 0px 4px 4px 0px rgba(15, 23, 42, 0.18);
 
   --md-elevation-0: var(--md-sys-elevation-level0);
   --md-elevation-1: var(--md-sys-elevation-level1);
@@ -60,8 +65,8 @@
      3. MOTION & SPRING CURVES (Physics-Grounded Animation)
      ========================================================================== */
   --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
-  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1.0);
-  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0.0, 0.8, 0.15);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
   --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
   --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
   --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
@@ -113,42 +118,42 @@
   /* ==========================================================================
      6. SYSTEM COLOR ROLES (Light Theme Defaults — Scholar Violet / Ledger Amber / Verified Teal)
      ========================================================================== */
-  --md-primary: #4F3CC9;
-  --md-on-primary: #FFFFFF;
-  --md-primary-container: #DBD7F4;
-  --md-on-primary-container: #120D30;
-  --md-primary-fixed: #DBD7F4;
-  --md-primary-fixed-dim: #BEB7EB;
-  --md-on-primary-fixed: #120D30;
+  --md-primary: #4f3cc9;
+  --md-on-primary: #ffffff;
+  --md-primary-container: #dbd7f4;
+  --md-on-primary-container: #120d30;
+  --md-primary-fixed: #dbd7f4;
+  --md-primary-fixed-dim: #beb7eb;
+  --md-on-primary-fixed: #120d30;
 
-  --md-secondary: #8F6A2E;
-  --md-on-secondary: #FFFFFF;
-  --md-secondary-container: #F3E9D8;
-  --md-on-secondary-container: #2E220F;
+  --md-secondary: #8f6a2e;
+  --md-on-secondary: #ffffff;
+  --md-secondary-container: #f3e9d8;
+  --md-on-secondary-container: #2e220f;
 
-  --md-tertiary: #1F6E65;
-  --md-on-tertiary: #FFFFFF;
-  --md-tertiary-container: #D7F4F1;
-  --md-on-tertiary-container: #0D302C;
+  --md-tertiary: #1f6e65;
+  --md-on-tertiary: #ffffff;
+  --md-tertiary-container: #d7f4f1;
+  --md-on-tertiary-container: #0d302c;
 
-  --md-error: #B3261E;
-  --md-on-error: #FFFFFF;
-  --md-error-container: #F8D5D3;
-  --md-on-error-container: #340B09;
+  --md-error: #b3261e;
+  --md-on-error: #ffffff;
+  --md-error-container: #f8d5d3;
+  --md-on-error-container: #340b09;
 
-  --md-surface: #FAFAFA;
-  --md-surface-dim: #DDDBE1;
-  --md-surface-bright: #FAFAFA;
-  --md-surface-container-lowest: #FFFFFF;
-  --md-surface-container-low: #F5F4F5;
-  --md-surface-container: #EFEEF1;
-  --md-surface-container-high: #EAE9EC;
-  --md-surface-container-highest: #E5E3E8;
+  --md-surface: #fafafa;
+  --md-surface-dim: #dddbe1;
+  --md-surface-bright: #fafafa;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #f5f4f5;
+  --md-surface-container: #efeef1;
+  --md-surface-container-high: #eae9ec;
+  --md-surface-container-highest: #e5e3e8;
 
-  --md-on-surface: #19171C;
+  --md-on-surface: #19171c;
   --md-on-surface-variant: #484257;
-  --md-outline: #72698C;
-  --md-outline-variant: #CBC8D5;
+  --md-outline: #72698c;
+  --md-outline-variant: #cbc8d5;
 
   --md-sys-color-primary: var(--md-primary);
   --md-sys-color-on-primary: var(--md-on-primary);
@@ -183,9 +188,9 @@
 
   --md-sys-color-outline: var(--md-outline);
   --md-sys-color-outline-variant: var(--md-outline-variant);
-  --md-sys-color-inverse-surface: #19171C;
-  --md-sys-color-inverse-on-surface: #F5F4F5;
-  --md-sys-color-inverse-primary: #BEB7EB;
+  --md-sys-color-inverse-surface: #19171c;
+  --md-sys-color-inverse-on-surface: #f5f4f5;
+  --md-sys-color-inverse-primary: #beb7eb;
 
   --md-sys-color-scrim: rgba(18, 12, 39, 0.6);
   --md-sys-color-shadow: rgba(18, 12, 39, 0.16);
@@ -273,55 +278,55 @@
   --md-sys-typescale-label-small-tracking: 0.031em;
 
   /* Back-compat aliases — existing call sites keep working, now pointing at real M3 sizes */
-  --font-size-xs: var(--md-sys-typescale-body-small-font-size);   /* 0.75rem */
-  --font-size-sm: var(--md-sys-typescale-body-medium-font-size);  /* 0.875rem */
-  --font-size-md: var(--md-sys-typescale-body-large-font-size);   /* 1rem */
+  --font-size-xs: var(--md-sys-typescale-body-small-font-size); /* 0.75rem */
+  --font-size-sm: var(--md-sys-typescale-body-medium-font-size); /* 0.875rem */
+  --font-size-md: var(--md-sys-typescale-body-large-font-size); /* 1rem */
   --font-size-base: var(--md-sys-typescale-body-large-font-size); /* 1rem */
-  --font-size-lg: var(--md-sys-typescale-title-large-font-size);  /* 1.375rem */
+  --font-size-lg: var(--md-sys-typescale-title-large-font-size); /* 1.375rem */
 }
 
 /* ==========================================================================
    DARK THEME COLOR ROLES (Scholar Violet / Ledger Amber / Verified Teal)
    ========================================================================== */
 :root.dark,
-[data-theme="dark"],
+[data-theme='dark'],
 body.dark-mode {
-  --md-primary: #BEB7EB;
-  --md-on-primary: #1E1650;
-  --md-primary-container: #2D2178;
-  --md-on-primary-container: #DBD7F4;
-  --md-inverse-primary: #4F3CC9;
+  --md-primary: #beb7eb;
+  --md-on-primary: #1e1650;
+  --md-primary-container: #2d2178;
+  --md-on-primary-container: #dbd7f4;
+  --md-inverse-primary: #4f3cc9;
 
-  --md-secondary: #E9D7BA;
-  --md-on-secondary: #4D3919;
+  --md-secondary: #e9d7ba;
+  --md-on-secondary: #4d3919;
   --md-secondary-container: #745625;
-  --md-on-secondary-container: #F3E9D8;
+  --md-on-secondary-container: #f3e9d8;
 
-  --md-tertiary: #B7EBE5;
+  --md-tertiary: #b7ebe5;
   --md-on-tertiary: #165049;
-  --md-tertiary-container: #22776E;
-  --md-on-tertiary-container: #D7F4F1;
+  --md-tertiary-container: #22776e;
+  --md-on-tertiary-container: #d7f4f1;
 
-  --md-error: #F2B4B0;
-  --md-on-error: #57130F;
-  --md-error-container: #831C16;
-  --md-on-error-container: #F8D5D3;
+  --md-error: #f2b4b0;
+  --md-on-error: #57130f;
+  --md-error-container: #831c16;
+  --md-on-error-container: #f8d5d3;
 
-  --md-surface: #0F0F10;
-  --md-surface-dim: #0F0F10;
-  --md-surface-bright: #3B3842;
-  --md-surface-container-lowest: #0A0A0B;
-  --md-surface-container-low: #19171C;
-  --md-surface-container: #201E24;
-  --md-surface-container-high: #2A282F;
-  --md-surface-container-highest: #36343D;
+  --md-surface: #0f0f10;
+  --md-surface-dim: #0f0f10;
+  --md-surface-bright: #3b3842;
+  --md-surface-container-lowest: #0a0a0b;
+  --md-surface-container-low: #19171c;
+  --md-surface-container: #201e24;
+  --md-surface-container-high: #2a282f;
+  --md-surface-container-highest: #36343d;
 
-  --md-on-surface: #E5E3E8;
-  --md-on-surface-variant: #CBC8D5;
-  --md-outline: #928BA7;
+  --md-on-surface: #e5e3e8;
+  --md-on-surface-variant: #cbc8d5;
+  --md-outline: #928ba7;
   --md-outline-variant: #484257;
-  --md-inverse-surface: #E5E3E8;
-  --md-inverse-on-surface: #201E24;
+  --md-inverse-surface: #e5e3e8;
+  --md-inverse-on-surface: #201e24;
 
   --md-sys-color-primary: var(--md-primary);
   --md-sys-color-on-primary: var(--md-on-primary);

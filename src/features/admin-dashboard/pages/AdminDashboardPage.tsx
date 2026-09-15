@@ -2,7 +2,11 @@ import { useEffect } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
-import { SkeletonMetricGrid, SkeletonPageHeader, SkeletonStatusRegion } from '../../../shared/skeletons'
+import {
+  SkeletonMetricGrid,
+  SkeletonPageHeader,
+  SkeletonStatusRegion,
+} from '../../../shared/skeletons'
 import { AdminMetricCard } from '../components/AdminMetricCard'
 import { useAdminDashboard } from '../hooks/useAdminDashboard'
 
@@ -24,7 +28,10 @@ export function AdminDashboardPage() {
 
   if (metricsQuery.isPending) {
     return (
-      <SkeletonStatusRegion className="content-stack admin-dashboard-page" label="Loading admin dashboard">
+      <SkeletonStatusRegion
+        className="content-stack admin-dashboard-page"
+        label="Loading admin dashboard"
+      >
         <SkeletonPageHeader />
         <SkeletonMetricGrid count={3} />
       </SkeletonStatusRegion>

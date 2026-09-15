@@ -37,9 +37,7 @@ export function ButtonShowcase() {
       <section className="m3-showcase-section">
         <h3 className="m3-showcase-title">Interactive States & Icons</h3>
         <div className="m3-showcase-grid">
-          <Button icon={<span className="material-symbols-outlined">add</span>}>
-            With Icon
-          </Button>
+          <Button icon={<span className="material-symbols-outlined">add</span>}>With Icon</Button>
           <Button isLoading>Loading State</Button>
           <Button disabled>Disabled State</Button>
         </div>
@@ -48,10 +46,26 @@ export function ButtonShowcase() {
       <section className="m3-showcase-section">
         <h3 className="m3-showcase-title">Icon Buttons</h3>
         <div className="m3-showcase-grid">
-          <IconButton icon={<span className="material-symbols-outlined">favorite</span>} variant="filled" aria-label="Favorite filled" />
-          <IconButton icon={<span className="material-symbols-outlined">bookmark</span>} variant="tonal" aria-label="Bookmark tonal" />
-          <IconButton icon={<span className="material-symbols-outlined">share</span>} variant="outlined" aria-label="Share outlined" />
-          <IconButton icon={<span className="material-symbols-outlined">more_vert</span>} variant="standard" aria-label="More options" />
+          <IconButton
+            icon={<span className="material-symbols-outlined">favorite</span>}
+            variant="filled"
+            aria-label="Favorite filled"
+          />
+          <IconButton
+            icon={<span className="material-symbols-outlined">bookmark</span>}
+            variant="tonal"
+            aria-label="Bookmark tonal"
+          />
+          <IconButton
+            icon={<span className="material-symbols-outlined">share</span>}
+            variant="outlined"
+            aria-label="Share outlined"
+          />
+          <IconButton
+            icon={<span className="material-symbols-outlined">more_vert</span>}
+            variant="standard"
+            aria-label="More options"
+          />
         </div>
       </section>
 
@@ -68,19 +82,32 @@ export function ButtonShowcase() {
             onChange={setSelectedSegment}
           />
 
-          <SplitButton>
-            Quick Export
-          </SplitButton>
+          <SplitButton>Quick Export</SplitButton>
         </div>
       </section>
 
       <section className="m3-showcase-section">
         <h3 className="m3-showcase-title">Floating Action Buttons (FAB)</h3>
         <div className="m3-showcase-grid">
-          <Fab icon={<span className="material-symbols-outlined">edit</span>} size="small" aria-label="Small edit FAB" />
-          <Fab icon={<span className="material-symbols-outlined">add</span>} size="standard" aria-label="Standard add FAB" />
-          <Fab icon={<span className="material-symbols-outlined">done</span>} size="large" aria-label="Large done FAB" />
-          <ExtendedFab icon={<span className="material-symbols-outlined">send</span>} label="Send Application" />
+          <Fab
+            icon={<span className="material-symbols-outlined">edit</span>}
+            size="small"
+            aria-label="Small edit FAB"
+          />
+          <Fab
+            icon={<span className="material-symbols-outlined">add</span>}
+            size="standard"
+            aria-label="Standard add FAB"
+          />
+          <Fab
+            icon={<span className="material-symbols-outlined">done</span>}
+            size="large"
+            aria-label="Large done FAB"
+          />
+          <ExtendedFab
+            icon={<span className="material-symbols-outlined">send</span>}
+            label="Send Application"
+          />
         </div>
       </section>
     </div>

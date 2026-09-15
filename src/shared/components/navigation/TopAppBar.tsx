@@ -37,16 +37,12 @@ export function TopAppBar({
           )}
         </div>
 
-        {variant === 'center' && (
-          <h1 className="m3-top-app-bar__title">{title}</h1>
-        )}
+        {variant === 'center' && <h1 className="m3-top-app-bar__title">{title}</h1>}
 
         {actions && <div className="m3-top-app-bar__actions">{actions}</div>}
       </div>
 
-      {isMultiRow && (
-        <h1 className="m3-top-app-bar__title">{title}</h1>
-      )}
+      {isMultiRow && <h1 className="m3-top-app-bar__title">{title}</h1>}
     </header>
   )
 }

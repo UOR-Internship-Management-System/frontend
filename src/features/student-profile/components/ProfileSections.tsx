@@ -85,7 +85,11 @@ function EntryActions({
       <IconButton
         aria-label={`Actions for ${entryLabel}`}
         disabled={disabled}
-        icon={<span className="material-symbols-outlined" aria-hidden="true">more_vert</span>}
+        icon={
+          <span className="material-symbols-outlined" aria-hidden="true">
+            more_vert
+          </span>
+        }
         onClick={() => setIsOpen((current) => !current)}
         onMouseDown={(event) => event.stopPropagation()}
         size="sm"
@@ -96,7 +100,11 @@ function EntryActions({
         onClose={() => setIsOpen(false)}
       >
         <MenuItem
-          icon={<span className="material-symbols-outlined" aria-hidden="true">edit</span>}
+          icon={
+            <span className="material-symbols-outlined" aria-hidden="true">
+              edit
+            </span>
+          }
           onClick={() => {
             setIsOpen(false)
             onEdit()
@@ -107,7 +115,11 @@ function EntryActions({
         {extraItems?.(() => setIsOpen(false))}
         <MenuItem
           destructive
-          icon={<span className="material-symbols-outlined" aria-hidden="true">delete</span>}
+          icon={
+            <span className="material-symbols-outlined" aria-hidden="true">
+              delete
+            </span>
+          }
           onClick={() => {
             setIsOpen(false)
             onDelete()

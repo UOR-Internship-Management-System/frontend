@@ -50,7 +50,9 @@ function DrawerHeader({ onClose }: { onClose: () => void }) {
   return (
     <div className="m3-app-drawer-header">
       <div className="m3-app-drawer-brand">
-        <span className="m3-app-rail-brand-mark" aria-hidden="true">CV</span>
+        <span className="m3-app-rail-brand-mark" aria-hidden="true">
+          CV
+        </span>
         <span className="m3-app-rail-brand-name">CV Management</span>
       </div>
       <button
@@ -60,7 +62,9 @@ function DrawerHeader({ onClose }: { onClose: () => void }) {
         onClick={onClose}
         type="button"
       >
-        <span aria-hidden="true" className="material-symbols-outlined">close</span>
+        <span aria-hidden="true" className="material-symbols-outlined">
+          close
+        </span>
       </button>
     </div>
   )
@@ -112,20 +116,26 @@ export function AdminSidebar({
         expanded={false}
         header={
           <div className="m3-app-rail-header">
-            <span className="m3-app-rail-brand-mark" aria-hidden="true">CV</span>
+            <span className="m3-app-rail-brand-mark" aria-hidden="true">
+              CV
+            </span>
             <button
               aria-label="Open full navigation"
               className="m3-app-rail-toggle"
               onClick={onToggleExpanded}
               type="button"
             >
-              <span aria-hidden="true" className="material-symbols-outlined">menu</span>
+              <span aria-hidden="true" className="material-symbols-outlined">
+                menu
+              </span>
             </button>
           </div>
         }
         footer={
           <div className="m3-app-rail-footer">
-            <span className="m3-app-rail-avatar" aria-hidden="true" title={adminName}>{initials}</span>
+            <span className="m3-app-rail-avatar" aria-hidden="true" title={adminName}>
+              {initials}
+            </span>
             <button
               aria-label="Log Out"
               className="m3-app-rail-logout"
@@ -134,7 +144,9 @@ export function AdminSidebar({
               title="Log Out"
               type="button"
             >
-              <span aria-hidden="true" className="material-symbols-outlined">logout</span>
+              <span aria-hidden="true" className="material-symbols-outlined">
+                logout
+              </span>
             </button>
           </div>
         }
@@ -168,7 +180,9 @@ export function AdminSidebar({
         header={
           <div className="m3-app-drawer-header-desktop">
             <div className="m3-app-drawer-brand">
-              <span className="m3-app-rail-brand-mark" aria-hidden="true">CV</span>
+              <span className="m3-app-rail-brand-mark" aria-hidden="true">
+                CV
+              </span>
               <span className="m3-app-rail-brand-name">CV Management</span>
             </div>
             <button
@@ -186,7 +200,9 @@ export function AdminSidebar({
         footer={
           <div className="m3-app-drawer-footer">
             <div className="m3-app-drawer-identity">
-              <span className="m3-app-rail-avatar" aria-hidden="true">{initials}</span>
+              <span className="m3-app-rail-avatar" aria-hidden="true">
+                {initials}
+              </span>
               <div className="m3-app-rail-identity-copy">
                 <span>Admin workspace</span>
                 <strong>{adminName}</strong>
@@ -199,7 +215,9 @@ export function AdminSidebar({
               onClick={onLogout}
               type="button"
             >
-              <span aria-hidden="true" className="material-symbols-outlined">logout</span>
+              <span aria-hidden="true" className="material-symbols-outlined">
+                logout
+              </span>
               <span>Log Out</span>
             </button>
           </div>
@@ -235,7 +253,9 @@ export function AdminSidebar({
           footer={
             <div className="m3-app-drawer-footer">
               <div className="m3-app-drawer-identity">
-                <span className="m3-app-rail-avatar" aria-hidden="true">{initials}</span>
+                <span className="m3-app-rail-avatar" aria-hidden="true">
+                  {initials}
+                </span>
                 <div className="m3-app-rail-identity-copy">
                   <span>Admin workspace</span>
                   <strong>{adminName}</strong>
@@ -248,7 +268,9 @@ export function AdminSidebar({
                 onClick={onLogout}
                 type="button"
               >
-                <span aria-hidden="true" className="material-symbols-outlined">logout</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  logout
+                </span>
                 <span>Log Out</span>
               </button>
             </div>

@@ -61,10 +61,7 @@ export function CandidateResultsTable({
             const selected = selectedIds.has(candidate.studentId)
             const visibleSkills = candidate.matchingDeclaredSkills.slice(0, 3)
             return (
-              <tr
-                className={selected ? 'cf-row-selected' : undefined}
-                key={candidate.studentId}
-              >
+              <tr className={selected ? 'cf-row-selected' : undefined} key={candidate.studentId}>
                 <td data-label="Select">
                   <Checkbox
                     aria-label={`Select ${candidate.fullName} (${candidate.indexNumber})`}
@@ -112,9 +109,7 @@ export function CandidateResultsTable({
                   )}
                 </td>
                 <td data-label="Cross-shortlist status">
-                  <StatusBadge
-                    tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}
-                  >
+                  <StatusBadge tone={candidate.hasExistingActiveShortlist ? 'neutral' : 'success'}>
                     {candidate.hasExistingActiveShortlist
                       ? `Already shortlisted in ${candidate.existingActiveShortlistCount} other shortlist${
                           candidate.existingActiveShortlistCount === 1 ? '' : 's'

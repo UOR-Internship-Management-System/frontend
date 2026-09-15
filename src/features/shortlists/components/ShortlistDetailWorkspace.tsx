@@ -232,9 +232,7 @@ export function ShortlistDetailWorkspace({
                   onChange={(value) =>
                     onStateChange({
                       candidateSort:
-                        value === 'officialGpa,asc'
-                          ? 'officialGpa,asc'
-                          : 'officialGpa,desc',
+                        value === 'officialGpa,asc' ? 'officialGpa,asc' : 'officialGpa,desc',
                     })
                   }
                   value={state.candidateSort}

@@ -40,7 +40,8 @@ export function EligibleStudentsPage() {
     search: debouncedSearch,
   })
   const mutations = useEligibleStudentMutations()
-  const pending = mutations.create.isPending || mutations.update.isPending || mutations.remove.isPending
+  const pending =
+    mutations.create.isPending || mutations.update.isPending || mutations.remove.isPending
 
   const save = async (values: EligibleStudentRequest) => {
     const item =
@@ -90,7 +91,16 @@ export function EligibleStudentsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="es-roster-content">
-          <div className="al-toolbar" style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+          <div
+            className="al-toolbar"
+            style={{
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              justifyContent: 'space-between',
+            }}
+          >
             <SearchBar
               aria-label="Search eligible students"
               onChange={(event) => setSearch(event.target.value)}

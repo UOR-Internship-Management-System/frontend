@@ -70,10 +70,7 @@ describe('StudentSkillsPage', () => {
     })
 
     await user.clear(within(dialog).getByRole('searchbox', { name: 'Search system skills' }))
-    await user.selectOptions(
-      within(dialog).getByLabelText('Filter by core cluster'),
-      'Data and AI',
-    )
+    await user.selectOptions(within(dialog).getByLabelText('Filter by core cluster'), 'Data and AI')
     expect(await within(dialog).findByRole('button', { name: 'Python' })).toBeVisible()
     await waitFor(() => {
       expect(within(dialog).queryByRole('button', { name: 'React' })).toBeNull()

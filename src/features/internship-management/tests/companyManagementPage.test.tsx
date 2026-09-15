@@ -68,9 +68,7 @@ describe('InternshipManagementPage production behavior', () => {
     expect(screen.getByRole('button', { name: 'Add request' })).toBeEnabled()
 
     await user.click(screen.getByText('Acme Lanka'))
-    await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add request' })).toBeEnabled(),
-    )
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Add request' })).toBeEnabled())
     expect(screen.getByRole('navigation', { name: 'Company list pagination' })).toHaveTextContent(
       '1–1 of 1',
     )

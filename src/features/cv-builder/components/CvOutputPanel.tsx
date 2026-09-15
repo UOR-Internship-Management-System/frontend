@@ -110,8 +110,8 @@ export function CvOutputPanel({
         />
 
         <p className="s5-cv-source-privacy-note">
-          The backend keeps the LaTeX source private. This page exposes only the sanitized ATS preview
-          and the saved PDF.
+          The backend keeps the LaTeX source private. This page exposes only the sanitized ATS
+          preview and the saved PDF.
         </p>
       </CardContent>
     </Card>

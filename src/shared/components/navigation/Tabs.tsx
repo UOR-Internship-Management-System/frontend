@@ -18,14 +18,7 @@ export type TabProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: TabVariant
 }
 
-export function Tab({
-  active = false,
-  icon,
-  badge,
-  children,
-  className = '',
-  ...props
-}: TabProps) {
+export function Tab({ active = false, icon, badge, children, className = '', ...props }: TabProps) {
   return (
     <button
       type="button"
@@ -35,7 +28,11 @@ export function Tab({
       {...props}
     >
       <span className="m3-tab__content">
-        {icon && <span className="m3-tab__icon" aria-hidden="true">{icon}</span>}
+        {icon && (
+          <span className="m3-tab__icon" aria-hidden="true">
+            {icon}
+          </span>
+        )}
         <span className="m3-tab__label">{children}</span>
         {badge && <span className="m3-tab__badge">{badge}</span>}
       </span>
@@ -65,41 +62,36 @@ export function Tabs({
 }: TabsProps) {
   const tabsListRef = useRef<HTMLDivElement | null>(null)
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLDivElement>) => {
-      if (!tabsListRef.current) return
+  const handleKeyDown = useCallback((e: KeyboardEvent<HTMLDivElement>) => {
+    if (!tabsListRef.current) return
 
-      const tabButtons = Array.from(
-        tabsListRef.current.querySelectorAll<HTMLButtonElement>(
-          'button[role="tab"]:not(:disabled)',
-        ),
-      )
+    const tabButtons = Array.from(
+      tabsListRef.current.querySelectorAll<HTMLButtonElement>('button[role="tab"]:not(:disabled)'),
+    )
 
-      if (tabButtons.length === 0) return
-      const activeIndex = tabButtons.indexOf(document.activeElement as HTMLButtonElement)
+    if (tabButtons.length === 0) return
+    const activeIndex = tabButtons.indexOf(document.activeElement as HTMLButtonElement)
 
-      if (e.key === 'ArrowRight') {
-        e.preventDefault()
-        const nextIndex = activeIndex < tabButtons.length - 1 ? activeIndex + 1 : 0
-        tabButtons[nextIndex]?.focus()
-        tabButtons[nextIndex]?.click()
-      } else if (e.key === 'ArrowLeft') {
-        e.preventDefault()
-        const prevIndex = activeIndex > 0 ? activeIndex - 1 : tabButtons.length - 1
-        tabButtons[prevIndex]?.focus()
-        tabButtons[prevIndex]?.click()
-      } else if (e.key === 'Home') {
-        e.preventDefault()
-        tabButtons[0]?.focus()
-        tabButtons[0]?.click()
-      } else if (e.key === 'End') {
-        e.preventDefault()
-        tabButtons[tabButtons.length - 1]?.focus()
-        tabButtons[tabButtons.length - 1]?.click()
-      }
-    },
-    [],
-  )
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      const nextIndex = activeIndex < tabButtons.length - 1 ? activeIndex + 1 : 0
+      tabButtons[nextIndex]?.focus()
+      tabButtons[nextIndex]?.click()
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      const prevIndex = activeIndex > 0 ? activeIndex - 1 : tabButtons.length - 1
+      tabButtons[prevIndex]?.focus()
+      tabButtons[prevIndex]?.click()
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      tabButtons[0]?.focus()
+      tabButtons[0]?.click()
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      tabButtons[tabButtons.length - 1]?.focus()
+      tabButtons[tabButtons.length - 1]?.click()
+    }
+  }, [])
 
   return (
     <div

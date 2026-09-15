@@ -25,7 +25,10 @@ function listPath(query: EligibleStudentQuery) {
 }
 
 export const eligibleStudentsApi = {
-  async list(query: EligibleStudentQuery, signal?: AbortSignal): Promise<PagedResponse<EligibleStudent>> {
+  async list(
+    query: EligibleStudentQuery,
+    signal?: AbortSignal,
+  ): Promise<PagedResponse<EligibleStudent>> {
     return eligibleStudentPagedResponseSchema.parse(
       await httpClient<unknown>(listPath(query), { signal }),
     ) as PagedResponse<EligibleStudent>

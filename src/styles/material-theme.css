@@ -1030,7 +1030,7 @@
 /* Outlined Variant */
 .m3-text-field-box--outlined {
   border: 1px solid var(--md-sys-color-outline-variant);
-  background-color: var(--md-sys-color-surface-container-low, #F7F2FA);
+  background-color: var(--md-sys-color-surface-container-low, #f7f2fa);
   padding: 0 16px;
 }
 
@@ -1170,7 +1170,8 @@
   background: transparent;
   color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
-  transition: background-color var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard);
+  transition: background-color var(--md-sys-motion-duration-short3, 150ms)
+    var(--md-sys-motion-easing-standard);
 }
 
 .m3-text-field-trailing-action button:hover {
@@ -1217,7 +1218,8 @@
   background-color: transparent;
   transition:
     border-color var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard),
-    background-color var(--md-sys-motion-duration-short3, 150ms) var(--md-sys-motion-easing-standard);
+    background-color var(--md-sys-motion-duration-short3, 150ms)
+      var(--md-sys-motion-easing-standard);
 }
 
 .m3-dropdown-box--outlined {
@@ -1306,7 +1308,10 @@
   visibility: hidden;
   transform: scaleY(0.8);
   transform-origin: top;
-  transition: opacity 150ms ease, transform 150ms cubic-bezier(0.2, 0, 0, 1), visibility 150ms ease;
+  transition:
+    opacity 150ms ease,
+    transform 150ms cubic-bezier(0.2, 0, 0, 1),
+    visibility 150ms ease;
 }
 
 .m3-dropdown-container.is-open .m3-dropdown-menu {
@@ -1326,7 +1331,12 @@
 }
 
 .m3-dropdown-item:hover {
-  background-color: rgba(29, 27, 32, 0.08); /* fallback if custom tokens aren't available for hover state */
+  background-color: rgba(
+    29,
+    27,
+    32,
+    0.08
+  ); /* fallback if custom tokens aren't available for hover state */
 }
 
 .m3-dropdown-item.is-selected {
@@ -1334,7 +1344,6 @@
   color: var(--md-sys-color-on-secondary-container, var(--md-sys-color-primary));
   font-weight: 500;
 }
-
 
 .m3-text-area-container {
   display: grid;
@@ -2454,7 +2463,10 @@ body.dark-mode .status-warning {
   font-weight: 600 !important;
   font-size: 0.875rem !important;
   white-space: nowrap !important;
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease, background-color 200ms ease !important;
+  transition:
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 200ms ease,
+    background-color 200ms ease !important;
 }
 
 .m3-dialog .modal-actions .button--danger {
@@ -4111,7 +4123,8 @@ body.dark-mode .status-warning {
   justify-content: space-between !important;
   gap: 28px !important;
   padding: 32px !important;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       circle at 90% 15%,
       color-mix(in srgb, var(--md-sys-color-primary) 14%, transparent) 0%,
       transparent 55%
@@ -4253,7 +4266,8 @@ body.dark-mode .status-warning {
   align-items: start !important;
   position: relative !important;
   overflow: hidden !important;
-  transition: transform 250ms var(--md-sys-motion-easing-emphasized),
+  transition:
+    transform 250ms var(--md-sys-motion-easing-emphasized),
     box-shadow 250ms var(--md-sys-motion-easing-emphasized),
     border-color 200ms ease,
     background 200ms ease !important;
@@ -4523,7 +4537,10 @@ body.dark-mode .status-warning {
   flex-direction: row !important;
   align-items: center !important;
   gap: 14px !important;
-  transition: background 150ms ease, transform var(--md-spring-fast), box-shadow 150ms ease !important;
+  transition:
+    background 150ms ease,
+    transform var(--md-spring-fast),
+    box-shadow 150ms ease !important;
 }
 
 .profile-identity-item:hover,
@@ -4636,7 +4653,9 @@ body.dark-mode .status-warning {
   place-items: center !important;
   cursor: pointer !important;
   box-shadow: var(--md-sys-elevation-level2) !important;
-  transition: transform var(--md-spring-fast), background-color 150ms ease !important;
+  transition:
+    transform var(--md-spring-fast),
+    background-color 150ms ease !important;
 }
 
 .profile-avatar-camera-btn:hover {
@@ -4666,7 +4685,11 @@ body.dark-mode .status-warning {
 }
 
 .profile-photo-trigger-btn:hover:not(.disabled) {
-  background-color: color-mix(in srgb, var(--md-sys-color-primary) 12%, var(--md-sys-color-secondary-container)) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--md-sys-color-primary) 12%,
+    var(--md-sys-color-secondary-container)
+  ) !important;
   transform: translateY(-1px) !important;
   box-shadow: var(--md-sys-elevation-level1) !important;
 }
@@ -4765,7 +4788,9 @@ body.dark-mode .status-warning {
   border: 1px solid var(--md-sys-color-outline-variant) !important;
   padding: 28px 32px !important;
   box-shadow: var(--md-sys-elevation-level1) !important;
-  transition: border-color 200ms ease, box-shadow 200ms ease !important;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease !important;
 }
 
 .profile-collection:hover {
@@ -4843,8 +4868,8 @@ body.dark-mode .status-warning {
 }
 
 /* M3 Capsule Search Bar */
-.profile-section-body input[type="search"],
-.profile-section-body .input[type="search"] {
+.profile-section-body input[type='search'],
+.profile-section-body .input[type='search'] {
   width: 100% !important;
   height: 48px !important;
   min-height: 48px !important;
@@ -4861,8 +4886,8 @@ body.dark-mode .status-warning {
   box-sizing: border-box !important;
 }
 
-.profile-section-body input[type="search"]:focus,
-.profile-section-body .input[type="search"]:focus {
+.profile-section-body input[type='search']:focus,
+.profile-section-body .input[type='search']:focus {
   background-color: var(--md-sys-color-surface, #ffffff) !important;
   border-color: var(--md-sys-color-primary) !important;
   border-width: 2px !important;
@@ -4932,7 +4957,8 @@ body.dark-mode .status-warning {
   padding: 22px 24px !important;
   display: grid !important;
   gap: 14px !important;
-  transition: border-radius var(--md-spring-fast),
+  transition:
+    border-radius var(--md-spring-fast),
     transform var(--md-spring-fast),
     box-shadow 200ms ease,
     border-color 200ms ease !important;
@@ -5043,7 +5069,7 @@ body.dark-mode .status-warning {
   outline: none !important;
 }
 
-.profile-editor-form input[type="date"].input {
+.profile-editor-form input[type='date'].input {
   color: var(--md-sys-color-on-surface) !important;
   font-family: inherit !important;
   cursor: pointer !important;
@@ -5091,7 +5117,11 @@ body.dark-mode .status-warning {
 }
 
 .profile-editor-form .m3-checkbox-wrapper:has(input:checked) {
-  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, var(--md-sys-color-surface, #ffffff)) !important;
+  background: color-mix(
+    in srgb,
+    var(--md-sys-color-primary) 8%,
+    var(--md-sys-color-surface, #ffffff)
+  ) !important;
   border-color: var(--md-sys-color-primary) !important;
 }
 
@@ -5118,4 +5148,3 @@ body.dark-mode .status-warning {
   font-weight: 600 !important;
   border-radius: 9999px !important;
 }
-

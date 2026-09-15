@@ -17,20 +17,26 @@ export type NavigationRailItemProps = {
   'aria-label'?: string
 }
 
-export const NavigationRailItem = forwardRef<HTMLElement, NavigationRailItemProps & HTMLAttributes<HTMLElement>>(function NavigationRailItem({
-  icon,
-  activeIcon,
-  label,
-  active = false,
-  badge,
-  onClick,
-  as: Component = 'button',
-  className = '',
-  'aria-label': ariaLabel,
-  to,
-  href,
-  ...props
-}: NavigationRailItemProps & HTMLAttributes<HTMLElement>, ref) {
+export const NavigationRailItem = forwardRef<
+  HTMLElement,
+  NavigationRailItemProps & HTMLAttributes<HTMLElement>
+>(function NavigationRailItem(
+  {
+    icon,
+    activeIcon,
+    label,
+    active = false,
+    badge,
+    onClick,
+    as: Component = 'button',
+    className = '',
+    'aria-label': ariaLabel,
+    to,
+    href,
+    ...props
+  }: NavigationRailItemProps & HTMLAttributes<HTMLElement>,
+  ref,
+) {
   const { expanded } = useContext(NavigationRailContext)
   const currentIcon = active && activeIcon ? activeIcon : icon
 
@@ -67,15 +73,18 @@ export type NavigationRailProps = HTMLAttributes<HTMLElement> & {
   'aria-label'?: string
 }
 
-export const NavigationRail = forwardRef<HTMLElement, NavigationRailProps>(function NavigationRail({
-  header,
-  children,
-  footer,
-  expanded = false,
-  className = '',
-  'aria-label': ariaLabel = 'Navigation Rail',
-  ...props
-}: NavigationRailProps, ref: Ref<HTMLElement>) {
+export const NavigationRail = forwardRef<HTMLElement, NavigationRailProps>(function NavigationRail(
+  {
+    header,
+    children,
+    footer,
+    expanded = false,
+    className = '',
+    'aria-label': ariaLabel = 'Navigation Rail',
+    ...props
+  }: NavigationRailProps,
+  ref: Ref<HTMLElement>,
+) {
   const destinationsRef = useRef<HTMLDivElement | null>(null)
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {

@@ -10,7 +10,13 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { Modal } from '../../../shared/components/overlays/Modal'
 import { Button } from '../../../shared/components/ui/Button'
-import { Card, CardContent, CardHeader, CardSubtitle, CardTitle } from '../../../shared/components/ui/Card'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardSubtitle,
+  CardTitle,
+} from '../../../shared/components/ui/Card'
 import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import {
   getInternshipRequestMutationErrorMessage,
@@ -157,11 +163,17 @@ export function InternshipRequestWorkspace({
       <CardHeader className="im-section-heading">
         <div>
           <CardTitle>Internship Requests</CardTitle>
-          {selectedCompany ? <CardSubtitle className="im-section-context">{selectedCompany.name}</CardSubtitle> : null}
+          {selectedCompany ? (
+            <CardSubtitle className="im-section-context">{selectedCompany.name}</CardSubtitle>
+          ) : null}
         </div>
         <ExtendedFab
           aria-label="Add request"
-          icon={<span className="material-symbols-outlined" aria-hidden="true">add</span>}
+          icon={
+            <span className="material-symbols-outlined" aria-hidden="true">
+              add
+            </span>
+          }
           label="Add request"
           onClick={() => setOverlay('create')}
         />
@@ -185,7 +197,10 @@ export function InternshipRequestWorkspace({
           </>
         ) : (
           <>
-            <div className="im-toolbar" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}>
+            <div
+              className="im-toolbar"
+              style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center' }}
+            >
               <SearchBar
                 aria-label="Search internship requests"
                 maxLength={120}
@@ -197,9 +212,7 @@ export function InternshipRequestWorkspace({
               <M3SelectField
                 label="Sort requests"
                 style={{ width: '220px', flex: '0 0 auto' }}
-                onChange={(value) =>
-                  updateState({ sort: value as ApiInternshipRequestSort })
-                }
+                onChange={(value) => updateState({ sort: value as ApiInternshipRequestSort })}
                 value={state.sort}
                 options={[
                   { value: 'createdAt,desc', label: 'Newest first' },

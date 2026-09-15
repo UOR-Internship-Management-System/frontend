@@ -44,14 +44,17 @@ export function LedgerUploadsCardList({
                   <span className="rsp-student-card__name" style={{ wordBreak: 'break-all' }}>
                     {item.originalFilename}
                   </span>
-                  <span className="rsp-student-card__index">{Math.ceil(item.fileSizeBytes / 1024)} KiB</span>
+                  <span className="rsp-student-card__index">
+                    {Math.ceil(item.fileSizeBytes / 1024)} KiB
+                  </span>
                 </div>
 
                 <p className="rsp-student-card__degree">
                   {new Intl.DateTimeFormat(undefined, {
                     dateStyle: 'medium',
                     timeStyle: 'short',
-                  }).format(new Date(item.uploadedAt))} • {item.totalRows} rows
+                  }).format(new Date(item.uploadedAt))}{' '}
+                  • {item.totalRows} rows
                 </p>
 
                 <div className="rsp-student-card__chips">
@@ -61,7 +64,10 @@ export function LedgerUploadsCardList({
               </div>
 
               {/* Trailing actions */}
-              <div className="rsp-student-card__action" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div
+                className="rsp-student-card__action"
+                style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+              >
                 <Button
                   aria-pressed={isSelected}
                   onClick={() => onSelect(item.uploadId)}
@@ -79,7 +85,11 @@ export function LedgerUploadsCardList({
                   }}
                   size="sm"
                   variant="text"
-                  icon={<span className="material-symbols-outlined" aria-hidden="true">delete</span>}
+                  icon={
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      delete
+                    </span>
+                  }
                 />
               </div>
             </article>

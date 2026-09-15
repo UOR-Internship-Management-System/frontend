@@ -51,7 +51,9 @@ export function AuthCardShell({
         <span className="material-symbols-outlined">{icon}</span>
       </div>
       <h1 className="m3-headline-small">{title}</h1>
-      {description ? <p className="m3-body-medium auth-centered-card-description">{description}</p> : null}
+      {description ? (
+        <p className="m3-body-medium auth-centered-card-description">{description}</p>
+      ) : null}
       {children}
     </section>
   )

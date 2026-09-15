@@ -3,7 +3,8 @@ import { Dialog } from '../../../shared/components/overlays/Dialog'
 import { Button } from '../../../shared/components/ui/Button'
 import type { RegisteredStudentView } from '../types/studentManagementTypes'
 
-type ExportColumn = 'indexNumber' | 'fullName' | 'degreeProgram' | 'level' | 'gpa' | 'batch' | 'email'
+type ExportColumn =
+  'indexNumber' | 'fullName' | 'degreeProgram' | 'level' | 'gpa' | 'batch' | 'email'
 
 const COLUMN_OPTIONS: ReadonlyArray<{ key: ExportColumn; label: string }> = [
   { key: 'indexNumber', label: 'Index Number' },
@@ -33,7 +34,8 @@ function buildCsv(students: RegisteredStudentView[], columns: Set<ExportColumn>)
     if (columns.has('degreeProgram')) cells.push(`"${s.degreeProgram}"`)
     if (columns.has('batch')) cells.push(`"${s.academicBatch}"`)
     if (columns.has('level')) cells.push(`"Level ${s.currentLevel}"`)
-    if (columns.has('gpa')) cells.push(s.officialGpa !== null ? String(s.officialGpa.toFixed(2)) : '""')
+    if (columns.has('gpa'))
+      cells.push(s.officialGpa !== null ? String(s.officialGpa.toFixed(2)) : '""')
     return cells.join(',')
   })
   return [headers.join(','), ...rows].join('\r\n')
@@ -69,9 +71,10 @@ export function StudentExportDialog({
   const formId = useId()
   const [selectedColumns, setSelectedColumns] = useState<Set<ExportColumn>>(DEFAULT_COLUMNS)
 
-  const exportStudents = selectedIds && selectedIds.size > 0
-    ? students.filter((s) => selectedIds.has(s.studentId))
-    : students
+  const exportStudents =
+    selectedIds && selectedIds.size > 0
+      ? students.filter((s) => selectedIds.has(s.studentId))
+      : students
 
   function toggleColumn(key: ExportColumn) {
     setSelectedColumns((prev) => {
@@ -127,14 +130,23 @@ export function StudentExportDialog({
         </>
       }
     >
-      <form id={formId} onSubmit={(e) => { e.preventDefault(); handleExport() }}>
+      <form
+        id={formId}
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleExport()
+        }}
+      >
         <fieldset className="sed-columns-fieldset">
           <legend className="sed-columns-legend">Select columns to include</legend>
           <div className="sed-columns-grid">
             {COLUMN_OPTIONS.map((col) => {
               const checked = selectedColumns.has(col.key)
               return (
-                <label key={col.key} className={`sed-column-option${checked ? ' sed-column-option--selected' : ''}`}>
+                <label
+                  key={col.key}
+                  className={`sed-column-option${checked ? ' sed-column-option--selected' : ''}`}
+                >
                   <input
                     checked={checked}
                     className="rst-checkbox"
@@ -150,7 +162,9 @@ export function StudentExportDialog({
 
         {selectedColumns.size === 0 && (
           <p className="sed-error" role="alert">
-            <span className="material-symbols-outlined" aria-hidden="true">warning</span>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              warning
+            </span>
             Select at least one column to export.
           </p>
         )}

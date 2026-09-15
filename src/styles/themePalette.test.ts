@@ -6,12 +6,14 @@ const lightTheme = stylesheet.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 const darkTheme = stylesheet.match(/:root\.dark,\s*\nbody\.dark-mode\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 
 function token(theme: string, name: string) {
-  return theme.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim()
+  const value = theme.match(new RegExp(`--${name}:\\s*([^;]+);`))?.[1]?.trim()
+  return value?.startsWith('#') ? value.toLowerCase() : value
 }
 
 function relativeLuminance(hex: string) {
+  const normalized = hex.toLowerCase()
   const channels = [1, 3, 5].map(
-    (offset) => Number.parseInt(hex.slice(offset, offset + 2), 16) / 255,
+    (offset) => Number.parseInt(normalized.slice(offset, offset + 2), 16) / 255,
   )
   const linear = channels.map((channel) =>
     channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
@@ -39,7 +41,7 @@ describe('professional application palette', () => {
       strongBorder: token(lightTheme, 'border-strong'),
       sidebar: token(lightTheme, 'sidebar-bg'),
     }).toEqual({
-      primary: '#4F3CC9',
+      primary: '#4f3cc9',
       page: '#f8fafc',
       surface: '#ffffff',
       text: '#0f172a',
@@ -55,7 +57,7 @@ describe('professional application palette', () => {
       muted: token(darkTheme, 'muted'),
       strongBorder: token(darkTheme, 'border-strong'),
     }).toEqual({
-      primary: '#BEB7EB',
+      primary: '#beb7eb',
       page: '#0b1120',
       surface: '#111827',
       text: '#f8fafc',

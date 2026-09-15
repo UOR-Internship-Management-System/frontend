@@ -72,7 +72,10 @@ export function SearchBar({
   }
 
   return (
-    <div className={`m3-search-bar-wrapper ${className}`.trim()} style={{ position: 'relative', width: '100%' }}>
+    <div
+      className={`m3-search-bar-wrapper ${className}`.trim()}
+      style={{ position: 'relative', width: '100%' }}
+    >
       <div className="m3-search-bar" role="search">
         <span className="m3-search-icon" aria-hidden="true">
           {leadingIcon ?? (

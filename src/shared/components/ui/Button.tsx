@@ -1,14 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
 export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'filled'
-  | 'elevated'
-  | 'tonal'
-  | 'outlined'
-  | 'text'
-  | 'danger'
+  'primary' | 'secondary' | 'filled' | 'elevated' | 'tonal' | 'outlined' | 'text' | 'danger'
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
@@ -33,8 +26,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   // Map legacy & M3 variants to unified classes
-  const m3Variant =
-    variant === 'primary' ? 'filled' : variant === 'secondary' ? 'tonal' : variant
+  const m3Variant = variant === 'primary' ? 'filled' : variant === 'secondary' ? 'tonal' : variant
 
   const legacyClass = `button-${variant}`
   const m3Class = `m3-button--${m3Variant}`
@@ -50,9 +42,17 @@ export function Button({
       {...props}
     >
       <span className="button-content" aria-hidden={isLoading || undefined}>
-        {icon ? <span className="button-icon-leading" aria-hidden="true">{icon}</span> : null}
+        {icon ? (
+          <span className="button-icon-leading" aria-hidden="true">
+            {icon}
+          </span>
+        ) : null}
         {children}
-        {trailingIcon ? <span className="button-icon-trailing" aria-hidden="true">{trailingIcon}</span> : null}
+        {trailingIcon ? (
+          <span className="button-icon-trailing" aria-hidden="true">
+            {trailingIcon}
+          </span>
+        ) : null}
       </span>
       {isLoading ? (
         <>

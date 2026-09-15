@@ -68,7 +68,11 @@ export function LedgerUploadsTable({
                     onClick={() => onDelete(item)}
                     size="sm"
                     variant="text"
-                    icon={<span className="material-symbols-outlined" aria-hidden="true">delete</span>}
+                    icon={
+                      <span className="material-symbols-outlined" aria-hidden="true">
+                        delete
+                      </span>
+                    }
                   />
                 </td>
               </tr>

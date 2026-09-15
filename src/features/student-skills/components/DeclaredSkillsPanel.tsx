@@ -80,7 +80,8 @@ export function DeclaredSkillsPanel({
           <List aria-label="Declared skills">
             {items.map((item) => {
               const paths = taxonomyPathsBySkillId.get(item.skillId) ?? []
-              const isRowBusy = updatingId === item.declaredSkillId || deletingId === item.declaredSkillId
+              const isRowBusy =
+                updatingId === item.declaredSkillId || deletingId === item.declaredSkillId
               return (
                 <ListItem
                   aria-label={item.skillName}
@@ -189,7 +190,11 @@ function EditCompetencyDialog({
           <Button disabled={isPending} onClick={onClose} variant="text">
             Cancel
           </Button>
-          <Button disabled={level === item.competencyLevel} isLoading={isPending} onClick={() => void save()}>
+          <Button
+            disabled={level === item.competencyLevel}
+            isLoading={isPending}
+            onClick={() => void save()}
+          >
             Save
           </Button>
         </>

@@ -62,9 +62,7 @@ describe('StudentProjectsPage', () => {
     expect(within(details).getByText('Accessible Internship Portal')).toBeVisible()
     await user.click(within(details).getByRole('button', { name: 'Edit' }))
     const editDialog = view.getByRole('dialog', { name: 'Edit project' })
-    await user.clear(
-      within(editDialog).getByLabelText('Project abstract / high-level description'),
-    )
+    await user.clear(within(editDialog).getByLabelText('Project abstract / high-level description'))
     await user.type(
       within(editDialog).getByLabelText('Project abstract / high-level description'),
       'Revised accessible portfolio evidence.',
@@ -252,9 +250,7 @@ describe('StudentProjectsPage', () => {
     )
 
     expect(await view.findByText('Project deleted')).toBeInTheDocument()
-    expect(
-      await view.findByRole('button', { name: 'Project Portfolio Project 1' }),
-    ).toBeVisible()
+    expect(await view.findByRole('button', { name: 'Project Portfolio Project 1' })).toBeVisible()
     expect(view.getByText(/Page 1 of 1/)).toBeInTheDocument()
   })
 })

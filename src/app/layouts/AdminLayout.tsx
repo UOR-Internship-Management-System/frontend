@@ -137,7 +137,12 @@ export function AdminLayout() {
             <div className="m3-top-app-bar__trailing">
               <span className="m3-top-app-bar__user-chip">
                 <span className="m3-top-app-bar__user-initials" aria-hidden="true">
-                  {adminName.split(/\s+/).filter(Boolean).map((p) => p[0]?.toUpperCase()).join('').slice(0, 2) || 'AD'}
+                  {adminName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .map((p) => p[0]?.toUpperCase())
+                    .join('')
+                    .slice(0, 2) || 'AD'}
                 </span>
                 <span>{adminName}</span>
               </span>
@@ -146,12 +151,7 @@ export function AdminLayout() {
           </header>
         )}
 
-        <main
-          className="m3-app-shell__content"
-          id="admin-content"
-          ref={contentRef}
-          tabIndex={-1}
-        >
+        <main className="m3-app-shell__content" id="admin-content" ref={contentRef} tabIndex={-1}>
           <div className="page-transition" key={location.pathname}>
             {outlet}
           </div>
@@ -185,7 +185,9 @@ export function AdminLayout() {
           header={
             <div className="m3-app-drawer-header">
               <div className="m3-app-drawer-brand">
-                <span className="m3-app-rail-brand-mark" aria-hidden="true">CV</span>
+                <span className="m3-app-rail-brand-mark" aria-hidden="true">
+                  CV
+                </span>
                 <span className="m3-app-rail-brand-name">CV Management</span>
               </div>
               <button
@@ -195,7 +197,9 @@ export function AdminLayout() {
                 onClick={() => closeMobileDrawer(true)}
                 type="button"
               >
-                <span aria-hidden="true" className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  close
+                </span>
               </button>
             </div>
           }
@@ -203,7 +207,12 @@ export function AdminLayout() {
             <div className="m3-app-drawer-footer">
               <div className="m3-app-drawer-identity">
                 <span className="m3-app-rail-avatar" aria-hidden="true">
-                  {adminName.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || 'AD'}
+                  {adminName
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((p) => p[0]?.toUpperCase())
+                    .join('') || 'AD'}
                 </span>
                 <div className="m3-app-rail-identity-copy">
                   <span>Admin workspace</span>
@@ -217,7 +226,9 @@ export function AdminLayout() {
                 onClick={() => setIsLogoutConfirmOpen(true)}
                 type="button"
               >
-                <span aria-hidden="true" className="material-symbols-outlined">logout</span>
+                <span aria-hidden="true" className="material-symbols-outlined">
+                  logout
+                </span>
                 <span>Log Out</span>
               </button>
             </div>
