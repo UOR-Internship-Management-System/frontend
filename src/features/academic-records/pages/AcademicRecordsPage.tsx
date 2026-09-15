@@ -7,7 +7,11 @@ import { ErrorState } from '../../../shared/components/feedback/ErrorState'
 import { LoadingBoundary } from '../../../shared/components/feedback/LoadingBoundary'
 import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
-import { SkeletonMetricGrid, SkeletonTableGrid } from '../../../shared/skeletons'
+import {
+  SkeletonMetricGrid,
+  SkeletonStatusRegion,
+  SkeletonTableGrid,
+} from '../../../shared/skeletons'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { clampPage } from '../../../shared/utils/clampPage'
 import { AcademicRecordsTable } from '../components/AcademicRecordsTable'
@@ -51,7 +55,11 @@ export function AcademicRecordsPage() {
             isLoading={gpa.isPending}
             label="Loading official GPA"
             minHeight={112}
-            skeleton={<SkeletonMetricGrid count={3} />}
+            skeleton={
+              <SkeletonStatusRegion label="Loading official GPA">
+                <SkeletonMetricGrid count={3} />
+              </SkeletonStatusRegion>
+            }
           >
             {gpaError ? (
               <ErrorState
@@ -92,11 +100,13 @@ export function AcademicRecordsPage() {
             label="Loading academic records"
             minHeight={390}
             skeleton={
-              <SkeletonTableGrid
-                columns={5}
-                gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
-                rows={5}
-              />
+              <SkeletonStatusRegion label="Loading academic records">
+                <SkeletonTableGrid
+                  columns={5}
+                  gridTemplateColumns="repeat(5, minmax(100px, 1fr))"
+                  rows={5}
+                />
+              </SkeletonStatusRegion>
             }
           >
             {recordsError ? (

@@ -69,7 +69,7 @@ const scenarios = [
     path: '/student/skills',
     heading: 'Skills',
     role: 'student',
-    loading: 'Loading available skills',
+    loading: 'Loading declared skills',
   },
   {
     name: 'student-projects',
@@ -105,7 +105,6 @@ const scenarios = [
     heading: 'Academic Ledger',
     role: 'admin',
     loading: 'Loading recent ledger uploads',
-    additionalLoading: ['Loading Student records'],
   },
   {
     name: 'registered-students',

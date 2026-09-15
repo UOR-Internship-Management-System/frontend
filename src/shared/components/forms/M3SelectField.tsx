@@ -95,10 +95,10 @@ export function M3SelectField({
         ))}
       </div>
 
-      {/* Hidden native select for form integration and accessibility */}
+      {/* Native select for form integration and accessibility */}
       <select
         id={selectId}
-        style={{ display: 'none' }}
+        className="visually-hidden"
         value={value}
         aria-label={props['aria-label'] ?? label}
         onChange={(e) => onChange?.(e.target.value)}

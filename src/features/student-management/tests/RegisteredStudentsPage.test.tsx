@@ -37,42 +37,48 @@ describe('RegisteredStudentsPage', () => {
   it('renders the wireframe-aligned server roster without redundant table content', async () => {
     renderPage()
     expect(await screen.findByRole('heading', { name: 'Registered Students' })).toBeInTheDocument()
-    const toolbar = await screen.findByRole('search', { name: 'Student roster controls' })
-    expect(within(toolbar).getByText('6')).toBeInTheDocument()
+    expect(await screen.findByText('6 Registered Undergraduates')).toBeInTheDocument()
     expect(screen.getByText('Not available')).toBeInTheDocument()
     expect(screen.getByLabelText('Rows per page')).toHaveValue('5')
 
     const kavindiRow = screen.getByText('Kavindi Silva').closest('tr')
     expect(kavindiRow).not.toBeNull()
     expect(
-      within(kavindiRow as HTMLTableRowElement).getByRole('link', { name: 'View' }),
+      within(kavindiRow as HTMLTableRowElement).getByRole('link', { name: 'View Deep-Dive' }),
     ).toHaveAttribute('href', '/admin/students/11111111-1111-4111-8111-111111111111')
     expect(
-      within(kavindiRow as HTMLTableRowElement).getByText('kavindi.silva@dcs.ruh.ac.lk'),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('table')).toHaveAccessibleName(
-      'Registered student roster — 5 students shown',
-    )
+      within(kavindiRow as HTMLTableRowElement).queryByText('kavindi.silva@dcs.ruh.ac.lk'),
+    ).not.toBeInTheDocument()
+    expect(screen.getByRole('table')).toHaveAccessibleName('Registered Student roster')
     expect(screen.getByRole('columnheader', { name: 'GPA' })).toBeInTheDocument()
   })
 
-  it('debounces search into URL state and supports mutually exclusive level filters', async () => {
+  it('debounces search into URL state and supports mutually exclusive quick filters', async () => {
     const user = userEvent.setup()
     renderPage()
     await screen.findByText('Kavindi Silva')
 
-    await user.type(await screen.findByLabelText('Search students'), 'Lahiru')
+    await user.type(screen.getByLabelText('Search Students'), 'Lahiru')
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent('search=Lahiru'), {
       timeout: 2_000,
     })
     expect(await screen.findByText('Lahiru Gunasekara')).toBeInTheDocument()
 
-    await user.selectOptions(screen.getByLabelText('Filter by level'), 'Level 4')
-    expect(screen.getByLabelText('Filter by level')).toHaveValue('4')
+    await user.click(screen.getByRole('button', { name: 'Level 4 Candidates Only' }))
+    expect(screen.getByRole('button', { name: 'Level 4 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
     expect(screen.getByTestId('location')).toHaveTextContent('level=4')
-    await user.selectOptions(screen.getByLabelText('Filter by level'), 'Level 3')
-    expect(screen.getByLabelText('Filter by level')).toHaveValue('3')
-    expect(screen.getByTestId('location')).toHaveTextContent('level=3')
+    await user.click(screen.getByRole('button', { name: 'Level 3 Candidates Only' }))
+    expect(screen.getByRole('button', { name: 'Level 3 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByRole('button', { name: 'Level 4 Candidates Only' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
   })
 
   it('distinguishes no-results and service error states with recovery actions', async () => {

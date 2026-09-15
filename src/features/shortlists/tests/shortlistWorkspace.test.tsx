@@ -128,13 +128,7 @@ describe('ShortlistsPage wireframe', () => {
       ),
     ).toHaveTextContent('1 Candidates Shortlisted')
     expect(screen.getByRole('button', { name: 'Details' })).toBeEnabled()
-    expect(
-      screen.getByText(
-        (_, element) =>
-          element?.className === 'pagination-summary' &&
-          Boolean(element.textContent?.includes('1–1 of 1')),
-      ),
-    ).toBeVisible()
+    expect(screen.getByText('Showing 1 to 1 of 1 active records')).toBeVisible()
 
     const listUrl = onList.mock.calls[0]?.[0] as URL
     expect(listUrl.searchParams.get('status')).toBe('FINALIZED')

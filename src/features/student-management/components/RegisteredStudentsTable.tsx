@@ -109,10 +109,8 @@ export function RegisteredStudentsTable({
 
   return (
     <div className="rst-table-wrapper" role="region" aria-label="Registered student roster">
-      <table className="rst-table">
-        <caption className="visually-hidden">
-          Registered student roster — {students.length} students shown
-        </caption>
+      <table className="rst-table" aria-label="Registered Student roster">
+        <caption className="visually-hidden">Registered Student roster</caption>
         <thead>
           <tr className="rst-table__header-row">
             {/* Select all */}
@@ -207,7 +205,6 @@ export function RegisteredStudentsTable({
 
                 <td className="rst-col-name" data-label="Full Name">
                   <span className="rst-student-name">{student.fullName}</span>
-                  <span className="rst-student-email">{student.universityEmail}</span>
                 </td>
 
                 <td className="rst-col-degree" data-label="Degree Program">
@@ -241,10 +238,11 @@ export function RegisteredStudentsTable({
 
                 <td className="rst-col-action">
                   <Link
+                    aria-label="View Deep-Dive"
                     className="button m3-button m3-button--outlined m3-button--size-sm"
                     to={buildAdminStudentDetailPath(student.studentId)}
                   >
-                    <span className="button-content">View</span>
+                    <span className="button-content">View Deep-Dive</span>
                   </Link>
                 </td>
               </tr>

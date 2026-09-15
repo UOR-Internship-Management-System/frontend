@@ -128,13 +128,13 @@ export function CandidateResultsWorkspace({
         <div aria-label="Candidate result controls" className="cf-results-toolbar">
           <TextField
             className="cf-toolbar-field"
+            type="search"
             label="Search candidates"
             aria-label="Search candidates by name or index number"
             disabled={!state.runId}
             maxLength={120}
             onChange={(event) => setCandidateSearchInput(event.target.value)}
             placeholder="Search by name or index number"
-            type="search"
             value={candidateSearchInput}
             leadingIcon={
               <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
