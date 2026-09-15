@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
+import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { SearchBar } from '../../../shared/components/data/SearchBar'
 import { EmptyState } from '../../../shared/components/feedback/EmptyState'
 import { ErrorState } from '../../../shared/components/feedback/ErrorState'
@@ -175,51 +176,14 @@ export function ShortlistDirectory({
         </LoadingBoundary>
 
         {page && page.totalPages > 0 ? (
-          <nav aria-label="Active request pages" className="shortlist-pagination">
-            <p>
-              Showing {page.page * page.size + 1} to{' '}
-              {Math.min((page.page + 1) * page.size, page.totalElements)} of {page.totalElements}{' '}
-              active records
-            </p>
-            <div>
-              <Button
-                aria-label="Previous page"
-                disabled={page.page === 0}
-                icon={
-                  <span aria-hidden="true" className="material-symbols-outlined">
-                    chevron_left
-                  </span>
-                }
-                onClick={() => onStateChange({ page: page.page - 1 })}
-                size="sm"
-                variant="outlined"
-              />
-              {Array.from({ length: page.totalPages }, (_, index) => (
-                <Button
-                  aria-current={index === page.page ? 'page' : undefined}
-                  className={index === page.page ? 'is-active' : undefined}
-                  key={index}
-                  onClick={() => onStateChange({ page: index })}
-                  size="sm"
-                  variant={index === page.page ? 'filled' : 'outlined'}
-                >
-                  {index + 1}
-                </Button>
-              ))}
-              <Button
-                aria-label="Next page"
-                disabled={page.page >= page.totalPages - 1}
-                icon={
-                  <span aria-hidden="true" className="material-symbols-outlined">
-                    chevron_right
-                  </span>
-                }
-                onClick={() => onStateChange({ page: page.page + 1 })}
-                size="sm"
-                variant="outlined"
-              />
-            </div>
-          </nav>
+          <PaginationBar
+            label="Active request pages"
+            onPageChange={(nextPage) => onStateChange({ page: nextPage })}
+            page={page.page}
+            size={page.size}
+            totalElements={page.totalElements}
+            totalPages={page.totalPages}
+          />
         ) : null}
       </CardContent>
     </Card>

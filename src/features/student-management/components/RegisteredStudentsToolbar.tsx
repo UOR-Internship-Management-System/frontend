@@ -66,7 +66,7 @@ export function RegisteredStudentsToolbar({
     <div className="registered-students-toolbar rsp-toolbar-wrapper">
       <div className="registered-students-toolbar-heading">
         <div>
-          <h2 id="registered-students-roster-title">Student Roster</h2>
+          <h2 id="registered-students-roster-title">Student List</h2>
           <p>Search and inspect registered Level 3 and Level 4 Student records.</p>
         </div>
         <Chip>{totalElements} Registered Undergraduates</Chip>

@@ -5857,6 +5857,7 @@ td {
   border-collapse: collapse;
   border-spacing: 0;
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .rst-table__header-row {
@@ -5867,7 +5868,8 @@ td {
 }
 
 .rst-table__header-row th {
-  padding: 0;
+  padding: 12px 16px;
+  vertical-align: middle;
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -5876,6 +5878,10 @@ td {
   border-bottom: 2px solid var(--border);
   white-space: nowrap;
   text-align: left;
+}
+
+.rst-table__header-row th:has(.rst-sort-btn) {
+  padding: 0;
 }
 
 /* Sort button */
