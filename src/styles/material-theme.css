@@ -593,6 +593,23 @@
   box-shadow: var(--md-sys-elevation-level1);
 }
 
+.m3-segmented-button-container--fluid {
+  display: flex;
+  width: 100%;
+}
+
+.m3-segmented-button-container--fluid .m3-segmented-button-item {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.m3-segmented-button-container--fluid .m3-segmented-button-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .m3-segmented-button-item:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -2074,6 +2091,7 @@ body.dark-mode .status-warning {
 
 .m3-search-input {
   flex: 1;
+  min-width: 0;
   height: 100%;
   border: none;
   background: transparent;

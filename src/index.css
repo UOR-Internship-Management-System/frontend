@@ -3768,6 +3768,7 @@ td {
   }
 
   .s4-projects-toolbar .m3-search-bar-wrapper {
+    flex: none;
     max-width: none;
   }
 

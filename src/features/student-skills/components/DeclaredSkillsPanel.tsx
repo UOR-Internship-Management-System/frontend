@@ -207,6 +207,7 @@ function EditCompetencyDialog({
     >
       <SegmentedButton
         ariaLabel="Competency level"
+        className="m3-segmented-button-container--fluid"
         onChange={setLevel}
         options={competencyOptions}
         value={level}
