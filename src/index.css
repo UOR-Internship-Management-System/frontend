@@ -2248,6 +2248,7 @@ body.admin-mobile-drawer-open {
 .registered-students-toolbar-heading {
   align-items: end;
   grid-template-columns: minmax(0, 1fr) auto;
+  padding: 20px 20px 16px;
 }
 
 .registered-students-toolbar-heading h2,

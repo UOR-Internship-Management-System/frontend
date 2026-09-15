@@ -10,6 +10,7 @@ import { PageHeader } from '../../../shared/components/layout/PageHeader'
 import { ConfirmDialog } from '../../../shared/components/overlays/ConfirmDialog'
 import { Button } from '../../../shared/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../../shared/components/ui/Card'
+import { Chip } from '../../../shared/components/ui/Chip'
 import { ExtendedFab } from '../../../shared/components/ui/ExtendedFab'
 import { useDebouncedValue } from '../../../shared/hooks/useDebouncedValue'
 import { SkeletonTableGrid } from '../../../shared/skeletons'
@@ -86,9 +87,8 @@ export function EligibleStudentsPage() {
 
       <Card className="es-roster-card" variant="outlined">
         <CardHeader className="es-roster-heading">
-          <CardTitle>
-            {query.data ? `Roster · ${query.data.page.totalElements} students` : 'Roster'}
-          </CardTitle>
+          <CardTitle>Student list</CardTitle>
+          {query.data ? <Chip>{query.data.page.totalElements} students</Chip> : null}
         </CardHeader>
         <CardContent className="es-roster-content">
           <div
