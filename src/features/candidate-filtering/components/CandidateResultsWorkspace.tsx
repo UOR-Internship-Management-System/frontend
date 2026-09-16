@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { routePaths } from '../../../app/config/routePaths'
+import { useNotifications } from '../../../app/providers/NotificationProvider'
 import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { PaginationBar } from '../../../shared/components/data/PaginationBar'
 import { TextField } from '../../../shared/components/forms/TextField'
@@ -13,10 +16,15 @@ import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
 import { useIsCompactLayout } from '../../../shared/hooks/useResponsiveLayout'
 import { clampPage } from '../../../shared/utils/clampPage'
 import {
+  useCreateDraftShortlist,
+  useAddShortlistCandidates,
+} from '../../shortlists/hooks/useShortlists'
+import {
   useCandidateFilteringCandidates,
   useCandidateFilteringRun,
 } from '../hooks/useCandidateFiltering'
 import type { CandidateSelectionState } from '../hooks/useCandidateSelection'
+import { useClearFilteringSession } from '../hooks/useFilteringSession'
 import type {
   CandidateFilteringCandidate,
   CandidateFilteringUrlState,
@@ -53,12 +61,18 @@ const viewOptions = [
 
 export function CandidateResultsWorkspace({
   candidateSearchInput,
+  onResumedShortlistSettled,
+  resumingShortlist,
   selection,
   setCandidateSearchInput,
   state,
   updateState,
 }: {
   candidateSearchInput: string
+  /** Called once a resumed draft (see `resumingShortlist`) has been drafted again or finalized. */
+  onResumedShortlistSettled?: () => void
+  /** Set when this page was opened via Shortlists "Back to finalize shortlist" for an existing draft. */
+  resumingShortlist?: { shortlistId: string; version: number }
   selection: CandidateSelectionState
   setCandidateSearchInput: (value: string) => void
   state: CandidateFilteringUrlState
@@ -67,7 +81,14 @@ export function CandidateResultsWorkspace({
   const [skillsCandidate, setSkillsCandidate] = useState<CandidateFilteringCandidate>()
   const [reviewOpen, setReviewOpen] = useState(false)
   const [viewMode, setViewMode] = useState<CfViewMode>('table')
+  const [draftError, setDraftError] = useState<{ message: string; isConflict: boolean }>()
   const isCompact = useIsCompactLayout()
+  const navigate = useNavigate()
+  const { notify } = useNotifications()
+  const createDraft = useCreateDraftShortlist()
+  const addCandidates = useAddShortlistCandidates()
+  const clearSession = useClearFilteringSession()
+  const draftPending = createDraft.isPending || addCandidates.isPending
   const effectiveViewMode: CfViewMode = isCompact ? 'cards' : viewMode
   const run = useCandidateFilteringRun(state.runId ?? null)
   const query = useMemo(
@@ -106,6 +127,39 @@ export function CandidateResultsWorkspace({
   const pageItems = candidates.data?.items ?? []
   const selectedCount = selection.candidates.size
   const resultCount = candidates.data?.page.totalElements ?? run.data?.candidateCount ?? 0
+
+  const draftShortlist = async () => {
+    const requestId = state.requestId ?? run.data?.request.requestId
+    if (!requestId || !state.runId || selection.candidates.size === 0) return
+    setDraftError(undefined)
+    try {
+      const shortlist = resumingShortlist
+        ? resumingShortlist
+        : await createDraft.mutateAsync({ requestId, filterRunId: state.runId })
+      await addCandidates.mutateAsync({
+        shortlistId: shortlist.shortlistId,
+        version: shortlist.version,
+        body: { studentIds: [...selection.candidates.keys()] },
+      })
+      selection.clear()
+      await clearSession.mutateAsync().catch(() => undefined)
+      onResumedShortlistSettled?.()
+      notify({
+        tone: 'success',
+        title: 'Shortlist drafted',
+        message: 'Find it under Shortlists → Drafted whenever you want to finish it.',
+      })
+    } catch (reason) {
+      const mapped = mapApiError(reason, 'protected')
+      setDraftError({
+        message:
+          mapped.status === 409
+            ? 'A shortlist already exists for this internship request. Open Shortlists to review it.'
+            : mapped.message,
+        isConflict: mapped.status === 409,
+      })
+    }
+  }
 
   return (
     <Card aria-labelledby="candidate-results-title" className="cf-results-card" variant="outlined">
@@ -256,6 +310,17 @@ export function CandidateResultsWorkspace({
           </LoadingBoundary>
         )}
 
+        {draftError ? (
+          <div className="inline-alert" role="alert">
+            <span>{draftError.message}</span>
+            {draftError.isConflict ? (
+              <Button onClick={() => navigate(routePaths.adminShortlists)} size="sm" variant="text">
+                Open Shortlists
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+
         <footer aria-label="Manual shortlist selection actions" className="cf-selection-action-bar">
           <div>
             <strong>{selectedCount} selected</strong>
@@ -263,11 +328,12 @@ export function CandidateResultsWorkspace({
           </div>
           <div>
             <Button
-              disabled={selectedCount === 0 || !state.runId}
-              onClick={() => setReviewOpen(true)}
+              disabled={selectedCount === 0 || !state.runId || draftPending}
+              isLoading={draftPending}
+              onClick={() => void draftShortlist()}
               variant="outlined"
             >
-              Review Selected Shortlist
+              Draft Shortlist
             </Button>
             <Button
               disabled={selectedCount === 0 || !state.runId}
@@ -286,8 +352,10 @@ export function CandidateResultsWorkspace({
         ) : null}
         {reviewOpen && state.runId ? (
           <SelectedCandidatesReviewModal
+            existingShortlist={resumingShortlist}
             guidanceValue={run.data?.request.shortlistGuidanceValue ?? null}
             onClose={() => setReviewOpen(false)}
+            onSettled={onResumedShortlistSettled}
             requestId={state.requestId ?? run.data?.request.requestId ?? ''}
             runId={state.runId}
             selection={selection}

@@ -9,12 +9,19 @@ import { M3SelectField } from '../../../shared/components/forms/M3SelectField'
 import { Button } from '../../../shared/components/ui/Button'
 import { Card, CardContent, CardHeader } from '../../../shared/components/ui/Card'
 import { List } from '../../../shared/components/ui/List'
+import { SegmentedButton } from '../../../shared/components/ui/SegmentedButton'
 import { SkeletonListRows } from '../../../shared/skeletons'
 import type { Company } from '../../internship-management/types/internshipManagementTypes'
 import type { useShortlists } from '../hooks/useShortlists'
-import type { ShortlistsUrlState } from '../types/shortlistTypes'
+import type { ShortlistStatus, ShortlistsUrlState } from '../types/shortlistTypes'
+import { DraftShortlistRowActions } from './DraftShortlistRowActions'
 
 type ShortlistListQuery = ReturnType<typeof useShortlists>
+
+const viewStatusOptions = [
+  { value: 'FINALIZED' as const, label: 'Finalized' },
+  { value: 'DRAFT' as const, label: 'Drafted' },
+]
 
 export function ShortlistDirectory({
   companies,
@@ -27,6 +34,7 @@ export function ShortlistDirectory({
   selectedTrack,
   shortlists,
   state,
+  viewStatus,
 }: {
   companies: Company[]
   companyError?: unknown
@@ -38,6 +46,7 @@ export function ShortlistDirectory({
   selectedTrack: string
   shortlists: ShortlistListQuery
   state: ShortlistsUrlState
+  viewStatus: ShortlistStatus
 }) {
   const listError = shortlists.isError ? mapApiError(shortlists.error, 'protected') : null
   const companyLoadError = companyError ? mapApiError(companyError, 'protected') : null
@@ -72,6 +81,18 @@ export function ShortlistDirectory({
         <h2 className="m3-card-title" id="active-request-matrix-title">
           Active Request Matrix
         </h2>
+        <SegmentedButton
+          ariaLabel="Shortlist status"
+          onChange={(value) =>
+            onStateChange({
+              status: value,
+              selectedShortlistId: undefined,
+              page: 0,
+            })
+          }
+          options={viewStatusOptions}
+          value={viewStatus}
+        />
       </CardHeader>
       <CardContent className="sl-matrix-content">
         <div className="sl-matrix-toolbar">
@@ -150,16 +171,25 @@ export function ShortlistDirectory({
                       Candidates Shortlisted
                     </p>
                   </div>
-                  <span className="m3-list-item-trailing">
-                    <Button
-                      icon={<span className="material-symbols-outlined">visibility</span>}
-                      onClick={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
-                      size="sm"
-                      variant="outlined"
-                    >
-                      Details
-                    </Button>
-                  </span>
+                  {viewStatus === 'DRAFT' ? (
+                    <DraftShortlistRowActions
+                      onView={() => onStateChange({ selectedShortlistId: shortlist.shortlistId })}
+                      shortlist={shortlist}
+                    />
+                  ) : (
+                    <span className="m3-list-item-trailing">
+                      <Button
+                        icon={<span className="material-symbols-outlined">visibility</span>}
+                        onClick={() =>
+                          onStateChange({ selectedShortlistId: shortlist.shortlistId })
+                        }
+                        size="sm"
+                        variant="outlined"
+                      >
+                        Details
+                      </Button>
+                    </span>
+                  )}
                 </li>
               ))}
             </List>
@@ -168,7 +198,9 @@ export function ShortlistDirectory({
               message={
                 selectedTrack
                   ? 'No shortlisted records on this page match the selected internship track.'
-                  : 'No finalized shortlisted records match the current company filters.'
+                  : viewStatus === 'DRAFT'
+                    ? 'No drafted shortlists match the current company filters.'
+                    : 'No finalized shortlisted records match the current company filters.'
               }
               title="No shortlisted records"
             />

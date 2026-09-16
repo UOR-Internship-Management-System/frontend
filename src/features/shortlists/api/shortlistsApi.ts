@@ -13,6 +13,7 @@ import {
 } from '../schemas/shortlistSchemas'
 import type {
   AddShortlistCandidatesInput,
+  DeleteShortlistInput,
   FinalizeShortlistInput,
   RemoveShortlistCandidateInput,
   ShortlistCreateInput,
@@ -87,6 +88,13 @@ export const shortlistsApi = {
         },
       ),
     )
+  },
+
+  async deleteShortlist({ shortlistId, version }: DeleteShortlistInput): Promise<void> {
+    await httpClient<void>(shortlistPath(shortlistId), {
+      method: 'DELETE',
+      headers: { 'If-Match': formatIfMatchVersion(version) },
+    })
   },
 
   async finalize({ body: input, shortlistId, version }: FinalizeShortlistInput) {

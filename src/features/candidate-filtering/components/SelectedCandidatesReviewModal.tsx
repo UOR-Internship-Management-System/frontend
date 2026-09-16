@@ -13,6 +13,7 @@ import {
   useFinalizeShortlist,
 } from '../../shortlists/hooks/useShortlists'
 import type { CandidateSelectionState } from '../hooks/useCandidateSelection'
+import { useClearFilteringSession } from '../hooks/useFilteringSession'
 
 const gpaFormatter = new Intl.NumberFormat('en-LK', {
   minimumFractionDigits: 2,
@@ -37,14 +38,24 @@ function shortlistLocation(shortlistId?: string) {
 }
 
 export function SelectedCandidatesReviewModal({
+  existingShortlist,
   guidanceValue,
   onClose,
+  onSettled,
   requestId,
   runId,
   selection,
 }: {
+  /**
+   * When finalizing a draft resumed via Shortlists "Back to finalize shortlist", the draft
+   * already exists — this skips the create-draft step so a second attempt doesn't collide with
+   * the one-shortlist-per-request constraint.
+   */
+  existingShortlist?: { shortlistId: string; version: number }
   guidanceValue: number | null
   onClose: () => void
+  /** Called once the resumed draft (if any) has been finalized or otherwise settled. */
+  onSettled?: () => void
   requestId: string
   runId: string
   selection: CandidateSelectionState
@@ -54,7 +65,16 @@ export function SelectedCandidatesReviewModal({
   const createDraft = useCreateDraftShortlist()
   const addCandidates = useAddShortlistCandidates()
   const finalizeShortlist = useFinalizeShortlist()
-  const [draftCheckpoint, setDraftCheckpoint] = useState<DraftCheckpoint>()
+  const clearSession = useClearFilteringSession()
+  const [draftCheckpoint, setDraftCheckpoint] = useState<DraftCheckpoint | undefined>(() =>
+    existingShortlist
+      ? {
+          shortlistId: existingShortlist.shortlistId,
+          version: existingShortlist.version,
+          phase: 'DRAFT_CREATED',
+        }
+      : undefined,
+  )
   const [handoffError, setHandoffError] = useState<HandoffError>()
   const [requiresShortlistReview, setRequiresShortlistReview] = useState(false)
   const [guidanceAcknowledged, setGuidanceAcknowledged] = useState(false)
@@ -132,11 +152,13 @@ export function SelectedCandidatesReviewModal({
       })
 
       selection.clear()
+      await clearSession.mutateAsync().catch(() => undefined)
       notify({
         tone: 'success',
         title: 'Shortlist allocation finalized',
         message: `${finalized.selectedCandidateCount} manually selected candidate${finalized.selectedCandidateCount === 1 ? '' : 's'} finalized.`,
       })
+      onSettled?.()
       onClose()
     } catch (reason) {
       const mapped = mapApiError(reason, 'protected')

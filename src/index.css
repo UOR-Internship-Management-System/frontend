@@ -8240,6 +8240,13 @@ body.dark-mode .rsp-hero__count-chip {
   min-width: 0;
 }
 
+.sl-draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .sl-modal-empty {
   padding: var(--space-4);
   text-align: center;

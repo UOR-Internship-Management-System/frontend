@@ -58,6 +58,11 @@ export type RemoveShortlistCandidateInput = {
   version: number
 }
 
+export type DeleteShortlistInput = {
+  shortlistId: string
+  version: number
+}
+
 export type FinalizeShortlistInput = {
   shortlistId: string
   version: number

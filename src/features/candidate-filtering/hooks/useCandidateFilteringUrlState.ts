@@ -24,6 +24,7 @@ const filteringUrlKeys = [
   'candidateSort',
   'candidatePage',
   'candidateSize',
+  'restoreShortlistId',
 ] as const
 
 export const defaultCandidateFilteringUrlState: CandidateFilteringUrlState = {
@@ -38,6 +39,7 @@ export const defaultCandidateFilteringUrlState: CandidateFilteringUrlState = {
   candidateSort: 'officialGpa,desc',
   candidatePage: 0,
   candidateSize: 5,
+  restoreShortlistId: undefined,
 }
 
 function optionalUuid(value: string | null) {
@@ -78,6 +80,7 @@ export function parseCandidateFilteringUrlState(
     candidateSize: allowedSizes.includes(candidateSize as CandidatePageSize)
       ? (candidateSize as CandidatePageSize)
       : 5,
+    restoreShortlistId: optionalUuid(parameters.get('restoreShortlistId')),
   }
 }
 
@@ -96,6 +99,9 @@ export function serializeCandidateFilteringUrlState(state: CandidateFilteringUrl
   }
   if (state.candidatePage > 0) parameters.set('candidatePage', String(state.candidatePage))
   if (state.candidateSize !== 5) parameters.set('candidateSize', String(state.candidateSize))
+  if (state.restoreShortlistId) {
+    parameters.set('restoreShortlistId', state.restoreShortlistId)
+  }
   return parameters
 }
 

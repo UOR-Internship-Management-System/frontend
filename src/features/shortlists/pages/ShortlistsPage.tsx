@@ -17,12 +17,13 @@ export function ShortlistsPage() {
   } = useShortlistsUrlState()
   const [selectedTrack, setSelectedTrack] = useState('')
 
+  const viewStatus = state.status ?? 'FINALIZED'
   const shortlists = useShortlists({
     page: state.page,
     size: state.size,
     sort: 'updatedAt,desc',
     search: state.search,
-    status: 'FINALIZED',
+    status: viewStatus,
     companyId: state.companyId,
   })
   const detailQuery = useMemo(
@@ -59,6 +60,7 @@ export function ShortlistsPage() {
         selectedTrack={selectedTrack}
         shortlists={shortlists}
         state={state}
+        viewStatus={viewStatus}
       />
 
       {state.selectedShortlistId ? (

@@ -4,6 +4,7 @@ import { mapApiError } from '../../../shared/api/apiErrorMapper'
 import { shortlistsApi } from '../api/shortlistsApi'
 import type {
   AddShortlistCandidatesInput,
+  DeleteShortlistInput,
   FinalizeShortlistInput,
   RemoveShortlistCandidateInput,
   ShortlistCreateInput,
@@ -117,6 +118,18 @@ export function useRemoveShortlistCandidate() {
     mutationFn: (input: RemoveShortlistCandidateInput) => shortlistsApi.removeCandidate(input),
 
     onSuccess: (result) => refreshShortlistState(queryClient, result.shortlistId),
+
+    onError: (error, input) => recoverStaleShortlistState(queryClient, input.shortlistId, error),
+  })
+}
+
+export function useDeleteShortlist() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: DeleteShortlistInput) => shortlistsApi.deleteShortlist(input),
+
+    onSuccess: (_result, input) => refreshShortlistState(queryClient, input.shortlistId),
 
     onError: (error, input) => recoverStaleShortlistState(queryClient, input.shortlistId, error),
   })

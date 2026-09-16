@@ -97,6 +97,7 @@ function renderWorkspace({
         },
       }),
     ),
+    http.delete('/api/v1/admin/filtering-session', () => new HttpResponse(null, { status: 204 })),
   )
   function Harness() {
     const selection = useCandidateSelection(runId)
@@ -166,7 +167,7 @@ describe('CandidateResultsWorkspace wireframe behavior', () => {
     })
     await user.click(checkbox)
     expect(checkbox).toBeChecked()
-    await user.click(screen.getByRole('button', { name: 'Review Selected Shortlist' }))
+    await user.click(screen.getByRole('button', { name: 'Finalize Shortlist' }))
     const dialog = await screen.findByRole('dialog', { name: 'Review Selected Shortlist' })
     expect(within(dialog).getByText('1 candidate selected.')).toBeInTheDocument()
     await user.click(within(dialog).getByRole('button', { name: 'Remove Ayesha Perera' }))

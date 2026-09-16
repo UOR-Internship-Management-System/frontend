@@ -37,4 +37,10 @@ export type CandidateFilteringUrlState = {
   candidateSort: CandidateSort
   candidatePage: number
   candidateSize: CandidatePageSize
+  /**
+   * Transient hand-off from Shortlists "Back to finalize shortlist": once
+   * CandidateFilteringPage restores that draft's manual candidate selection, it strips this
+   * param from the URL so it is only ever consumed once.
+   */
+  restoreShortlistId?: string
 }
