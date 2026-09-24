@@ -153,7 +153,7 @@ test('Sprint 4 Student pages omit removed terminology and unsupported project fi
   await expectNoForbiddenVisibleText(page)
 
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Project Portfolio' })).toBeVisible()
   await page.getByRole('button', { name: 'Add project' }).first().click()
 
   const dialog = page.getByRole('dialog', { name: 'Create New Project' })

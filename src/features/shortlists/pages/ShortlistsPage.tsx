@@ -46,7 +46,7 @@ export function ShortlistsPage() {
     <div className="sl-page shortlists-page">
       <PageHeader
         description="Review, filter, and track shortlisted student applications grouped by structural institutional internship requirements."
-        title="Shortlisted Candidates"
+        title="Shortlists"
       />
 
       <ShortlistDirectory

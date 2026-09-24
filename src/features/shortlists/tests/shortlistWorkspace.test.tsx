@@ -113,7 +113,7 @@ describe('ShortlistsPage wireframe', () => {
     renderPage()
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Shortlisted Candidates' }),
+      await screen.findByRole('heading', { level: 1, name: 'Shortlists' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: 'Active Request Matrix' })).toBeVisible()
     expect(screen.getByLabelText('Search Company')).toHaveAttribute(

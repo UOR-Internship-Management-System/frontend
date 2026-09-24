@@ -47,7 +47,7 @@ export function AdminDashboardPage() {
         <PageHeader
           description={pageDescription}
           eyebrow="Administration"
-          title="Admin Dashboard"
+          title="Dashboard"
         />
         <ErrorState
           correlationId={error.correlationId}
@@ -65,7 +65,7 @@ export function AdminDashboardPage() {
 
   return (
     <main className="content-stack admin-dashboard-page">
-      <PageHeader description={pageDescription} title="Admin Dashboard" />
+      <PageHeader description={pageDescription} title="Dashboard" />
       <section aria-label="Admin dashboard metrics" className="admin-dashboard-summary">
         <div className="admin-metrics-grid">
           {metricsQuery.data.metrics.map((metric) => (

@@ -53,7 +53,7 @@ export function InternshipManagementPage() {
   const hasCompanyFilters = Boolean(state.search || state.sort !== 'name,asc')
 
   useEffect(() => {
-    document.title = 'Internship Requests Management | CV Management & Filtering System'
+    document.title = 'Internship Management | CV Management & Filtering System'
   }, [])
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export function InternshipManagementPage() {
   return (
     <div className="im-page">
       <PageHeader
-        title="Internship Requests Management"
+        title="Internship Management"
         description="Manage external company metadata and internship requests used by deterministic candidate filtering. Internship requests do not contain GPA criteria."
       />
 

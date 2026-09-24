@@ -225,7 +225,7 @@ for (const viewport of responsiveViewports) {
     await authenticateStudent(page)
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
     await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Project Portfolio' })).toBeVisible()
 
     const menuButton = page.getByRole('button', { name: 'Open student navigation' })
     const collapseButton = page.getByRole('button', { name: 'Collapse student sidebar' })
@@ -292,7 +292,7 @@ test('Admin workspace uses a centered fixed Admin rail without Student navigatio
 
   await page.goto('/admin/dashboard', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   await expect(page.locator('.app-header')).toHaveCount(0)
   const adminSidebar = page.locator('.admin-sidebar')
   await expect(adminSidebar).toBeVisible()

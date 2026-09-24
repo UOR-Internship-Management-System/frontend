@@ -34,7 +34,7 @@ import {
 } from '../hooks/useLedgerUpload'
 import type { LedgerUploadSummary } from '../schemas/ledgerSchemas'
 
-const pageTitle = 'Academic Ledger Management | CV Management & Filtering System'
+const pageTitle = 'Academic Ledger | CV Management & Filtering System'
 const pageDescription = 'Upload official transcripts, review them, and commit academic records.'
 
 const viewOptions = [
@@ -100,7 +100,7 @@ export function AcademicLedgerPage() {
 
   return (
     <main className="content-stack academic-ledger-page">
-      <PageHeader description={pageDescription} title="Academic Ledger Management" />
+      <PageHeader description={pageDescription} title="Academic Ledger" />
 
       <LedgerUploadPanel
         error={upload.error}

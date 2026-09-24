@@ -40,7 +40,7 @@ describe('StudentDashboardPage', () => {
     expect(
       await screen.findByRole('heading', {
         level: 1,
-        name: 'Student dashboard',
+        name: 'Dashboard',
       }),
     ).toBeInTheDocument()
 

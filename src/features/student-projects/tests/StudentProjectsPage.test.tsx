@@ -32,7 +32,7 @@ describe('StudentProjectsPage', () => {
     )
     const view = renderWithProviders(<StudentProjectsPage />)
 
-    expect(view.getByRole('heading', { level: 1, name: 'Projects' })).toBeInTheDocument()
+    expect(view.getByRole('heading', { level: 1, name: 'Project Portfolio' })).toBeInTheDocument()
     expect(view.getByRole('status', { name: 'Loading projects' })).toBeInTheDocument()
     expect(
       await view.findByRole('button', { name: 'Project Accessible Internship Portal' }),

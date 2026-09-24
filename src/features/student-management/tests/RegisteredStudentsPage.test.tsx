@@ -36,7 +36,7 @@ function renderPage(initialEntry: string = routePaths.adminStudents) {
 describe('RegisteredStudentsPage', () => {
   it('renders the wireframe-aligned server roster without redundant table content', async () => {
     renderPage()
-    expect(await screen.findByRole('heading', { name: 'Registered Students' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Student Directory' })).toBeInTheDocument()
     expect(await screen.findByText('6 Registered Undergraduates')).toBeInTheDocument()
     expect(screen.getByText('Not available')).toBeInTheDocument()
     expect(screen.getByLabelText('Rows per page')).toHaveValue('5')

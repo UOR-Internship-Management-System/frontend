@@ -11,7 +11,7 @@ import { ReadOnlyStudentProfile } from '../components/ReadOnlyStudentProfile'
 import { StudentDeepDiveSections } from '../components/StudentDeepDiveSections'
 import { useStudentDeepDive } from '../hooks/useStudentDeepDive'
 
-const defaultPageTitle = 'Student Details Deep-Dive | Administrative Inspection Suite'
+const defaultPageTitle = 'Student Record | Administrative Inspection Suite'
 
 export function StudentDeepDivePage() {
   const { studentId } = useParams()
@@ -55,7 +55,7 @@ export function StudentDeepDivePage() {
         <PageHeader
           description="The read-only Student inspection could not be loaded."
           eyebrow="Registered Students"
-          title="Student Deep-Dive"
+          title="Student Record"
         />
         <ErrorState
           correlationId={error.correlationId}

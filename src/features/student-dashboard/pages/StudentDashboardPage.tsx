@@ -40,7 +40,7 @@ export function StudentDashboardPage() {
       <article className="content-stack student-dashboard-page">
         <PageHeader
           description="Review your current CV-building and internship summary information."
-          title="Student dashboard"
+          title="Dashboard"
         />
 
         <ErrorState
@@ -59,7 +59,7 @@ export function StudentDashboardPage() {
     <article className="content-stack student-dashboard-page">
       <PageHeader
         description="Review your current CV-building and internship summary information."
-        title="Student dashboard"
+        title="Dashboard"
       />
 
       <section

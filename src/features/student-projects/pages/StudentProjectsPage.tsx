@@ -161,7 +161,7 @@ export function StudentProjectsPage() {
           'Project portfolio repository. Manage your saved projects with full CRUD operations and ' +
           'choose which entries appear in your generated CV.'
         }
-        title="Projects"
+        title="Project Portfolio"
       />
 
       {conflictMessage ? (

@@ -53,7 +53,7 @@ const scenarios = [
   {
     name: 'student-dashboard',
     path: '/student/dashboard',
-    heading: 'Student dashboard',
+    heading: 'Dashboard',
     role: 'student',
     loading: 'Loading student dashboard',
   },
@@ -95,7 +95,7 @@ const scenarios = [
   {
     name: 'admin-dashboard',
     path: '/admin/dashboard',
-    heading: 'Admin Dashboard',
+    heading: 'Dashboard',
     role: 'admin',
     loading: 'Loading admin dashboard',
   },
@@ -109,7 +109,7 @@ const scenarios = [
   {
     name: 'registered-students',
     path: '/admin/students',
-    heading: 'Registered Students',
+    heading: 'Student Directory',
     role: 'admin',
     loading: 'Loading registered Students',
   },

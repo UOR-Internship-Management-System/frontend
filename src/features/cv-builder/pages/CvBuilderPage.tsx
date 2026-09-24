@@ -290,7 +290,7 @@ export function CvBuilderPage() {
     <main className="content-stack s5-cv-builder-page">
       <PageHeader
         description="Customize the included records, generate an ATS-compliant preview, save the current CV version, and download the saved PDF."
-        title="LaTeX CV Builder"
+        title="CV Builder"
       />
 
       {freshnessView ? <CvSourceFreshnessNotice freshness={freshnessView} /> : null}

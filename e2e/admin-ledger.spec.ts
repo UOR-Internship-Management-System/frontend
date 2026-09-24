@@ -145,7 +145,7 @@ test('Admin uploads, reviews, and transactionally commits an academic ledger', a
   await page.goto('/admin/academic-ledger', { waitUntil: 'domcontentloaded' })
 
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
+    page.getByRole('heading', { level: 1, name: 'Academic Ledger' }),
   ).toBeVisible()
   await expect(page.locator('.app-header')).toHaveCount(0)
   await expect(page.getByRole('link', { name: 'Skip to admin content' })).toHaveCount(0)

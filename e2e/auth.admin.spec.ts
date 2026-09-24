@@ -69,5 +69,5 @@ test('admin resets password and logs in with mocked Sprint 2 APIs', async ({ pag
   await page.getByRole('button', { name: 'Log In' }).click()
 
   await expect(page).toHaveURL(/\/admin\/dashboard$/)
-  await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 })

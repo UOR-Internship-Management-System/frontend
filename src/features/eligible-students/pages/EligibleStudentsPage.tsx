@@ -80,7 +80,7 @@ export function EligibleStudentsPage() {
     <article className="es-page">
       <PageHeader
         description="Control who can register — add students individually or bulk import via Excel/CSV. Typically done once per academic year."
-        title="Eligible Students"
+        title="Student Eligibility"
       />
 
       <EligibleStudentImportPanel />

@@ -35,7 +35,7 @@ async function openFixture(page: Page) {
     waitUntil: 'domcontentloaded',
   })
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Shortlisted Candidates' }),
+    page.getByRole('heading', { level: 1, name: 'Shortlists' }),
   ).toBeVisible()
   const dialog = page.getByRole('dialog').first()
   await expect(dialog).toBeVisible()

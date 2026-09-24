@@ -57,7 +57,7 @@ async function loginUi(page: Page, role: 'student' | 'admin', email: string, pas
 
 async function openCvBuilder(page: Page) {
   await page.goto('/student/cv-builder', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { level: 1, name: 'LaTeX CV Builder' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'CV Builder' })).toBeVisible()
   await expect(page.getByRole('button', { name: /Generate Preview|Update Preview/ })).toBeEnabled()
 }
 

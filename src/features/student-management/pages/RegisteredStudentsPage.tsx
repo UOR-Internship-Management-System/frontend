@@ -21,7 +21,7 @@ import { StudentExportDialog } from '../components/StudentExportDialog'
 import { useRegisteredStudents } from '../hooks/useRegisteredStudents'
 import { useRegisteredStudentsUrlState } from '../hooks/useRegisteredStudentsUrlState'
 
-const PAGE_TITLE = 'Registered Students | CV Management & Filtering System'
+const PAGE_TITLE = 'Student Directory | CV Management & Filtering System'
 
 export function RegisteredStudentsPage() {
   const { query, searchInput, setSearchInput, updateQuery } = useRegisteredStudentsUrlState()
@@ -70,7 +70,7 @@ export function RegisteredStudentsPage() {
     <div className="rsp-page">
       {/* ── Hero ─────────────────────────────────────────── */}
       <PageHeader
-        title="Registered Students"
+        title="Student Directory"
         description="Centralized master directory for registered Level 3 and Level 4 students. Search, filter, sort, and inspect student records."
         actions={
           <Button

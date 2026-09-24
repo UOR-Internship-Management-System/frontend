@@ -41,7 +41,7 @@ describe('AcademicLedgerPage upload workflow', () => {
   it('renders recent batches and restores selected upload from the URL', async () => {
     renderPage(`${routePaths.adminAcademicLedger}?uploadId=9acbe15c-1412-49c7-a728-a923480da95a`)
     expect(
-      await screen.findByRole('heading', { name: 'Academic Ledger Management' }),
+      await screen.findByRole('heading', { name: 'Academic Ledger' }),
     ).toBeInTheDocument()
     expect(
       await screen.findByRole('table', { name: 'Recent academic ledger upload batches' }),
@@ -101,7 +101,7 @@ describe('AcademicLedgerPage upload workflow', () => {
 
       const view = renderPage(`${routePaths.adminAcademicLedger}?uploadId=${uploadId}`)
       expect(
-        view.getAllByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
+        view.getAllByRole('heading', { level: 1, name: 'Academic Ledger' }),
       ).toHaveLength(1)
       expect(view.getAllByLabelText('Official academic ledger file')).toHaveLength(1)
       expect(
@@ -115,7 +115,7 @@ describe('AcademicLedgerPage upload workflow', () => {
         await view.findByRole('table', { name: 'Recent academic ledger upload batches' }),
       ).toBeInTheDocument()
       expect(
-        view.getAllByRole('heading', { level: 1, name: 'Academic Ledger Management' }),
+        view.getAllByRole('heading', { level: 1, name: 'Academic Ledger' }),
       ).toHaveLength(1)
       expect(view.getAllByLabelText('Official academic ledger file')).toHaveLength(1)
     },

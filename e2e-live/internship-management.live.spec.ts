@@ -42,7 +42,7 @@ async function loginAsAdmin(page: Page) {
 
 async function openInternshipManagement(page: Page) {
   await page.goto('/admin/internships', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { name: 'Internship Requests Management' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Internship Management' })).toBeVisible()
 }
 
 async function dismissVisibleToasts(page: Page) {

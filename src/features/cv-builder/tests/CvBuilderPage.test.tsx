@@ -24,7 +24,7 @@ describe('CvBuilderPage', () => {
         <CvBuilderPage />
       </MemoryRouter>,
     )
-    expect(await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })).toBeVisible()
+    expect(await view.findByRole('heading', { level: 1, name: 'CV Builder' })).toBeVisible()
     expect(view.getByRole('button', { name: 'Generate Preview' })).toBeEnabled()
     expect(view.getByRole('button', { name: 'Save Current CV Version' })).toBeDisabled()
     expect(view.queryByText('Included sections and order')).not.toBeInTheDocument()
@@ -101,7 +101,7 @@ describe('CvBuilderPage', () => {
         <CvBuilderPage />
       </MemoryRouter>,
     )
-    await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
+    await view.findByRole('heading', { level: 1, name: 'CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     expect(await view.findByTitle('Generated CV visual preview')).toBeVisible()
     expect(view.getByRole('button', { name: 'Save Current CV Version' })).toBeEnabled()
@@ -150,7 +150,7 @@ describe('CvBuilderPage', () => {
         <CvBuilderPage />
       </MemoryRouter>,
     )
-    await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
+    await view.findByRole('heading', { level: 1, name: 'CV Builder' })
 
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     await user.click(view.getByRole('checkbox', { name: /Faculty Coding Challenge Winner/ }))
@@ -167,7 +167,7 @@ describe('CvBuilderPage', () => {
         <CvBuilderPage />
       </MemoryRouter>,
     )
-    await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
+    await view.findByRole('heading', { level: 1, name: 'CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     await view.findByTitle('Generated CV visual preview')
     setCvExpireNextSave(true)
@@ -188,7 +188,7 @@ describe('CvBuilderPage', () => {
         <CvBuilderPage />
       </MemoryRouter>,
     )
-    await view.findByRole('heading', { level: 1, name: 'LaTeX CV Builder' })
+    await view.findByRole('heading', { level: 1, name: 'CV Builder' })
     await user.click(view.getByRole('button', { name: 'Generate Preview' }))
     expect(await view.findByRole('heading', { name: 'Preview generation failed' })).toBeVisible()
     expect(view.getByText(message)).toBeVisible()

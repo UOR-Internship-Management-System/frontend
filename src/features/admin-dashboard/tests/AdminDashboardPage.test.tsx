@@ -37,7 +37,7 @@ describe('AdminDashboardPage', () => {
   it('renders only the wireframe-aligned live metrics and page content', async () => {
     renderPage()
 
-    expect(await screen.findByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(document.title).toBe('Admin Dashboard Content | CV Management & Filtering System')
     expect(
       screen.getByText(
@@ -68,7 +68,7 @@ describe('AdminDashboardPage', () => {
     expect(await screen.findByRole('alert', {}, { timeout: 4_000 })).toHaveTextContent(
       'temporarily unavailable',
     )
-    expect(screen.getByRole('heading', { name: 'Admin Dashboard' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByText(/dashboard-503/i)).toBeInTheDocument()
 
     server.use(

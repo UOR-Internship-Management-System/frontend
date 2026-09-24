@@ -264,7 +264,7 @@ test('Student completes the protected project portfolio workflow', async ({ page
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/student/projects', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Projects' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Project Portfolio' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'page')
   const addProject = page.getByRole('button', { name: 'Add project' })
   const createDialog = page.getByRole('dialog', { name: 'Create New Project' })

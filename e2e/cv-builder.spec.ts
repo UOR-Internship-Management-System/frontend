@@ -246,7 +246,7 @@ test('Student confirms, updates, saves, and downloads a generated CV', async ({ 
   await mockCvApi(page)
   await page.goto('/student/cv-builder', { waitUntil: 'domcontentloaded' })
 
-  await expect(page.getByRole('heading', { level: 1, name: 'LaTeX CV Builder' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'CV Builder' })).toBeVisible()
   await expect(
     page.getByRole('navigation', { name: 'Student navigation' }).getByRole('link'),
   ).toHaveCount(6)

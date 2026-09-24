@@ -239,7 +239,7 @@ test('Admin opens the finalized shortlist wireframe and export controls', async 
   })
 
   await expect(
-    page.getByRole('heading', { level: 1, name: 'Shortlisted Candidates' }),
+    page.getByRole('heading', { level: 1, name: 'Shortlists' }),
   ).toBeVisible()
   await expect(page.getByRole('heading', { level: 2, name: 'Active Request Matrix' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Shortlists' })).toHaveAttribute(
