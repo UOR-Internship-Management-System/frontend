@@ -8,7 +8,7 @@ import { useCandidateSelection } from '../hooks/useCandidateSelection'
 import { useSaveFilteringSession } from '../hooks/useFilteringSession'
 import type { CandidateFilteringCandidate } from '../types/candidateFilteringTypes'
 
-const pageTitle = 'Interactive Candidate Filtering Dashboard | Ruhuna CS CV Management System'
+const pageTitle = 'Candidate Filtering | Ruhuna CS CV Management System'
 
 export function CandidateFilteringPage() {
   const { candidateSearchInput, setCandidateSearchInput, state, updateState } =
@@ -104,7 +104,7 @@ export function CandidateFilteringPage() {
     <div className="cf-page">
       <PageHeader
         description="Select an internship request, review matching students against deterministic runtime filters, and manually finalize the shortlist."
-        title="Interactive Candidate Filtering Dashboard"
+        title="Candidate Filtering"
       />
 
       <div className="cf-layout">

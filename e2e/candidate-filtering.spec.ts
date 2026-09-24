@@ -174,7 +174,7 @@ test('Admin opens the protected Candidate Filtering workspace', async ({ page })
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Interactive Candidate Filtering Dashboard',
+      name: 'Candidate Filtering',
     }),
   ).toBeVisible()
 

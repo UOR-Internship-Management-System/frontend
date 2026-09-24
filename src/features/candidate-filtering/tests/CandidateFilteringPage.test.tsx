@@ -26,11 +26,11 @@ describe('CandidateFilteringPage', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: 'Interactive Candidate Filtering Dashboard',
+        name: 'Candidate Filtering',
       }),
     ).toBeInTheDocument()
     expect(document.title).toBe(
-      'Interactive Candidate Filtering Dashboard | Ruhuna CS CV Management System',
+      'Candidate Filtering | Ruhuna CS CV Management System',
     )
     expect(screen.getByText(/manually finalize the shortlist/i)).toBeInTheDocument()
 
